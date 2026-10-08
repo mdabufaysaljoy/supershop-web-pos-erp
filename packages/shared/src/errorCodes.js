@@ -2,7 +2,6 @@
  * Stable, machine-readable API error codes (CLAUDE.md §2.5).
  * Clients map `error.code` → i18n key; never display the server's English `message` to customers.
  * Add new codes here (one place) — never rename or remove an existing code (clients depend on it).
- * Domain-specific codes (stock, payment, loyalty…) are appended by later tasks.
  */
 export const ERROR_CODES = Object.freeze({
   // Generic request problems
@@ -14,14 +13,40 @@ export const ERROR_CODES = Object.freeze({
   // Auth / access
   UNAUTHENTICATED: 'UNAUTHENTICATED',
   FORBIDDEN: 'FORBIDDEN',
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  ACCOUNT_LOCKED: 'ACCOUNT_LOCKED',
+  ACCOUNT_DISABLED: 'ACCOUNT_DISABLED',
+  TOKEN_EXPIRED: 'TOKEN_EXPIRED',
+  TOKEN_INVALID: 'TOKEN_INVALID',
+  CSRF_FAILED: 'CSRF_FAILED',
+  EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
+  TWO_FACTOR_REQUIRED: 'TWO_FACTOR_REQUIRED',
+  BRANCH_SCOPE_DENIED: 'BRANCH_SCOPE_DENIED',
 
   // Resources
   NOT_FOUND: 'NOT_FOUND',
   CONFLICT: 'CONFLICT',
+  GONE: 'GONE',
+  IDEMPOTENCY_CONFLICT: 'IDEMPOTENCY_CONFLICT',
+  INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
+  FEATURE_DISABLED: 'FEATURE_DISABLED',
+
+  // Commerce
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  INSUFFICIENT_STOCK: 'INSUFFICIENT_STOCK',
+  PRICE_CHANGED: 'PRICE_CHANGED',
+  CART_EMPTY: 'CART_EMPTY',
+  PAYMENT_FAILED: 'PAYMENT_FAILED',
+  PAYMENT_METHOD_UNAVAILABLE: 'PAYMENT_METHOD_UNAVAILABLE',
+  REFUND_EXCEEDS_PAID: 'REFUND_EXCEEDS_PAID',
+  SHIFT_NOT_OPEN: 'SHIFT_NOT_OPEN',
+  LOYALTY_INSUFFICIENT_POINTS: 'LOYALTY_INSUFFICIENT_POINTS',
+  EXCHANGE_VALUE_TOO_LOW: 'EXCHANGE_VALUE_TOO_LOW',
 
   // Throttling / availability
   RATE_LIMITED: 'RATE_LIMITED',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+  UPSTREAM_ERROR: 'UPSTREAM_ERROR',
 
   // Fallback — details are logged server-side, never sent to the client
   INTERNAL_ERROR: 'INTERNAL_ERROR',

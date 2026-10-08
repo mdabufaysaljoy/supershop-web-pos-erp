@@ -2,12 +2,13 @@
 
 ## Current
 - Phase: 0
-- Next task: P0.3
+- Next task: P0.4
 - Last model used: Opus 5.5
 
 ## Done tasks
 - P0.1 ✔ 2026-10-08 (Opus 5.5) Monorepo scaffold: npm workspaces (apps/api, packages/shared, packages/ui), ESM, ESLint 9 flat config with layer/module/vendor-SDK boundary rules, Prettier, husky + lint-staged + commitlint, Vitest 5, docker-compose (Mongo 7 single-node replset + Redis 7 noeviction), CI (lint, format, test, prod audit), `.env.example`, API `/api/v1/health` + tests.
 - P0.2 ✔ 2026-10-08 (Opus 5.5) `apps/api/src/core`: zod-validated env config (fail-fast, prod rejects dev secrets), pino logger + pino-http (request id, PII-safe serializers, redaction), AppError hierarchy + central error handler (zod/mongoose/body-parser/E11000 mapping, no internals leaked), `{data,meta}` envelope helpers, Mongo connect + `withTransaction` (snapshot/majority), Redis client, BullMQ queues/workers (retries, idempotent `jobId`, graceful close), in-process event bus (async, isolated subscribers), AES-256-GCM secrets (+AAD, mask, sha256, safeEqual), atomic counters (gapless inside txn). App: helmet, CORS allowlist, simple query parser, `/health` (live) + `/health/ready` (db+redis). Shared `ERROR_CODES` added. 40 tests (in-memory Mongo replset; Redis tests run when `TEST_REDIS_URL` set / in CI).
+- P0.3 ✔ 2026-10-08 (Opus 5.5) `packages/shared`: money (integer halalas, basis-point rates, BigInt half-away-from-zero rounding, VAT split gross/net exact, largest-remainder `allocate`, Intl formatting with digit style), `normalizeDigits` (Arabic-Indic → ASCII), validators §5.3 (name, email, KSA/intl phone normalize → E.164, money minor/input, quantity, address/plainText, password policy factory, sku, barcode, slug + `toSlug`, objectId, httpUrl, `paginationQuery` with sort whitelist) + keystroke sanitizers, permission registry (63 keys, groups, `PERMISSIONS` constants, `hasPermission`), domain `EVENTS` (API event bus now rejects unknown names), `TRACKING_EVENTS`, extended `ERROR_CODES`, constants/DEFAULTS, subpath exports. 102 shared tests.
 
 ## Decisions
 - D-001 Storefront = Next.js (SSR for SEO); Admin = Vite SPA; API = Express + Mongoose; monorepo npm workspaces.
@@ -26,6 +27,9 @@
 - D-013 Events are in-process and emitted AFTER commit; durable side effects must be enqueued to BullMQ by the subscriber. A transactional outbox can be added later if lost-on-crash events become a problem.
 - D-014 Tests: `mongodb-memory-server` replset (real transactions) via `apps/api/test/mongo.js`; Redis integration tests gated by `TEST_REDIS_URL` (CI runs a Redis service). Dev Mongo bumped to `mongo:8.0` to match test binary family.
 - D-015 `.env.example` ships working DEV-ONLY secrets so local setup is copy-and-run; `config.js` refuses them when `NODE_ENV=production`.
+- D-016 Validator messages are i18n KEYS (`validation.*`, see `validators/messages.js` `V`), never English; API returns them in `error.details[].message`, UI renders `t(key)`. P0.11 must add these keys to `en.json`.
+- D-017 Rates (VAT, discounts) are integer basis points (1500 = 15%); rounding = half away from zero, once per computed amount. Line-level vs invoice-level VAT rounding policy is decided in P3.2/P6.1 (ZATCA check).
+- D-018 Phone default = KSA mobiles only (`+9665XXXXXXXX`); `phone({ allowInternational: true })` driven by a setting. Business limits (max qty, password policy) are factory params fed from settings; `DEFAULTS` in shared are seed values only.
 
 ## Open questions (blockers only)
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
@@ -41,5 +45,5 @@
 - Local setup: `nvm use && npm install && cp .env.example .env && docker compose up -d --wait && npm run dev` → http://localhost:4000/api/v1/health/ready
 - `npm run check` = lint + format:check + test. Redis tests locally: `TEST_REDIS_URL=redis://127.0.0.1:6379 npm test`.
 - Mongoose 9 gotchas: `Model.create([...], { session, ordered: true })` for multi-doc in a txn; use `returnDocument: 'after'` (not `new: true`); collections can't be created inside a txn (call `createCollection()`/`init()` first).
-- P0.3: move event-name registry into shared and validate names in `core/events.js`; extend `ERROR_CODES`.
+- Shared imports: `import { EVENTS, PERMISSIONS, toMinor, validators } from '@supershop/shared'` or subpaths `@supershop/shared/validators`.
 - P0.7/P0.8 must add `admin`/`storefront` to root `dev` script + React/Next ESLint plugins.

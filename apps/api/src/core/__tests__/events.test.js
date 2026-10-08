@@ -44,12 +44,13 @@ describe('event bus', () => {
   it('supports unsubscribe and validates names', async () => {
     const bus = createEventBus({ logger: silentLogger });
     const h = vi.fn();
-    const off = bus.on('user.created', h);
-    expect(bus.listenerCount('user.created')).toBe(1);
+    const off = bus.on('staff.created', h);
+    expect(bus.listenerCount('staff.created')).toBe(1);
     off();
-    await bus.emit('user.created', {});
+    await bus.emit('staff.created', {});
     expect(h).not.toHaveBeenCalled();
-    expect(() => bus.on('BadName', h)).toThrow(/Invalid event name/);
-    expect(() => bus.emit('order', {})).toThrow(/Invalid event name/);
+    expect(() => bus.on('BadName', h)).toThrow(/Unknown event/);
+    expect(() => bus.emit('order', {})).toThrow(/Unknown event/);
+    expect(() => bus.emit('order.payed', {})).toThrow(/Unknown event/); // typo
   });
 });

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { isEventName } from '@supershop/shared';
 import { logger as rootLogger } from './logger.js';
 
 /**
@@ -12,11 +13,9 @@ import { logger as rootLogger } from './logger.js';
  * - Subscribers are in-memory: anything that must survive a crash/restart (email, tracking,
  *   webhooks…) should just enqueue a BullMQ job (core/queue.js) and return.
  *
- * Event names follow `resource.action` (e.g. `order.paid`); the canonical list lives in
- * @supershop/shared (P0.3).
+ * Names must come from the shared registry: `eventBus.emit(EVENTS.ORDER_PAID, …)`. Unknown names
+ * throw, so a typo fails loudly instead of silently reaching no subscriber.
  */
-
-const EVENT_NAME_RE = /^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)+$/;
 
 /**
  * @typedef {{ id: string, name: string, occurredAt: string, payload: unknown, meta: Record<string, unknown> }} DomainEvent
@@ -28,8 +27,9 @@ export function createEventBus({ logger = rootLogger } = {}) {
   const handlers = new Map();
 
   const assertName = (name) => {
-    if (!EVENT_NAME_RE.test(name))
-      throw new Error(`Invalid event name "${name}" (use resource.action)`);
+    if (!isEventName(name)) {
+      throw new Error(`Unknown event "${name}" — add it to EVENTS in @supershop/shared`);
+    }
   };
 
   /**

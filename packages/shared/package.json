@@ -5,12 +5,23 @@
   "type": "module",
   "description": "Shared contracts: zod schemas, validators, permission keys, event names, error codes, money utils.",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./money": "./src/money.js",
+    "./digits": "./src/digits.js",
+    "./validators": "./src/validators/index.js",
+    "./permissions": "./src/permissions.js",
+    "./events": "./src/events.js",
+    "./trackingEvents": "./src/trackingEvents.js",
+    "./errorCodes": "./src/errorCodes.js",
+    "./constants": "./src/constants.js"
   },
   "scripts": {
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "devDependencies": {
     "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
   }
 }

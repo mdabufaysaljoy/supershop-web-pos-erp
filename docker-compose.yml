@@ -1,0 +1,50 @@
+# Local development infrastructure: MongoDB (single-node replica set, needed for transactions)
+# and Redis (BullMQ queues + caches). Ports are bound to 127.0.0.1 only.
+#   docker compose up -d        # start
+#   docker compose down         # stop (data kept in named volumes)
+#   docker compose down -v      # stop + wipe data
+name: supershop
+
+services:
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    command: ['--replSet', 'rs0', '--bind_ip_all', '--port', '27017']
+    ports:
+      - '127.0.0.1:${MONGO_PORT:-27017}:27017'
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    # Initiates the replica set on first boot, then reports health on every check.
+    # Member host is "localhost:27017" so apps on the host machine can connect.
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }"
+      interval: 5s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    # BullMQ requires maxmemory-policy=noeviction; AOF for durability of queued jobs.
+    command: ['redis-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  mongo-data:
+  mongo-config:
+  redis-data:

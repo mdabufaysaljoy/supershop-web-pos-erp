@@ -1,0 +1,32 @@
+# deps
+node_modules/
+
+# env / secrets (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# build output
+dist/
+build/
+.next/
+out/
+coverage/
+.turbo/
+.vite/
+
+# runtime
+logs/
+*.log
+npm-debug.log*
+uploads/
+tmp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json

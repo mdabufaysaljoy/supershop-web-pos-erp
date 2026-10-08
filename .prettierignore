@@ -1,0 +1,11 @@
+node_modules
+package-lock.json
+coverage
+dist
+build
+.next
+out
+# Specs are hand-formatted; keep diffs minimal
+CLAUDE.md
+PROGRESS.md
+AGENTS.md

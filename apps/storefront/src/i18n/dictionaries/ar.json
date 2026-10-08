@@ -6,7 +6,8 @@
   "nav": {
     "home": "البيت",
     "primary": "الملاحة الرئيسية",
-    "footer": "قدم"
+    "footer": "قدم",
+    "language": "اللغة"
   },
   "home": {
     "title": "مرحبا بكم في {{store}}",

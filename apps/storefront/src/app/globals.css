@@ -6,7 +6,7 @@
  * Storefront design tokens. Theme colors/fonts/radius become admin-editable with the page builder
  * (P5.4) by overriding these variables. Layout uses logical utilities only (ms-/me-/ps-/pe-,
  * start/end, text-start) so every component mirrors correctly in RTL (Arabic).
- * Arabic web font is loaded with next/font in P0.12; system fonts are the fallback.
+ * Directional icons (arrows, chevrons) must mirror in RTL: use Tailwind's `rtl:-scale-x-100`.
  */
 :root {
   --radius: 0.625rem;
@@ -23,9 +23,10 @@
 }
 
 @theme inline {
+  /* Inter for Latin + Noto Sans Arabic for Arabic glyphs (unicode-range); system fonts as fallback. */
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Arabic',
-    Tahoma, sans-serif;
+    var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Tahoma, sans-serif;
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --color-background: var(--background);
@@ -47,4 +48,9 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+}
+
+/* Arabic text reads better slightly larger and with more line height than Latin at the same size. */
+:lang(ar) {
+  line-height: 1.75;
 }

@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { localizePath } from '@/i18n/config';
+import { languageOptions, localizePath } from '@/i18n/config';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 /**
- * Site header. Menus are admin-built (P5.4); the EN/AR language switcher lands in P0.12.
+ * Site header. Menus are admin-built (P5.4).
  * Logical spacing only (RTL-safe).
  */
 export function SiteHeader({ lang, storeName, t }) {
@@ -20,6 +21,7 @@ export function SiteHeader({ lang, storeName, t }) {
             {t('nav.home')}
           </Link>
         </nav>
+        <LanguageSwitcher lang={lang} languages={languageOptions()} label={t('nav.language')} />
       </div>
     </header>
   );

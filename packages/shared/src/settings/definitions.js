@@ -185,6 +185,16 @@ const DEFINITIONS = [
     schema: z.url({ protocol: /^https?$/, error: V.URL_INVALID }).max(2048),
     default: 'http://localhost:5000',
   },
+  // Arabic UI digits: Western 0-9 (default, common on Saudi e-commerce) or Arabic-Indic ٠-٩.
+  {
+    key: 'i18n.digitStyle',
+    group: 'languages',
+    schema: z.enum(['latn', 'arab'], { error: V.INVALID_TYPE }),
+    default: 'latn',
+    public: true,
+  },
+  // Redirect first-time visitors to Arabic when their browser prefers it (never bots). Off by default.
+  { key: 'i18n.autoDetect', group: 'languages', schema: bool(), default: false, public: true },
   // Characters sent to the provider per calendar month; 0 = unlimited (self-hosted has no per-char cost).
   { key: 'i18n.monthlyCharBudget', group: 'languages', schema: int(0, 1_000_000_000), default: 0 },
 

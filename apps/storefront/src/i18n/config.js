@@ -17,6 +17,16 @@ export const isLocale = (lang) => typeof lang === 'string' && LOCALES.includes(l
 /** @param {string} lang */
 export const dirOf = (lang) => (isRtl(lang) ? 'rtl' : 'ltr');
 
+/**
+ * Native language names for the switcher, generated from Unicode CLDR via Intl (server-side, full
+ * ICU) — e.g. the endonym of 'ar' — so no language name is ever hand-written.
+ */
+export const languageOptions = () =>
+  LOCALES.map((code) => ({
+    code,
+    nativeName: new Intl.DisplayNames([code], { type: 'language' }).of(code),
+  }));
+
 /** Open Graph locale codes. */
 export const OG_LOCALE = Object.freeze({ en: 'en_SA', ar: 'ar_SA' });
 

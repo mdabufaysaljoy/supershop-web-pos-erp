@@ -6,7 +6,8 @@
   "nav": {
     "home": "Home",
     "primary": "Main navigation",
-    "footer": "Footer"
+    "footer": "Footer",
+    "language": "Language"
   },
   "home": {
     "title": "Welcome to {{store}}",

@@ -1,4 +1,6 @@
+import { createFormatters } from '@supershop/shared';
 import { notFound } from 'next/navigation';
+import { arabicFont, latinFont } from '@/fonts';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { JsonLd } from '@/components/JsonLd';
@@ -41,10 +43,17 @@ export default async function LangLayout({ children, params }) {
   const [settings, dict] = await Promise.all([getPublicSettings(), getDictionary(lang)]);
   const t = translator(dict);
   const storeName = settings['store.name'];
+  const fmt = createFormatters({
+    lang,
+    digits: settings['i18n.digitStyle'],
+    timeZone: settings['store.timeZone'],
+    calendar: settings['store.calendarDisplay'],
+    currency: settings['store.currency'],
+  });
 
   return (
-    <html lang={lang} dir={dirOf(lang)}>
-      <body className="flex min-h-svh flex-col">
+    <html lang={lang} dir={dirOf(lang)} className={`${latinFont.variable} ${arabicFont.variable}`}>
+      <body className="flex min-h-svh flex-col font-sans">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
@@ -61,6 +70,7 @@ export default async function LangLayout({ children, params }) {
           storeName={storeName}
           pricesIncludeVat={settings['tax.pricesIncludeVat']}
           t={t}
+          fmt={fmt}
         />
         <JsonLd data={organizationLd({ name: storeName })} />
         <JsonLd data={websiteLd({ name: storeName, lang })} />

@@ -19,11 +19,11 @@ export const sanitizePhone = (v) => {
   return s.startsWith('+') ? `+${s.slice(1).replace(/\+/g, '')}` : s.replace(/\+/g, '');
 };
 
-/** Digits and at most one '.', max 2 decimals. */
+/** Digits and at most one '.', max 2 decimals; a leading '.' becomes '0.' (".5" → "0.5"). */
 export const sanitizeMoney = (v) => {
   const s = normalizeDigits(String(v ?? '')).replace(/[^\d.]/g, '');
   const [whole, ...rest] = s.split('.');
-  return rest.length ? `${whole}.${rest.join('').slice(0, 2)}` : whole;
+  return rest.length ? `${whole || '0'}.${rest.join('').slice(0, 2)}` : whole;
 };
 
 /** Digits only. */

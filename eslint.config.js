@@ -149,7 +149,11 @@ export default [
     rules: { 'no-restricted-imports': restrict(NO_SERVER_CODE) },
   },
   {
-    files: ['apps/admin/src/**/*.{js,jsx}', 'apps/storefront/src/**/*.{js,jsx}'],
+    files: [
+      'apps/admin/src/**/*.{js,jsx}',
+      'apps/storefront/src/**/*.{js,jsx}',
+      'packages/ui/src/**/*.{js,jsx}',
+    ],
     plugins: { react },
     settings: { react: { version: 'detect' } },
     rules: {
@@ -161,7 +165,11 @@ export default [
     },
   },
   {
-    files: ['apps/admin/src/**/*.{js,jsx}', 'apps/storefront/src/**/*.{js,jsx}'],
+    files: [
+      'apps/admin/src/**/*.{js,jsx}',
+      'apps/storefront/src/**/*.{js,jsx}',
+      'packages/ui/src/**/*.{js,jsx}',
+    ],
     ...reactHooks.configs.flat.recommended,
   },
   {
@@ -177,7 +185,10 @@ export default [
   // ---------- Shared packages ----------
   {
     files: ['packages/**/*.{js,jsx}'],
-    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node },
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
     rules: { 'no-restricted-imports': restrict(NO_APPS, NO_SERVER_CODE, VENDOR_SDKS) },
   },
 

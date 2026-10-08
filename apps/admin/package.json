@@ -24,6 +24,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@supershop/shared": "*",
+    "@supershop/ui": "*",
     "@tanstack/react-query": "^5.104.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Shared components (@supershop/ui) use Tailwind classes too. */
+@source '../../../../packages/ui/src';
 
 /*
  * Storefront design tokens. Theme colors/fonts/radius become admin-editable with the page builder
@@ -15,7 +17,9 @@
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
 }
 
 @theme inline {
@@ -31,7 +35,9 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
 }
 
 @layer base {

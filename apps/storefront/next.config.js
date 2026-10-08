@@ -17,8 +17,8 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  // Workspace package ships untranspiled ESM source.
-  transpilePackages: ['@supershop/shared'],
+  // Workspace packages ship untranspiled ESM/JSX source.
+  transpilePackages: ['@supershop/shared', '@supershop/ui'],
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

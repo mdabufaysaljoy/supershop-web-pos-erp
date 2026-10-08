@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Shared components (@supershop/ui) use Tailwind classes too. */
+@source '../../../packages/ui/src';
 
 /*
  * Design tokens (shadcn/ui neutral theme). Components use semantic utilities (bg-background,

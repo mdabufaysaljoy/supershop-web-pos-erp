@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createAuthSchemas } from '@supershop/shared';
+import { EmailInput, FormField, PasswordInput } from '@supershop/ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useNavigate, useSearchParams } from 'react-router';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { errorMessage, fieldMessage } from '@/lib/i18n';
 import { safeNextPath } from '@/lib/permissions';
 import { useLogin } from '../hooks';
@@ -49,41 +48,18 @@ export function LoginPage() {
           <form className="grid gap-4" onSubmit={onSubmit} noValidate>
             {login.isError && <Alert variant="destructive">{errorMessage(t, login.error)}</Alert>}
 
-            <div className="grid gap-2">
-              <Label htmlFor="email">{t('auth.email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                inputMode="email"
-                autoComplete="username"
-                autoFocus
-                aria-invalid={Boolean(errors.email)}
-                aria-describedby={errors.email ? 'email-error' : undefined}
-                {...register('email')}
-              />
-              {errors.email && (
-                <p id="email-error" className="text-sm text-destructive">
-                  {fieldMessage(t, errors.email.message)}
-                </p>
-              )}
-            </div>
+            <FormField label={t('auth.email')} error={fieldMessage(t, errors.email?.message)}>
+              {/* "username" lets password managers pair this field with the password. */}
+              <EmailInput autoComplete="username" autoFocus {...register('email')} />
+            </FormField>
 
-            <div className="grid gap-2">
-              <Label htmlFor="password">{t('auth.password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                aria-invalid={Boolean(errors.password)}
-                aria-describedby={errors.password ? 'password-error' : undefined}
+            <FormField label={t('auth.password')} error={fieldMessage(t, errors.password?.message)}>
+              <PasswordInput
+                showLabel={t('auth.showPassword')}
+                hideLabel={t('auth.hidePassword')}
                 {...register('password')}
               />
-              {errors.password && (
-                <p id="password-error" className="text-sm text-destructive">
-                  {fieldMessage(t, errors.password.message)}
-                </p>
-              )}
-            </div>
+            </FormField>
 
             <Button type="submit" className="w-full" disabled={login.isPending}>
               {login.isPending ? t('auth.signingIn') : t('auth.signIn')}

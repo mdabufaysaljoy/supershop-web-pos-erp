@@ -8,6 +8,8 @@
     "signInSubtitle": "Use your staff account to continue.",
     "email": "Email",
     "password": "Password",
+    "showPassword": "Show",
+    "hidePassword": "Hide",
     "signIn": "Sign in",
     "signingIn": "Signing in…",
     "signOut": "Sign out",

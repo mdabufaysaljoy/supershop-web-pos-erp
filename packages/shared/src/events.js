@@ -38,6 +38,8 @@ export const EVENTS = Object.freeze({
   PAGE_PUBLISHED: 'page.published',
   TRANSLATION_REQUESTED: 'translation.requested',
   TRANSLATION_COMPLETED: 'translation.completed',
+  TRANSLATION_FAILED: 'translation.failed',
+  TRANSLATION_BUDGET_EXCEEDED: 'translation.budgetExceeded',
 
   // catalog
   PRODUCT_CREATED: 'product.created',

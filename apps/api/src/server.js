@@ -4,6 +4,7 @@ import { connectDb, disconnectDb } from './core/db.js';
 import { logger } from './core/logger.js';
 import { closeQueues } from './core/queue.js';
 import { closeRedis } from './core/redis.js';
+import { loadLanguages, startTranslationWorker } from './modules/i18n/index.js';
 import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
 /**
@@ -16,6 +17,8 @@ async function main() {
   await connectDb();
   logger.info({ overrides: await loadSettings() }, 'settings loaded');
   await startSettingsSync();
+  await loadLanguages();
+  startTranslationWorker();
 
   const app = createApp();
   const server = app.listen(config.API_PORT, () => {

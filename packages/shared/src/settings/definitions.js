@@ -170,6 +170,24 @@ const DEFINITIONS = [
     public: true,
   },
 
+  // ---------- languages / translation (CLAUDE.md §5.7) ----------
+  {
+    // 'noop' = automatic translation off (Arabic falls back to English). 'libretranslate' = the
+    // self-hosted container (`docker compose --profile translation up -d`).
+    key: 'i18n.provider',
+    group: 'languages',
+    schema: z.enum(['noop', 'libretranslate'], { error: V.INVALID_TYPE }),
+    default: 'noop',
+  },
+  {
+    key: 'i18n.libretranslateUrl',
+    group: 'languages',
+    schema: z.url({ protocol: /^https?$/, error: V.URL_INVALID }).max(2048),
+    default: 'http://localhost:5000',
+  },
+  // Characters sent to the provider per calendar month; 0 = unlimited (self-hosted has no per-char cost).
+  { key: 'i18n.monthlyCharBudget', group: 'languages', schema: int(0, 1_000_000_000), default: 0 },
+
   // ---------- security ----------
   {
     key: 'security.passwordPolicy',

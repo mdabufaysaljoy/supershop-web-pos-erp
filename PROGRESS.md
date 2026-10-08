@@ -2,7 +2,7 @@
 
 ## Current
 - Phase: 0
-- Next task: P0.10
+- Next task: P0.11
 - Last model used: Opus 5.5
 
 ## Done tasks
@@ -15,6 +15,7 @@
 - P0.7 ✔ 2026-10-08 (Opus 5.5) Admin SPA `apps/admin` (Vite 8, React 19, react-router 7, TanStack Query, Zustand, react-hook-form + shared zod schemas, Tailwind 4 + hand-written shadcn/ui primitives on `radix-ui`, i18next with `en.json`): API client (envelope, ApiError codes, single-flight refresh + one retry, session clear on revoke), in-memory access token + silent refresh on reload, login page, route guards (auth, permission, safe `next`), nav config = menu + routes (permission-gated, ComingSoon placeholders), home redirect to first permitted section, responsive layout (sidebar / mobile sheet), user menu (sign out / everywhere), periodic access sync. ESLint react/hooks/refresh. 32 admin tests + real-browser E2E (13 checks) — found & fixed: deliberate sign-out leaked `next` to the next user on a shared terminal; login page lacked an h1.
 - P0.8 ✔ 2026-10-08 (Opus 5.5) Storefront `apps/storefront` (Next.js 16 App Router, JS, Tailwind 4): locale routing via `src/proxy.js` (en unprefixed → internal `/en`, `/en/*` 308 → canonical, `/ar/*`), root layout per language with server-rendered `<html lang dir>`, SSG + ISR (60 s) pages, dictionaries with English fallback (ar.json generated in P0.11), `buildMetadata` (self-canonical, hreflang en/ar/x-default, OG/Twitter, noindex), JSON-LD helpers (Organization, WebSite+SearchAction, BreadcrumbList) with XSS-safe serialization, robots.txt + sitemap.xml with hreflang, 404/error pages per language, security headers, `/api/v1` proxied same-origin, server API client on shared framework-free `createApiClient` (also added to `@supershop/shared`), public settings with build-safe defaults. 22 storefront tests; verified with prod build + curl + Chromium (RTL mirrors).
 - P0.9 ✔ 2026-10-08 (Opus 5.5) `@supershop/ui` field kit: `SanitizedInput` base (beforeinput guard + change-time sanitize with caret restore; works with RHF `register` and controlled), NameInput, EmailInput, PhoneInput, MoneyInput (currency suffix), QtyInput (− / + steppers that notify RHF), CodeInput, PlainText/AddressInput, IntegerInput, PasswordInput (show/hide), `FormField` (label/description/error + aria wiring via context, i18n-agnostic). Right inputMode/autocomplete/type; numeric fields `dir=ltr` inside RTL. Shared: `sanitizeMoney` maps leading '.' → '0.'; seeded fuzz suite (3000 mixed-script strings) proving sanitizer charset/idempotence/prefix-consistency and schema acceptance. Admin login migrated to the kit. 31 UI tests + Chromium check — found & fixed: multi-character insertions (mobile predictions/IME) were blocked entirely.
+- P0.10 ✔ 2026-10-08 (Opus 5.5) Translation core (`modules/i18n`, `adapters/translation`): provider adapters (LibreTranslate per documented API, one request per text w/ bounded concurrency + retries; `noop` = off, default), masking (HTML tags/entities, {placeholders}/{{vars}}/%s, URLs, emails, numbers, SKU-like codes, glossary terms) with strict token-parity check + output validation (markup injection, empty, length ratio) → rejected results keep English, pipeline `translate()` (dedupe → glossary → Redis hot cache → Mongo cache keyed by sha256(from|to|glossaryVersion|text) → monthly char budget → batches through circuit breaker), models Language (names via Intl.DisplayNames — no hand-written Arabic), Translation, GlossaryTerm (versioned; seeded with do-not-translate brand/payment names only), `LocalizedString` + `localized()` plugin (stale marking on save, old translation served until job done, manual lock + revert-to-auto, race-safe conditional writes), BullMQ worker + idempotent job ids, `resolveDoc`, shared `resolveLocalized`/`localizedInput`, settings `i18n.provider|libretranslateUrl|monthlyCharBudget` + secret API key, docker-compose `translation` profile. 43 tests + real Mongo/Redis/BullMQ integration run against a LibreTranslate-contract stand-in.
 
 ## Decisions
 - D-001 Storefront = Next.js (SSR for SEO); Admin = Vite SPA; API = Express + Mongoose; monorepo npm workspaces.
@@ -58,6 +59,11 @@
 - D-038 Compiler bug workaround: never write `/\u2028/` regex literals in frontend code (Turbopack inlines a raw line separator → broken bundle); build such characters with `String.fromCharCode`.
 - D-039 Field components never block a partly-valid insertion: beforeinput cancels only insertions with no valid character; everything else is cleaned on change (mobile keyboards insert whole words).
 - D-040 `@supershop/ui` is i18n-agnostic: components take already-translated strings (labels, errors, aria-labels); apps translate validation keys (`fieldMessage` in admin). Apps' CSS must `@source` the package so Tailwind compiles its classes.
+- D-041 LibreTranslate batching (q as array) is undocumented → adapter sends one request per text (concurrency 4). Real LibreTranslate container NOT run in-session (Docker Hub rate limit): verify locally with `docker compose --profile translation up -d` + provider setting; pin the image tag then (P10.4).
+- D-042 Default provider = `noop` (translation off) so local setups work without the 1–2 GB model download; enabling = start the profile + set `i18n.provider`. Pending items stay `pending` while off; "Retranslate all" (P0.13) recovers them.
+- D-043 No `TranslationJob` collection: per-field status lives in `<field>.meta.<lang>` (`pending|done|failed|stale`, provider, at) — queryable for the P0.13 failed-jobs view; BullMQ holds the queue itself.
+- D-044 Glossary seed contains only do-not-translate terms (English); preferred EN→AR pairs are admin data (P0.13) — seeding them would mean hand-writing Arabic.
+- D-045 Localized models must be saved with `doc.save()` (hooks); after bulk `updateOne`/`updateMany` on localized fields call `scheduleEntityTranslation` explicitly.
 
 ## Open questions (blockers only)
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
@@ -80,6 +86,7 @@
 - Admin settings API: `GET /api/v1/settings?group=`, `PATCH /api/v1/settings { changes: [{key,value}] }`, `POST /api/v1/settings/reset { keys }`; storefront: `GET /api/v1/settings/public`.
 - Shared imports: `import { EVENTS, PERMISSIONS, toMinor, validators } from '@supershop/shared'` or subpaths `@supershop/shared/validators`.
 - `npm run dev` runs API (:4000) + admin (:5173) + storefront (:3000).
+- Localized content: `field: LocalizedString` + `schema.plugin(localized, { fields })`; public APIs return `resolveDoc(lean, fields, lang)`; admin APIs return the full object; manual override via `setManualTranslation`. Enable MT locally: `docker compose --profile translation up -d` then PATCH settings `i18n.provider=libretranslate`.
 - Forms: use `@supershop/ui` fields inside `<FormField>` with react-hook-form `register` + the shared zod schema; never a raw `<input>` for name/email/phone/money/qty.
 - Storefront: server data via `src/lib/api.js` (`apiGet(path, { lang, revalidate, tags })`); page metadata via `buildMetadata()`; UI text via dictionaries (`en.json` only — never edit `ar.json` by hand); logical CSS only (ms/me/ps/pe/start/end).
 - Admin: add a page = item in `components/layout/navigation.js` + entry in `PAGES` (routes/router.jsx); call the API only through `lib/apiClient.js`; UI text only via `t()` keys in `locales/en.json`.

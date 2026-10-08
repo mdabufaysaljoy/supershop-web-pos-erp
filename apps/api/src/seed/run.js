@@ -4,12 +4,14 @@ import { validators } from '@supershop/shared';
 import { config } from '../core/config.js';
 import { randomToken } from '../core/crypto.js';
 import { connectDb, disconnectDb } from '../core/db.js';
+import { seedGlossary, seedLanguages } from '../modules/i18n/index.js';
 import { seedDefaultRoles } from '../modules/rbac/index.js';
 import { ensureSuperAdmin } from '../modules/staff/index.js';
 
 /**
  * `npm run seed` — idempotent. Safe to run on every deploy:
  * - inserts missing default roles (never overwrites admin edits)
+ * - inserts missing languages (en source, ar) and do-not-translate glossary terms
  * - creates the first super-admin only if none exists
  *
  * Env: SEED_ADMIN_EMAIL (required), SEED_ADMIN_NAME, SEED_ADMIN_PASSWORD.
@@ -40,6 +42,11 @@ async function main() {
   try {
     const roles = await seedDefaultRoles();
     console.info(`✔ default roles ensured (${roles})`);
+    const langs = await seedLanguages();
+    await seedGlossary();
+    console.info(
+      `✔ languages ensured (${langs.map((l) => l.code).join(', ')}) + do-not-translate glossary`,
+    );
 
     const generated = SEED_ADMIN_PASSWORD ? null : `${randomToken(12)}-9a`;
     const result = await ensureSuperAdmin({

@@ -46,6 +46,30 @@ export async function nextSequence(key, { session } = {}) {
 }
 
 /**
+ * Adds `by` to a counter (usage meters, e.g. translated characters per month) and returns the new
+ * total. Unlike sequences, gaps don't matter here.
+ * @param {string} key
+ * @param {number} by  positive integer
+ */
+export async function incrementCounter(key, by) {
+  if (!KEY_RE.test(key)) throw new Error(`Invalid counter key "${key}"`);
+  if (!Number.isSafeInteger(by) || by < 0)
+    throw new RangeError('increment must be a non-negative integer');
+  const doc = await Counter.findOneAndUpdate(
+    { _id: key },
+    { $inc: { seq: by } },
+    { upsert: true, returnDocument: 'after', lean: true },
+  );
+  return doc.seq;
+}
+
+/** Current value of a counter (0 if it doesn't exist yet). @param {string} key */
+export async function getCounterValue(key) {
+  const doc = await Counter.findById(key, { seq: 1 }).lean();
+  return doc?.seq ?? 0;
+}
+
+/**
  * Formats a sequence number: formatSequence(42, { prefix: 'INV-', pad: 6 }) → 'INV-000042'.
  * @param {number} n
  * @param {{ prefix?: string, pad?: number }} [opts]

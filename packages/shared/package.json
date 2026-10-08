@@ -17,7 +17,8 @@
     "./schemas/auth": "./src/schemas/auth.js",
     "./schemas/rbac": "./src/schemas/rbac.js",
     "./settings": "./src/settings/definitions.js",
-    "./api": "./src/api/client.js"
+    "./api": "./src/api/client.js",
+    "./i18n": "./src/i18n/localized.js"
   },
   "scripts": {
     "test": "vitest run"

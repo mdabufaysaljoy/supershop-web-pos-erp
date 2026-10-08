@@ -5,6 +5,9 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import prettier from 'eslint-config-prettier';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
 /** Vendor SDKs may only be imported inside `apps/api/src/adapters/**` (CLAUDE.md §2.2, §3.3). */
 const VENDOR_SDKS = {
@@ -139,8 +142,36 @@ export default [
   // ---------- Frontends ----------
   {
     files: ['apps/admin/**/*.{js,jsx}', 'apps/storefront/**/*.{js,jsx}'],
-    languageOptions: { globals: { ...globals.browser } },
+    languageOptions: {
+      globals: { ...globals.browser },
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
     rules: { 'no-restricted-imports': restrict(NO_SERVER_CODE) },
+  },
+  {
+    files: ['apps/admin/src/**/*.{js,jsx}'],
+    plugins: { react },
+    settings: { react: { version: 'detect' } },
+    rules: {
+      ...react.configs.flat.recommended.rules,
+      ...react.configs.flat['jsx-runtime'].rules, // React 17+ automatic runtime
+      'react/prop-types': 'off', // JS project: JSDoc where helpful, zod at boundaries
+      'react/jsx-no-target-blank': 'error',
+      'react/no-danger': 'error', // user content must go through the sanitized renderer
+    },
+  },
+  {
+    files: ['apps/admin/src/**/*.{js,jsx}'],
+    ...reactHooks.configs.flat.recommended,
+  },
+  {
+    files: ['apps/admin/src/**/*.jsx'],
+    ...reactRefresh.configs.vite,
+  },
+  {
+    // Build/test tooling for frontends runs in Node.
+    files: ['apps/admin/vite.config.js'],
+    languageOptions: { globals: { ...globals.node } },
   },
 
   // ---------- Shared packages ----------

@@ -2,7 +2,7 @@
 
 ## Current
 - Phase: 0
-- Next task: P0.7
+- Next task: P0.8
 - Last model used: Opus 5.5
 
 ## Done tasks
@@ -12,6 +12,7 @@
 - P0.4 ✔ 2026-10-08 (Opus 5.5) Auth module (`modules/auth`) for staff + customers: argon2id (OWASP params, transparent rehash, dummy-hash timing equalization), HS256 access JWT (15 min, audience per principal type) + opaque rotating refresh token in httpOnly/SameSite=Strict/path-scoped cookie, refresh reuse detection (revokes family; 10 s grace for concurrent tabs), per-request session liveness check (logout/revocation immediate), session cap (10), lockout (5 fails → 15 min, atomic), password change/forgot/reset (single-use hashed tokens, revoke sessions), customer email verification, CSRF guard (custom header + Origin allowlist) for cookie routes, Redis rate limiters (global fail-open; auth fail-closed; per-identifier counts failures only), validate middleware (`req.valid`), `$`/dotted-key rejection. Staff + customers modules (profiles only; auth via principal adapter registry), `POST /customers/register`, composition root `modules/index.js`. 85 API tests.
 - P0.5 ✔ 2026-10-08 (Opus 5.5) RBAC: `core/access.js` AccessContext (can/assert, branch scope `assertBranch`/`branchFilter`, escalation helpers), `requirePermission`/`requireAnyPermission`/`requireStaff` middleware (auth + live access resolution, super-admin bypass audited via `access.superAdminUsed`), roles module (`/api/v1/roles` CRUD, permission catalog, 8 seeded system roles, case-insensitive names, system/in-use protection), staff management (`/api/v1/staff` list/search/paginate, create/update/soft-delete, force logout, `/staff/me/access`) with guards: grant only what you hold, branch-scoped reach, no self-modification, super-admins only by super-admins, last-super-admin write-skew guard (verified the race is real without it), disable/delete revokes sessions. `npm run seed` (idempotent roles + first super-admin). 116 API tests.
 - P0.6 ✔ 2026-10-08 (Opus 5.5) Settings registry: 22 typed definitions in `@supershop/shared` (zod schema, default, group→permission, public/secret flags), API `modules/settings` with sync `getSetting()` from an in-memory cache (Redis pub/sub + 60 s reload; verified across 2 processes), per-key validation, per-group permissions, atomic multi-key writes, reset, secrets AES-GCM encrypted (AAD-bound to key) + masked, `GET /settings/public` for the storefront, server-only definitions via `registerSettingDefinitions`. Auth lockout/session lifetimes and password/phone policy now come from settings live (schemas rebuilt only on change). Audit module: append-only `audit_logs` (idempotent per event id) fed by event subscribers with explicit allow-list mappings + secret scrubbing; `GET /audit` (audit.view) with filters. 137 API tests.
+- P0.7 ✔ 2026-10-08 (Opus 5.5) Admin SPA `apps/admin` (Vite 8, React 19, react-router 7, TanStack Query, Zustand, react-hook-form + shared zod schemas, Tailwind 4 + hand-written shadcn/ui primitives on `radix-ui`, i18next with `en.json`): API client (envelope, ApiError codes, single-flight refresh + one retry, session clear on revoke), in-memory access token + silent refresh on reload, login page, route guards (auth, permission, safe `next`), nav config = menu + routes (permission-gated, ComingSoon placeholders), home redirect to first permitted section, responsive layout (sidebar / mobile sheet), user menu (sign out / everywhere), periodic access sync. ESLint react/hooks/refresh. 32 admin tests + real-browser E2E (13 checks) — found & fixed: deliberate sign-out leaked `next` to the next user on a shared terminal; login page lacked an h1.
 
 ## Decisions
 - D-001 Storefront = Next.js (SSR for SEO); Admin = Vite SPA; API = Express + Mongoose; monorepo npm workspaces.
@@ -46,6 +47,9 @@
 - D-029 `PATCH /settings` body is `{ changes: [{ key, value }] }` (not an object keyed by setting key) because setting keys contain dots and the unsafe-key guard rejects dotted object keys.
 - D-030 Audit entries are written in-process by event subscribers (best-effort if the process dies between commit and write; failures logged at error). Request IP is recorded for auth events; other entries correlate to HTTP logs via `requestId`. Outbox if stronger guarantees are needed.
 - D-031 Auth/staff/customer validation schemas are provided per request via `getSchemas()` (memoized on the relevant settings) so policy changes need no restart.
+- D-032 Admin dev uses Vite proxy `/api` → API (same origin, like prod behind Nginx) so cookie/CSRF behave identically; `VITE_API_URL` empty by default.
+- D-033 react-router pinned to v7 (v8 available but its API unverified here); shadcn components are hand-written (CLI is interactive) following shadcn source, on the unified `radix-ui` package.
+- D-034 Admin bundle ~220 kB gz (React/router/zod/forms); route-level `lazy()` splitting added as feature pages land. Storefront (SEO-critical) is separate.
 
 ## Open questions (blockers only)
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
@@ -67,4 +71,5 @@
 - New setting = add a definition in `packages/shared/src/settings/definitions.js` (or `registerSettingDefinitions` for server-only/secret ones); read with `getSetting(key)` from `modules/settings/index.js`. New audited event = add a mapping in `modules/audit/audit.mapping.js`.
 - Admin settings API: `GET /api/v1/settings?group=`, `PATCH /api/v1/settings { changes: [{key,value}] }`, `POST /api/v1/settings/reset { keys }`; storefront: `GET /api/v1/settings/public`.
 - Shared imports: `import { EVENTS, PERMISSIONS, toMinor, validators } from '@supershop/shared'` or subpaths `@supershop/shared/validators`.
-- P0.7/P0.8 must add `admin`/`storefront` to root `dev` script + React/Next ESLint plugins.
+- `npm run dev` runs API + admin (http://localhost:5173). P0.8 must add storefront to root `dev` script and extend the React ESLint blocks to `apps/storefront`.
+- Admin: add a page = item in `components/layout/navigation.js` + entry in `PAGES` (routes/router.jsx); call the API only through `lib/apiClient.js`; UI text only via `t()` keys in `locales/en.json`.

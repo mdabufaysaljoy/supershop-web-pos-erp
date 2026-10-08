@@ -1,0 +1,123 @@
+{
+  "app": {
+    "name": "Supershop Admin",
+    "loading": "Loading…"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signInSubtitle": "Use your staff account to continue.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "signOut": "Sign out",
+    "signOutEverywhere": "Sign out on all devices",
+    "sessionExpired": "Your session ended. Please sign in again."
+  },
+  "nav": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "sections": {
+      "overview": "Overview",
+      "sales": "Sales",
+      "catalog": "Catalog",
+      "content": "Content & marketing",
+      "insights": "Insights",
+      "admin": "Administration"
+    },
+    "dashboard": "Dashboard",
+    "pos": "Point of sale",
+    "orders": "Orders",
+    "customers": "Customers",
+    "products": "Products",
+    "inventory": "Inventory",
+    "pages": "Pages",
+    "campaigns": "Campaigns",
+    "reports": "Reports",
+    "staff": "Staff",
+    "roles": "Roles",
+    "settings": "Settings",
+    "audit": "Audit log"
+  },
+  "pages": {
+    "dashboard": {
+      "welcome": "Welcome, {{name}}",
+      "intro": "This is your admin home. Sections you have access to are in the menu."
+    },
+    "comingSoon": {
+      "title": "{{section}}",
+      "body": "This section is being built and will appear in a later release."
+    },
+    "noAccess": {
+      "title": "No sections yet",
+      "body": "Your account has no permissions assigned. Ask an administrator to give you a role."
+    },
+    "forbidden": {
+      "title": "Access denied",
+      "body": "You don't have permission to view this page.",
+      "back": "Go to home"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "body": "The page you are looking for does not exist.",
+      "back": "Go to home"
+    }
+  },
+  "user": {
+    "superAdmin": "Super admin"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Can't reach the server. Check your connection.",
+    "INVALID_CREDENTIALS": "Email or password is incorrect.",
+    "ACCOUNT_LOCKED": "Too many failed attempts. Your account is temporarily locked — try again later.",
+    "ACCOUNT_DISABLED": "Your account is disabled. Contact an administrator.",
+    "RATE_LIMITED": "Too many requests. Please wait a moment and try again.",
+    "VALIDATION_ERROR": "Please correct the highlighted fields.",
+    "FORBIDDEN": "You don't have permission to do that.",
+    "UNAUTHENTICATED": "Please sign in.",
+    "TOKEN_INVALID": "Your session ended. Please sign in again.",
+    "TOKEN_EXPIRED": "Your session ended. Please sign in again.",
+    "NOT_FOUND": "Not found.",
+    "CONFLICT": "This conflicts with existing data.",
+    "INTERNAL_ERROR": "Something went wrong on our side. Please try again."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalidType": "Invalid value.",
+    "tooShort": "Too short.",
+    "tooLong": "Too long.",
+    "duplicate": "Duplicate value.",
+    "name": { "invalid": "Use letters, spaces, apostrophes, dots or hyphens only." },
+    "email": { "invalid": "Enter a valid email address." },
+    "phone": {
+      "invalid": "Enter a valid phone number.",
+      "ksaOnly": "Enter a Saudi mobile number (05XXXXXXXX)."
+    },
+    "money": {
+      "invalid": "Enter a valid amount.",
+      "tooManyDecimals": "Use at most 2 decimal places.",
+      "negative": "Amount can't be negative.",
+      "zero": "Amount must be greater than zero.",
+      "tooLarge": "Amount is too large."
+    },
+    "quantity": {
+      "invalid": "Enter a whole number of 1 or more.",
+      "tooLarge": "Quantity is too large."
+    },
+    "address": { "invalid": "Remove < > and special control characters." },
+    "password": {
+      "tooShort": "Password is too short.",
+      "tooLong": "Password is too long.",
+      "needsLower": "Add a lowercase letter.",
+      "needsUpper": "Add an uppercase letter.",
+      "needsDigit": "Add a number.",
+      "needsSymbol": "Add a symbol."
+    },
+    "code": { "invalid": "Use A–Z, 0–9, dash, underscore or dot only." },
+    "slug": { "invalid": "Use lowercase letters, numbers and single hyphens." },
+    "id": { "invalid": "Invalid identifier." },
+    "sort": { "invalid": "Invalid sort option." },
+    "url": { "invalid": "Enter a valid http(s) URL." }
+  }
+}

@@ -12,7 +12,7 @@
     "npm": ">=10"
   },
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail -n api -c blue \"npm:dev:api\"",
+    "dev": "concurrently --kill-others-on-fail -n api,admin -c blue,magenta \"npm:dev:api\" \"npm:dev:admin\"",
     "dev:api": "npm run dev -w apps/api",
     "start:api": "npm run start -w apps/api",
     "lint": "eslint . --max-warnings=0",
@@ -24,7 +24,9 @@
     "check": "npm run lint && npm run format:check && npm test",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
-    "prepare": "husky"
+    "prepare": "husky",
+    "dev:admin": "npm run dev -w apps/admin",
+    "build": "npm run build --workspaces --if-present"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,jsx}": [
@@ -42,6 +44,9 @@
     "concurrently": "^10.0.5",
     "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",

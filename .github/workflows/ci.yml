@@ -18,12 +18,26 @@ jobs:
     timeout-minutes: 15
     env:
       HUSKY: 0
+      # Enables Redis-backed integration tests (BullMQ) against the service below.
+      TEST_REDIS_URL: redis://127.0.0.1:6379
+      # In-memory MongoDB binary used by DB tests; cached between runs.
+      MONGOMS_DOWNLOAD_DIR: /home/runner/.cache/mongodb-binaries
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
+      - uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - run: npm ci
       - name: Lint
         run: npm run lint

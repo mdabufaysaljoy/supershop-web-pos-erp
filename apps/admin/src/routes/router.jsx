@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { allNavItems } from '@/components/layout/navigation';
 import { RequireAuth } from '@/features/auth/components/RequireAuth';
+import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
 import { RequirePermission } from '@/features/auth/components/RequirePermission';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
@@ -14,6 +15,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
  * entry renders the ComingSoon placeholder. Every menu route is permission-gated from NAV.
  */
 const PAGES = {
+  '/media': <MediaLibraryPage />,
   '/settings': <SettingsPage />,
 };
 

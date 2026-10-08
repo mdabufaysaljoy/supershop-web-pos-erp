@@ -3,6 +3,7 @@ import {
   BarChart3,
   Boxes,
   FileText,
+  Images,
   LayoutDashboard,
   Megaphone,
   Package,
@@ -40,6 +41,7 @@ export const NAV = [
     items: [
       { path: '/products', label: 'nav.products', icon: Package, permission: P.PRODUCT_VIEW },
       { path: '/inventory', label: 'nav.inventory', icon: Boxes, permission: P.INVENTORY_VIEW },
+      { path: '/media', label: 'nav.media', icon: Images, permission: P.MEDIA_MANAGE },
     ],
   },
   {

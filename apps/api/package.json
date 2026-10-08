@@ -23,9 +23,11 @@
     "ioredis": "^5.11.1",
     "jose": "^6.2.12",
     "mongoose": "^9.11.1",
+    "multer": "^2.4.0",
     "pino": "^10.4.0",
     "pino-http": "^11.0.0",
     "rate-limit-redis": "^6.0.1",
+    "sharp": "^0.35.5",
     "zod": "^4.6.5"
   },
   "devDependencies": {

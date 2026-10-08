@@ -88,6 +88,22 @@ export const AUDIT_MAPPINGS = {
     data: { method: p.method, path: p.path, permissions: p.permissions },
   }),
 
+  // media library
+  [EVENTS.MEDIA_UPLOADED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'media',
+    entityId: p.mediaId,
+    after: p.after,
+  }),
+  [EVENTS.MEDIA_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'media',
+    entityId: p.mediaId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.MEDIA_DELETED]: (p) => ({ ...staffActor(p), entityType: 'media', entityId: p.mediaId }),
+
   // languages / translation
   [EVENTS.GLOSSARY_UPDATED]: (p) => ({
     ...staffActor(p),

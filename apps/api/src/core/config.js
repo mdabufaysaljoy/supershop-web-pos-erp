@@ -1,4 +1,8 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
+
+const REPO_ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 
 /**
  * Environment configuration — validated once at startup (fail fast, CLAUDE.md P0.2).
@@ -83,6 +87,13 @@ const schema = z
     JWT_REFRESH_SECRET: z.string().min(32),
     MASTER_KEY: masterKey,
 
+    /** Where uploaded media lives: 'local' disk now; an S3-compatible driver plugs in later. */
+    MEDIA_STORAGE: z.enum(['local']).default('local'),
+    /** Directory for the local driver (absolute, or relative to the repo root). */
+    MEDIA_LOCAL_DIR: z.string().min(1).default('var/media'),
+    /** Public base URL of stored files (CDN/bucket URL later). Default: `${API_PUBLIC_URL}/media`. */
+    MEDIA_PUBLIC_URL: z.url({ protocol: /^https?$/ }).optional(),
+
     TZ_DISPLAY: z.string().refine(isValidTimeZone, 'invalid IANA time zone').default('Asia/Riyadh'),
   })
   .superRefine((env, ctx) => {
@@ -126,6 +137,10 @@ export function loadConfig(env) {
   return Object.freeze({
     ...c,
     CORS_ORIGINS: Object.freeze([...new Set(c.CORS_ORIGINS)]),
+    MEDIA_LOCAL_DIR: path.resolve(REPO_ROOT, c.MEDIA_LOCAL_DIR),
+    MEDIA_PUBLIC_URL: (
+      c.MEDIA_PUBLIC_URL ?? `${c.API_PUBLIC_URL.replace(/\/+$/, '')}/media`
+    ).replace(/\/+$/, ''),
     LOG_LEVEL: c.LOG_LEVEL ?? (isTest ? 'silent' : isProd ? 'info' : 'debug'),
     LOG_PRETTY: c.LOG_PRETTY ?? c.NODE_ENV === 'development',
     isProd,

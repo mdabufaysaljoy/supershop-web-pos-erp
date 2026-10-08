@@ -170,6 +170,14 @@ const DEFINITIONS = [
     public: true,
   },
 
+  // ---------- media uploads (P1.1) ----------
+  // Hard safety ceilings (pixel count, accepted types) are fixed server-side; these are the knobs.
+  { key: 'media.maxUploadMb', group: 'general', schema: int(1, 50), default: 10 },
+  /** Longest side of the stored full-size image; larger uploads are scaled down. */
+  { key: 'media.maxDimension', group: 'general', schema: int(800, 6000), default: 2560 },
+  /** WebP quality for re-encoded images (higher = sharper + bigger files). */
+  { key: 'media.webpQuality', group: 'general', schema: int(50, 95), default: 82 },
+
   // ---------- languages / translation (CLAUDE.md §5.7) ----------
   {
     // 'noop' = automatic translation off (Arabic falls back to English). 'libretranslate' = the

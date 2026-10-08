@@ -9,6 +9,8 @@ export const ERROR_CODES = Object.freeze({
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   INVALID_JSON: 'INVALID_JSON',
   PAYLOAD_TOO_LARGE: 'PAYLOAD_TOO_LARGE',
+  /** Upload whose real content (magic bytes) is not an allowed type, or cannot be decoded. */
+  UNSUPPORTED_MEDIA_TYPE: 'UNSUPPORTED_MEDIA_TYPE',
 
   // Auth / access
   UNAUTHENTICATED: 'UNAUTHENTICATED',

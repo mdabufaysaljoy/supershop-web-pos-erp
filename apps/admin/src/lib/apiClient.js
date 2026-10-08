@@ -94,7 +94,7 @@ function buildUrl(path, query) {
 
 /**
  * @param {string} path  e.g. '/api/v1/staff'
- * @param {{ method?: string, body?: unknown, query?: Record<string, unknown>, signal?: AbortSignal,
+ * @param {{ method?: string, body?: unknown | FormData, query?: Record<string, unknown>, signal?: AbortSignal,
  *   auth?: boolean, headers?: Record<string, string> }} [opts]  `auth: false` for login & public calls
  * @returns {Promise<{ data: any, meta?: any } | null>}  null for 204
  */
@@ -104,16 +104,18 @@ export async function api(
   retried = false,
 ) {
   const token = useAuthStore.getState().accessToken;
+  // FormData (file uploads) is sent as-is: the browser sets the multipart boundary header.
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
   const res = await send(buildUrl(path, query), {
     method,
     signal,
     headers: {
       Accept: 'application/json',
-      ...(body !== undefined && { 'Content-Type': 'application/json' }),
+      ...(body !== undefined && !isForm && { 'Content-Type': 'application/json' }),
       ...(auth && token && { Authorization: `Bearer ${token}` }),
       ...headers,
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined || isForm ? body : JSON.stringify(body),
   });
 
   if (res.status === 401 && auth) {

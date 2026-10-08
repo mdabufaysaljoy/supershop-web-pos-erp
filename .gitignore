@@ -22,6 +22,7 @@ logs/
 *.log
 npm-debug.log*
 uploads/
+var/
 tmp/
 
 # OS / editor

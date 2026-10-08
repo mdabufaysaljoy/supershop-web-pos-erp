@@ -2,6 +2,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
+import { getStorage } from './adapters/storage/index.js';
 import { config } from './core/config.js';
 import { isDbReady } from './core/db.js';
 import { errorHandler, notFoundHandler, sendData } from './core/http.js';
@@ -20,9 +21,13 @@ const defaultChecks = { db: isDbReady, redis: () => pingRedis() };
  * Builds the Express app without binding a port (tests mount it with supertest).
  * Order: request id/logging → security headers → CORS → rate limit → body/cookie parsing →
  * unsafe-key guard → routes → 404 → errors.
- * @param {{ checks?: ReadinessChecks, corsOrigins?: readonly string[] }} [deps]
+ * @param {{ checks?: ReadinessChecks, corsOrigins?: readonly string[], storage?: object }} [deps]
  */
-export function createApp({ checks = defaultChecks, corsOrigins = config.CORS_ORIGINS } = {}) {
+export function createApp({
+  checks = defaultChecks,
+  corsOrigins = config.CORS_ORIGINS,
+  storage = getStorage(),
+} = {}) {
   const app = express();
 
   app.disable('x-powered-by');
@@ -44,6 +49,11 @@ export function createApp({ checks = defaultChecks, corsOrigins = config.CORS_OR
       maxAge: 600,
     }),
   );
+
+  // Uploaded media (local storage driver only; in production Nginx/CDN serves these directly).
+  // Before the rate limiter: a product grid loads dozens of images per page view.
+  const mediaFiles = storage.staticHandler?.();
+  if (mediaFiles) app.use('/media', mediaFiles);
 
   // Global per-IP ceiling (fail-open: availability over strictness here; auth routes add
   // stricter fail-closed limiters).

@@ -14,7 +14,7 @@
 - D-003 Money in integer halalas (SAR). Stock via append-only ledger.
 - D-004 Content fields use `LocalizedString` (`en` source + auto `ar`) from day one; English is the only authored language.
 - D-005 First payment gateway adapter: TBD (pick a KSA gateway before P4.1).
-- D-006 Translation: eager auto-translate on save/build + cache; on-demand only as fallback; provider via adapter (google|azure|deepl|llm) — first provider TBD before P0.10. Admin override optional, never required.
+- D-006 Translation: eager auto-translate on save/build + cache; on-demand only as fallback; provider via adapter (google|azure|deepl|llm) — first provider = **LibreTranslate, self-hosted** (free, open source, no API key, no per-character cost, text never leaves our servers; added as a docker-compose service in P0.10). Also ship a `noop` provider (translation disabled → storefront falls back to English) selectable in settings. Paid providers stay possible via the adapter, no code change elsewhere. Budget guard still built but defaults to unlimited for self-hosted. Known trade-off: Arabic quality is lower than paid APIs; glossary + optional manual override cover key terms. (User decision 2026-10-08: "use any free translation service or don't do it"). Admin override optional, never required.
 - D-007 Language switcher is storefront-only; URL scheme `/ar/...` (default `en` unprefixed). Admin panel UI stays English in v1.
 
 - D-008 ESM (`"type":"module"`) everywhere; Node >=22.12 (`.nvmrc`). API dev uses `node --watch --env-file-if-exists=../../.env` (no nodemon/dotenv). Root `.env` serves API + compose; frontends get their own env in P0.7/P0.8.
@@ -26,10 +26,10 @@
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
 - VAT registration number + business details for receipts/ZATCA QR? (needed by P6.4)
 - Hosting target confirmed as Vultr VPS? (needed by P10.4)
-- Which translation provider (Google / Azure / DeepL / LLM) and monthly budget? (needed by P0.10)
 
 ## Change Log
 (date — change — impacted modules — tasks added/removed)
+- 2026-10-08 — Translation provider fixed to free self-hosted LibreTranslate + `noop` fallback (D-006) — impacts P0.10 (adds LibreTranslate container to docker-compose), P0.13 (provider select: libretranslate|noop, API key optional) — no tasks added/removed.
 - 2026-10-07 — Added EN↔AR header language switcher with fully automatic translation (spec CLAUDE.md 5.7): localized content, UI strings, builder, SEO, notifications, receipts — tasks added: P0.10–P0.13; P1.4, P3.4, P4.5, P5.1, P5.4, P5.5, P6.4, P7.3, P9.3, P10.1, P10.2 amended.
 
 ## Notes for next session

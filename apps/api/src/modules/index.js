@@ -10,11 +10,13 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
+import { createBrandRouter } from './brands/index.js';
 import { createCategoryRouter } from './categories/index.js';
-import { createI18nAdminRouter } from './i18n/index.js';
+import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
 import { createMediaRouter } from './media/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
 import { createSettingsRouter, getSetting } from './settings/index.js';
+import { createSupplierRouter } from './suppliers/index.js';
 import {
   countStaffWithRole,
   createStaffRouter,
@@ -82,6 +84,7 @@ export function registerModules() {
   setRoleUsageCounter(countStaffWithRole);
   registerAuthSubscribers();
   registerAuditSubscribers();
+  registerI18nSubscribers();
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */
@@ -99,4 +102,6 @@ export function mountModuleRoutes(api) {
   api.use('/i18n', createI18nAdminRouter());
   api.use('/media', createMediaRouter());
   api.use('/categories', createCategoryRouter());
+  api.use('/brands', createBrandRouter());
+  api.use('/suppliers', createSupplierRouter());
 }

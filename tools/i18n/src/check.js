@@ -30,7 +30,9 @@ for (const catalog of CATALOGS) {
   for (const file of sourceFiles(catalog.scan[0])) {
     const code = readFileSync(file, 'utf8');
     for (const key of usedKeys(code)) {
-      if (!(key in source)) {
+      // i18next plurals: t('x', { count }) resolves `x_one` / `x_other`. (English-only catalogs;
+      // Arabic needs zero/two/few/many forms too — avoid plurals in storefront strings for now.)
+      if (!(key in source) && !(`${key}_other` in source)) {
         console.error(
           `✖ [${catalog.name}] ${path.relative(ROOT, file)}: t('${key}') is not in ${SOURCE}.json`,
         );

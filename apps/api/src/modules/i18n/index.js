@@ -17,3 +17,4 @@ export { requestLanguage } from './requestLanguage.js';
 export { bumpGlossaryVersion, seedGlossary } from './glossary.js';
 export { processTranslationJob, startTranslationWorker } from './i18n.jobs.js';
 export { createI18nAdminRouter } from './admin.routes.js';
+export { registerI18nSubscribers } from './i18n.events.js';

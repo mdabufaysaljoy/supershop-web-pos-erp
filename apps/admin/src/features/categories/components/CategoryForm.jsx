@@ -1,15 +1,13 @@
-import { CATEGORY, createCategorySchemas, PERMISSIONS as P } from '@supershop/shared';
+import { CATEGORY, createCategorySchemas } from '@supershop/shared';
 import { validators } from '@supershop/shared';
 import { FormField, PlainTextArea, PlainTextInput, SlugInput } from '@supershop/ui';
-import { ImageIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArabicPreview } from '@/components/ArabicPreview';
+import { ImageField } from '@/components/ImageField';
 import { Button } from '@/components/ui/button';
 import { Checkbox, Select } from '@/features/settings/components/controls';
-import { MediaPickerDialog } from '@/features/media/components/MediaPickerDialog';
 import { fieldMessage } from '@/lib/i18n';
-import { useCan } from '@/lib/permissions';
 import { useCreateCategory, useDeleteCategory, useMoveCategory, useUpdateCategory } from '../hooks';
 import { childCount, parentOptions } from '../tree';
 
@@ -41,21 +39,16 @@ const detailsToErrors = (details = []) =>
  */
 export function CategoryForm({ category, parentId, list, onSaved, onCancel, onDeleted }) {
   const { t } = useTranslation();
-  const can = useCan();
   const create = useCreateCategory();
   const update = useUpdateCategory();
   const move = useMoveCategory();
   const remove = useDeleteCategory();
   const [form, setForm] = useState(() => initialForm(category, parentId));
   const [errors, setErrors] = useState({});
-  const [picking, setPicking] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const isNew = !category;
   const busy = create.isPending || update.isPending || move.isPending;
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
-  const canPickImage = [P.MEDIA_MANAGE, P.PRODUCT_CREATE, P.PRODUCT_UPDATE, P.PAGE_MANAGE].some(
-    can,
-  );
 
   const submit = async (e) => {
     e.preventDefault();
@@ -142,31 +135,12 @@ export function CategoryForm({ category, parentId, list, onSaved, onCancel, onDe
         />
       </FormField>
 
-      <div className="grid gap-2">
-        <span className="text-sm font-medium">{t('categories.form.image')}</span>
-        <div className="flex items-center gap-3">
-          {form.image ? (
-            <img src={form.image.thumbUrl} alt="" className="size-16 rounded-md object-cover" />
-          ) : (
-            <span className="flex size-16 items-center justify-center rounded-md bg-muted">
-              <ImageIcon className="size-6 text-muted-foreground" aria-hidden />
-            </span>
-          )}
-          {canPickImage && (
-            <Button type="button" variant="outline" onClick={() => setPicking(true)}>
-              {t(form.image ? 'categories.form.changeImage' : 'categories.form.chooseImage')}
-            </Button>
-          )}
-          {form.image && (
-            <Button type="button" variant="ghost" onClick={() => setForm({ ...form, image: null })}>
-              {t('categories.form.removeImage')}
-            </Button>
-          )}
-        </div>
-        {errors.imageId && (
-          <p className="text-sm text-destructive">{fieldMessage(t, errors.imageId)}</p>
-        )}
-      </div>
+      <ImageField
+        label={t('categories.form.image')}
+        value={form.image}
+        onChange={(image) => setForm({ ...form, image })}
+        error={fieldMessage(t, errors.imageId)}
+      />
 
       <Checkbox
         id="category-active"
@@ -240,18 +214,6 @@ export function CategoryForm({ category, parentId, list, onSaved, onCancel, onDe
             </Button>
           ))}
       </div>
-
-      <MediaPickerDialog
-        open={picking}
-        onOpenChange={setPicking}
-        onSelect={(m) => {
-          setForm({
-            ...form,
-            image: { id: m.id, url: m.url, thumbUrl: m.variants.thumb?.url ?? m.url },
-          });
-          setPicking(false);
-        }}
-      />
     </form>
   );
 }

@@ -21,7 +21,9 @@
     "./i18n": "./src/i18n/localized.js",
     "./schemas/i18n": "./src/schemas/i18n.js",
     "./schemas/media": "./src/schemas/media.js",
-    "./schemas/category": "./src/schemas/category.js"
+    "./schemas/category": "./src/schemas/category.js",
+    "./schemas/brand": "./src/schemas/brand.js",
+    "./schemas/supplier": "./src/schemas/supplier.js"
   },
   "scripts": {
     "test": "vitest run"

@@ -25,6 +25,18 @@ export async function bumpGlossaryVersion() {
   return incrementCounter(VERSION_KEY, 1);
 }
 
+/**
+ * Adds `term` as "never translate" unless the glossary already has an entry for it (an admin's
+ * existing choice — e.g. a preferred translation — is never overridden).
+ * @returns {Promise<string | null>} id of the new term, or null when it already existed
+ */
+export async function protectTerm(term) {
+  const res = await repo.insertGlossaryTermIfMissing({ term, doNotTranslate: true });
+  if (!res.upsertedCount) return null;
+  await bumpGlossaryVersion();
+  return String(res.upsertedId);
+}
+
 export const clearGlossaryCache = () => {
   cached = null;
 };

@@ -41,7 +41,9 @@
     "settings": "Settings",
     "audit": "Audit log",
     "media": "Media library",
-    "categories": "Categories"
+    "categories": "Categories",
+    "brands": "Brands",
+    "suppliers": "Suppliers"
   },
   "pages": {
     "dashboard": {
@@ -90,7 +92,10 @@
     "SLUG_TAKEN": "This URL slug is already used. Choose another.",
     "INVALID_MOVE": "A category can't be moved inside itself or one of its subcategories.",
     "CATEGORY_HAS_CHILDREN": "Move or delete its subcategories first.",
-    "CATEGORY_IN_USE": "Products still use this category. Move them first."
+    "CATEGORY_IN_USE": "Products still use this category. Move them first.",
+    "NAME_TAKEN": "This name is already used.",
+    "BRAND_IN_USE": "Products still use this brand.",
+    "SUPPLIER_IN_USE": "Products or purchase orders still use this supplier."
   },
   "validation": {
     "required": "This field is required.",
@@ -156,7 +161,16 @@
     "saved": "Saved.",
     "deleted": "Deleted.",
     "close": "Close",
-    "charCount": "{{count}} / {{max}} characters"
+    "charCount": "{{count}} / {{max}} characters",
+    "create": "Create",
+    "confirmDelete": "Delete this item?",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "pagination": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{pages}}"
   },
   "settings": {
     "title": "Settings",
@@ -260,10 +274,6 @@
     "search": "Search by name or alt text",
     "empty": "No images yet. Upload some above.",
     "dimensions": "{{width}} × {{height}}",
-    "pagination": "Pages",
-    "previous": "Previous",
-    "next": "Next",
-    "pageOf": "Page {{page}} of {{pages}}",
     "upload": {
       "title": "Upload images",
       "drop": "Drag images here, or",
@@ -331,9 +341,6 @@
       "topLevel": "None (top level)",
       "description": "Description",
       "image": "Image",
-      "chooseImage": "Choose image",
-      "changeImage": "Change image",
-      "removeImage": "Remove",
       "active": "Visible on the storefront",
       "activeHint": "Hiding a category also hides its subcategories.",
       "seo": "Search engines",
@@ -341,6 +348,51 @@
       "seoDescription": "SEO description",
       "create": "Create category",
       "confirmDelete": "Delete this category?"
+    }
+  },
+  "imageField": {
+    "choose": "Choose image",
+    "change": "Change image",
+    "remove": "Remove"
+  },
+  "brands": {
+    "title": "Brands",
+    "description": "Brand names are never translated. Descriptions and SEO text get Arabic automatically.",
+    "add": "Add brand",
+    "newTitle": "New brand",
+    "search": "Search brands",
+    "empty": "No brands found.",
+    "form": {
+      "name": "Brand name",
+      "protectName": "Never translate this name",
+      "protectNameHint": "Keeps the brand name as-is in Arabic product text. Turn off for brands that are common words (e.g. \"Apple\" would also stop \"apple juice\" from being translated).",
+      "website": "Website",
+      "descriptionArabic": "Arabic description",
+      "logo": "Logo"
+    }
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "description": "Companies you buy stock from. Used by products and purchase orders. Internal only.",
+    "add": "Add supplier",
+    "newTitle": "New supplier",
+    "search": "Search by name, contact, email, phone or tax number",
+    "empty": "No suppliers found.",
+    "terms": "Payment terms",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "form": {
+      "name": "Company name",
+      "contactName": "Contact person",
+      "phone": "Phone",
+      "phoneHint": "Saudi mobiles like 05XXXXXXXX, or any number in +country format.",
+      "email": "Email",
+      "address": "Address",
+      "taxNumber": "VAT number",
+      "registrationNumber": "CR number",
+      "paymentTerms": "Payment terms (days)",
+      "notes": "Notes",
+      "active": "Active supplier"
     }
   }
 }

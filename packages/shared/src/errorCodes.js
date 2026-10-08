@@ -47,6 +47,10 @@ export const ERROR_CODES = Object.freeze({
   // Catalog
   CATEGORY_HAS_CHILDREN: 'CATEGORY_HAS_CHILDREN',
   CATEGORY_IN_USE: 'CATEGORY_IN_USE',
+  BRAND_IN_USE: 'BRAND_IN_USE',
+  SUPPLIER_IN_USE: 'SUPPLIER_IN_USE',
+  /** Another active item already has this name. */
+  NAME_TAKEN: 'NAME_TAKEN',
 
   // Commerce
   OUT_OF_STOCK: 'OUT_OF_STOCK',

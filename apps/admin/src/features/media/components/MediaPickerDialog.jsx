@@ -1,8 +1,7 @@
-import { PlainTextInput } from '@supershop/ui';
-import { Search } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/Pagination';
+import { SearchForm } from '@/components/SearchForm';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { useMediaList } from '../hooks';
 import { MediaGrid } from './MediaGrid';
@@ -31,7 +30,6 @@ export function MediaPickerDialog({ open, onOpenChange, onSelect }) {
 
 function PickerBody({ onSelect }) {
   const { t } = useTranslation();
-  const [search, setSearch] = useState('');
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
   const { data, isPending } = useMediaList({ page, limit: PAGE_SIZE, ...(q && { q }) });
@@ -41,45 +39,19 @@ function PickerBody({ onSelect }) {
   return (
     <div className="grid gap-4">
       <UploadDropzone />
-      <form
-        role="search"
-        className="flex max-w-md gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setQ(search.trim());
+      <SearchForm
+        label={t('media.search')}
+        onSearch={(v) => {
+          setQ(v);
           setPage(1);
         }}
-      >
-        <PlainTextInput
-          type="search"
-          value={search}
-          maxLength={100}
-          aria-label={t('media.search')}
-          placeholder={t('media.search')}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <Button type="submit" variant="outline" size="icon" aria-label={t('media.search')}>
-          <Search className="size-4" aria-hidden />
-        </Button>
-      </form>
+      />
       <MediaGrid
         items={items}
         loading={isPending}
         onOpen={(id) => onSelect(items.find((m) => m.id === id))}
       />
-      {pages > 1 && (
-        <nav className="flex items-center justify-center gap-3" aria-label={t('media.pagination')}>
-          <Button variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>
-            {t('media.previous')}
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {t('media.pageOf', { page, pages })}
-          </span>
-          <Button variant="outline" disabled={page >= pages} onClick={() => setPage(page + 1)}>
-            {t('media.next')}
-          </Button>
-        </nav>
-      )}
+      <Pagination page={page} pages={pages} onPage={setPage} />
     </div>
   );
 }

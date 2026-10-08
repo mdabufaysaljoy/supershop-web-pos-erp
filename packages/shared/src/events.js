@@ -54,6 +54,15 @@ export const EVENTS = Object.freeze({
   CATEGORY_MOVED: 'category.moved',
   /** Payload: { categoryId, actorId } (soft delete) */
   CATEGORY_DELETED: 'category.deleted',
+  /** Payload: { brandId, actorId, after: { name, slug, isActive, protectName, … } } */
+  BRAND_CREATED: 'brand.created',
+  /** Payload: { brandId, actorId, before, after } */
+  BRAND_UPDATED: 'brand.updated',
+  BRAND_DELETED: 'brand.deleted',
+  /** Payload: { supplierId, actorId, after } (no contact details) */
+  SUPPLIER_CREATED: 'supplier.created',
+  SUPPLIER_UPDATED: 'supplier.updated',
+  SUPPLIER_DELETED: 'supplier.deleted',
   /** Payload: { mediaId, actorId, after } */
   MEDIA_UPLOADED: 'media.uploaded',
   /** Payload: { mediaId, actorId, before, after } */

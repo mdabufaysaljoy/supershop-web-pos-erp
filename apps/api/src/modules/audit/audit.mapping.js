@@ -131,6 +131,40 @@ export const AUDIT_MAPPINGS = {
     entityId: p.categoryId,
   }),
 
+  // brands & suppliers
+  [EVENTS.BRAND_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'brand',
+    entityId: p.brandId,
+    after: p.after,
+  }),
+  [EVENTS.BRAND_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'brand',
+    entityId: p.brandId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.BRAND_DELETED]: (p) => ({ ...staffActor(p), entityType: 'brand', entityId: p.brandId }),
+  [EVENTS.SUPPLIER_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'supplier',
+    entityId: p.supplierId,
+    after: p.after,
+  }),
+  [EVENTS.SUPPLIER_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'supplier',
+    entityId: p.supplierId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.SUPPLIER_DELETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'supplier',
+    entityId: p.supplierId,
+  }),
+
   // languages / translation
   [EVENTS.GLOSSARY_UPDATED]: (p) => ({
     ...staffActor(p),

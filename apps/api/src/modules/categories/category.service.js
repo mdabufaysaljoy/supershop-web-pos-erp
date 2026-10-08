@@ -1,8 +1,9 @@
 import { CATEGORY, ERROR_CODES, EVENTS, SOURCE_LANGUAGE } from '@supershop/shared';
-import { toSlug, V } from '@supershop/shared/validators';
+import { V } from '@supershop/shared/validators';
 import { nextSequence } from '../../core/counter.js';
 import { withTransaction } from '../../core/db.js';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
+import { isDuplicateKey, slugTakenError, uniqueSlug } from '../../core/slug.js';
 import { eventBus } from '../../core/events.js';
 import { resolveDoc } from '../i18n/index.js';
 import { getMediaByIds } from '../media/index.js';
@@ -23,13 +24,7 @@ export function setCategoryUsageCounter(fn) {
   countProductsInCategory = fn;
 }
 
-const slugTaken = () =>
-  new AppError(ERROR_CODES.SLUG_TAKEN, 'Slug already in use', {
-    status: 409,
-    details: [{ path: 'slug', message: V.DUPLICATE }],
-  });
 const invalidMove = (message) => new AppError(ERROR_CODES.INVALID_MOVE, message, { status: 422 });
-const isSlugDuplicate = (err) => err?.code === 11000 && Boolean(err.keyPattern?.slug);
 const notFound = () => new NotFoundError('Category not found');
 
 const emit = (actor, name, payload) =>
@@ -83,16 +78,6 @@ async function assertImage(imageId) {
   if (!found) throw new ValidationError([{ path: 'imageId', message: V.ID_INVALID }]);
 }
 
-/** Unique slug from the name: `shoes`, `shoes-2`, … (only for auto-generated slugs). */
-async function uniqueSlugFrom(name) {
-  const base = toSlug(name) || 'category';
-  for (let n = 1; n <= 50; n += 1) {
-    const candidate = n === 1 ? base : `${base.slice(0, 110)}-${n}`;
-    if (!(await repo.slugExists(candidate))) return candidate;
-  }
-  return `${base.slice(0, 100)}-${Date.now().toString(36)}`;
-}
-
 export async function listCategories() {
   const items = await repo.listActive();
   const media = await mediaMap(items);
@@ -112,8 +97,10 @@ export async function getCategory(id) {
  */
 export async function createCategory(actor, input) {
   await assertImage(input.imageId);
-  const slug = input.slug ?? (await uniqueSlugFrom(input.name));
-  if (input.slug && (await repo.slugExists(slug))) throw slugTaken();
+  const slug =
+    input.slug ??
+    (await uniqueSlug(input.name, { exists: (v) => repo.slugExists(v), fallback: 'category' }));
+  if (input.slug && (await repo.slugExists(slug))) throw slugTakenError();
 
   let created;
   try {
@@ -146,7 +133,7 @@ export async function createCategory(actor, input) {
       );
     });
   } catch (err) {
-    if (isSlugDuplicate(err)) throw slugTaken();
+    if (isDuplicateKey(err, 'slug')) throw slugTakenError();
     throw err;
   }
   emit(actor, EVENTS.CATEGORY_CREATED, {
@@ -166,7 +153,7 @@ export async function updateCategory(actor, id, input) {
     input.slug !== doc.slug &&
     (await repo.slugExists(input.slug, id))
   ) {
-    throw slugTaken();
+    throw slugTakenError();
   }
   const before = auditView(doc.toObject());
 
@@ -183,7 +170,7 @@ export async function updateCategory(actor, id, input) {
   try {
     saved = await repo.saveDoc(doc);
   } catch (err) {
-    if (isSlugDuplicate(err)) throw slugTaken();
+    if (isDuplicateKey(err, 'slug')) throw slugTakenError();
     throw err;
   }
   emit(actor, EVENTS.CATEGORY_UPDATED, { categoryId: id, before, after: auditView(saved) });

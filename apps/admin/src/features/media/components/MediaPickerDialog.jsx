@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pagination } from '@/components/Pagination';
+import { Button } from '@/components/ui/button';
 import { SearchForm } from '@/components/SearchForm';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { useMediaList } from '../hooks';
@@ -10,10 +11,12 @@ import { UploadDropzone } from './UploadDropzone';
 const PAGE_SIZE = 24;
 
 /**
- * Pick one image from the library (or upload one first). Reused by every editor that needs an
- * image (categories, products, page blocks). `onSelect(media)` receives the media DTO.
+ * Pick images from the library (or upload first). Reused by every editor that needs images
+ * (categories, brands, products, page blocks). `onSelect(media)` receives the media DTO.
+ * With `selectedIds` (multi-pick, e.g. a gallery) the dialog stays open and shows what is chosen;
+ * clicking toggles via `onSelect`.
  */
-export function MediaPickerDialog({ open, onOpenChange, onSelect }) {
+export function MediaPickerDialog({ open, onOpenChange, onSelect, selectedIds }) {
   const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -22,13 +25,19 @@ export function MediaPickerDialog({ open, onOpenChange, onSelect }) {
           <DialogTitle>{t('media.picker.title')}</DialogTitle>
           <DialogDescription>{t('media.picker.description')}</DialogDescription>
         </div>
-        {open && <PickerBody onSelect={onSelect} />}
+        {open && (
+          <PickerBody
+            onSelect={onSelect}
+            selectedIds={selectedIds}
+            onDone={() => onOpenChange(false)}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function PickerBody({ onSelect }) {
+function PickerBody({ onSelect, selectedIds, onDone }) {
   const { t } = useTranslation();
   const [q, setQ] = useState('');
   const [page, setPage] = useState(1);
@@ -49,9 +58,17 @@ function PickerBody({ onSelect }) {
       <MediaGrid
         items={items}
         loading={isPending}
+        selectedIds={selectedIds}
         onOpen={(id) => onSelect(items.find((m) => m.id === id))}
       />
       <Pagination page={page} pages={pages} onPage={setPage} />
+      {selectedIds && (
+        <div className="flex justify-end">
+          <Button type="button" onClick={onDone}>
+            {t('common.done')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

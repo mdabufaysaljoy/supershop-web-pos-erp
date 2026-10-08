@@ -58,8 +58,11 @@ export const variantOptionsKey = (optionValues = {}) =>
     .map((k) => `${k}=${optionValues[k]}`)
     .join('|');
 
-/** Missing option/value keys are derived from the English text (stable once saved). */
-const withKeys = (options) =>
+/**
+ * Fills missing option/value keys from the English text (stable once saved). Exported so forms
+ * build variant combinations with exactly the keys the API will store.
+ */
+export const deriveOptionKeys = (options) =>
   options.map((o, i) => ({
     ...o,
     key: o.key ?? (toSlug(o.name).slice(0, 40).replace(/-+$/, '') || `option-${i + 1}`),
@@ -149,7 +152,7 @@ export function createProductSchemas() {
   const options = z
     .array(option)
     .max(PRODUCT.MAX_OPTIONS, { error: V.TOO_LONG })
-    .transform(withKeys);
+    .transform(deriveOptionKeys);
 
   const variant = z.object({
     /** Existing variant id (update); omit for a new variant. */

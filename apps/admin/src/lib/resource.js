@@ -29,11 +29,12 @@ export function createResource(key, base) {
   return {
     keys,
     /** @returns query whose data is `{ data, meta }` */
-    useList: (query) =>
+    useList: (query, { enabled = true } = {}) =>
       useQuery({
         queryKey: keys.list(query),
         queryFn: () => api(base, { query }),
         placeholderData: keepPreviousData,
+        enabled,
       }),
     useCreate: () => useAction((body) => apiData(base, { method: 'POST', body }), 'common.saved'),
     useUpdate: () =>

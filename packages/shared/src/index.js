@@ -36,6 +36,7 @@ export {
 } from './schemas/customField.js';
 export {
   createProductSchemas,
+  deriveOptionKeys,
   PRODUCT,
   productAggregateIssues,
   variantOptionsKey,

@@ -1,11 +1,14 @@
+import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatBytes } from '@/lib/format';
+import { cn } from '@/lib/utils';
 
 const GRID = 'grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6';
 
 /** Thumbnail grid; each tile opens the details dialog. */
-export function MediaGrid({ items, loading, onOpen }) {
+/** `selectedIds` (pickers) marks chosen items with a ring + check and `aria-pressed`. */
+export function MediaGrid({ items, loading, onOpen, selectedIds }) {
   const { t } = useTranslation();
   if (loading) {
     return (
@@ -26,8 +29,18 @@ export function MediaGrid({ items, loading, onOpen }) {
           <button
             type="button"
             onClick={() => onOpen(m.id)}
-            className="group grid w-full gap-1 rounded-lg border p-2 text-start outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            aria-pressed={selectedIds ? selectedIds.includes(m.id) : undefined}
+            className={cn(
+              'group relative grid w-full gap-1 rounded-lg border p-2 text-start outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50',
+              selectedIds?.includes(m.id) && 'border-primary ring-2 ring-primary',
+            )}
           >
+            {selectedIds?.includes(m.id) && (
+              <Check
+                aria-hidden
+                className="absolute end-3 top-3 size-5 rounded-full bg-primary p-0.5 text-primary-foreground"
+              />
+            )}
             <span className="flex aspect-square items-center justify-center overflow-hidden rounded-md bg-muted">
               <img
                 src={m.variants.thumb?.url ?? m.url}

@@ -178,7 +178,8 @@
     "pagination": "Pages",
     "previous": "Previous",
     "next": "Next",
-    "pageOf": "Page {{page}} of {{pages}}"
+    "pageOf": "Page {{page}} of {{pages}}",
+    "done": "Done"
   },
   "settings": {
     "title": "Settings",
@@ -401,6 +402,174 @@
       "paymentTerms": "Payment terms (days)",
       "notes": "Notes",
       "active": "Active supplier"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "description": "Everything you sell online and in store. Write in English — Arabic is generated automatically.",
+    "add": "Add product",
+    "newTitle": "New product",
+    "create": "Create product",
+    "saving": "Saving…",
+    "search": "Search by name, SKU or barcode",
+    "empty": "No products found.",
+    "allStatuses": "All statuses",
+    "allCategories": "All categories",
+    "customFields": "Product fields",
+    "variantsCount": "Variants",
+    "updated": "Updated",
+    "fixErrors_one": "Please fix {{count}} field.",
+    "fixErrors_other": "Please fix {{count}} fields.",
+    "readOnly": "You can view this product but not change it.",
+    "delete": "Delete product",
+    "confirmDelete": "Delete this product? It disappears from the shop; past orders keep their copy.",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "tax": {
+      "standard": "Standard VAT",
+      "zero": "Zero-rated",
+      "exempt": "VAT exempt"
+    },
+    "sort": {
+      "label": "Sort",
+      "desc_updatedAt": "Recently updated",
+      "name": "Name A–Z",
+      "priceMin": "Price: low to high",
+      "desc_priceMin": "Price: high to low",
+      "desc_createdAt": "Newest"
+    },
+    "sections": {
+      "basics": "Basics",
+      "gallery": "Images",
+      "options": "Options",
+      "variants": "Variants ({{count}})",
+      "customFields": "More details",
+      "publishing": "Publishing",
+      "organization": "Organization"
+    },
+    "form": {
+      "name": "Product name",
+      "nameArabic": "Arabic name",
+      "shortDescription": "Short description",
+      "description": "Description",
+      "status": "Status",
+      "statusHint": "Only active products are shown on the storefront.",
+      "taxCategory": "VAT",
+      "categories": "Categories",
+      "mainCategory": "Main",
+      "brand": "Brand",
+      "supplier": "Supplier",
+      "tags": "Tags",
+      "tagsHint": "Press Enter after each tag.",
+      "removeTag": "Remove tag {{tag}}"
+    },
+    "gallery": {
+      "description": "The first image is the main image. Drag to reorder.",
+      "add": "Add images",
+      "hint": "Drag the handle to change the order.",
+      "main": "Main",
+      "remove": "Remove image",
+      "reorder": "Reorder image"
+    },
+    "options": {
+      "description": "Options like Color or Size. Every combination becomes a variant with its own SKU and price.",
+      "none": "No options — this product is sold as a single item.",
+      "add": "Add option",
+      "option": "Option {{n}}",
+      "name": "Option name",
+      "namePlaceholder": "e.g. Color",
+      "remove": "Remove option",
+      "swatches": "Show colour swatches",
+      "swatchFor": "Colour for {{value}}",
+      "valueLabel": "Value {{n}}",
+      "removeValue": "Remove {{value}}",
+      "addValue": "Add a value",
+      "addValuePlaceholder": "Type a value and press Enter"
+    },
+    "variants": {
+      "description": "Turn off combinations you don’t sell. Prices include VAT when the store shows VAT-inclusive prices.",
+      "default": "Default",
+      "variant": "Variant",
+      "sku": "SKU",
+      "barcode": "Barcode",
+      "price": "Price",
+      "compareAtPrice": "Compare-at price",
+      "cost": "Cost",
+      "weightGrams": "Weight (g)",
+      "images": "Images",
+      "active": "Active",
+      "skuFor": "SKU for {{variant}}",
+      "barcodeFor": "Barcode for {{variant}}",
+      "priceFor": "Price for {{variant}}",
+      "compareAtPriceFor": "Compare-at price for {{variant}}",
+      "costFor": "Cost for {{variant}}",
+      "weightGramsFor": "Weight for {{variant}}",
+      "activeFor": "{{variant}} is sold",
+      "imagesFor": "Images for {{variant}} ({{count}})",
+      "imagesTitle": "Images for {{variant}}",
+      "imagesHint": "Pick the gallery images that show this variant. The first picked is its main image.",
+      "bulkPrice": "Price for all",
+      "applyToAll": "Apply to all variants",
+      "skuPrefix": "SKU prefix",
+      "skuPrefixHint": "New variants get SKUs like PREFIX-RED-M. Defaults to the product name.",
+      "defaultPrice": "Default price",
+      "defaultPriceHint": "Used for newly added combinations."
+    },
+    "unsaved": {
+      "title": "Leave without saving?",
+      "body": "Your changes to this product will be lost.",
+      "stay": "Keep editing",
+      "leave": "Leave"
+    }
+  },
+  "customFields": {
+    "title": {
+      "product": "Product fields"
+    },
+    "back": {
+      "product": "Products"
+    },
+    "description": "Extra fields shown on every product form. Labels get Arabic automatically; values you type are never translated — use a dropdown for values that should appear in Arabic.",
+    "add": "Add field",
+    "newTitle": "New field",
+    "empty": "No custom fields yet.",
+    "none": "None",
+    "types": {
+      "text": "Text",
+      "textarea": "Long text",
+      "number": "Number",
+      "boolean": "Yes / no",
+      "select": "Dropdown",
+      "multiselect": "Multiple choice",
+      "date": "Date"
+    },
+    "visibility": {
+      "admin": "Staff only",
+      "public": "Shown on the storefront"
+    },
+    "form": {
+      "label": "Label",
+      "key": "Key",
+      "keyHint": "Used in imports/exports. Leave empty to create it from the label.",
+      "keyLocked": "Can't be changed after creation.",
+      "type": "Type",
+      "visibility": "Visibility",
+      "placeholder": "Placeholder",
+      "helpText": "Help text",
+      "minLength": "Minimum length",
+      "maxLength": "Maximum length",
+      "minValue": "Minimum",
+      "maxValue": "Maximum",
+      "options": "Choices",
+      "optionLabel": "Choice {{n}}",
+      "removeOption": "Remove {{label}}",
+      "addOption": "Add choice",
+      "required": "Required",
+      "active": "Active",
+      "activeHint": "Inactive fields are hidden but keep their saved values."
     }
   }
 }

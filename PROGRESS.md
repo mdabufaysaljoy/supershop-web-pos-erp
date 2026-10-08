@@ -2,7 +2,7 @@
 
 ## Current
 - Phase: 0
-- Next task: P0.5
+- Next task: P0.6
 - Last model used: Opus 5.5
 
 ## Done tasks
@@ -10,6 +10,7 @@
 - P0.2 ✔ 2026-10-08 (Opus 5.5) `apps/api/src/core`: zod-validated env config (fail-fast, prod rejects dev secrets), pino logger + pino-http (request id, PII-safe serializers, redaction), AppError hierarchy + central error handler (zod/mongoose/body-parser/E11000 mapping, no internals leaked), `{data,meta}` envelope helpers, Mongo connect + `withTransaction` (snapshot/majority), Redis client, BullMQ queues/workers (retries, idempotent `jobId`, graceful close), in-process event bus (async, isolated subscribers), AES-256-GCM secrets (+AAD, mask, sha256, safeEqual), atomic counters (gapless inside txn). App: helmet, CORS allowlist, simple query parser, `/health` (live) + `/health/ready` (db+redis). Shared `ERROR_CODES` added. 40 tests (in-memory Mongo replset; Redis tests run when `TEST_REDIS_URL` set / in CI).
 - P0.3 ✔ 2026-10-08 (Opus 5.5) `packages/shared`: money (integer halalas, basis-point rates, BigInt half-away-from-zero rounding, VAT split gross/net exact, largest-remainder `allocate`, Intl formatting with digit style), `normalizeDigits` (Arabic-Indic → ASCII), validators §5.3 (name, email, KSA/intl phone normalize → E.164, money minor/input, quantity, address/plainText, password policy factory, sku, barcode, slug + `toSlug`, objectId, httpUrl, `paginationQuery` with sort whitelist) + keystroke sanitizers, permission registry (63 keys, groups, `PERMISSIONS` constants, `hasPermission`), domain `EVENTS` (API event bus now rejects unknown names), `TRACKING_EVENTS`, extended `ERROR_CODES`, constants/DEFAULTS, subpath exports. 102 shared tests.
 - P0.4 ✔ 2026-10-08 (Opus 5.5) Auth module (`modules/auth`) for staff + customers: argon2id (OWASP params, transparent rehash, dummy-hash timing equalization), HS256 access JWT (15 min, audience per principal type) + opaque rotating refresh token in httpOnly/SameSite=Strict/path-scoped cookie, refresh reuse detection (revokes family; 10 s grace for concurrent tabs), per-request session liveness check (logout/revocation immediate), session cap (10), lockout (5 fails → 15 min, atomic), password change/forgot/reset (single-use hashed tokens, revoke sessions), customer email verification, CSRF guard (custom header + Origin allowlist) for cookie routes, Redis rate limiters (global fail-open; auth fail-closed; per-identifier counts failures only), validate middleware (`req.valid`), `$`/dotted-key rejection. Staff + customers modules (profiles only; auth via principal adapter registry), `POST /customers/register`, composition root `modules/index.js`. 85 API tests.
+- P0.5 ✔ 2026-10-08 (Opus 5.5) RBAC: `core/access.js` AccessContext (can/assert, branch scope `assertBranch`/`branchFilter`, escalation helpers), `requirePermission`/`requireAnyPermission`/`requireStaff` middleware (auth + live access resolution, super-admin bypass audited via `access.superAdminUsed`), roles module (`/api/v1/roles` CRUD, permission catalog, 8 seeded system roles, case-insensitive names, system/in-use protection), staff management (`/api/v1/staff` list/search/paginate, create/update/soft-delete, force logout, `/staff/me/access`) with guards: grant only what you hold, branch-scoped reach, no self-modification, super-admins only by super-admins, last-super-admin write-skew guard (verified the race is real without it), disable/delete revokes sessions. `npm run seed` (idempotent roles + first super-admin). 116 API tests.
 
 ## Decisions
 - D-001 Storefront = Next.js (SSR for SEO); Admin = Vite SPA; API = Express + Mongoose; monorepo npm workspaces.
@@ -37,6 +38,9 @@
 - D-022 Enumeration: login/forgot are generic; ACCOUNT_LOCKED (423) / ACCOUNT_DISABLED (403) only shown after a correct password. Registration returns 409 with conflicting field names (accepted risk, rate-limited); claiming a passwordless guest record must go through email proof (reset flow) — revisit in P3.5.
 - D-023 Auth policy (TTLs, lockout, session cap) in `modules/auth/auth.policy.js`; moves to settings `security.*` in P0.6. Password policy default = shared `password()` defaults until P0.6.
 - D-024 One-time tokens travel to the email subscriber in the event payload (`auth.passwordResetRequested`, `auth.emailVerificationRequested`); in development only, links are logged (P4.5 adds real email).
+- D-025 Branch reach = role `allBranches` flag (HQ/accounting/content) OR the staff member's assigned `branchIds`; super-admin = all. (Chosen over per-role branch lists: simpler, covers the cases; revisit if needed.)
+- D-026 Privilege-escalation rules: non-super-admins can only grant/assign permissions and branches they hold, cannot edit roles holding more than they do, cannot edit their own role/status/branches/super-admin flag; super-admin flag only set/changed by super-admins. Seeded roles are templates: inserted once, never overwritten, editable, not deletable.
+- D-027 Access is resolved per request from Mongo (staff + role), so role/permission changes apply on the next request. Cache in Redis in P10.3 with explicit invalidation on `role.updated`/`staff.updated`.
 
 ## Open questions (blockers only)
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
@@ -53,6 +57,8 @@
 - `npm run check` = lint + format:check + test. Redis tests locally: `TEST_REDIS_URL=redis://127.0.0.1:6379 npm test`.
 - Mongoose 9 gotchas: `Model.create([...], { session, ordered: true })` for multi-doc in a txn; use `returnDocument: 'after'` (not `new: true`); collections can't be created inside a txn (call `createCollection()`/`init()` first).
 - Auth for clients: login returns `data.accessToken`; call `POST /api/v1/auth/<staff|customer>/refresh` with `credentials: 'include'` + header `X-CSRF-Protection: 1` on 401 TOKEN_EXPIRED. Dev: reset/verify links are printed in the API log.
-- P0.5 must: seed super-admin via `createStaff` (staff module), call `revokeAllSessions` when staff are disabled/deleted, add `requirePermission` on top of `requireAuth('staff')`.
+- Protect staff routes with `requirePermission(PERMISSIONS.X)` (includes auth); pass `req.access` to services as `actor`; scope branch data with `actor.branchFilter()` / `actor.assertBranch(id)`.
+- First run: `npm run seed` (set `SEED_ADMIN_EMAIL`; password generated+printed if `SEED_ADMIN_PASSWORD` empty, dev only).
+- P0.6 audit log should subscribe to: `auth.*`, `role.*`, `staff.*`, `access.superAdminUsed`, `settings.updated` (payloads carry `actorId`, `before`/`after`).
 - Shared imports: `import { EVENTS, PERMISSIONS, toMinor, validators } from '@supershop/shared'` or subpaths `@supershop/shared/validators`.
 - P0.7/P0.8 must add `admin`/`storefront` to root `dev` script + React/Next ESLint plugins.

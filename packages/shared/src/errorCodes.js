@@ -22,6 +22,13 @@ export const ERROR_CODES = Object.freeze({
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
   TWO_FACTOR_REQUIRED: 'TWO_FACTOR_REQUIRED',
   BRANCH_SCOPE_DENIED: 'BRANCH_SCOPE_DENIED',
+  /** Granting/assigning permissions the actor does not hold. */
+  PERMISSION_ESCALATION: 'PERMISSION_ESCALATION',
+  /** Changing your own role, status, branches or super-admin flag. */
+  CANNOT_MODIFY_SELF: 'CANNOT_MODIFY_SELF',
+  LAST_SUPER_ADMIN: 'LAST_SUPER_ADMIN',
+  ROLE_IN_USE: 'ROLE_IN_USE',
+  SYSTEM_ROLE_PROTECTED: 'SYSTEM_ROLE_PROTECTED',
 
   // Resources
   NOT_FOUND: 'NOT_FOUND',

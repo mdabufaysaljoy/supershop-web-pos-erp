@@ -20,8 +20,17 @@ export const EVENTS = Object.freeze({
 
   // users
   STAFF_CREATED: 'staff.created',
+  STAFF_UPDATED: 'staff.updated',
+  STAFF_DISABLED: 'staff.disabled',
+  STAFF_DELETED: 'staff.deleted',
   CUSTOMER_REGISTERED: 'customer.registered',
+
+  // access control (audited by the audit-log module, P0.6)
+  ROLE_CREATED: 'role.created',
   ROLE_UPDATED: 'role.updated',
+  ROLE_DELETED: 'role.deleted',
+  /** A super-admin performed a mutating request via the permission bypass. */
+  ACCESS_SUPER_ADMIN_USED: 'access.superAdminUsed',
 
   // settings / content
   SETTINGS_UPDATED: 'settings.updated',

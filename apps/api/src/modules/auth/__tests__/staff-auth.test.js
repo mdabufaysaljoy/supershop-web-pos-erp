@@ -20,7 +20,11 @@ let staff;
 
 beforeEach(async () => {
   app = createApp({ checks: up }); // fresh rate-limit counters per test
-  staff = await createStaff({ name: 'Sara Admin', email: 'sara@shop.test', password: PASSWORD });
+  staff = await createStaff(null, {
+    name: 'Sara Admin',
+    email: 'sara@shop.test',
+    password: PASSWORD,
+  });
 });
 
 const login = (body = { email: 'sara@shop.test', password: PASSWORD }) =>

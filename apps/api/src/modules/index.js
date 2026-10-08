@@ -5,8 +5,15 @@ import {
   registerAuthSubscribers,
   registerPrincipal,
 } from './auth/index.js';
+import { setAccessResolver } from '../middleware/authorize.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
-import { staffPrincipal } from './staff/index.js';
+import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
+import {
+  countStaffWithRole,
+  createStaffRouter,
+  resolveStaffAccess,
+  staffPrincipal,
+} from './staff/index.js';
 
 /**
  * Composition root for feature modules: the ONE place that knows about every module.
@@ -22,6 +29,8 @@ export function registerModules() {
   registered = true;
   registerPrincipal(PRINCIPAL_TYPES.STAFF, staffPrincipal);
   registerPrincipal(PRINCIPAL_TYPES.CUSTOMER, customerPrincipal);
+  setAccessResolver(resolveStaffAccess);
+  setRoleUsageCounter(countStaffWithRole);
   registerAuthSubscribers();
 }
 
@@ -32,4 +41,6 @@ export function mountModuleRoutes(api) {
   api.use(`${authPath}/${PRINCIPAL_TYPES.STAFF}`, createAuthRouter(PRINCIPAL_TYPES.STAFF));
   api.use(`${authPath}/${PRINCIPAL_TYPES.CUSTOMER}`, createAuthRouter(PRINCIPAL_TYPES.CUSTOMER));
   api.use('/customers', createCustomerRouter());
+  api.use('/roles', createRoleRouter());
+  api.use('/staff', createStaffRouter());
 }

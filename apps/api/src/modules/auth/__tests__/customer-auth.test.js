@@ -124,7 +124,11 @@ describe('email verification', () => {
 describe('principal isolation', () => {
   it('a customer token is useless on staff routes and vice versa', async () => {
     const customerToken = (await register()).body.data.accessToken;
-    await createStaff({ name: 'Sara Admin', email: 'sara@shop.test', password: 'correct-horse-9' });
+    await createStaff(null, {
+      name: 'Sara Admin',
+      email: 'sara@shop.test',
+      password: 'correct-horse-9',
+    });
     const staffToken = (
       await request(app)
         .post('/api/v1/auth/staff/login')
@@ -143,7 +147,11 @@ describe('principal isolation', () => {
   });
 
   it('a staff email cannot log in as a customer (separate accounts)', async () => {
-    await createStaff({ name: 'Sara Admin', email: 'sara@shop.test', password: 'correct-horse-9' });
+    await createStaff(null, {
+      name: 'Sara Admin',
+      email: 'sara@shop.test',
+      password: 'correct-horse-9',
+    });
     expect((await login('sara@shop.test', 'correct-horse-9')).status).toBe(401);
   });
 });

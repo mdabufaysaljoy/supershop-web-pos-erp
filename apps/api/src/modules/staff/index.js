@@ -1,2 +1,10 @@
 /** Staff module — public API. */
-export { createStaff, staffPrincipal, toStaffProfile } from './staff.service.js';
+export { createStaffRouter } from './staff.routes.js';
+export {
+  countStaffWithRole,
+  createStaff,
+  ensureSuperAdmin,
+  resolveStaffAccess,
+  staffPrincipal,
+  toStaffProfile,
+} from './staff.service.js';

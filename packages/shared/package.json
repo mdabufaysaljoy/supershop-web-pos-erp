@@ -14,7 +14,8 @@
     "./trackingEvents": "./src/trackingEvents.js",
     "./errorCodes": "./src/errorCodes.js",
     "./constants": "./src/constants.js",
-    "./schemas/auth": "./src/schemas/auth.js"
+    "./schemas/auth": "./src/schemas/auth.js",
+    "./schemas/rbac": "./src/schemas/rbac.js"
   },
   "scripts": {
     "test": "vitest run"

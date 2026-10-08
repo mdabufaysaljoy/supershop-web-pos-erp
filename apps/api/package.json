@@ -8,7 +8,8 @@
     "dev": "node --env-file-if-exists=../../.env --watch src/server.js",
     "start": "node src/server.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed": "node --env-file-if-exists=../../.env src/seed/run.js"
   },
   "dependencies": {
     "@supershop/shared": "*",

@@ -4,12 +4,23 @@
  * Adding an event = add it here. Payloads are documented next to the emitter.
  */
 export const EVENTS = Object.freeze({
-  // auth / users
-  STAFF_LOGGED_IN: 'staff.loggedIn',
-  STAFF_LOGIN_FAILED: 'staff.loginFailed',
+  // auth (payload always includes { principalType: 'staff' | 'customer', principalId? })
+  AUTH_LOGIN_SUCCEEDED: 'auth.loginSucceeded',
+  AUTH_LOGIN_FAILED: 'auth.loginFailed',
+  AUTH_ACCOUNT_LOCKED: 'auth.accountLocked',
+  AUTH_LOGGED_OUT: 'auth.loggedOut',
+  AUTH_SESSIONS_REVOKED: 'auth.sessionsRevoked',
+  AUTH_REFRESH_REUSE_DETECTED: 'auth.refreshReuseDetected',
+  AUTH_PASSWORD_CHANGED: 'auth.passwordChanged',
+  /** Payload carries the raw one-time `token`: subscribers may only put it in the email link. */
+  AUTH_PASSWORD_RESET_REQUESTED: 'auth.passwordResetRequested',
+  /** Payload carries the raw one-time `token`: subscribers may only put it in the email link. */
+  AUTH_EMAIL_VERIFICATION_REQUESTED: 'auth.emailVerificationRequested',
+  AUTH_EMAIL_VERIFIED: 'auth.emailVerified',
+
+  // users
   STAFF_CREATED: 'staff.created',
   CUSTOMER_REGISTERED: 'customer.registered',
-  CUSTOMER_LOGGED_IN: 'customer.loggedIn',
   ROLE_UPDATED: 'role.updated',
 
   // settings / content

@@ -70,6 +70,15 @@ const schema = z
       )
       .pipe(z.array(origin)),
 
+    /**
+     * Cookie Domain for the refresh-token cookie. Leave empty when the API is served from the same
+     * host as the apps (or locally). Set e.g. `.example.com` when the API is on `api.example.com`.
+     */
+    COOKIE_DOMAIN: z
+      .string()
+      .regex(/^\.?[a-z0-9.-]+$/i)
+      .optional(),
+
     JWT_ACCESS_SECRET: z.string().min(32),
     JWT_REFRESH_SECRET: z.string().min(32),
     MASTER_KEY: masterKey,

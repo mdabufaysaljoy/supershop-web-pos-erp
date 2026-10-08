@@ -28,5 +28,14 @@ export const DEFAULTS = Object.freeze({
 
 export const PAGINATION = Object.freeze({ DEFAULT_LIMIT: 20, MAX_LIMIT: 100 });
 
+/** Authenticated principal kinds. Staff use the admin app, customers the storefront. */
+export const PRINCIPAL_TYPES = Object.freeze({ STAFF: 'staff', CUSTOMER: 'customer' });
+
+/**
+ * Header every cookie-authenticated request (token refresh, logout) must send. Browsers cannot add
+ * custom headers cross-site without a CORS preflight, which the API's origin allowlist rejects.
+ */
+export const CSRF_HEADER = 'X-CSRF-Protection';
+
 /** Header name for idempotent mutations (checkout, POS sale, returns, webhooks). */
 export const IDEMPOTENCY_HEADER = 'Idempotency-Key';

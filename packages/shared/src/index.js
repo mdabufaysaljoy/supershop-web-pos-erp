@@ -11,3 +11,4 @@ export * from './permissions.js';
 export * from './events.js';
 export * from './trackingEvents.js';
 export * as validators from './validators/index.js';
+export { createAuthSchemas } from './schemas/auth.js';

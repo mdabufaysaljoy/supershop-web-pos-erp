@@ -10,7 +10,9 @@ import { V } from './messages.js';
  * All messages are i18n keys from `V`.
  */
 
-const str = () => z.string({ error: V.INVALID_TYPE });
+// Missing value → REQUIRED; wrong type → INVALID_TYPE.
+const typeError = (iss) => (iss.input === undefined ? V.REQUIRED : V.INVALID_TYPE);
+const str = () => z.string({ error: typeError });
 const collapseSpaces = (s) => s.replace(/\s+/g, ' ').trim();
 
 // ---------- name ----------

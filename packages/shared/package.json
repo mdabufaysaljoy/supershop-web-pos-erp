@@ -13,7 +13,8 @@
     "./events": "./src/events.js",
     "./trackingEvents": "./src/trackingEvents.js",
     "./errorCodes": "./src/errorCodes.js",
-    "./constants": "./src/constants.js"
+    "./constants": "./src/constants.js",
+    "./schemas/auth": "./src/schemas/auth.js"
   },
   "scripts": {
     "test": "vitest run"

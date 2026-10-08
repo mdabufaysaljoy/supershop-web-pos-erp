@@ -12,7 +12,9 @@ export {
   MoneyInput,
   NameInput,
   PhoneInput,
+  PlainTextArea,
   PlainTextInput,
+  SlugInput,
 } from './fields/fields.jsx';
 export { QtyInput } from './fields/QtyInput.jsx';
 export { PasswordInput } from './fields/PasswordInput.jsx';

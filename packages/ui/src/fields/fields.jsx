@@ -17,6 +17,7 @@ const {
   sanitizeName,
   sanitizePhone,
   sanitizePlainText,
+  sanitizeSlug,
 } = validators;
 
 /** Person name: Latin/Arabic letters, spaces, ' - . (no digits/symbols). Max 60. */
@@ -110,6 +111,32 @@ export const CodeInput = (props) => (
 /** Free text without HTML/control characters (addresses, notes). */
 export const PlainTextInput = (props) => (
   <SanitizedInput type="text" dir="auto" maxLength={250} sanitize={sanitizePlainText} {...props} />
+);
+
+/** Multi-line free text (descriptions): same rules as PlainTextInput, newlines allowed. */
+export const PlainTextArea = (props) => (
+  <SanitizedInput
+    as="textarea"
+    dir="auto"
+    rows={4}
+    maxLength={2000}
+    sanitize={sanitizePlainText}
+    {...props}
+  />
+);
+
+/** URL slug: lower-case a–z, 0–9 and single hyphens (validate with validators.slug). */
+export const SlugInput = (props) => (
+  <SanitizedInput
+    type="text"
+    autoComplete="off"
+    autoCapitalize="none"
+    spellCheck={false}
+    maxLength={120}
+    dir="ltr"
+    sanitize={sanitizeSlug}
+    {...props}
+  />
 );
 
 /** Address line: plain text with address autofill. */

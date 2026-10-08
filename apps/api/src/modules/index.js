@@ -10,6 +10,7 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
+import { createCategoryRouter } from './categories/index.js';
 import { createI18nAdminRouter } from './i18n/index.js';
 import { createMediaRouter } from './media/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
@@ -97,4 +98,5 @@ export function mountModuleRoutes(api) {
   api.use('/audit', createAuditRouter());
   api.use('/i18n', createI18nAdminRouter());
   api.use('/media', createMediaRouter());
+  api.use('/categories', createCategoryRouter());
 }

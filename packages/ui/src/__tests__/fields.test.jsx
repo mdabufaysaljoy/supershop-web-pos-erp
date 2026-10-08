@@ -9,7 +9,9 @@ import {
   NameInput,
   PasswordInput,
   PhoneInput,
+  PlainTextArea,
   QtyInput,
+  SlugInput,
 } from '../index.js';
 
 const setup = (ui) => {
@@ -18,6 +20,19 @@ const setup = (ui) => {
 };
 
 describe('keystroke filtering', () => {
+  it('SlugInput keeps a-z, 0-9 and single hyphens', async () => {
+    const { input, user } = setup(<SlugInput aria-label="slug" />);
+    await user.type(input, 'Summer Sale--2026!');
+    expect(input).toHaveValue('summersale-2026');
+  });
+
+  it('PlainTextArea renders a textarea that keeps newlines and drops markup', async () => {
+    const { input, user } = setup(<PlainTextArea aria-label="description" />);
+    expect(input.tagName).toBe('TEXTAREA');
+    await user.type(input, 'Line <b>one</b>{Enter}two');
+    expect(input).toHaveValue('Line bone/b\ntwo');
+  });
+
   it('NameInput blocks digits and symbols, keeps Arabic and Latin letters', async () => {
     const { input, user } = setup(<NameInput aria-label="name" />);
     await user.type(input, "Jo3hn O'Neil-Smith! محمد٣");

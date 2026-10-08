@@ -2,14 +2,12 @@ import { FormField, PlainTextInput } from '@supershop/ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
+import { ArabicPreview } from '@/components/ArabicPreview';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/features/settings/components/controls';
 import { fmt, formatBytes } from '@/lib/format';
 import { fieldMessage } from '@/lib/i18n';
 import { useDeleteMedia, useUpdateMedia } from '../hooks';
-
-const AR_TONE = { done: 'ok', pending: 'warn', failed: 'bad', stale: 'warn' };
 
 /**
  * Details + edit for one item: display name and English alt text (Arabic alt is generated
@@ -36,8 +34,6 @@ function DetailsBody({ media, onClose }) {
   const errors = Object.fromEntries(
     (update.error?.details ?? []).map((d) => [d.path.split('.')[0], d.message]),
   );
-  const arMeta = media.alt?.meta?.ar;
-  const arStatus = arMeta?.mode === 'manual' ? 'manual' : arMeta?.status;
 
   const save = (e) => {
     e.preventDefault();
@@ -93,21 +89,7 @@ function DetailsBody({ media, onClose }) {
               onChange={(e) => setForm({ ...form, alt: e.target.value })}
             />
           </FormField>
-          {media.alt?.en && (
-            <div className="grid gap-1 text-sm">
-              <span className="flex items-center gap-2 font-medium">
-                {t('media.details.altArabic')}
-                {arStatus && (
-                  <Badge tone={AR_TONE[arStatus] ?? 'muted'}>
-                    {t(`media.details.arStatus.${arStatus}`)}
-                  </Badge>
-                )}
-              </span>
-              <span dir="rtl" lang="ar" className="text-muted-foreground">
-                {media.alt?.ar || '—'}
-              </span>
-            </div>
-          )}
+          <ArabicPreview label={t('media.details.altArabic')} value={media.alt} />
           <div>
             <Button type="submit" disabled={update.isPending}>
               {t('common.save')}

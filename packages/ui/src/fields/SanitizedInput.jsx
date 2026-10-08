@@ -1,7 +1,7 @@
 import { useFieldControlProps } from '../form/FormField.jsx';
 import { cn } from '../lib/cn.js';
 import { applySanitizer, blockInvalidInsertion } from './sanitizeInput.js';
-import { inputClass } from './styles.js';
+import { inputClass, textareaClass } from './styles.js';
 
 /**
  * Base for every field component: an <input> that filters keystrokes/paste with `sanitize`.
@@ -11,16 +11,25 @@ import { inputClass } from './styles.js';
  *
  * @param {object} props
  * @param {(v: string) => string} [props.sanitize]
+ * @param {'input' | 'textarea'} [props.as]  element to render (default input)
  */
-export function SanitizedInput({ sanitize, onChange, onBeforeInput, className, ref, ...props }) {
+export function SanitizedInput({
+  as: Element = 'input',
+  sanitize,
+  onChange,
+  onBeforeInput,
+  className,
+  ref,
+  ...props
+}) {
   const field = useFieldControlProps();
   return (
-    <input
+    <Element
       ref={ref}
-      data-slot="input"
+      data-slot={Element === 'textarea' ? 'textarea' : 'input'}
       {...field}
       {...props}
-      className={cn(inputClass, className)}
+      className={cn(Element === 'textarea' ? textareaClass : inputClass, className)}
       onBeforeInput={(e) => {
         if (sanitize) blockInvalidInsertion(e, sanitize);
         onBeforeInput?.(e);

@@ -39,6 +39,14 @@ export const ERROR_CODES = Object.freeze({
   IDEMPOTENCY_CONFLICT: 'IDEMPOTENCY_CONFLICT',
   INVALID_STATE_TRANSITION: 'INVALID_STATE_TRANSITION',
   FEATURE_DISABLED: 'FEATURE_DISABLED',
+  /** URL slug already used by another item of the same kind. */
+  SLUG_TAKEN: 'SLUG_TAKEN',
+  /** Moving an item under itself/its descendant, or beyond the depth ceiling. */
+  INVALID_MOVE: 'INVALID_MOVE',
+
+  // Catalog
+  CATEGORY_HAS_CHILDREN: 'CATEGORY_HAS_CHILDREN',
+  CATEGORY_IN_USE: 'CATEGORY_IN_USE',
 
   // Commerce
   OUT_OF_STOCK: 'OUT_OF_STOCK',

@@ -40,7 +40,8 @@
     "roles": "Roles",
     "settings": "Settings",
     "audit": "Audit log",
-    "media": "Media library"
+    "media": "Media library",
+    "categories": "Categories"
   },
   "pages": {
     "dashboard": {
@@ -85,14 +86,18 @@
     "CONFLICT": "This conflicts with existing data.",
     "INTERNAL_ERROR": "Something went wrong on our side. Please try again.",
     "UNSUPPORTED_MEDIA_TYPE": "This file isn't a supported image (JPEG, PNG, WebP, GIF or AVIF).",
-    "PAYLOAD_TOO_LARGE": "This file is too large."
+    "PAYLOAD_TOO_LARGE": "This file is too large.",
+    "SLUG_TAKEN": "This URL slug is already used. Choose another.",
+    "INVALID_MOVE": "A category can't be moved inside itself or one of its subcategories.",
+    "CATEGORY_HAS_CHILDREN": "Move or delete its subcategories first.",
+    "CATEGORY_IN_USE": "Products still use this category. Move them first."
   },
   "validation": {
     "required": "This field is required.",
     "invalidType": "Invalid value.",
     "tooShort": "Too short.",
     "tooLong": "Too long.",
-    "duplicate": "Duplicate value.",
+    "duplicate": "Already in use.",
     "name": {
       "invalid": "Use letters, spaces, apostrophes, dots or hyphens only."
     },
@@ -150,7 +155,8 @@
     "cancel": "Cancel",
     "saved": "Saved.",
     "deleted": "Deleted.",
-    "close": "Close"
+    "close": "Close",
+    "charCount": "{{count}} / {{max}} characters"
   },
   "settings": {
     "title": "Settings",
@@ -276,17 +282,65 @@
       "alt": "Alt text (English)",
       "altHint": "Describe the image for search engines and screen readers. Arabic is generated automatically.",
       "altArabic": "Arabic alt text",
-      "arStatus": {
-        "done": "Translated",
-        "pending": "Translating",
-        "failed": "Translation failed",
-        "stale": "Will re-translate",
-        "manual": "Edited by hand"
-      },
       "sizes": "Sizes",
       "copyUrl": "Copy URL",
       "copied": "URL copied.",
       "confirmDelete": "Remove from the library? Pages and products already using it keep working."
+    },
+    "picker": {
+      "title": "Choose an image",
+      "description": "Pick from the media library or upload a new image."
+    }
+  },
+  "translation": {
+    "status": {
+      "done": "Translated",
+      "pending": "Translating",
+      "failed": "Translation failed",
+      "stale": "Will re-translate",
+      "manual": "Edited by hand"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "description": "Organize the catalog. The order here is the order on the storefront. Arabic is generated automatically.",
+    "add": "Add category",
+    "newTitle": "New category",
+    "empty": "No categories yet.",
+    "selectHint": "Select a category to edit it, or add a new one.",
+    "reorderHint": "Drag the handle to reorder. To move a category under another one, change its parent.",
+    "hidden": "Hidden",
+    "dragHandle": "Reorder {{name}}",
+    "expand": "Show subcategories of {{name}}",
+    "collapse": "Hide subcategories of {{name}}",
+    "addChild": "Add a subcategory to {{name}}",
+    "dnd": {
+      "instructions": "To reorder, press Space, use the arrow keys to move, and press Space again to drop. Press Escape to cancel.",
+      "picked": "Picked up {{name}}.",
+      "over": "{{name}} is over position {{position}}.",
+      "dropped": "{{name}} dropped at position {{position}}.",
+      "cancelled": "Reordering {{name}} cancelled."
+    },
+    "form": {
+      "name": "Name",
+      "nameArabic": "Arabic name",
+      "slug": "URL slug",
+      "slugAuto": "Leave empty to create it from the name.",
+      "slugHint": "Changing it changes the page address.",
+      "parent": "Parent category",
+      "topLevel": "None (top level)",
+      "description": "Description",
+      "image": "Image",
+      "chooseImage": "Choose image",
+      "changeImage": "Change image",
+      "removeImage": "Remove",
+      "active": "Visible on the storefront",
+      "activeHint": "Hiding a category also hides its subcategories.",
+      "seo": "Search engines",
+      "seoTitle": "SEO title",
+      "seoDescription": "SEO description",
+      "create": "Create category",
+      "confirmDelete": "Delete this category?"
     }
   }
 }

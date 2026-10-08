@@ -104,6 +104,33 @@ export const AUDIT_MAPPINGS = {
   }),
   [EVENTS.MEDIA_DELETED]: (p) => ({ ...staffActor(p), entityType: 'media', entityId: p.mediaId }),
 
+  // categories
+  [EVENTS.CATEGORY_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'category',
+    entityId: p.categoryId,
+    after: p.after,
+  }),
+  [EVENTS.CATEGORY_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'category',
+    entityId: p.categoryId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.CATEGORY_MOVED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'category',
+    entityId: p.categoryId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.CATEGORY_DELETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'category',
+    entityId: p.categoryId,
+  }),
+
   // languages / translation
   [EVENTS.GLOSSARY_UPDATED]: (p) => ({
     ...staffActor(p),

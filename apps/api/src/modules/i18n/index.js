@@ -13,6 +13,7 @@ export {
 } from './localized.plugin.js';
 export { translate, isTranslationEnabled, getMonthlyUsage } from './translate.service.js';
 export { getTargetLanguages, loadLanguages, seedLanguages } from './languages.js';
+export { requestLanguage } from './requestLanguage.js';
 export { bumpGlossaryVersion, seedGlossary } from './glossary.js';
 export { processTranslationJob, startTranslationWorker } from './i18n.jobs.js';
 export { createI18nAdminRouter } from './admin.routes.js';

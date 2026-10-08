@@ -46,6 +46,14 @@ export const EVENTS = Object.freeze({
   UI_STRING_OVERRIDE_REMOVED: 'uiString.overrideRemoved',
 
   // catalog
+  /** Payload: { categoryId, actorId, after } */
+  CATEGORY_CREATED: 'category.created',
+  /** Payload: { categoryId, actorId, before, after } */
+  CATEGORY_UPDATED: 'category.updated',
+  /** Payload: { categoryId, actorId, before: { parentId, position }, after: { parentId, position } } */
+  CATEGORY_MOVED: 'category.moved',
+  /** Payload: { categoryId, actorId } (soft delete) */
+  CATEGORY_DELETED: 'category.deleted',
   /** Payload: { mediaId, actorId, after } */
   MEDIA_UPLOADED: 'media.uploaded',
   /** Payload: { mediaId, actorId, before, after } */

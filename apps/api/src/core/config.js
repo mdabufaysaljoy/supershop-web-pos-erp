@@ -100,6 +100,9 @@ const schema = z
      */
     PRIVATE_FILES_DIR: z.string().min(1).default('var/private'),
 
+    /** Product search backend: 'mongo' (built in). Other engines plug in as adapters. */
+    SEARCH_DRIVER: z.enum(['mongo']).default('mongo'),
+
     TZ_DISPLAY: z.string().refine(isValidTimeZone, 'invalid IANA time zone').default('Asia/Riyadh'),
   })
   .superRefine((env, ctx) => {

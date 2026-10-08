@@ -548,6 +548,96 @@ export async function* iterateProducts(actor, filters = {}, pageSize = 200) {
   }
 }
 
+// ---------------------------------------------------------------- search (P1.8)
+
+/**
+ * Raw material for search documents. Deleted products come back with `deleted: true` so the
+ * index can drop them; missing ids are simply absent.
+ */
+export async function getIndexSources(productIds) {
+  const products = await repo.findForIndex(productIds);
+  const variants = await repo.activeVariantsOf(products.map((p) => p._id));
+  const byProduct = Map.groupBy(variants, (v) => String(v.productId));
+  return products.map((p) => ({
+    id: String(p._id),
+    deleted: Boolean(p.deletedAt),
+    status: p.status,
+    name: p.name ?? en(''),
+    shortDescription: p.shortDescription ?? en(''),
+    description: p.description ?? en(''),
+    tags: p.tags ?? [],
+    categoryIds: ids(p.categoryIds),
+    brandId: p.brandId ? String(p.brandId) : null,
+    options: p.options ?? [],
+    priceMin: p.priceMin,
+    priceMax: p.priceMax,
+    createdAt: p.createdAt,
+    codes: (byProduct.get(String(p._id)) ?? []).flatMap((v) => [v.sku, v.barcode].filter(Boolean)),
+  }));
+}
+
+/** Active product ids in batches (optionally by category/brand) — for re-indexing. */
+export const productIdBatches = (filter) => repo.activeProductIds(filter);
+
+/**
+ * Storefront product cards in `lang`, in the order of `ids` (unknown/inactive ids skipped):
+ * name, slug, main image, price range and the compare-at price of the cheapest variant.
+ */
+export async function getPublicCards(ids, lang) {
+  if (!ids.length) return [];
+  const products = (await repo.findForIndex(ids)).filter(
+    (p) => !p.deletedAt && p.status === 'active',
+  );
+  const variants = await repo.activeVariantsOf(products.map((p) => p._id));
+  const byProduct = Map.groupBy(
+    variants.filter((v) => v.isActive),
+    (v) => String(v.productId),
+  );
+  const media = await getMediaByIds(
+    products
+      .map((p) => p.imageIds?.[0])
+      .filter(Boolean)
+      .map(String),
+  );
+  const mediaById = new Map(media.map((m) => [m.id, m]));
+  const brandIds = [
+    ...new Set(
+      products
+        .map((p) => p.brandId)
+        .filter(Boolean)
+        .map(String),
+    ),
+  ];
+  const brands = new Map(
+    (brandIds.length ? await getBrandsByIds(brandIds) : [])
+      .filter((b) => b.isActive)
+      .map((b) => [b.id, b]),
+  );
+  const cards = new Map(
+    products.map((p) => {
+      const r = resolveDoc(p, ['name'], lang);
+      const cheapest = (byProduct.get(String(p._id)) ?? []).sort((a, b) => a.price - b.price)[0];
+      const img = p.imageIds?.[0] && mediaById.get(String(p.imageIds[0]));
+      const brand = p.brandId && brands.get(String(p.brandId));
+      return [
+        String(p._id),
+        {
+          id: String(p._id),
+          slug: p.slug,
+          name: r.name,
+          image: img ? { ...imageView(img), alt: r.name } : null,
+          priceMin: p.priceMin,
+          priceMax: p.priceMax,
+          compareAtPrice: cheapest?.compareAtPrice ?? null,
+          brand: brand ? { name: brand.name, slug: brand.slug } : null,
+          variantCount: p.variantCount,
+        },
+      ];
+    }),
+  );
+  return ids.map((id) => cards.get(id)).filter(Boolean);
+}
+
 // ---------------------------------------------------------------- barcodes (P1.6)
 
 const BARCODE_COUNTER = 'barcode:internal';

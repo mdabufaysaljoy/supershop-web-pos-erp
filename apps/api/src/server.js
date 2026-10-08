@@ -6,6 +6,7 @@ import { closeQueues } from './core/queue.js';
 import { closeRedis } from './core/redis.js';
 import { loadLanguages, startTranslationWorker } from './modules/i18n/index.js';
 import { startTransferWorkers } from './modules/productTransfer/index.js';
+import { ensureSearchIndex } from './modules/search/index.js';
 import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
 /**
@@ -21,6 +22,7 @@ async function main() {
   await loadLanguages();
   startTranslationWorker();
   await startTransferWorkers();
+  await ensureSearchIndex(); // builds the index in the background on first start
 
   const app = createApp();
   const server = app.listen(config.API_PORT, () => {

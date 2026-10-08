@@ -66,4 +66,5 @@ export const LIMITS = Object.freeze({
   sensitive: { windowMs: 15 * MINUTE, limit: 20 }, // password change, email resend
   upload: { windowMs: 15 * MINUTE, limit: 120 }, // per staff member (image processing is CPU-heavy)
   barcodeGenerate: { windowMs: 15 * MINUTE, limit: 120 }, // per staff member
+  search: { windowMs: MINUTE, limit: 120 }, // public search + typeahead, per IP
 });

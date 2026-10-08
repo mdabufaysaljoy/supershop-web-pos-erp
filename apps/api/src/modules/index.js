@@ -16,6 +16,7 @@ import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
 import { createMediaRouter } from './media/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
+import { createSearchRouter, registerSearchSubscribers } from './search/index.js';
 import {
   countProductsInCategory,
   countProductsOfBrand,
@@ -93,6 +94,7 @@ export function registerModules() {
   registerAuthSubscribers();
   registerAuditSubscribers();
   registerI18nSubscribers();
+  registerSearchSubscribers();
   // Catalog items can't be deleted while products reference them.
   setCategoryUsageCounter(countProductsInCategory);
   setBrandUsageCounter(countProductsOfBrand);
@@ -119,4 +121,5 @@ export function mountModuleRoutes(api) {
   api.use('/custom-fields', createCustomFieldRouter());
   api.use('/products', createProductRouter());
   api.use('/product-transfers', createProductTransferRouter());
+  api.use('/search', createSearchRouter());
 }

@@ -663,5 +663,24 @@
       "download": "Download report",
       "truncated": "Showing the first {{shown}} problems."
     }
+  },
+  "search": {
+    "button": "Search",
+    "title": "Storefront search",
+    "description": "Products are indexed automatically when they change. Rebuild only after a large data change or if results look stale.",
+    "ready": "Ready",
+    "rebuilding": "Rebuilding…",
+    "documents_one": "{{count}} product indexed",
+    "documents_other": "{{count}} products indexed",
+    "lastRebuild": "Last rebuilt {{at}}",
+    "rebuild": "Rebuild index",
+    "tryLabel": "Try a search",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "ar": "Arabic"
+    },
+    "results": "Search results",
+    "noResults": "No matching products."
   }
 }

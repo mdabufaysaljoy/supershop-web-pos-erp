@@ -1,6 +1,7 @@
 import { PERMISSIONS as P, PRODUCT } from '@supershop/shared';
 import { useBarcodeScanner } from '@supershop/ui';
-import { ArrowLeftRight, Plus, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeftRight, Plus, SearchCheck, SlidersHorizontal } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
@@ -25,6 +26,7 @@ import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
 import { useListParams } from '@/lib/useListParams';
+import { SearchIndexDialog } from '../components/SearchIndexDialog';
 import { lookupProductByCode, products } from '../resource';
 import { STATUS_TONE } from '../status';
 
@@ -35,6 +37,7 @@ export function ProductsPage() {
   const { t } = useTranslation();
   const can = useCan();
   const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
   const searchParams = useSearchParams();
   const { page, q, go } = useListParams(searchParams);
   const [params] = searchParams;
@@ -83,6 +86,12 @@ export function ProductsPage() {
                 <ArrowLeftRight className="size-4" aria-hidden />
                 {t('transfer.title')}
               </Link>
+            </Button>
+          )}
+          {can(P.PRODUCT_UPDATE) && (
+            <Button variant="outline" onClick={() => setSearchOpen(true)}>
+              <SearchCheck className="size-4" aria-hidden />
+              {t('search.button')}
             </Button>
           )}
           {can(P.CUSTOM_FIELD_MANAGE) && (
@@ -205,6 +214,7 @@ export function ProductsPage() {
         </Table>
       )}
       <Pagination page={page} pages={pages} onPage={(p) => go({ page: p })} />
+      <SearchIndexDialog open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 }

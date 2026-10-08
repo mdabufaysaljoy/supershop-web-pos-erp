@@ -6,7 +6,10 @@ export {
   countProductsOfSupplier,
   createProduct,
   findProductBySlug,
+  getIndexSources,
   getProduct,
+  getPublicCards,
   iterateProducts,
+  productIdBatches,
   updateProduct,
 } from './product.service.js';

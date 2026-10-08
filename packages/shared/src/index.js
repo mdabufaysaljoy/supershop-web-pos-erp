@@ -25,6 +25,7 @@ export {
 export { createFormatters } from './format.js';
 export * from './barcode.js';
 export { createProductTransferSchemas, PRODUCT_TRANSFER } from './schemas/productTransfer.js';
+export { createSearchSchemas, SEARCH } from './schemas/search.js';
 export { createI18nSchemas } from './schemas/i18n.js';
 export { createMediaSchemas, MEDIA } from './schemas/media.js';
 export { CATEGORY, createCategorySchemas } from './schemas/category.js';

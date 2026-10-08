@@ -7,7 +7,13 @@ import { getSetting } from '../settings/index.js';
 import { bumpGlossaryVersion, clearGlossaryCache } from './glossary.js';
 import * as repo from './i18n.repo.js';
 import { getTargetLanguages } from './languages.js';
-import { localizedFieldsOf, scheduleEntityTranslation, sourceHash } from './localized.plugin.js';
+import {
+  expandPaths,
+  localizedFieldsOf,
+  queryPathOf,
+  scheduleEntityTranslation,
+  sourceHash,
+} from './localized.plugin.js';
 import { getMonthlyUsage, isTranslationEnabled, translate } from './translate.service.js';
 
 /**
@@ -43,7 +49,7 @@ async function contentStatus() {
     const row = { model: name, pending: 0, failed: 0, manual: 0 };
     for (const field of fields) {
       for (const lang of langs) {
-        const path = `${field}.meta.${lang}`;
+        const path = `${queryPathOf(field)}.meta.${lang}`;
         const [pending, failed, manual] = await Promise.all([
           Model.countDocuments({ [`${path}.status`]: { $in: ['pending', 'stale'] } }),
           Model.countDocuments({ [`${path}.status`]: 'failed' }),
@@ -224,7 +230,8 @@ export async function retranslate(actor, { scope }) {
   for (const { name, fields } of localizedModels()) {
     const Model = mongoose.model(name);
     const or = [];
-    for (const field of fields) {
+    for (const pattern of fields) {
+      const field = queryPathOf(pattern);
       for (const lang of langs) {
         const meta = `${field}.meta.${lang}`;
         if (scope === 'all')
@@ -240,9 +247,13 @@ export async function retranslate(actor, { scope }) {
       }
     }
     if (!or.length) continue;
-    const cursor = Model.find({ $or: or }, { _id: 1 }).lean().cursor();
+    // Load the localized roots so `*` patterns expand to this document's concrete paths.
+    const projection = Object.fromEntries(fields.map((f) => [f.split('.')[0], 1]));
+    const cursor = Model.find({ $or: or }, projection).lean().cursor();
     for await (const doc of cursor) {
-      const items = fields.flatMap((field) => langs.map((lang) => ({ field, lang })));
+      const items = expandPaths(doc, fields).flatMap((field) =>
+        langs.map((lang) => ({ field, lang })),
+      );
       await scheduleEntityTranslation({
         model: name,
         id: String(doc._id),

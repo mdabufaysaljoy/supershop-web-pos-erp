@@ -63,6 +63,10 @@ export const EVENTS = Object.freeze({
   SUPPLIER_CREATED: 'supplier.created',
   SUPPLIER_UPDATED: 'supplier.updated',
   SUPPLIER_DELETED: 'supplier.deleted',
+  /** Payload: { fieldId, entity, key, actorId, before?, after? } */
+  CUSTOM_FIELD_CREATED: 'customField.created',
+  CUSTOM_FIELD_UPDATED: 'customField.updated',
+  CUSTOM_FIELD_DELETED: 'customField.deleted',
   /** Payload: { mediaId, actorId, after } */
   MEDIA_UPLOADED: 'media.uploaded',
   /** Payload: { mediaId, actorId, before, after } */

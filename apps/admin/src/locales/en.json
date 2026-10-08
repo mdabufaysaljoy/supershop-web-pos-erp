@@ -95,7 +95,9 @@
     "CATEGORY_IN_USE": "Products still use this category. Move them first.",
     "NAME_TAKEN": "This name is already used.",
     "BRAND_IN_USE": "Products still use this brand.",
-    "SUPPLIER_IN_USE": "Products or purchase orders still use this supplier."
+    "SUPPLIER_IN_USE": "Products or purchase orders still use this supplier.",
+    "SKU_TAKEN": "This SKU is already used by another product.",
+    "BARCODE_TAKEN": "This barcode is already used by another product."
   },
   "validation": {
     "required": "This field is required.",
@@ -150,7 +152,13 @@
     "url": {
       "invalid": "Enter a valid http(s) URL."
     },
-    "placeholdersChanged": "Keep every placeholder like {{name}} exactly as in the English text."
+    "placeholdersChanged": "Keep every placeholder like {{name}} exactly as in the English text.",
+    "product": {
+      "singleVariant": "A product without options has exactly one variant.",
+      "variantOptions": "Choose one value for every option.",
+      "compareAtPrice": "The compare-at price must be higher than the price.",
+      "variantImage": "Variant images must be in the product gallery."
+    }
   },
   "common": {
     "save": "Save",

@@ -84,6 +84,13 @@ export async function listCategories() {
   return items.map((c) => toCategoryDto(c, media));
 }
 
+/** For other modules (products): DTOs of existing categories; missing/deleted ids omitted. */
+export async function getCategoriesByIds(ids) {
+  const items = await repo.findActiveByIds(ids);
+  const media = await mediaMap(items);
+  return items.map((c) => toCategoryDto(c, media));
+}
+
 export async function getCategory(id) {
   const c = await repo.findActiveById(id);
   if (!c) throw notFound();

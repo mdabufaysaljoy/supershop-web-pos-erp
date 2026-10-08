@@ -51,6 +51,8 @@ export const ERROR_CODES = Object.freeze({
   SUPPLIER_IN_USE: 'SUPPLIER_IN_USE',
   /** Another active item already has this name. */
   NAME_TAKEN: 'NAME_TAKEN',
+  SKU_TAKEN: 'SKU_TAKEN',
+  BARCODE_TAKEN: 'BARCODE_TAKEN',
 
   // Commerce
   OUT_OF_STOCK: 'OUT_OF_STOCK',

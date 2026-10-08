@@ -4,7 +4,12 @@ import { sha256 } from '../../core/crypto.js';
 import { eventBus } from '../../core/events.js';
 import { logger } from '../../core/logger.js';
 import { enqueue, QUEUE_NAMES, registerWorker } from '../../core/queue.js';
-import { localizedFieldsOf, setTranslationScheduler, sourceHash } from './localized.plugin.js';
+import {
+  localizedFieldsOf,
+  matchesLocalizedPath,
+  setTranslationScheduler,
+  sourceHash,
+} from './localized.plugin.js';
 import { translate } from './translate.service.js';
 
 /**
@@ -33,7 +38,7 @@ export async function processTranslationJob({ model, id, items, force = false })
   // Re-evaluate against the CURRENT document (it may have changed since scheduling).
   const work = [];
   for (const { field, lang } of items) {
-    if (!fields.includes(field)) continue;
+    if (!matchesLocalizedPath(fields, field)) continue;
     const value = get(doc, field);
     const en = value?.[SOURCE_LANGUAGE] ?? '';
     const meta = value?.meta?.[lang];

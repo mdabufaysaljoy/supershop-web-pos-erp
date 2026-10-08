@@ -28,3 +28,15 @@ export { createMediaSchemas, MEDIA } from './schemas/media.js';
 export { CATEGORY, createCategorySchemas } from './schemas/category.js';
 export { BRAND, createBrandSchemas } from './schemas/brand.js';
 export { createSupplierSchemas, SUPPLIER } from './schemas/supplier.js';
+export {
+  createCustomFieldSchemas,
+  CUSTOM_FIELD,
+  customFieldDefIssues,
+  customValuesSchema,
+} from './schemas/customField.js';
+export {
+  createProductSchemas,
+  PRODUCT,
+  productAggregateIssues,
+  variantOptionsKey,
+} from './schemas/product.js';

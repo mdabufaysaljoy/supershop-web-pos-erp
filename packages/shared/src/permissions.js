@@ -59,6 +59,7 @@ const GROUPS = {
     'settings.printing',
     'settings.languages',
     'settings.security',
+    'customField.manage', // define extra fields for products/customers/checkout
   ],
   staff: ['staff.view', 'staff.manage', 'role.manage', 'audit.view'],
 };

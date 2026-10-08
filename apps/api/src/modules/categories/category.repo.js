@@ -8,6 +8,7 @@ const opts = (session) => (session ? { session } : {});
 export const listActive = () =>
   Category.find(ACTIVE).sort({ depth: 1, position: 1, _id: 1 }).lean();
 
+export const findActiveByIds = (ids) => Category.find({ _id: { $in: ids }, ...ACTIVE }).lean();
 export const findActiveById = (id, session) =>
   Category.findOne({ _id: id, ...ACTIVE }, null, opts(session)).lean();
 export const slugExists = async (slug, excludeId) =>

@@ -34,4 +34,8 @@ export const V = Object.freeze({
   URL_INVALID: 'validation.url.invalid',
   DUPLICATE: 'validation.duplicate',
   PLACEHOLDERS_CHANGED: 'validation.placeholdersChanged',
+  VARIANTS_SINGLE: 'validation.product.singleVariant',
+  VARIANT_OPTIONS_MISMATCH: 'validation.product.variantOptions',
+  COMPARE_AT_PRICE: 'validation.product.compareAtPrice',
+  VARIANT_IMAGE_NOT_IN_GALLERY: 'validation.product.variantImage',
 });

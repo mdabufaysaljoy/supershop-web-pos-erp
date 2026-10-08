@@ -23,7 +23,9 @@
     "./schemas/media": "./src/schemas/media.js",
     "./schemas/category": "./src/schemas/category.js",
     "./schemas/brand": "./src/schemas/brand.js",
-    "./schemas/supplier": "./src/schemas/supplier.js"
+    "./schemas/supplier": "./src/schemas/supplier.js",
+    "./schemas/customField": "./src/schemas/customField.js",
+    "./schemas/product": "./src/schemas/product.js"
   },
   "scripts": {
     "test": "vitest run"

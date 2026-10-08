@@ -165,6 +165,51 @@ export const AUDIT_MAPPINGS = {
     entityId: p.supplierId,
   }),
 
+  // products & custom fields
+  [EVENTS.PRODUCT_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'product',
+    entityId: p.productId,
+    after: p.after,
+  }),
+  [EVENTS.PRODUCT_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'product',
+    entityId: p.productId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.PRODUCT_DELETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'product',
+    entityId: p.productId,
+  }),
+  [EVENTS.PRODUCT_PRICE_CHANGED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'product',
+    entityId: p.productId,
+    data: { changes: p.changes },
+  }),
+  [EVENTS.CUSTOM_FIELD_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'customField',
+    entityId: p.fieldId,
+    after: { entity: p.entity, key: p.key, ...p.after },
+  }),
+  [EVENTS.CUSTOM_FIELD_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'customField',
+    entityId: p.fieldId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.CUSTOM_FIELD_DELETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'customField',
+    entityId: p.fieldId,
+    data: { entity: p.entity, key: p.key },
+  }),
+
   // languages / translation
   [EVENTS.GLOSSARY_UPDATED]: (p) => ({
     ...staffActor(p),

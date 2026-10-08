@@ -10,13 +10,20 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
-import { createBrandRouter } from './brands/index.js';
-import { createCategoryRouter } from './categories/index.js';
+import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
+import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
+import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
 import { createMediaRouter } from './media/index.js';
+import {
+  countProductsInCategory,
+  countProductsOfBrand,
+  countProductsOfSupplier,
+  createProductRouter,
+} from './products/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
 import { createSettingsRouter, getSetting } from './settings/index.js';
-import { createSupplierRouter } from './suppliers/index.js';
+import { createSupplierRouter, setSupplierUsageCounter } from './suppliers/index.js';
 import {
   countStaffWithRole,
   createStaffRouter,
@@ -85,6 +92,10 @@ export function registerModules() {
   registerAuthSubscribers();
   registerAuditSubscribers();
   registerI18nSubscribers();
+  // Catalog items can't be deleted while products reference them.
+  setCategoryUsageCounter(countProductsInCategory);
+  setBrandUsageCounter(countProductsOfBrand);
+  setSupplierUsageCounter(countProductsOfSupplier); // + purchase orders in P2.3
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */
@@ -104,4 +115,6 @@ export function mountModuleRoutes(api) {
   api.use('/categories', createCategoryRouter());
   api.use('/brands', createBrandRouter());
   api.use('/suppliers', createSupplierRouter());
+  api.use('/custom-fields', createCustomFieldRouter());
+  api.use('/products', createProductRouter());
 }

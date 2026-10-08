@@ -49,13 +49,61 @@ export const scheduleEntityTranslation = (job) => scheduler(job);
 
 export const sourceHash = (text) => sha256(text ?? '');
 
+// ---------- field patterns ----------
+// A localized field is a dotted path; `*` matches every element of an array, e.g.
+// 'options.*.name' or 'options.*.values.*.label'. Jobs/items always use CONCRETE paths
+// ('options.0.values.2.label'); Mongo queries use the path without `*` (implicit array traversal).
+
+const getPlain = (obj, path) =>
+  path === '' ? obj : path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);
+const isMongooseDoc = (v) => typeof v?.get === 'function' && Boolean(v.$__);
+
+/** Concrete paths matching `pattern` in a mongoose document or plain object. */
+export function expandPath(source, pattern) {
+  const read = isMongooseDoc(source)
+    ? (p) => (p === '' ? source : source.get(p))
+    : (p) => getPlain(source, p);
+  let paths = [''];
+  for (const part of pattern.split('.')) {
+    if (part === '*') {
+      paths = paths.flatMap((p) => {
+        const arr = read(p);
+        return Array.isArray(arr) ? arr.map((_, i) => (p ? `${p}.${i}` : String(i))) : [];
+      });
+    } else {
+      paths = paths.map((p) => (p ? `${p}.${part}` : part));
+    }
+  }
+  return paths;
+}
+export const expandPaths = (source, patterns) => patterns.flatMap((p) => expandPath(source, p));
+
+/** True when a concrete path matches one of the patterns. */
+export function matchesLocalizedPath(patterns, path) {
+  const parts = path.split('.');
+  return patterns.some((pattern) => {
+    const pat = pattern.split('.');
+    return (
+      pat.length === parts.length &&
+      pat.every((s, i) => (s === '*' ? /^\d+$/.test(parts[i]) : s === parts[i]))
+    );
+  });
+}
+
+/** Query path for a pattern ('options.*.name' → 'options.name'). */
+export const queryPathOf = (pattern) =>
+  pattern
+    .split('.')
+    .filter((s) => s !== '*')
+    .join('.');
+
 /**
  * Computes which (field, lang) pairs need translation for a document, updating meta in place.
  * Pure over the document's values (exported for tests and bulk "retranslate").
  */
 export function markStale(doc, fields, langs = getTargetLanguages()) {
   const items = [];
-  for (const field of fields) {
+  for (const field of expandPaths(doc, fields)) {
     const value = doc.get(field);
     if (!value) continue;
     const en = value[SOURCE_LANGUAGE] ?? '';
@@ -153,11 +201,12 @@ export function revertToAuto(doc, field, lang) {
 export function resolveDoc(plain, fields, lang) {
   if (!plain) return plain;
   const out = { ...plain };
-  for (const field of fields) {
-    const parts = field.split('.');
+  for (const path of expandPaths(plain, fields)) {
+    const parts = path.split('.');
     let target = out;
     for (const p of parts.slice(0, -1)) {
-      target[p] = { ...target[p] };
+      // Copy each container on the way down so the input is never mutated.
+      target[p] = Array.isArray(target[p]) ? [...target[p]] : { ...target[p] };
       target = target[p];
     }
     const last = parts.at(-1);

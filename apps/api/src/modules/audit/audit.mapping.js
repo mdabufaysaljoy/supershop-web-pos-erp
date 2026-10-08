@@ -190,6 +190,18 @@ export const AUDIT_MAPPINGS = {
     entityId: p.productId,
     data: { changes: p.changes },
   }),
+  [EVENTS.PRODUCT_IMPORT_FINISHED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'productImport',
+    entityId: p.jobId,
+    data: { status: p.status, dryRun: p.dryRun, counts: p.counts, errorCount: p.errorCount },
+  }),
+  [EVENTS.PRODUCT_EXPORT_FINISHED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'productExport',
+    entityId: p.jobId,
+    data: { status: p.status, counts: p.counts },
+  }),
   [EVENTS.CUSTOM_FIELD_CREATED]: (p) => ({
     ...staffActor(p),
     entityType: 'customField',

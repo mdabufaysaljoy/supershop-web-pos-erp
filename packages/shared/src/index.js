@@ -24,6 +24,7 @@ export {
 } from './i18n/localized.js';
 export { createFormatters } from './format.js';
 export * from './barcode.js';
+export { createProductTransferSchemas, PRODUCT_TRANSFER } from './schemas/productTransfer.js';
 export { createI18nSchemas } from './schemas/i18n.js';
 export { createMediaSchemas, MEDIA } from './schemas/media.js';
 export { CATEGORY, createCategorySchemas } from './schemas/category.js';

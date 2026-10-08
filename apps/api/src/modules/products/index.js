@@ -4,5 +4,9 @@ export {
   countProductsInCategory,
   countProductsOfBrand,
   countProductsOfSupplier,
+  createProduct,
+  findProductBySlug,
   getProduct,
+  iterateProducts,
+  updateProduct,
 } from './product.service.js';

@@ -56,3 +56,7 @@ export const softDelete = (id) =>
     { $set: { deletedAt: new Date() } },
     { returnDocument: 'after', lean: true },
   );
+
+/** Every active supplier (id/name only) — lookups for imports. */
+export const listAllActive = () =>
+  Supplier.find(ACTIVE, { name: 1, nameKey: 1 }).sort({ nameKey: 1 }).lean();

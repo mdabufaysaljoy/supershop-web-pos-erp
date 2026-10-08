@@ -178,3 +178,7 @@ export async function getBrandsByIds(ids) {
   const media = await mediaMap(brands);
   return brands.map((b) => toBrandDto(b, media));
 }
+
+/** `[{ id, name, slug }]` of all brands (imports resolve brand names/slugs). */
+export const listAllBrands = async () =>
+  (await repo.listAllActive()).map((b) => ({ id: String(b._id), name: b.name, slug: b.slug }));

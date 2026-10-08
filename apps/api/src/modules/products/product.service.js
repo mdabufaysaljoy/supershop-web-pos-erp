@@ -278,7 +278,11 @@ export async function getProduct(actor, id) {
 
 // ---------------------------------------------------------------- commands
 
-export async function createProduct(actor, input) {
+/**
+ * @param {{ dryRun?: boolean }} [opts] dryRun: run every check (references, custom fields, codes,
+ *   slug) and stop before writing — used by import validation. Returns null then.
+ */
+export async function createProduct(actor, input, { dryRun = false } = {}) {
   assertCostAccess(actor, input.variants);
   await assertReferences(input);
   const customFields = await validateCustomValues('product', input.customFields);
@@ -288,6 +292,7 @@ export async function createProduct(actor, input) {
     input.slug ??
     (await uniqueSlug(input.name, { exists: (v) => repo.slugExists(v), fallback: 'product' }));
 
+  if (dryRun) return null;
   const variants = input.variants.map((v, i) => ({ ...variantFields(v, i), cost: v.cost ?? null }));
   let created;
   try {
@@ -331,7 +336,8 @@ export async function createProduct(actor, input) {
  * Partial update of product fields; `variants` (when present) is the complete set: entries with
  * `id` update that variant, entries without create one, existing variants not listed are removed.
  */
-export async function updateProduct(actor, id, input) {
+/** @param {{ dryRun?: boolean }} [opts] see createProduct */
+export async function updateProduct(actor, id, input, { dryRun = false } = {}) {
   assertCostAccess(actor, input.variants);
   const current = await repo.findActiveProduct(id);
   if (!current) throw notFound();
@@ -363,6 +369,7 @@ export async function updateProduct(actor, id, input) {
   });
   assertAggregate({ options, imageIds, variants: nextVariants });
   if (input.variants) await assertCodesFree(id, input.variants);
+  if (dryRun) return null;
 
   const priceChanges = [];
   let saved;
@@ -513,6 +520,32 @@ export async function getPublicProduct(slug, lang) {
     attributes,
     seo: { title: r.seo.title, description: r.seo.description },
   };
+}
+
+// ---------------------------------------------------------------- bulk import/export (P1.7)
+
+/** Admin DTO of an active product by slug, or null. */
+export async function findProductBySlug(actor, slug) {
+  const p = await repo.findActiveBySlug(slug);
+  return p ? toProductDto(p, await repo.listVariants(p._id), actor) : null;
+}
+
+/**
+ * Async iterator over admin DTOs (with variants) matching list filters, in pages — for exports.
+ * @param {object} actor
+ * @param {{ status?: string, categoryId?: string, brandId?: string, supplierId?: string, q?: string }} filters
+ */
+export async function* iterateProducts(actor, filters = {}, pageSize = 200) {
+  for (let page = 1; ; page += 1) {
+    const { items } = await repo.listProducts({
+      ...filters,
+      page,
+      limit: pageSize,
+      sort: { field: 'createdAt', direction: 1 },
+    });
+    for (const p of items) yield toProductDto(p, await repo.listVariants(p._id), actor);
+    if (items.length < pageSize) return;
+  }
 }
 
 // ---------------------------------------------------------------- barcodes (P1.6)

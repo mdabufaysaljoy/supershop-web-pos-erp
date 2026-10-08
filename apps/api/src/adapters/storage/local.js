@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdir, rename, rm, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import express from 'express';
 import { isSafeKey } from './keys.js';
@@ -40,6 +40,16 @@ export function createLocalStorage({ rootDir, publicUrl }) {
         await rename(tmp, file);
       } catch (err) {
         await rm(tmp, { force: true });
+        throw err;
+      }
+    },
+
+    /** File contents, or null when missing. */
+    async get(key) {
+      try {
+        return await readFile(fileOf(key));
+      } catch (err) {
+        if (err.code === 'ENOENT') return null;
         throw err;
       }
     },

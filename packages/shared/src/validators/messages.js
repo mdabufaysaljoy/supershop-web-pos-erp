@@ -29,6 +29,10 @@ export const V = Object.freeze({
   PASSWORD_NEEDS_SYMBOL: 'validation.password.needsSymbol',
   CODE_INVALID: 'validation.code.invalid',
   BARCODE_CHECKSUM: 'validation.code.checksum',
+  /** Import: a category/brand/supplier name or slug that doesn't exist. */
+  UNKNOWN_REFERENCE: 'validation.import.unknownReference',
+  /** Import: product_key already exists in create-only mode. */
+  ALREADY_EXISTS: 'validation.import.alreadyExists',
   SLUG_INVALID: 'validation.slug.invalid',
   ID_INVALID: 'validation.id.invalid',
   SORT_INVALID: 'validation.sort.invalid',

@@ -97,7 +97,9 @@
     "BRAND_IN_USE": "Products still use this brand.",
     "SUPPLIER_IN_USE": "Products or purchase orders still use this supplier.",
     "SKU_TAKEN": "This SKU is already used by another product.",
-    "BARCODE_TAKEN": "This barcode is already used by another product."
+    "BARCODE_TAKEN": "This barcode is already used by another product.",
+    "GONE": "This file has expired. Run the export again.",
+    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Try again shortly."
   },
   "validation": {
     "required": "This field is required.",
@@ -159,6 +161,10 @@
       "variantOptions": "Choose one value for every option.",
       "compareAtPrice": "The compare-at price must be higher than the price.",
       "variantImage": "Variant images must be in the product gallery."
+    },
+    "import": {
+      "unknownReference": "Not found — check the spelling (use the slug for categories).",
+      "alreadyExists": "A product with this product_key already exists (create-only mode)."
     }
   },
   "common": {
@@ -587,6 +593,75 @@
       "required": "Required",
       "active": "Active",
       "activeHint": "Inactive fields are hidden but keep their saved values."
+    }
+  },
+  "transfer": {
+    "title": "Import & export",
+    "description": "Add or update many products at once with a spreadsheet, or download your catalog. One row per variant; rows with the same product_key belong to one product.",
+    "format": "File format",
+    "recent": "Recent imports and exports",
+    "recentHint": "Export files can be downloaded for 24 hours.",
+    "when": "Started",
+    "kind": "Job",
+    "result": "Result",
+    "open": "View",
+    "progress": "{{done}} of {{total}} products processed…",
+    "jobTitle": {
+      "import": "Import {{file}}",
+      "export": "Export"
+    },
+    "status": {
+      "queued": "Waiting",
+      "running": "Running",
+      "done": "Finished",
+      "failed": "Failed"
+    },
+    "failure": {
+      "missingColumns": "The file needs at least the product_key and sku columns. Start from the template.",
+      "unreadable": "The file couldn't be read. Save it as CSV (UTF-8) or XLSX.",
+      "tooManyRows": "Too many rows. Split the file (max 10,000 rows).",
+      "staffInactive": "Your account is no longer active.",
+      "interrupted": "The job was interrupted (server restart). Run it again.",
+      "unexpected": "Something went wrong while processing the file."
+    },
+    "import": {
+      "title": "Import products",
+      "description": "Download the template, fill it in Excel or Google Sheets, then upload it. Images are added in the product editor.",
+      "template": "{{format}} template",
+      "choose": "Choose file",
+      "noFile": "No file chosen",
+      "mode": "When a product_key already exists",
+      "modes": {
+        "upsert": "Update it",
+        "create": "Skip it (create new products only)"
+      },
+      "dryRun": "Validate only (nothing is saved)",
+      "dryRunHint": "Check the file first, then run it again with this switched off.",
+      "dryRunBadge": "Validation only",
+      "validate": "Validate file",
+      "start": "Import",
+      "limits": "CSV (UTF-8) or XLSX, up to 10 MB and 10,000 rows.",
+      "summary": "Created {{created}}, updated {{updated}}, failed {{failed}} ({{rows}} rows).",
+      "summaryDry": "Would create {{created}}, update {{updated}}; {{failed}} with problems ({{rows}} rows). Nothing was saved.",
+      "short": "+{{created}} / ~{{updated}} / ✕{{failed}}",
+      "ignored": "Ignored columns: {{columns}}"
+    },
+    "export": {
+      "title": "Export products",
+      "description": "Every variant as a row — the same layout as the import template, so you can edit and re-import.",
+      "start": "Export",
+      "download": "Download file",
+      "summary": "{{products}} products, {{rows}} rows.",
+      "short": "{{products}} products"
+    },
+    "report": {
+      "title_one": "{{count}} problem",
+      "title_other": "{{count}} problems",
+      "row": "Row",
+      "column": "Column",
+      "problem": "Problem",
+      "download": "Download report",
+      "truncated": "Showing the first {{shown}} problems."
     }
   }
 }

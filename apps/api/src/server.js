@@ -5,6 +5,7 @@ import { logger } from './core/logger.js';
 import { closeQueues } from './core/queue.js';
 import { closeRedis } from './core/redis.js';
 import { loadLanguages, startTranslationWorker } from './modules/i18n/index.js';
+import { startTransferWorkers } from './modules/productTransfer/index.js';
 import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
 /**
@@ -19,6 +20,7 @@ async function main() {
   await startSettingsSync();
   await loadLanguages();
   startTranslationWorker();
+  await startTransferWorkers();
 
   const app = createApp();
   const server = app.listen(config.API_PORT, () => {

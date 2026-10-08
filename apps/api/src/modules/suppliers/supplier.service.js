@@ -103,3 +103,7 @@ export async function deleteSupplier(actor, id) {
   if (!(await repo.softDelete(id))) throw notFound();
   emit(actor, EVENTS.SUPPLIER_DELETED, { supplierId: id });
 }
+
+/** `[{ id, name }]` of all suppliers (imports resolve supplier names). */
+export const listAllSuppliers = async () =>
+  (await repo.listAllActive()).map((x) => ({ id: String(x._id), name: x.name }));

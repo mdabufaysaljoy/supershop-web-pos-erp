@@ -1,6 +1,6 @@
 import { PERMISSIONS as P, PRODUCT } from '@supershop/shared';
 import { useBarcodeScanner } from '@supershop/ui';
-import { Plus, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeftRight, Plus, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
@@ -77,6 +77,14 @@ export function ProductsPage() {
           <p className="text-xs text-muted-foreground">{t('products.barcodes.scanHint')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {(can(P.PRODUCT_IMPORT) || can(P.PRODUCT_EXPORT)) && (
+            <Button variant="outline" asChild>
+              <Link to="/products/transfer">
+                <ArrowLeftRight className="size-4" aria-hidden />
+                {t('transfer.title')}
+              </Link>
+            </Button>
+          )}
           {can(P.CUSTOM_FIELD_MANAGE) && (
             <Button variant="outline" asChild>
               <Link to="/products/fields">

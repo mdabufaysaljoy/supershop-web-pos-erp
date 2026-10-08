@@ -95,12 +95,13 @@ function buildUrl(path, query) {
 /**
  * @param {string} path  e.g. '/api/v1/staff'
  * @param {{ method?: string, body?: unknown | FormData, query?: Record<string, unknown>, signal?: AbortSignal,
- *   auth?: boolean, headers?: Record<string, string> }} [opts]  `auth: false` for login & public calls
+ *   auth?: boolean, headers?: Record<string, string>, responseType?: 'json' | 'blob' }} [opts]
+ *   `auth: false` for login & public calls; `responseType: 'blob'` → `{ blob, fileName }`
  * @returns {Promise<{ data: any, meta?: any } | null>}  null for 204
  */
 export async function api(
   path,
-  { method = 'GET', body, query, signal, auth = true, headers = {} } = {},
+  { method = 'GET', body, query, signal, auth = true, headers = {}, responseType = 'json' } = {},
   retried = false,
 ) {
   const token = useAuthStore.getState().accessToken;
@@ -122,7 +123,8 @@ export async function api(
     const err = await toApiError(res);
     if (!retried && err.code === 'TOKEN_EXPIRED') {
       const fresh = await refreshAccessToken();
-      if (fresh) return api(path, { method, body, query, signal, auth, headers }, true);
+      if (fresh)
+        return api(path, { method, body, query, signal, auth, headers, responseType }, true);
     } else if (['TOKEN_INVALID', 'UNAUTHENTICATED'].includes(err.code)) {
       useAuthStore.getState().clear();
     }
@@ -130,7 +132,25 @@ export async function api(
   }
   if (!res.ok) throw await toApiError(res);
   if (res.status === 204) return null;
+  if (responseType === 'blob') {
+    const disposition = res.headers.get('Content-Disposition') ?? '';
+    return {
+      blob: await res.blob(),
+      fileName: /filename="([^"]+)"/.exec(disposition)?.[1] ?? 'download',
+    };
+  }
   return res.json();
+}
+
+/** Downloads a file endpoint (with auth/refresh) and saves it via a temporary link. */
+export async function downloadFile(path, opts) {
+  const { blob, fileName } = await api(path, { ...opts, responseType: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), { href: url, download: fileName });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /** Convenience: returns only `data`. */

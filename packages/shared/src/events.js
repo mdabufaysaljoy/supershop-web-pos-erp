@@ -77,6 +77,10 @@ export const EVENTS = Object.freeze({
   PRODUCT_UPDATED: 'product.updated',
   PRODUCT_DELETED: 'product.deleted',
   PRODUCT_PRICE_CHANGED: 'product.priceChanged',
+  /** Payload: { jobId, actorId, status, dryRun, counts, errorCount } */
+  PRODUCT_IMPORT_FINISHED: 'product.importFinished',
+  /** Payload: { jobId, actorId, status, counts } */
+  PRODUCT_EXPORT_FINISHED: 'product.exportFinished',
 
   // inventory
   STOCK_MOVED: 'stock.moved',

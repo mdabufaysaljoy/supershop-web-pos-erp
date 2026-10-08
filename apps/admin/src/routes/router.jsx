@@ -7,6 +7,7 @@ import { BrandsPage } from '@/features/brands/pages/BrandsPage';
 import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
+import { ProductTransferPage } from '@/features/productTransfer/pages/ProductTransferPage';
 import { ProductEditorPage } from '@/features/products/pages/ProductEditorPage';
 import { ProductsPage } from '@/features/products/pages/ProductsPage';
 import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
@@ -38,6 +39,11 @@ const SUB_PAGES = {
       path: 'fields',
       permission: P.CUSTOM_FIELD_MANAGE,
       element: <CustomFieldsPage entity="product" />,
+    },
+    {
+      path: 'transfer',
+      permission: [P.PRODUCT_IMPORT, P.PRODUCT_EXPORT],
+      element: <ProductTransferPage />,
     },
     { path: ':id', permission: P.PRODUCT_VIEW, element: <ProductEditorPage /> },
   ],

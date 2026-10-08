@@ -9,6 +9,7 @@ import { createLocalStorage } from './local.js';
  *   {
  *     name: string,
  *     put(key: string, body: Buffer, { contentType: string }): Promise<void>,
+ *     get(key: string): Promise<Buffer | null>,
  *     delete(key: string): Promise<void>,          // missing file = success (idempotent)
  *     url(key: string): string,                    // public URL for the key
  *     staticHandler?(): import('express').RequestHandler   // only drivers the API itself serves
@@ -44,4 +45,21 @@ export function getStorage() {
 }
 export function setStorage(storage) {
   instance = storage;
+}
+
+let privateInstance = null;
+/**
+ * Storage for private files (imports, exports). Same interface, but no public URL and never
+ * served by the API's static handler — files leave only through authorized endpoints.
+ */
+export function getPrivateStorage() {
+  privateInstance ??= createStorage({
+    driver: config.MEDIA_STORAGE,
+    localDir: config.PRIVATE_FILES_DIR,
+    publicUrl: 'private:',
+  });
+  return privateInstance;
+}
+export function setPrivateStorage(storage) {
+  privateInstance = storage;
 }

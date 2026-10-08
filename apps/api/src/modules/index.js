@@ -15,6 +15,7 @@ import { createCategoryRouter, setCategoryUsageCounter } from './categories/inde
 import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
 import { createMediaRouter } from './media/index.js';
+import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countProductsInCategory,
   countProductsOfBrand,
@@ -117,4 +118,5 @@ export function mountModuleRoutes(api) {
   api.use('/suppliers', createSupplierRouter());
   api.use('/custom-fields', createCustomFieldRouter());
   api.use('/products', createProductRouter());
+  api.use('/product-transfers', createProductTransferRouter());
 }

@@ -26,7 +26,8 @@
     "./schemas/brand": "./src/schemas/brand.js",
     "./schemas/supplier": "./src/schemas/supplier.js",
     "./schemas/customField": "./src/schemas/customField.js",
-    "./schemas/product": "./src/schemas/product.js"
+    "./schemas/product": "./src/schemas/product.js",
+    "./schemas/productTransfer": "./src/schemas/productTransfer.js"
   },
   "scripts": {
     "test": "vitest run"

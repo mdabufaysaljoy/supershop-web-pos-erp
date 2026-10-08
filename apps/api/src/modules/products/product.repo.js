@@ -13,6 +13,7 @@ const SORT_FIELDS = {
 // ---------- products ----------
 export const findActiveProduct = (id, session) =>
   Product.findOne({ _id: id, ...ACTIVE }, null, opts(session)).lean();
+export const findActiveBySlug = (slug) => Product.findOne({ slug, ...ACTIVE }).lean();
 export const findPublicBySlug = (slug) =>
   Product.findOne({ slug, status: 'active', ...ACTIVE }).lean();
 export const loadProductForUpdate = (id, session) =>

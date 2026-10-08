@@ -94,6 +94,12 @@ const schema = z
     /** Public base URL of stored files (CDN/bucket URL later). Default: `${API_PUBLIC_URL}/media`. */
     MEDIA_PUBLIC_URL: z.url({ protocol: /^https?$/ }).optional(),
 
+    /**
+     * Private files (import uploads, export results): never served publicly — downloaded only
+     * through authorized API endpoints. Keep it OUTSIDE any web-served directory.
+     */
+    PRIVATE_FILES_DIR: z.string().min(1).default('var/private'),
+
     TZ_DISPLAY: z.string().refine(isValidTimeZone, 'invalid IANA time zone').default('Asia/Riyadh'),
   })
   .superRefine((env, ctx) => {
@@ -138,6 +144,7 @@ export function loadConfig(env) {
     ...c,
     CORS_ORIGINS: Object.freeze([...new Set(c.CORS_ORIGINS)]),
     MEDIA_LOCAL_DIR: path.resolve(REPO_ROOT, c.MEDIA_LOCAL_DIR),
+    PRIVATE_FILES_DIR: path.resolve(REPO_ROOT, c.PRIVATE_FILES_DIR),
     MEDIA_PUBLIC_URL: (
       c.MEDIA_PUBLIC_URL ?? `${c.API_PUBLIC_URL.replace(/\/+$/, '')}/media`
     ).replace(/\/+$/, ''),

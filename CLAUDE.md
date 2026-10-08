@@ -350,4 +350,4 @@ Legend: `[H]` = needs strongest reasoning model/high effort (security, money, le
 - `PROGRESS.md` updated (task done, decisions, notes). Commit made.
 
 ## 8. Commands (fill/keep accurate)
-- `npm run dev` (api + admin) · `npm run build` · `npm run dev -w apps/api` · `npm run lint` · `npm run format` · `npm test` · `npm run check` · `npm run seed` · `docker compose up -d --wait`
+- `npm run dev` (api + admin + storefront) · `npm run build` · `npm run dev -w apps/api` · `npm run lint` · `npm run format` · `npm test` · `npm run check` · `npm run seed` · `docker compose up -d --wait`

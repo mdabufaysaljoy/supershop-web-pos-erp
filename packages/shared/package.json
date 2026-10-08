@@ -16,7 +16,8 @@
     "./constants": "./src/constants.js",
     "./schemas/auth": "./src/schemas/auth.js",
     "./schemas/rbac": "./src/schemas/rbac.js",
-    "./settings": "./src/settings/definitions.js"
+    "./settings": "./src/settings/definitions.js",
+    "./api": "./src/api/client.js"
   },
   "scripts": {
     "test": "vitest run"

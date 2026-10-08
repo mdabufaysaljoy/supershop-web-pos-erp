@@ -12,7 +12,7 @@
     "npm": ">=10"
   },
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail -n api,admin -c blue,magenta \"npm:dev:api\" \"npm:dev:admin\"",
+    "dev": "concurrently --kill-others-on-fail -n api,admin,web -c blue,magenta,green \"npm:dev:api\" \"npm:dev:admin\" \"npm:dev:web\"",
     "dev:api": "npm run dev -w apps/api",
     "start:api": "npm run start -w apps/api",
     "lint": "eslint . --max-warnings=0",
@@ -26,7 +26,8 @@
     "infra:down": "docker compose down",
     "prepare": "husky",
     "dev:admin": "npm run dev -w apps/admin",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspaces --if-present",
+    "dev:web": "npm run dev -w apps/storefront"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,jsx}": [

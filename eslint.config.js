@@ -149,7 +149,7 @@ export default [
     rules: { 'no-restricted-imports': restrict(NO_SERVER_CODE) },
   },
   {
-    files: ['apps/admin/src/**/*.{js,jsx}'],
+    files: ['apps/admin/src/**/*.{js,jsx}', 'apps/storefront/src/**/*.{js,jsx}'],
     plugins: { react },
     settings: { react: { version: 'detect' } },
     rules: {
@@ -161,7 +161,7 @@ export default [
     },
   },
   {
-    files: ['apps/admin/src/**/*.{js,jsx}'],
+    files: ['apps/admin/src/**/*.{js,jsx}', 'apps/storefront/src/**/*.{js,jsx}'],
     ...reactHooks.configs.flat.recommended,
   },
   {
@@ -170,7 +170,7 @@ export default [
   },
   {
     // Build/test tooling for frontends runs in Node.
-    files: ['apps/admin/vite.config.js'],
+    files: ['apps/admin/vite.config.js', 'apps/storefront/*.{js,mjs}'],
     languageOptions: { globals: { ...globals.node } },
   },
 

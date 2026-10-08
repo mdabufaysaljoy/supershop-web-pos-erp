@@ -2,7 +2,7 @@
 
 ## Current
 - Phase: 0
-- Next task: P0.8
+- Next task: P0.9
 - Last model used: Opus 5.5
 
 ## Done tasks
@@ -13,6 +13,7 @@
 - P0.5 ✔ 2026-10-08 (Opus 5.5) RBAC: `core/access.js` AccessContext (can/assert, branch scope `assertBranch`/`branchFilter`, escalation helpers), `requirePermission`/`requireAnyPermission`/`requireStaff` middleware (auth + live access resolution, super-admin bypass audited via `access.superAdminUsed`), roles module (`/api/v1/roles` CRUD, permission catalog, 8 seeded system roles, case-insensitive names, system/in-use protection), staff management (`/api/v1/staff` list/search/paginate, create/update/soft-delete, force logout, `/staff/me/access`) with guards: grant only what you hold, branch-scoped reach, no self-modification, super-admins only by super-admins, last-super-admin write-skew guard (verified the race is real without it), disable/delete revokes sessions. `npm run seed` (idempotent roles + first super-admin). 116 API tests.
 - P0.6 ✔ 2026-10-08 (Opus 5.5) Settings registry: 22 typed definitions in `@supershop/shared` (zod schema, default, group→permission, public/secret flags), API `modules/settings` with sync `getSetting()` from an in-memory cache (Redis pub/sub + 60 s reload; verified across 2 processes), per-key validation, per-group permissions, atomic multi-key writes, reset, secrets AES-GCM encrypted (AAD-bound to key) + masked, `GET /settings/public` for the storefront, server-only definitions via `registerSettingDefinitions`. Auth lockout/session lifetimes and password/phone policy now come from settings live (schemas rebuilt only on change). Audit module: append-only `audit_logs` (idempotent per event id) fed by event subscribers with explicit allow-list mappings + secret scrubbing; `GET /audit` (audit.view) with filters. 137 API tests.
 - P0.7 ✔ 2026-10-08 (Opus 5.5) Admin SPA `apps/admin` (Vite 8, React 19, react-router 7, TanStack Query, Zustand, react-hook-form + shared zod schemas, Tailwind 4 + hand-written shadcn/ui primitives on `radix-ui`, i18next with `en.json`): API client (envelope, ApiError codes, single-flight refresh + one retry, session clear on revoke), in-memory access token + silent refresh on reload, login page, route guards (auth, permission, safe `next`), nav config = menu + routes (permission-gated, ComingSoon placeholders), home redirect to first permitted section, responsive layout (sidebar / mobile sheet), user menu (sign out / everywhere), periodic access sync. ESLint react/hooks/refresh. 32 admin tests + real-browser E2E (13 checks) — found & fixed: deliberate sign-out leaked `next` to the next user on a shared terminal; login page lacked an h1.
+- P0.8 ✔ 2026-10-08 (Opus 5.5) Storefront `apps/storefront` (Next.js 16 App Router, JS, Tailwind 4): locale routing via `src/proxy.js` (en unprefixed → internal `/en`, `/en/*` 308 → canonical, `/ar/*`), root layout per language with server-rendered `<html lang dir>`, SSG + ISR (60 s) pages, dictionaries with English fallback (ar.json generated in P0.11), `buildMetadata` (self-canonical, hreflang en/ar/x-default, OG/Twitter, noindex), JSON-LD helpers (Organization, WebSite+SearchAction, BreadcrumbList) with XSS-safe serialization, robots.txt + sitemap.xml with hreflang, 404/error pages per language, security headers, `/api/v1` proxied same-origin, server API client on shared framework-free `createApiClient` (also added to `@supershop/shared`), public settings with build-safe defaults. 22 storefront tests; verified with prod build + curl + Chromium (RTL mirrors).
 
 ## Decisions
 - D-001 Storefront = Next.js (SSR for SEO); Admin = Vite SPA; API = Express + Mongoose; monorepo npm workspaces.
@@ -50,6 +51,10 @@
 - D-032 Admin dev uses Vite proxy `/api` → API (same origin, like prod behind Nginx) so cookie/CSRF behave identically; `VITE_API_URL` empty by default.
 - D-033 react-router pinned to v7 (v8 available but its API unverified here); shadcn components are hand-written (CLI is interactive) following shadcn source, on the unified `radix-ui` package.
 - D-034 Admin bundle ~220 kB gz (React/router/zod/forms); route-level `lazy()` splitting added as feature pages land. Storefront (SEO-critical) is separate.
+- D-035 Next.js 16: middleware is now `src/proxy.js` (`export function proxy`); read `node_modules/next/dist/docs` before using Next APIs (bundled docs warn APIs differ from training data).
+- D-036 Storefront pages must not read request headers/cookies in shared segments (forces dynamic rendering, losing SSG/ISR) — not-found is a client component for that reason. Personalized bits go in client components or separate dynamic routes.
+- D-037 `@next/eslint-plugin-next` not used: it pulls `braces` with an unfixable high advisory; our React rules cover the storefront. Revisit when fixed.
+- D-038 Compiler bug workaround: never write `/\u2028/` regex literals in frontend code (Turbopack inlines a raw line separator → broken bundle); build such characters with `String.fromCharCode`.
 
 ## Open questions (blockers only)
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
@@ -71,5 +76,6 @@
 - New setting = add a definition in `packages/shared/src/settings/definitions.js` (or `registerSettingDefinitions` for server-only/secret ones); read with `getSetting(key)` from `modules/settings/index.js`. New audited event = add a mapping in `modules/audit/audit.mapping.js`.
 - Admin settings API: `GET /api/v1/settings?group=`, `PATCH /api/v1/settings { changes: [{key,value}] }`, `POST /api/v1/settings/reset { keys }`; storefront: `GET /api/v1/settings/public`.
 - Shared imports: `import { EVENTS, PERMISSIONS, toMinor, validators } from '@supershop/shared'` or subpaths `@supershop/shared/validators`.
-- `npm run dev` runs API + admin (http://localhost:5173). P0.8 must add storefront to root `dev` script and extend the React ESLint blocks to `apps/storefront`.
+- `npm run dev` runs API (:4000) + admin (:5173) + storefront (:3000).
+- Storefront: server data via `src/lib/api.js` (`apiGet(path, { lang, revalidate, tags })`); page metadata via `buildMetadata()`; UI text via dictionaries (`en.json` only — never edit `ar.json` by hand); logical CSS only (ms/me/ps/pe/start/end).
 - Admin: add a page = item in `components/layout/navigation.js` + entry in `PAGES` (routes/router.jsx); call the API only through `lib/apiClient.js`; UI text only via `t()` keys in `locales/en.json`.

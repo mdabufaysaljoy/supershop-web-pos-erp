@@ -1,0 +1,29 @@
+{
+  "site": {
+    "skipToContent": "Skip to content",
+    "tagline": "Gadgets, fashion and everyday essentials — delivered across Saudi Arabia."
+  },
+  "nav": {
+    "home": "Home",
+    "primary": "Main navigation",
+    "footer": "Footer"
+  },
+  "home": {
+    "title": "Welcome to {{store}}",
+    "intro": "Our online store is getting ready. Product listings, cart and checkout are coming soon."
+  },
+  "footer": {
+    "rights": "© {{year}} {{store}}. All rights reserved.",
+    "vatIncluded": "Prices include VAT."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for doesn't exist or has moved.",
+    "back": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "Please try again in a moment.",
+    "retry": "Try again"
+  }
+}

@@ -1,8 +1,15 @@
 import { ERROR_CODES, EVENTS, PRINCIPAL_TYPES } from '@supershop/shared';
+import { V } from '@supershop/shared/validators';
 import { createAccessContext } from '../../core/access.js';
 import { nextSequence } from '../../core/counter.js';
 import { withTransaction } from '../../core/db.js';
-import { AppError, BadRequestError, ConflictError, NotFoundError } from '../../core/errors.js';
+import {
+  AppError,
+  BadRequestError,
+  ConflictError,
+  NotFoundError,
+  ValidationError,
+} from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { revokeAllSessions, setPassword } from '../auth/index.js';
 import { getRoleAccess } from '../rbac/index.js';
@@ -73,6 +80,15 @@ function assertCanManage(actor, target) {
   }
 }
 
+/**
+ * Branch existence check — provided by the branches module at the composition root (avoids an
+ * import cycle). Returns the ids that are NOT active branches.
+ */
+let findUnknownBranches = async () => [];
+export function setBranchValidator(fn) {
+  findUnknownBranches = fn;
+}
+
 /** Assigning a role/branches/super-admin may not exceed what the actor holds. */
 async function assertCanAssign(actor, { roleId, branchIds, isSuperAdmin }) {
   if (isSuperAdmin && !actor.isSuperAdmin) throw escalation();
@@ -84,6 +100,16 @@ async function assertCanAssign(actor, { roleId, branchIds, isSuperAdmin }) {
   }
   if (branchIds && !actor.coversBranches(branchIds)) {
     throw forbidden(ERROR_CODES.BRANCH_SCOPE_DENIED, 'Branch not in your scope');
+  }
+  if (branchIds?.length) {
+    const unknown = new Set(await findUnknownBranches(branchIds));
+    if (unknown.size) {
+      throw new ValidationError(
+        branchIds.flatMap((id, i) =>
+          unknown.has(id) ? [{ path: `branchIds.${i}`, message: V.ID_INVALID }] : [],
+        ),
+      );
+    }
   }
 }
 
@@ -213,6 +239,20 @@ export async function revokeStaffSessions(actor, id) {
 }
 
 export const countStaffWithRole = (roleId) => repo.countStaffWithRole(roleId);
+export const countStaffInBranch = (branchId) => repo.countStaffInBranch(branchId);
+export const countStaffPerBranch = () => repo.countStaffPerBranch();
+
+/** Staff assigned to one branch (within the actor's reach), for the branch screen. */
+export async function listBranchStaff(actor, branchId) {
+  const { items } = await repo.listStaff({
+    page: 1,
+    limit: 500,
+    sort: { field: 'name', direction: 1 },
+    branchId,
+    scopeBranchIds: actor.allBranches ? null : actor.branchIds,
+  });
+  return items.map(toStaffProfile);
+}
 
 /**
  * Seed helper: creates the first super-admin only if none exists (idempotent).

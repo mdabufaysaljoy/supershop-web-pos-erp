@@ -10,6 +10,7 @@ export function FormActions({
   onDelete,
   deleting,
   onCancel,
+  canDelete = true,
 }) {
   const { t } = useTranslation();
   return (
@@ -21,6 +22,7 @@ export function FormActions({
         {t('common.cancel')}
       </Button>
       {!isNew &&
+        canDelete &&
         (confirmDelete ? (
           <span className="ms-auto flex items-center gap-2">
             <span className="text-sm">{t('common.confirmDelete')}</span>

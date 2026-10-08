@@ -131,6 +131,26 @@ export const AUDIT_MAPPINGS = {
     entityId: p.categoryId,
   }),
 
+  // branches
+  [EVENTS.BRANCH_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'branch',
+    entityId: p.branchId,
+    after: p.after,
+  }),
+  [EVENTS.BRANCH_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'branch',
+    entityId: p.branchId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.BRANCH_DELETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'branch',
+    entityId: p.branchId,
+  }),
+
   // brands & suppliers
   [EVENTS.BRAND_CREATED]: (p) => ({
     ...staffActor(p),

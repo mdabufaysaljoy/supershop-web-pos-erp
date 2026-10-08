@@ -4,6 +4,7 @@ import { validators } from '@supershop/shared';
 import { config } from '../core/config.js';
 import { randomToken } from '../core/crypto.js';
 import { connectDb, disconnectDb } from '../core/db.js';
+import { seedMainBranch } from '../modules/branches/index.js';
 import { seedGlossary, seedLanguages } from '../modules/i18n/index.js';
 import { seedDefaultRoles } from '../modules/rbac/index.js';
 import { ensureSuperAdmin } from '../modules/staff/index.js';
@@ -12,6 +13,7 @@ import { ensureSuperAdmin } from '../modules/staff/index.js';
  * `npm run seed` — idempotent. Safe to run on every deploy:
  * - inserts missing default roles (never overwrites admin edits)
  * - inserts missing languages (en source, ar) and do-not-translate glossary terms
+ * - creates a "Main store" branch (code MAIN) only if no branch exists
  * - creates the first super-admin only if none exists
  *
  * Env: SEED_ADMIN_EMAIL (required), SEED_ADMIN_NAME, SEED_ADMIN_PASSWORD.
@@ -47,6 +49,8 @@ async function main() {
     console.info(
       `✔ languages ensured (${langs.map((l) => l.code).join(', ')}) + do-not-translate glossary`,
     );
+    const branch = await seedMainBranch();
+    console.info(branch ? '✔ main branch created (code MAIN)' : '✔ branches already exist');
 
     const generated = SEED_ADMIN_PASSWORD ? null : `${randomToken(12)}-9a`;
     const result = await ensureSuperAdmin({

@@ -10,6 +10,7 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
+import { createBranchRouter, findUnknownBranches } from './branches/index.js';
 import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
 import { createCustomFieldRouter } from './customFields/index.js';
@@ -30,6 +31,7 @@ import {
   countStaffWithRole,
   createStaffRouter,
   resolveStaffAccess,
+  setBranchValidator,
   staffPrincipal,
 } from './staff/index.js';
 
@@ -91,6 +93,7 @@ export function registerModules() {
   setAuthPolicyProvider(authPolicyFromSettings);
   setAccessResolver(resolveStaffAccess);
   setRoleUsageCounter(countStaffWithRole);
+  setBranchValidator(findUnknownBranches); // staff can only be assigned to existing branches
   registerAuthSubscribers();
   registerAuditSubscribers();
   registerI18nSubscribers();
@@ -111,6 +114,7 @@ export function mountModuleRoutes(api) {
   api.use('/customers', createCustomerRouter({ getSchemas: getAuthSchemas }));
   api.use('/roles', createRoleRouter());
   api.use('/staff', createStaffRouter({ getSchemas: getRbacSchemas }));
+  api.use('/branches', createBranchRouter());
   api.use('/settings', createSettingsRouter());
   api.use('/audit', createAuditRouter());
   api.use('/i18n', createI18nAdminRouter());

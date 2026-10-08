@@ -1,4 +1,5 @@
 import { EVENTS } from '@supershop/shared';
+import mongoose from 'mongoose';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { nextEvent } from '../../../../test/http.js';
@@ -36,6 +37,15 @@ const as = (who) => ({
 beforeEach(async () => {
   app = createApp({ checks: up });
   await seedDefaultRoles();
+  // Staff can only be assigned to branches that exist (P2.1).
+  await mongoose.connection.collection('branches').insertMany(
+    [B1, B2].map((id, i) => ({
+      _id: new mongoose.Types.ObjectId(id),
+      code: `B${i + 1}`,
+      name: { en: `Branch ${i + 1}` },
+      deletedAt: null,
+    })),
+  );
   const managerRole = await findSystemRoleId('store_manager');
   const cashierRole = await findSystemRoleId('cashier');
 

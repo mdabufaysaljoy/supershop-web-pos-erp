@@ -45,6 +45,13 @@ export const EVENTS = Object.freeze({
   UI_STRING_OVERRIDE_SET: 'uiString.overrideSet',
   UI_STRING_OVERRIDE_REMOVED: 'uiString.overrideRemoved',
 
+  // branches
+  /** Payload: { branchId, actorId, after } */
+  BRANCH_CREATED: 'branch.created',
+  /** Payload: { branchId, actorId, before, after } */
+  BRANCH_UPDATED: 'branch.updated',
+  BRANCH_DELETED: 'branch.deleted',
+
   // catalog
   /** Payload: { categoryId, actorId, after } */
   CATEGORY_CREATED: 'category.created',

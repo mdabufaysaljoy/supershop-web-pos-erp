@@ -30,7 +30,16 @@ export const findAnySuperAdmin = () => Staff.findOne({ isSuperAdmin: true, ...no
  * Paginated list. `scopeBranchIds` (null = all) limits results to staff sharing at least one branch
  * with the actor; super-admins are hidden from scoped actors.
  */
-export async function listStaff({ page, limit, sort, q, status, roleId, scopeBranchIds }) {
+export async function listStaff({
+  page,
+  limit,
+  sort,
+  q,
+  status,
+  roleId,
+  scopeBranchIds,
+  branchId,
+}) {
   const filter = { ...notDeleted };
   if (status) filter.status = status;
   if (roleId) filter.roleId = roleId;
@@ -38,10 +47,13 @@ export async function listStaff({ page, limit, sort, q, status, roleId, scopeBra
     const rx = new RegExp(escapeRegex(q), 'i');
     filter.$or = [{ name: rx }, { email: rx }];
   }
+  const and = [];
   if (scopeBranchIds) {
-    filter.branchIds = { $in: scopeBranchIds.map((id) => new mongoose.Types.ObjectId(id)) };
+    and.push({ branchIds: { $in: scopeBranchIds.map((id) => new mongoose.Types.ObjectId(id)) } });
     filter.isSuperAdmin = false;
   }
+  if (branchId) and.push({ branchIds: new mongoose.Types.ObjectId(branchId) });
+  if (and.length) filter.$and = and;
   const [items, total] = await Promise.all([
     Staff.find(filter)
       .sort({ [sort.field]: sort.direction, _id: 1 })
@@ -52,3 +64,15 @@ export async function listStaff({ page, limit, sort, q, status, roleId, scopeBra
   ]);
   return { items, total };
 }
+
+/** `{ branchId: count }` of (non-deleted) staff assigned per branch. */
+export async function countStaffPerBranch() {
+  const rows = await Staff.aggregate([
+    { $match: notDeleted },
+    { $unwind: '$branchIds' },
+    { $group: { _id: '$branchIds', count: { $sum: 1 } } },
+  ]);
+  return new Map(rows.map((r) => [String(r._id), r.count]));
+}
+export const countStaffInBranch = (branchId) =>
+  Staff.countDocuments({ branchIds: branchId, ...notDeleted });

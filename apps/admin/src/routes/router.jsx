@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { allNavItems } from '@/components/layout/navigation';
 import { RequireAuth } from '@/features/auth/components/RequireAuth';
+import { BranchesPage } from '@/features/branches/pages/BranchesPage';
 import { BrandsPage } from '@/features/brands/pages/BrandsPage';
 import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
@@ -26,6 +27,7 @@ const PAGES = {
   '/products': <ProductsPage />,
   '/brands': <BrandsPage />,
   '/suppliers': <SuppliersPage />,
+  '/branches': <BranchesPage />,
   '/categories': <CategoriesPage />,
   '/media': <MediaLibraryPage />,
   '/settings': <SettingsPage />,

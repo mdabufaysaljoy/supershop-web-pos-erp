@@ -12,6 +12,7 @@ import {
   Receipt,
   ScrollText,
   Settings,
+  Store,
   Tags,
   ShieldCheck,
   ShoppingCart,
@@ -70,6 +71,7 @@ export const NAV = [
     section: 'nav.sections.admin',
     items: [
       { path: '/staff', label: 'nav.staff', icon: UserCog, permission: P.STAFF_VIEW },
+      { path: '/branches', label: 'nav.branches', icon: Store, permission: P.BRANCH_VIEW },
       { path: '/roles', label: 'nav.roles', icon: ShieldCheck, permission: P.ROLE_MANAGE },
       { path: '/settings', label: 'nav.settings', icon: Settings, permission: P.SETTINGS_VIEW },
       { path: '/audit', label: 'nav.audit', icon: ScrollText, permission: P.AUDIT_VIEW },

@@ -43,7 +43,8 @@
     "media": "Media library",
     "categories": "Categories",
     "brands": "Brands",
-    "suppliers": "Suppliers"
+    "suppliers": "Suppliers",
+    "branches": "Branches"
   },
   "pages": {
     "dashboard": {
@@ -99,7 +100,11 @@
     "SKU_TAKEN": "This SKU is already used by another product.",
     "BARCODE_TAKEN": "This barcode is already used by another product.",
     "GONE": "This file has expired. Run the export again.",
-    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Try again shortly."
+    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Try again shortly.",
+    "BRANCH_IN_USE": "Staff, stock or sales still use this branch. Deactivate it instead.",
+    "BRANCH_SCOPE_DENIED": "This is outside the branches you work in.",
+    "PERMISSION_ESCALATION": "You can't grant access you don't have yourself.",
+    "CANNOT_MODIFY_SELF": "You can't change your own access."
   },
   "validation": {
     "required": "This field is required.",
@@ -682,5 +687,60 @@
     },
     "results": "Search results",
     "noResults": "No matching products."
+  },
+  "branches": {
+    "title": "Branches",
+    "description": "Your stores and warehouses. Staff, stock, sales and shifts belong to a branch. Write names in English — Arabic is generated automatically.",
+    "add": "Add branch",
+    "newTitle": "New branch",
+    "empty": "No branches yet.",
+    "location": "Location",
+    "staffCol": "Staff",
+    "online": "Online orders",
+    "pickup": "Pick-up",
+    "types": {
+      "store": "Store",
+      "warehouse": "Warehouse"
+    },
+    "form": {
+      "code": "Code",
+      "codeHint": "Short and unique, e.g. RUH-01. Printed on receipts.",
+      "name": "Name",
+      "nameHint": "Shown to customers in the store locator.",
+      "type": "Type",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "National address (optional)",
+      "lat": "Latitude",
+      "lng": "Longitude",
+      "isActive": "Active",
+      "isActiveHint": "Inactive branches are hidden from customers and cannot sell.",
+      "fulfillsOnlineOrders": "Ships online orders",
+      "fulfillsOnlineOrdersHint": "Online orders can be fulfilled from this branch's stock.",
+      "pickupEnabled": "In-store pick-up",
+      "pickupEnabledHint": "Customers can choose to collect their order here."
+    },
+    "address": {
+      "buildingNumber": "Building number",
+      "street": "Street",
+      "district": "District",
+      "city": "City",
+      "postalCode": "Postal code",
+      "additionalNumber": "Additional number",
+      "shortAddress": "Short address (e.g. RRRD2929)"
+    },
+    "staff": {
+      "title": "Staff at {{name}}",
+      "open": "Staff at {{name}}",
+      "assigned": "Assigned staff",
+      "none": "No staff assigned to this branch.",
+      "remove": "Remove",
+      "removeFrom": "Remove {{name}} from this branch",
+      "addTitle": "Assign staff",
+      "search": "Search staff by name or email",
+      "noMatches": "No other staff found.",
+      "assign": "Assign",
+      "assignTo": "Assign {{name}} to this branch"
+    }
   }
 }

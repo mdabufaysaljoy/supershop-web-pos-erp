@@ -49,6 +49,8 @@ export const ERROR_CODES = Object.freeze({
   CATEGORY_IN_USE: 'CATEGORY_IN_USE',
   BRAND_IN_USE: 'BRAND_IN_USE',
   SUPPLIER_IN_USE: 'SUPPLIER_IN_USE',
+  /** A branch with assigned staff, stock or orders can't be deleted (deactivate it instead). */
+  BRANCH_IN_USE: 'BRANCH_IN_USE',
   /** Another active item already has this name. */
   NAME_TAKEN: 'NAME_TAKEN',
   SKU_TAKEN: 'SKU_TAKEN',

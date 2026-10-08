@@ -14,8 +14,12 @@ import * as c from './staff.controller.js';
  *  DELETE /:id                    staff.manage (soft delete)
  *  POST   /:id/sessions/revoke    staff.manage — force logout everywhere
  */
-export function createStaffRouter({ schemas = createRbacSchemas() } = {}) {
+const defaultSchemas = createRbacSchemas();
+
+/** @param {{ getSchemas?: () => ReturnType<typeof createRbacSchemas> }} [opts] settings-aware schemas */
+export function createStaffRouter({ getSchemas = () => defaultSchemas } = {}) {
   const r = express.Router();
+  const schemas = defaultSchemas; // params/query schemas don't depend on settings
   const id = validate({ params: schemas.idParam });
   const view = requirePermission(P.STAFF_VIEW);
   const manage = requirePermission(P.STAFF_MANAGE);
@@ -23,11 +27,11 @@ export function createStaffRouter({ schemas = createRbacSchemas() } = {}) {
   r.get('/me/access', requireStaff(), c.myAccess);
   r.get('/', view, validate({ query: schemas.staffListQuery }), c.list);
   r.get('/:id', view, id, c.get);
-  r.post('/', manage, validate({ body: schemas.staffCreate }), c.create);
+  r.post('/', manage, validate({ body: () => getSchemas().staffCreate }), c.create);
   r.patch(
     '/:id',
     manage,
-    validate({ params: schemas.idParam, body: schemas.staffUpdate }),
+    validate({ params: schemas.idParam, body: () => getSchemas().staffUpdate }),
     c.update,
   );
   r.delete('/:id', manage, id, c.remove);

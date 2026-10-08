@@ -23,9 +23,12 @@ import { requireAuth } from './auth.middleware.js';
  *  POST /email/resend        customer only, bearer
  *
  * @param {'staff' | 'customer'} type
- * @param {{ schemas?: ReturnType<typeof createAuthSchemas> }} [opts] schemas built from settings policy
+ * @param {{ getSchemas?: () => ReturnType<typeof createAuthSchemas> }} [opts] returns schemas for the
+ *   CURRENT settings (password policy, phone rules); called per request, memoized by the caller.
  */
-export function createAuthRouter(type, { schemas = createAuthSchemas() } = {}) {
+const defaultSchemas = createAuthSchemas();
+
+export function createAuthRouter(type, { getSchemas = () => defaultSchemas } = {}) {
   const r = express.Router();
   const auth = requireAuth(type);
   const csrf = requireCsrfProtection();
@@ -47,40 +50,20 @@ export function createAuthRouter(type, { schemas = createAuthSchemas() } = {}) {
     next();
   });
 
-  const loginSchema = type === PRINCIPAL_TYPES.STAFF ? schemas.staffLogin : schemas.customerLogin;
-  r.post('/login', ...loginLimits, validate({ body: loginSchema }), c.login(type));
+  const body = (name) => validate({ body: () => getSchemas()[name] });
+  const loginSchema = type === PRINCIPAL_TYPES.STAFF ? 'staffLogin' : 'customerLogin';
+  r.post('/login', ...loginLimits, body(loginSchema), c.login(type));
   r.post('/refresh', limiter('refresh', LIMITS.refresh), csrf, c.refresh(type));
   r.post('/logout', csrf, c.logout(type));
   r.post('/logout-all', auth, c.logoutAll(type));
   r.get('/me', auth, c.me(type));
 
-  r.post(
-    '/password/forgot',
-    resetLimit,
-    validate({ body: schemas.forgotPassword }),
-    c.forgotPassword(type),
-  );
-  r.post(
-    '/password/reset',
-    resetLimit,
-    validate({ body: schemas.resetPassword }),
-    c.resetPassword(type),
-  );
-  r.post(
-    '/password/change',
-    auth,
-    sensitiveLimit,
-    validate({ body: schemas.changePassword }),
-    c.changePassword(type),
-  );
+  r.post('/password/forgot', resetLimit, body('forgotPassword'), c.forgotPassword(type));
+  r.post('/password/reset', resetLimit, body('resetPassword'), c.resetPassword(type));
+  r.post('/password/change', auth, sensitiveLimit, body('changePassword'), c.changePassword(type));
 
   if (type === PRINCIPAL_TYPES.CUSTOMER) {
-    r.post(
-      '/email/verify',
-      sensitiveLimit,
-      validate({ body: schemas.verifyEmail }),
-      c.verifyEmail(type),
-    );
+    r.post('/email/verify', sensitiveLimit, body('verifyEmail'), c.verifyEmail(type));
     r.post('/email/resend', auth, sensitiveLimit, c.resendVerification(type));
   }
   return r;

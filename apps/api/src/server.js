@@ -4,6 +4,7 @@ import { connectDb, disconnectDb } from './core/db.js';
 import { logger } from './core/logger.js';
 import { closeQueues } from './core/queue.js';
 import { closeRedis } from './core/redis.js';
+import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
 /**
  * Process entry point: connect dependencies → listen → graceful shutdown on SIGINT/SIGTERM.
@@ -13,6 +14,8 @@ const SHUTDOWN_TIMEOUT_MS = 15_000;
 
 async function main() {
   await connectDb();
+  logger.info({ overrides: await loadSettings() }, 'settings loaded');
+  await startSettingsSync();
 
   const app = createApp();
   const server = app.listen(config.API_PORT, () => {
@@ -33,6 +36,7 @@ async function main() {
     }, SHUTDOWN_TIMEOUT_MS).unref();
 
     await new Promise((resolve) => server.close(resolve));
+    await stopSettingsSync();
     await closeQueues();
     await closeRedis();
     await disconnectDb();

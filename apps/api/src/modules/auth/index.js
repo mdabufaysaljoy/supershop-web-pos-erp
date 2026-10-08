@@ -7,6 +7,7 @@ export { registerPrincipal } from './principals.js';
 export { registerAuthSubscribers } from './auth.events.js';
 export { sendSession, requestContext } from './auth.controller.js';
 export { AUTH_BASE_PATH } from './auth.cookies.js';
+export { setAuthPolicyProvider, TIME as AUTH_TIME } from './auth.policy.js';
 export {
   issueSession,
   requestEmailVerification,

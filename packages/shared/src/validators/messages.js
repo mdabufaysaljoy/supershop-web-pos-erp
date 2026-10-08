@@ -32,4 +32,5 @@ export const V = Object.freeze({
   ID_INVALID: 'validation.id.invalid',
   SORT_INVALID: 'validation.sort.invalid',
   URL_INVALID: 'validation.url.invalid',
+  DUPLICATE: 'validation.duplicate',
 });

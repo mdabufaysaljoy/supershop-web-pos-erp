@@ -9,12 +9,15 @@ import * as c from './customer.controller.js';
  *  POST /register   public, rate-limited → 201 + session (same shape as login)
  * Profile/addresses/orders endpoints arrive in P3.5.
  */
-export function createCustomerRouter({ schemas = createAuthSchemas() } = {}) {
+const defaultSchemas = createAuthSchemas();
+
+/** @param {{ getSchemas?: () => ReturnType<typeof createAuthSchemas> }} [opts] settings-aware schemas */
+export function createCustomerRouter({ getSchemas = () => defaultSchemas } = {}) {
   const r = express.Router();
   r.post(
     '/register',
     createRateLimiter({ name: 'customer-register', ...LIMITS.register, failClosed: true }),
-    validate({ body: schemas.customerRegister }),
+    validate({ body: () => getSchemas().customerRegister }),
     c.register,
   );
   return r;

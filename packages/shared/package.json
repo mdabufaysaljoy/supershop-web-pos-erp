@@ -15,7 +15,8 @@
     "./errorCodes": "./src/errorCodes.js",
     "./constants": "./src/constants.js",
     "./schemas/auth": "./src/schemas/auth.js",
-    "./schemas/rbac": "./src/schemas/rbac.js"
+    "./schemas/rbac": "./src/schemas/rbac.js",
+    "./settings": "./src/settings/definitions.js"
   },
   "scripts": {
     "test": "vitest run"

@@ -2,8 +2,9 @@ import { PRINCIPAL_TYPES } from '@supershop/shared';
 
 /**
  * Auth security policy per principal type. Defaults follow OWASP guidance.
- * NOTE: these become admin-editable via the settings registry (P0.6, `settings.security`);
- * until then, this object is the single source of truth.
+ * Admin-editable parts (lockout, session lifetimes) are overlaid at call time by a provider the
+ * composition root installs from settings (`security.*`) — auth does not import the settings
+ * module (that would create an import cycle via the authorize middleware).
  */
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
@@ -37,9 +38,19 @@ export const AUTH_POLICY = Object.freeze({
 
 export const ISSUER = 'supershop-api';
 
+/** @type {(type: string) => Partial<typeof AUTH_POLICY.staff>} */
+let overrides = () => ({});
+
+/** Installed once from modules/index.js. */
+export function setAuthPolicyProvider(fn) {
+  overrides = fn;
+}
+
 /** @param {string} type */
 export function policyFor(type) {
   const p = AUTH_POLICY[type];
   if (!p) throw new Error(`Unknown principal type "${type}"`);
-  return p;
+  return { ...p, ...overrides(type) };
 }
+
+export const TIME = Object.freeze({ MINUTE, HOUR, DAY });

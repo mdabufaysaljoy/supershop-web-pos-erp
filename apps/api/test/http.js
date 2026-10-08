@@ -32,3 +32,14 @@ export function nextEvent(name, timeoutMs = 2_000) {
     });
   });
 }
+
+/** Polls `fn` until it returns a truthy value (for async side effects like audit writes). */
+export async function waitFor(fn, { timeoutMs = 3_000, intervalMs = 20 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const value = await fn();
+    if (value) return value;
+    if (Date.now() > deadline) throw new Error('waitFor: condition not met in time');
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+}

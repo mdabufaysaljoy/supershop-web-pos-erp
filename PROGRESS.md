@@ -2,7 +2,7 @@
 
 ## Current
 - Phase: 0
-- Next task: P0.6
+- Next task: P0.7
 - Last model used: Opus 5.5
 
 ## Done tasks
@@ -11,6 +11,7 @@
 - P0.3 ✔ 2026-10-08 (Opus 5.5) `packages/shared`: money (integer halalas, basis-point rates, BigInt half-away-from-zero rounding, VAT split gross/net exact, largest-remainder `allocate`, Intl formatting with digit style), `normalizeDigits` (Arabic-Indic → ASCII), validators §5.3 (name, email, KSA/intl phone normalize → E.164, money minor/input, quantity, address/plainText, password policy factory, sku, barcode, slug + `toSlug`, objectId, httpUrl, `paginationQuery` with sort whitelist) + keystroke sanitizers, permission registry (63 keys, groups, `PERMISSIONS` constants, `hasPermission`), domain `EVENTS` (API event bus now rejects unknown names), `TRACKING_EVENTS`, extended `ERROR_CODES`, constants/DEFAULTS, subpath exports. 102 shared tests.
 - P0.4 ✔ 2026-10-08 (Opus 5.5) Auth module (`modules/auth`) for staff + customers: argon2id (OWASP params, transparent rehash, dummy-hash timing equalization), HS256 access JWT (15 min, audience per principal type) + opaque rotating refresh token in httpOnly/SameSite=Strict/path-scoped cookie, refresh reuse detection (revokes family; 10 s grace for concurrent tabs), per-request session liveness check (logout/revocation immediate), session cap (10), lockout (5 fails → 15 min, atomic), password change/forgot/reset (single-use hashed tokens, revoke sessions), customer email verification, CSRF guard (custom header + Origin allowlist) for cookie routes, Redis rate limiters (global fail-open; auth fail-closed; per-identifier counts failures only), validate middleware (`req.valid`), `$`/dotted-key rejection. Staff + customers modules (profiles only; auth via principal adapter registry), `POST /customers/register`, composition root `modules/index.js`. 85 API tests.
 - P0.5 ✔ 2026-10-08 (Opus 5.5) RBAC: `core/access.js` AccessContext (can/assert, branch scope `assertBranch`/`branchFilter`, escalation helpers), `requirePermission`/`requireAnyPermission`/`requireStaff` middleware (auth + live access resolution, super-admin bypass audited via `access.superAdminUsed`), roles module (`/api/v1/roles` CRUD, permission catalog, 8 seeded system roles, case-insensitive names, system/in-use protection), staff management (`/api/v1/staff` list/search/paginate, create/update/soft-delete, force logout, `/staff/me/access`) with guards: grant only what you hold, branch-scoped reach, no self-modification, super-admins only by super-admins, last-super-admin write-skew guard (verified the race is real without it), disable/delete revokes sessions. `npm run seed` (idempotent roles + first super-admin). 116 API tests.
+- P0.6 ✔ 2026-10-08 (Opus 5.5) Settings registry: 22 typed definitions in `@supershop/shared` (zod schema, default, group→permission, public/secret flags), API `modules/settings` with sync `getSetting()` from an in-memory cache (Redis pub/sub + 60 s reload; verified across 2 processes), per-key validation, per-group permissions, atomic multi-key writes, reset, secrets AES-GCM encrypted (AAD-bound to key) + masked, `GET /settings/public` for the storefront, server-only definitions via `registerSettingDefinitions`. Auth lockout/session lifetimes and password/phone policy now come from settings live (schemas rebuilt only on change). Audit module: append-only `audit_logs` (idempotent per event id) fed by event subscribers with explicit allow-list mappings + secret scrubbing; `GET /audit` (audit.view) with filters. 137 API tests.
 
 ## Decisions
 - D-001 Storefront = Next.js (SSR for SEO); Admin = Vite SPA; API = Express + Mongoose; monorepo npm workspaces.
@@ -41,6 +42,10 @@
 - D-025 Branch reach = role `allBranches` flag (HQ/accounting/content) OR the staff member's assigned `branchIds`; super-admin = all. (Chosen over per-role branch lists: simpler, covers the cases; revisit if needed.)
 - D-026 Privilege-escalation rules: non-super-admins can only grant/assign permissions and branches they hold, cannot edit roles holding more than they do, cannot edit their own role/status/branches/super-admin flag; super-admin flag only set/changed by super-admins. Seeded roles are templates: inserted once, never overwritten, editable, not deletable.
 - D-027 Access is resolved per request from Mongo (staff + role), so role/permission changes apply on the next request. Cache in Redis in P10.3 with explicit invalidation on `role.updated`/`staff.updated`.
+- D-028 Settings values are read synchronously from a per-process cache; writers broadcast on Redis channel `supershop:settings:changed`, peers reload; a 60 s periodic reload covers missed messages. A setting key missing from the DB = registry default (only overrides are stored).
+- D-029 `PATCH /settings` body is `{ changes: [{ key, value }] }` (not an object keyed by setting key) because setting keys contain dots and the unsafe-key guard rejects dotted object keys.
+- D-030 Audit entries are written in-process by event subscribers (best-effort if the process dies between commit and write; failures logged at error). Request IP is recorded for auth events; other entries correlate to HTTP logs via `requestId`. Outbox if stronger guarantees are needed.
+- D-031 Auth/staff/customer validation schemas are provided per request via `getSchemas()` (memoized on the relevant settings) so policy changes need no restart.
 
 ## Open questions (blockers only)
 - Which KSA payment gateway + SMS provider will be used? (needed by P4.1 / P7.3)
@@ -59,6 +64,7 @@
 - Auth for clients: login returns `data.accessToken`; call `POST /api/v1/auth/<staff|customer>/refresh` with `credentials: 'include'` + header `X-CSRF-Protection: 1` on 401 TOKEN_EXPIRED. Dev: reset/verify links are printed in the API log.
 - Protect staff routes with `requirePermission(PERMISSIONS.X)` (includes auth); pass `req.access` to services as `actor`; scope branch data with `actor.branchFilter()` / `actor.assertBranch(id)`.
 - First run: `npm run seed` (set `SEED_ADMIN_EMAIL`; password generated+printed if `SEED_ADMIN_PASSWORD` empty, dev only).
-- P0.6 audit log should subscribe to: `auth.*`, `role.*`, `staff.*`, `access.superAdminUsed`, `settings.updated` (payloads carry `actorId`, `before`/`after`).
+- New setting = add a definition in `packages/shared/src/settings/definitions.js` (or `registerSettingDefinitions` for server-only/secret ones); read with `getSetting(key)` from `modules/settings/index.js`. New audited event = add a mapping in `modules/audit/audit.mapping.js`.
+- Admin settings API: `GET /api/v1/settings?group=`, `PATCH /api/v1/settings { changes: [{key,value}] }`, `POST /api/v1/settings/reset { keys }`; storefront: `GET /api/v1/settings/public`.
 - Shared imports: `import { EVENTS, PERMISSIONS, toMinor, validators } from '@supershop/shared'` or subpaths `@supershop/shared/validators`.
 - P0.7/P0.8 must add `admin`/`storefront` to root `dev` script + React/Next ESLint plugins.

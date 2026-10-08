@@ -13,3 +13,4 @@ export * from './trackingEvents.js';
 export * as validators from './validators/index.js';
 export { createAuthSchemas } from './schemas/auth.js';
 export { createRbacSchemas } from './schemas/rbac.js';
+export { SETTINGS, SETTING_GROUPS } from './settings/definitions.js';

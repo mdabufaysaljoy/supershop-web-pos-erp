@@ -33,6 +33,7 @@ export const EVENTS = Object.freeze({
   ACCESS_SUPER_ADMIN_USED: 'access.superAdminUsed',
 
   // settings / content
+  /** Payload: { changes: [{ key, before, after }] (secrets masked), actorId } */
   SETTINGS_UPDATED: 'settings.updated',
   PAGE_PUBLISHED: 'page.published',
   TRANSLATION_REQUESTED: 'translation.requested',

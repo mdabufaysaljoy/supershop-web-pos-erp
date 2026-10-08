@@ -153,7 +153,10 @@ describe('codes, slugs, ids, urls', () => {
     expect(ok(v.sku, ' tsh-blk_m.01 ')).toBe('TSH-BLK_M.01');
     expect(msg(v.sku, 'A B')).toBe(V.CODE_INVALID);
     expect(msg(v.sku, 'A/B')).toBe(V.CODE_INVALID);
-    expect(ok(v.barcode, '٦٢٨١٠٠٠٠٠٠٠٠٠')).toBe('6281000000000');
+    expect(ok(v.barcode, '٦٢٨١٠٠٠٠٠٠٠٠٧')).toBe('6281000000007'); // Arabic digits, valid EAN-13
+    expect(msg(v.barcode, '6281000000000')).toBe(V.BARCODE_CHECKSUM);
+    expect(ok(v.barcode, '1234567890')).toBe('1234567890'); // not a GTIN length → Code 128
+    expect(ok(v.barcode, 'abc-123')).toBe('ABC-123');
     expect(msg(v.barcode, '123')).toBe(V.TOO_SHORT);
   });
 

@@ -28,6 +28,7 @@ export const V = Object.freeze({
   PASSWORD_NEEDS_DIGIT: 'validation.password.needsDigit',
   PASSWORD_NEEDS_SYMBOL: 'validation.password.needsSymbol',
   CODE_INVALID: 'validation.code.invalid',
+  BARCODE_CHECKSUM: 'validation.code.checksum',
   SLUG_INVALID: 'validation.slug.invalid',
   ID_INVALID: 'validation.id.invalid',
   SORT_INVALID: 'validation.sort.invalid',

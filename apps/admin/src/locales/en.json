@@ -138,7 +138,8 @@
       "needsSymbol": "Add a symbol."
     },
     "code": {
-      "invalid": "Use A–Z, 0–9, dash, underscore or dot only."
+      "invalid": "Use A–Z, 0–9, dash, underscore or dot only.",
+      "checksum": "The check digit is wrong — re-scan or re-type the barcode."
     },
     "slug": {
       "invalid": "Use lowercase letters, numbers and single hyphens."
@@ -523,6 +524,22 @@
       "body": "Your changes to this product will be lost.",
       "stay": "Keep editing",
       "leave": "Leave"
+    },
+    "barcodes": {
+      "generateMissing_one": "Generate {{count}} missing barcode",
+      "generateMissing_other": "Generate {{count}} missing barcodes",
+      "generateFor": "Generate a barcode for {{variant}}",
+      "showFor": "Show the barcode of {{variant}}",
+      "downloadSvg": "Download SVG",
+      "cannotDraw": "This code can't be drawn as a barcode.",
+      "type": {
+        "ean13": "EAN-13",
+        "ean8": "EAN-8",
+        "upca": "UPC-A",
+        "code128": "Code 128"
+      },
+      "notFound": "No product with barcode or SKU {{code}}.",
+      "scanHint": "Tip: scan a barcode on this page to open its product."
     }
   },
   "customFields": {

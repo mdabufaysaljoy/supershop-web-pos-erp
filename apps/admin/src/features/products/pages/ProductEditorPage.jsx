@@ -25,7 +25,7 @@ import { GalleryEditor } from '../components/GalleryEditor';
 import { OptionsEditor } from '../components/OptionsEditor';
 import { VariantTable } from '../components/VariantTable';
 import { syncVariants, toForm, toPayload } from '../form';
-import { products, useProduct } from '../resource';
+import { products, useGenerateBarcodes, useProduct } from '../resource';
 import { STATUS_TONE } from '../status';
 
 const schemas = createProductSchemas();
@@ -57,6 +57,7 @@ function ProductForm({ product }) {
   const update = products.useUpdate();
   const remove = products.useRemove();
   const { data: defs = [] } = useFieldDefinitions('product');
+  const generateBarcodes = useGenerateBarcodes();
   const brandList = brands.useList({ page: 1, limit: 100, sort: 'name' }).data?.data ?? [];
   const supplierList =
     suppliers.useList({ page: 1, limit: 100, sort: 'name' }, { enabled: canSeeSuppliers }).data
@@ -293,6 +294,7 @@ function ProductForm({ product }) {
                 canViewCost={canViewCost}
                 disabled={!canEdit}
                 currency="SAR"
+                onGenerateBarcodes={canEdit ? generateBarcodes : undefined}
                 onChange={(variants) => patch({ variants })}
               />
             </CardContent>

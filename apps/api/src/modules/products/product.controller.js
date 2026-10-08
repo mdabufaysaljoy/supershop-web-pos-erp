@@ -23,3 +23,7 @@ export const publicGet = async (req, res) => {
   res.set('Content-Language', lang);
   sendData(res, await service.getPublicProduct(req.valid.params.slug, lang), { meta: { lang } });
 };
+export const generateBarcodes = async (req, res) =>
+  sendCreated(res, { codes: await service.generateBarcodes(req.valid.body.count) });
+export const lookup = async (req, res) =>
+  sendData(res, await service.lookupByCode(req.access, req.valid.query.code));

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -207,5 +207,51 @@ describe('Product editor', () => {
       within(await screen.findByRole('alertdialog')).getByRole('button', { name: 'Leave' }),
     );
     await waitFor(() => expect(router.state.location.pathname).toBe('/products'));
+  });
+
+  it('generates missing barcodes, previews them, and scanning moves to the next row', async () => {
+    const { m } = setup(`/products/${PRODUCT.id}`, ['product.view', 'product.update'], {
+      'POST /api/v1/products/barcodes': ({ init }) => {
+        const { count } = JSON.parse(init.body);
+        const codes = ['2000000000015', '2000000000022'].slice(0, count);
+        return json(201, { data: { codes } });
+      },
+      [`PATCH /api/v1/products/${PRODUCT.id}`]: () => json(200, { data: PRODUCT }),
+    });
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Generate 2 missing barcodes' }),
+    );
+    await waitFor(() =>
+      expect(screen.getByLabelText('Barcode for M')).toHaveValue('2000000000015'),
+    );
+    expect(screen.getByLabelText('Barcode for L')).toHaveValue('2000000000022');
+    expect(body(m, 'POST /api/v1/products/barcodes')).toEqual({ count: 2 });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Show the barcode of M' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('EAN-13')).toBeInTheDocument();
+    expect(within(dialog).getByRole('img', { name: '2000000000015' })).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
+
+    // Scanner workflow: scan into M's barcode → Enter → focus jumps to L's barcode, no submit.
+    const m1 = screen.getByLabelText('Barcode for M');
+    await userEvent.clear(m1);
+    await userEvent.type(m1, '6281000000007{Enter}');
+    expect(screen.getByLabelText('Barcode for L')).toHaveFocus();
+    expect(m.count(`PATCH /api/v1/products/${PRODUCT.id}`)).toBe(0);
+  });
+});
+
+describe('Products list scanning', () => {
+  it('scanning a barcode on the list opens the product', async () => {
+    const { router } = setup('/products', ['product.view'], {
+      'GET /api/v1/products/lookup': () =>
+        json(200, { data: { matchedBy: 'barcode', product: { id: PRODUCT.id }, variant: {} } }),
+    });
+    await screen.findByText('No products found.');
+    for (const ch of '6281000000007')
+      fireEvent.keyDown(document.body, { code: `Digit${ch}`, key: ch });
+    fireEvent.keyDown(document.body, { code: 'Enter', key: 'Enter' });
+    await waitFor(() => expect(router.state.location.pathname).toBe(`/products/${PRODUCT.id}`));
   });
 });

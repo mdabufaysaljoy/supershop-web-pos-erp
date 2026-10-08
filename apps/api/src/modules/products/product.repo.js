@@ -109,3 +109,12 @@ export const softDeleteVariants = (ids, session) =>
         opts(session),
       )
     : null;
+
+/** Which of these barcodes are already used by an active variant. */
+export const existingBarcodes = async (codes) =>
+  new Set(await Variant.distinct('barcode', { barcode: { $in: codes }, ...ACTIVE }));
+
+/** Active variant by exact barcode, else by exact SKU. */
+export const findVariantByCode = async (code) =>
+  (await Variant.findOne({ barcode: code, ...ACTIVE }).lean()) ??
+  (await Variant.findOne({ sku: code, ...ACTIVE }).lean());

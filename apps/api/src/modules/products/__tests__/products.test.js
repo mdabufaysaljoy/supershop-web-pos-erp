@@ -70,7 +70,7 @@ const TSHIRT = () => ({
       sku: 'TS-NAVY-M',
       optionValues: { color: 'navy-blue', size: 'm' },
       price: 4900,
-      barcode: '6281000000017',
+      barcode: '6281000000014',
     },
   ],
 });
@@ -211,7 +211,7 @@ describe('products: create', () => {
     });
     const bc = await as('root').post('/api/v1/products', {
       name: 'Other',
-      variants: [{ sku: 'NEW', barcode: '6281000000017', price: 1 }],
+      variants: [{ sku: 'NEW', barcode: '6281000000014', price: 1 }],
     });
     expect(bc.body.error.code).toBe('BARCODE_TAKEN');
   });
@@ -281,7 +281,7 @@ describe('products: update', () => {
       (
         await create({
           name: 'Navy',
-          variants: [{ sku: 'TS-NAVY-M', barcode: '6281000000017', price: 1 }],
+          variants: [{ sku: 'TS-NAVY-M', barcode: '6281000000014', price: 1 }],
         })
       ).variants,
     ).toHaveLength(1);
@@ -552,7 +552,7 @@ describe('products: listing, public, deletion & references', () => {
     const text = JSON.stringify(pub.body.data);
     expect(text).not.toContain('cost');
     expect(text).not.toContain('supplier');
-    expect(text).not.toContain('6281000000017');
+    expect(text).not.toContain('6281000000014');
   });
 
   it('referenced categories/brands/suppliers cannot be deleted until the product is', async () => {

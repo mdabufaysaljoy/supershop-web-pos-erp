@@ -236,6 +236,17 @@ export function createProductSchemas() {
       .object({ ...fields, name: fields.name.optional(), variants: variants.optional() })
       .refine((v) => Object.values(v).some((x) => x !== undefined), { error: V.REQUIRED })
       .superRefine((p, ctx) => p.options && aggregate(false)(p, ctx)),
+    /** POST /products/barcodes — new internal EAN-13 codes. */
+    barcodeGenerate: z.object({
+      count: z
+        .number({ error: V.INVALID_TYPE })
+        .int({ error: V.INVALID_TYPE })
+        .min(1, { error: V.INVALID_TYPE })
+        .max(PRODUCT.MAX_VARIANTS, { error: V.TOO_LONG })
+        .default(1),
+    }),
+    /** GET /products/lookup?code= — a scanned barcode or typed SKU. */
+    lookupQuery: z.object({ code: z.string({ error: V.REQUIRED }).trim().min(1).max(64) }),
     publicQuery: z.object({
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
     }),

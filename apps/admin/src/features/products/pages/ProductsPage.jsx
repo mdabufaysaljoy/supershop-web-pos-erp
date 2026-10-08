@@ -1,7 +1,9 @@
 import { PERMISSIONS as P, PRODUCT } from '@supershop/shared';
+import { useBarcodeScanner } from '@supershop/ui';
 import { Plus, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 import { Pagination } from '@/components/Pagination';
 import { SearchForm } from '@/components/SearchForm';
 import { Alert } from '@/components/ui/alert';
@@ -23,7 +25,7 @@ import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
 import { useListParams } from '@/lib/useListParams';
-import { products } from '../resource';
+import { lookupProductByCode, products } from '../resource';
 import { STATUS_TONE } from '../status';
 
 const PAGE_SIZE = 25;
@@ -40,6 +42,17 @@ export function ProductsPage() {
   const categoryId = params.get('categoryId') ?? '';
   const sort = params.get('sort') ?? '-updatedAt';
   const { data: categories = [] } = useCategories();
+  // Scan a product's barcode anywhere on this page (outside text fields) to open it.
+  useBarcodeScanner({
+    onScan: async (code) => {
+      try {
+        const found = await lookupProductByCode(code);
+        navigate(`/products/${found.product.id}`);
+      } catch {
+        toast.error(t('products.barcodes.notFound', { code }));
+      }
+    },
+  });
   const { data, isPending, isError, error } = products.useList({
     page,
     limit: PAGE_SIZE,
@@ -61,6 +74,7 @@ export function ProductsPage() {
         <div className="grid gap-1">
           <h1 className="text-2xl font-semibold">{t('products.title')}</h1>
           <p className="text-sm text-muted-foreground">{t('products.description')}</p>
+          <p className="text-xs text-muted-foreground">{t('products.barcodes.scanHint')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {can(P.CUSTOM_FIELD_MANAGE) && (

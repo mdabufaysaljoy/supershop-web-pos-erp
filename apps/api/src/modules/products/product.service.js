@@ -1,12 +1,15 @@
 import {
   ERROR_CODES,
   EVENTS,
+  gtinCheckDigit,
+  normalizeDigits,
   PERMISSIONS as P,
   productAggregateIssues,
   SOURCE_LANGUAGE,
   variantOptionsKey,
 } from '@supershop/shared';
 import { V } from '@supershop/shared/validators';
+import { incrementCounter } from '../../core/counter.js';
 import { withTransaction } from '../../core/db.js';
 import { AppError, ForbiddenError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
@@ -15,6 +18,7 @@ import { getBrandsByIds } from '../brands/index.js';
 import { getCategoriesByIds } from '../categories/index.js';
 import { publicCustomValues, validateCustomValues } from '../customFields/index.js';
 import { resolveDoc } from '../i18n/index.js';
+import { getSetting } from '../settings/index.js';
 import { getMediaByIds } from '../media/index.js';
 import { getSuppliersByIds } from '../suppliers/index.js';
 import * as repo from './product.repo.js';
@@ -508,6 +512,66 @@ export async function getPublicProduct(slug, lang) {
     taxCategory: p.taxCategory,
     attributes,
     seo: { title: r.seo.title, description: r.seo.description },
+  };
+}
+
+// ---------------------------------------------------------------- barcodes (P1.6)
+
+const BARCODE_COUNTER = 'barcode:internal';
+const INTERNAL_MAX = 9_999_999_999; // 10 digits after the 2-digit prefix
+
+/**
+ * New in-store EAN-13 codes: `<prefix 20–29><10-digit sequence><check digit>`. The sequence never
+ * repeats, and codes already used (e.g. imported) are skipped. Uniqueness is still enforced when a
+ * product is saved; unused generated codes are simply never issued again.
+ * @param {number} count
+ * @returns {Promise<string[]>}
+ */
+export async function generateBarcodes(count) {
+  const prefix = getSetting('barcode.internalPrefix');
+  const codes = [];
+  for (let attempt = 0; codes.length < count && attempt < 5; attempt += 1) {
+    const need = count - codes.length;
+    const last = await incrementCounter(BARCODE_COUNTER, need);
+    if (last > INTERNAL_MAX)
+      throw new AppError(ERROR_CODES.CONFLICT, 'Internal barcode range exhausted', { status: 409 });
+    const batch = Array.from({ length: need }, (_, i) => {
+      const body = `${prefix}${String(last - need + 1 + i).padStart(10, '0')}`;
+      return body + gtinCheckDigit(body);
+    });
+    const taken = await repo.existingBarcodes(batch);
+    codes.push(...batch.filter((c) => !taken.has(c)));
+  }
+  return codes;
+}
+
+/**
+ * Scan / type-ahead lookup: active variant by barcode (then SKU) with its product summary.
+ * Input is normalized like stored codes (trim, Arabic digits → ASCII, upper-case).
+ */
+export async function lookupByCode(actor, raw) {
+  const code = normalizeDigits(raw).trim().toUpperCase();
+  const variant = await repo.findVariantByCode(code);
+  const product = variant && (await repo.findActiveProduct(variant.productId));
+  if (!product) throw new NotFoundError('No product with this barcode or SKU');
+  const [image] = await galleryOf(
+    (variant.imageIds?.length ? variant.imageIds : (product.imageIds ?? [])).slice(0, 1),
+  );
+  return {
+    matchedBy: variant.barcode === code ? 'barcode' : 'sku',
+    product: {
+      id: String(product._id),
+      name: product.name ?? en(''),
+      slug: product.slug,
+      status: product.status,
+      image: image ?? null,
+      options: (product.options ?? []).map((o) => ({
+        key: o.key,
+        name: o.name ?? en(''),
+        values: (o.values ?? []).map((v) => ({ key: v.key, label: v.label ?? en('') })),
+      })),
+    },
+    variant: variantDto(variant, actor.can(P.PRODUCT_VIEW_COST)),
   };
 }
 

@@ -1,12 +1,15 @@
 import express from 'express';
 import { createProductSchemas, PERMISSIONS as P } from '@supershop/shared';
-import { requirePermission } from '../../middleware/authorize.js';
+import { requireAnyPermission, requirePermission } from '../../middleware/authorize.js';
+import { createRateLimiter, LIMITS } from '../../middleware/rateLimit.js';
 import { validate } from '../../middleware/validate.js';
 import * as c from './product.controller.js';
 
 /**
  * Mounted at `/api/v1/products`.
  *  GET    /public/:slug   PUBLIC — active product in one language (?lang | cookie | Accept-Language)
+ *  GET    /lookup?code=   product.view — scanned barcode / SKU → variant + product summary
+ *  POST   /barcodes       product.create | product.update — { count } new internal EAN-13 codes
  *  GET    /               product.view — ?page&limit&sort&q(name/slug/SKU/barcode)&status&categoryId&brandId&supplierId
  *  GET    /:id            product.view (cost only with product.viewCost)
  *  POST   /               product.create — product + variants (cost needs product.viewCost)
@@ -21,6 +24,23 @@ export function createProductRouter({ schemas = createProductSchemas() } = {}) {
     '/public/:slug',
     validate({ params: schemas.slugParam, query: schemas.publicQuery }),
     c.publicGet,
+  );
+  r.get(
+    '/lookup',
+    requirePermission(P.PRODUCT_VIEW),
+    validate({ query: schemas.lookupQuery }),
+    c.lookup,
+  );
+  r.post(
+    '/barcodes',
+    requireAnyPermission(P.PRODUCT_CREATE, P.PRODUCT_UPDATE),
+    createRateLimiter({
+      name: 'barcode-generate',
+      ...LIMITS.barcodeGenerate,
+      key: (req) => req.access?.staffId,
+    }),
+    validate({ body: schemas.barcodeGenerate }),
+    c.generateBarcodes,
   );
   r.get('/', requirePermission(P.PRODUCT_VIEW), validate({ query: schemas.listQuery }), c.list);
   r.get('/:id', requirePermission(P.PRODUCT_VIEW), id, c.get);

@@ -178,6 +178,20 @@ const DEFINITIONS = [
   /** WebP quality for re-encoded images (higher = sharper + bigger files). */
   { key: 'media.webpQuality', group: 'general', schema: int(50, 95), default: 82 },
 
+  // ---------- barcodes (P1.6) ----------
+  /**
+   * GS1 "restricted circulation" prefix (20–29) for EAN-13 codes the store prints itself. Pick one
+   * not used by any scale/label system in the store. Real GS1 company prefixes come from suppliers.
+   */
+  {
+    key: 'barcode.internalPrefix',
+    group: 'general',
+    schema: z.enum(['20', '21', '22', '23', '24', '25', '26', '27', '28', '29'], {
+      error: V.INVALID_TYPE,
+    }),
+    default: '20',
+  },
+
   // ---------- languages / translation (CLAUDE.md §5.7) ----------
   {
     // 'noop' = automatic translation off (Arabic falls back to English). 'libretranslate' = the

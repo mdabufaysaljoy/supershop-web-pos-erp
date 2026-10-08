@@ -1,5 +1,5 @@
-import { CodeInput, IntegerInput, MoneyInput } from '@supershop/ui';
-import { Images } from 'lucide-react';
+import { BarcodeInput, IntegerInput, MoneyInput } from '@supershop/ui';
+import { Images, ScanBarcode, WandSparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
 import { fieldMessage } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { comboLabel } from '../form';
+import { BarcodePreviewDialog } from './BarcodePreviewDialog';
 
 /**
  * One row per sellable variant. Turning a combination off (Active) hides it from the storefront
@@ -29,10 +30,28 @@ export function VariantTable({
   canViewCost,
   disabled,
   currency,
+  onGenerateBarcodes,
 }) {
   const { t } = useTranslation();
   const [bulkPrice, setBulkPrice] = useState('');
   const [imagesFor, setImagesFor] = useState(null); // row index
+  const [previewFor, setPreviewFor] = useState(null); // row index
+  const [generating, setGenerating] = useState(false);
+  /** Scanner workflow: after a scan (Enter) jump to the same field in the next row. */
+  const focusNext = (field, i) =>
+    document.querySelector(`[data-variant-field="${field}"][data-row="${i + 1}"]`)?.focus();
+  /** Fills empty barcodes (all rows, or one) with newly generated in-store EAN-13 codes. */
+  const generate = async (rows) => {
+    setGenerating(true);
+    try {
+      const codes = await onGenerateBarcodes(rows.length);
+      const byRow = new Map(rows.map((r, k) => [r, codes[k]]));
+      onChange(variants.map((v, j) => (byRow.get(j) ? { ...v, barcode: byRow.get(j) } : v)));
+    } finally {
+      setGenerating(false);
+    }
+  };
+  const emptyBarcodeRows = variants.flatMap((v, i) => (v.barcode ? [] : [i]));
   const set = (i, patch) => onChange(variants.map((v, j) => (j === i ? { ...v, ...patch } : v)));
   const err = (i, field) => errors[`variants.${i}.${field}`];
 
@@ -42,6 +61,8 @@ export function VariantTable({
       <div className="grid min-w-28 gap-1">
         <Input
           value={variants[i][field]}
+          data-variant-field={field}
+          data-row={i}
           aria-label={t(`products.variants.${field}For`, { variant: rowLabel(i) })}
           aria-invalid={message ? true : undefined}
           disabled={disabled}
@@ -52,11 +73,26 @@ export function VariantTable({
       </div>
     );
   };
+  const codeCell = (i, field) =>
+    cell(i, field, BarcodeInput, { onScan: () => focusNext(field, i), className: 'min-w-36' });
   const rowLabel = (i) =>
     comboLabel(variants[i].optionValues, options) || t('products.variants.default');
 
   return (
     <div className="grid gap-3">
+      {!disabled && onGenerateBarcodes && emptyBarcodeRows.length > 0 && (
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={generating}
+            onClick={() => generate(emptyBarcodeRows)}
+          >
+            <WandSparkles className="size-4" aria-hidden />
+            {t('products.barcodes.generateMissing', { count: emptyBarcodeRows.length })}
+          </Button>
+        </div>
+      )}
       {!disabled && variants.length > 1 && (
         <div className="flex flex-wrap items-end gap-2">
           <div className="w-40">
@@ -106,8 +142,37 @@ export function VariantTable({
                   </span>
                 )}
               </TableCell>
-              <TableCell>{cell(i, 'sku', CodeInput)}</TableCell>
-              <TableCell>{cell(i, 'barcode', CodeInput)}</TableCell>
+              <TableCell>{codeCell(i, 'sku')}</TableCell>
+              <TableCell>
+                <div className="flex items-start gap-1">
+                  {codeCell(i, 'barcode')}
+                  {v.barcode ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('products.barcodes.showFor', { variant: rowLabel(i) })}
+                      onClick={() => setPreviewFor(i)}
+                    >
+                      <ScanBarcode className="size-4" aria-hidden />
+                    </Button>
+                  ) : (
+                    !disabled &&
+                    onGenerateBarcodes && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        disabled={generating}
+                        aria-label={t('products.barcodes.generateFor', { variant: rowLabel(i) })}
+                        onClick={() => generate([i])}
+                      >
+                        <WandSparkles className="size-4" aria-hidden />
+                      </Button>
+                    )
+                  )}
+                </div>
+              </TableCell>
               <TableCell>{cell(i, 'price', MoneyInput)}</TableCell>
               <TableCell>{cell(i, 'compareAtPrice', MoneyInput)}</TableCell>
               {canViewCost && <TableCell>{cell(i, 'cost', MoneyInput)}</TableCell>}
@@ -190,6 +255,11 @@ export function VariantTable({
           )}
         </DialogContent>
       </Dialog>
+      <BarcodePreviewDialog
+        code={previewFor != null ? variants[previewFor]?.barcode : null}
+        label={previewFor != null ? rowLabel(previewFor) : ''}
+        onClose={() => setPreviewFor(null)}
+      />
     </div>
   );
 }

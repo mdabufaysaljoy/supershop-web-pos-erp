@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidGtin, looksLikeGtin } from '../barcode.js';
 import { normalizeDigits } from '../digits.js';
 import { toMinor } from '../money.js';
 import { V } from './messages.js';
@@ -194,7 +195,10 @@ export const sku = str()
       .regex(CODE_RE, { error: V.CODE_INVALID }),
   );
 
-/** Barcode: same charset, 4–64 (EAN/UPC checksum checks are added with barcode generation, P1.6). */
+/**
+ * Barcode: same charset, 4–64. Digit-only codes of GTIN length (8/12/13/14) must carry a valid
+ * GS1 check digit — a wrong one is almost always a typo or a misread.
+ */
 export const barcode = str()
   .trim()
   .transform((v) => normalizeDigits(v).toUpperCase())
@@ -202,7 +206,8 @@ export const barcode = str()
     str()
       .min(4, { error: V.TOO_SHORT })
       .max(64, { error: V.TOO_LONG })
-      .regex(CODE_RE, { error: V.CODE_INVALID }),
+      .regex(CODE_RE, { error: V.CODE_INVALID })
+      .refine((v) => !looksLikeGtin(v) || isValidGtin(v), { error: V.BARCODE_CHECKSUM }),
   );
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;

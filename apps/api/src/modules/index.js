@@ -10,6 +10,7 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
+import { createI18nAdminRouter } from './i18n/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
 import { createSettingsRouter, getSetting } from './settings/index.js';
 import {
@@ -93,4 +94,5 @@ export function mountModuleRoutes(api) {
   api.use('/staff', createStaffRouter({ getSchemas: getRbacSchemas }));
   api.use('/settings', createSettingsRouter());
   api.use('/audit', createAuditRouter());
+  api.use('/i18n', createI18nAdminRouter());
 }

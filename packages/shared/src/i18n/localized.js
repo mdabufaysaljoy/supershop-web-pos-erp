@@ -46,3 +46,14 @@ export function hasTranslation(value, lang) {
   if (lang === SOURCE_LANGUAGE) return Boolean(value[SOURCE_LANGUAGE]);
   return typeof value[lang] === 'string' && value[lang].trim() !== '';
 }
+
+/** `{{name}}` interpolation variables in a UI string, sorted. */
+export const interpolationVars = (s) =>
+  typeof s === 'string' ? [...s.matchAll(/\{\{\s*([\w.]+)\s*\}\}/g)].map((m) => m[1]).sort() : [];
+
+/** True when both strings use exactly the same `{{vars}}` (a translation must keep every variable). */
+export function sameInterpolations(a, b) {
+  const x = interpolationVars(a);
+  const y = interpolationVars(b);
+  return x.length === y.length && x.every((v, i) => v === y[i]);
+}

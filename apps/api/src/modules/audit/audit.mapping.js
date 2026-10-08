@@ -88,6 +88,33 @@ export const AUDIT_MAPPINGS = {
     data: { method: p.method, path: p.path, permissions: p.permissions },
   }),
 
+  // languages / translation
+  [EVENTS.GLOSSARY_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'glossaryTerm',
+    entityId: p.termId,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.UI_STRING_OVERRIDE_SET]: (p) => ({
+    ...staffActor(p),
+    entityType: 'uiString',
+    entityId: `${p.catalog}:${p.lang}:${p.key}`,
+    before: p.before,
+    after: p.after,
+  }),
+  [EVENTS.UI_STRING_OVERRIDE_REMOVED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'uiString',
+    entityId: `${p.catalog}:${p.lang}:${p.key}`,
+    before: p.before,
+  }),
+  [EVENTS.TRANSLATION_RETRANSLATE_REQUESTED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'translation',
+    data: { scope: p.scope, scheduled: p.scheduled },
+  }),
+
   // settings: one entry per changed key (expanded in the subscriber); values already masked
   [EVENTS.SETTINGS_UPDATED]: (p) =>
     p.changes.map((c) => ({

@@ -18,7 +18,8 @@
     "./schemas/rbac": "./src/schemas/rbac.js",
     "./settings": "./src/settings/definitions.js",
     "./api": "./src/api/client.js",
-    "./i18n": "./src/i18n/localized.js"
+    "./i18n": "./src/i18n/localized.js",
+    "./schemas/i18n": "./src/schemas/i18n.js"
   },
   "scripts": {
     "test": "vitest run"

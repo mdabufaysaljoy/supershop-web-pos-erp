@@ -58,3 +58,22 @@ describe('dictionaries', () => {
     expect(translate(dict, 'home.missing')).toBe('home.missing');
   });
 });
+
+describe('admin overrides (Settings → Languages)', () => {
+  it('apply on top of the generated dictionary and fall back silently when the API is down', async () => {
+    const { vi } = await import('vitest');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url) =>
+        String(url).includes('/ui-overrides/storefront/ar')
+          ? new Response(JSON.stringify({ data: { 'nav.home': 'HUMAN-HOME' } }), { status: 200 })
+          : new Response('{}', { status: 200 }),
+      ),
+    );
+    expect((await getDictionary('ar')).nav.home).toBe('HUMAN-HOME');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('ECONNREFUSED')));
+    const generated = (await import('@/i18n/dictionaries/ar.json')).default;
+    expect((await getDictionary('ar')).nav.home).toBe(generated.nav.home);
+    vi.unstubAllGlobals();
+  });
+});

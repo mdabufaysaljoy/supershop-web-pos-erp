@@ -90,8 +90,12 @@
     "tooShort": "Too short.",
     "tooLong": "Too long.",
     "duplicate": "Duplicate value.",
-    "name": { "invalid": "Use letters, spaces, apostrophes, dots or hyphens only." },
-    "email": { "invalid": "Enter a valid email address." },
+    "name": {
+      "invalid": "Use letters, spaces, apostrophes, dots or hyphens only."
+    },
+    "email": {
+      "invalid": "Enter a valid email address."
+    },
     "phone": {
       "invalid": "Enter a valid phone number.",
       "ksaOnly": "Enter a Saudi mobile number (05XXXXXXXX)."
@@ -107,7 +111,9 @@
       "invalid": "Enter a whole number of 1 or more.",
       "tooLarge": "Quantity is too large."
     },
-    "address": { "invalid": "Remove < > and special control characters." },
+    "address": {
+      "invalid": "Remove < > and special control characters."
+    },
     "password": {
       "tooShort": "Password is too short.",
       "tooLong": "Password is too long.",
@@ -116,10 +122,126 @@
       "needsDigit": "Add a number.",
       "needsSymbol": "Add a symbol."
     },
-    "code": { "invalid": "Use A–Z, 0–9, dash, underscore or dot only." },
-    "slug": { "invalid": "Use lowercase letters, numbers and single hyphens." },
-    "id": { "invalid": "Invalid identifier." },
-    "sort": { "invalid": "Invalid sort option." },
-    "url": { "invalid": "Enter a valid http(s) URL." }
+    "code": {
+      "invalid": "Use A–Z, 0–9, dash, underscore or dot only."
+    },
+    "slug": {
+      "invalid": "Use lowercase letters, numbers and single hyphens."
+    },
+    "id": {
+      "invalid": "Invalid identifier."
+    },
+    "sort": {
+      "invalid": "Invalid sort option."
+    },
+    "url": {
+      "invalid": "Enter a valid http(s) URL."
+    },
+    "placeholdersChanged": "Keep every placeholder like {{name}} exactly as in the English text."
+  },
+  "common": {
+    "save": "Save",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "saved": "Saved.",
+    "deleted": "Deleted."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",
+    "readOnly": "You can view these settings but not change them.",
+    "tabs": {
+      "languages": "Languages"
+    }
+  },
+  "languages": {
+    "provider": {
+      "title": "Automatic translation",
+      "description": "English is the only language you write in. Arabic is generated automatically by this engine and can be corrected below.",
+      "engine": "Translation engine",
+      "off": "Off — show English until enabled",
+      "libretranslate": "LibreTranslate (self-hosted, free)",
+      "url": "LibreTranslate address",
+      "apiKey": "API key (optional)",
+      "apiKeySet": "A key is saved ({{masked}}). Type a new one to replace it.",
+      "apiKeyHelp": "Only needed if your LibreTranslate server requires keys.",
+      "budget": "Monthly character limit",
+      "budgetHelp": "0 = unlimited (recommended for self-hosted).",
+      "usage": "Used in {{month}}: {{chars}} characters of {{budget}}.",
+      "unlimited": "unlimited",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "testOk": "Works: “{{sample}}” → “{{result}}” ({{ms}} ms).",
+      "testFailed": "The engine did not return a usable translation. Check the address and that the server is running.",
+      "testOff": "Automatic translation is off. Choose an engine and save first."
+    },
+    "storefront": {
+      "title": "Storefront language",
+      "description": "How the Arabic version of your website behaves for visitors.",
+      "autoDetect": "Detect visitor language",
+      "autoDetectHelp": "First-time visitors whose browser prefers Arabic open the Arabic site. Search engines are never redirected.",
+      "digits": "Digits on the Arabic site",
+      "digitsHelp": "Most Saudi stores use Western digits.",
+      "digitsWestern": "Western ({{sample}})",
+      "digitsArabic": "Arabic-Indic ({{sample}})"
+    },
+    "glossary": {
+      "title": "Glossary",
+      "description": "Teach the engine your vocabulary once: words to keep as-is (brands, payment methods) and your preferred translation for common shop terms. Changes apply to new translations; use “Retranslate everything” to update existing ones.",
+      "term": "English term",
+      "type": "Rule",
+      "preferred": "Preferred translation",
+      "keep": "Never translate",
+      "arabic": "Arabic",
+      "empty": "No glossary terms yet."
+    },
+    "ui": {
+      "title": "Storefront text",
+      "description": "Website labels translated by the engine. Correct any that are wrong — your version goes live within a minute and is never overwritten. Keep placeholders like {{store}} exactly as they are.",
+      "filter": "Show",
+      "filterReview": "Needs review ({{count}})",
+      "filterAll": "All ({{count}})",
+      "search": "Search key or English text",
+      "empty": "Nothing to review.",
+      "machineWas": "Machine translation:",
+      "arabicFor": "Arabic for {{key}}",
+      "confirm": "Confirm translation",
+      "revert": "Use machine translation",
+      "reverted": "Reverted to the machine translation.",
+      "status": {
+        "override": "Corrected",
+        "overrideStale": "English changed — review",
+        "machine": "Machine translation",
+        "english": "Shown in English"
+      }
+    },
+    "queue": {
+      "title": "Translation status",
+      "description": "Background translation of products, pages and other content.",
+      "providerOff": "Automatic translation is off, so new content stays in English until you enable an engine and retry.",
+      "unavailable": "The job queue is unreachable right now (Redis). Translation will resume automatically.",
+      "counts": {
+        "waiting": "Waiting",
+        "active": "Running",
+        "delayed": "Scheduled",
+        "failed": "Failed",
+        "completed": "Done"
+      },
+      "contentType": "Content",
+      "pending": "Pending",
+      "failedItems": "Failed",
+      "manual": "Corrected by staff",
+      "failedJobs": "Failed jobs",
+      "retry": "Retry",
+      "retryAll": "Retry all failed",
+      "retryPending": "Translate pending & failed",
+      "retranslateAll": "Retranslate everything…",
+      "confirmAll": "Yes, retranslate all automatic translations",
+      "scheduled": "{{count}} item(s) queued for translation.",
+      "retried": "Queued again.",
+      "uiNote": "Website labels are generated by developers with “npm run i18n:translate”; correct them in “Storefront text” above."
+    }
   }
 }

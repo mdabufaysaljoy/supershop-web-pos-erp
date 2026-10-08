@@ -15,3 +15,4 @@ export { translate, isTranslationEnabled, getMonthlyUsage } from './translate.se
 export { getTargetLanguages, loadLanguages, seedLanguages } from './languages.js';
 export { bumpGlossaryVersion, seedGlossary } from './glossary.js';
 export { processTranslationJob, startTranslationWorker } from './i18n.jobs.js';
+export { createI18nAdminRouter } from './admin.routes.js';

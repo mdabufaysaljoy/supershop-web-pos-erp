@@ -119,3 +119,37 @@ export async function closeQueues() {
   queues.clear();
   await Promise.allSettled(qs.map((q) => q.close()));
 }
+
+/**
+ * Queue health for admin screens: counts per state + most recent failures (job data is NOT
+ * returned — it may contain identifiers only, but keep admin payloads minimal).
+ * @param {string} queueName
+ * @param {{ failedLimit?: number }} [opts]
+ */
+export async function inspectQueue(queueName, { failedLimit = 20 } = {}) {
+  const q = getQueue(queueName);
+  const [counts, failed] = await Promise.all([
+    q.getJobCounts('waiting', 'active', 'delayed', 'failed', 'completed'),
+    q.getFailed(0, failedLimit - 1),
+  ]);
+  return {
+    counts,
+    failed: failed.map((j) => ({
+      id: j.id,
+      name: j.name,
+      attempts: j.attemptsMade,
+      reason: j.failedReason,
+      failedAt: j.finishedOn ? new Date(j.finishedOn).toISOString() : null,
+    })),
+  };
+}
+
+/** Retries one failed job; returns false if it doesn't exist or isn't failed. */
+export async function retryFailedJob(queueName, jobId) {
+  const job = await getQueue(queueName).getJob(jobId);
+  if (!job || !(await job.isFailed())) return false;
+  await job.retry('failed');
+  return true;
+}
+
+export const retryAllFailedJobs = (queueName) => getQueue(queueName).retryJobs({ state: 'failed' });

@@ -40,6 +40,10 @@ export const EVENTS = Object.freeze({
   TRANSLATION_COMPLETED: 'translation.completed',
   TRANSLATION_FAILED: 'translation.failed',
   TRANSLATION_BUDGET_EXCEEDED: 'translation.budgetExceeded',
+  TRANSLATION_RETRANSLATE_REQUESTED: 'translation.retranslateRequested',
+  GLOSSARY_UPDATED: 'glossary.updated',
+  UI_STRING_OVERRIDE_SET: 'uiString.overrideSet',
+  UI_STRING_OVERRIDE_REMOVED: 'uiString.overrideRemoved',
 
   // catalog
   PRODUCT_CREATED: 'product.created',

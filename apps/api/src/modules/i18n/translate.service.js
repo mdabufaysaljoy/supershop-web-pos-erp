@@ -128,8 +128,11 @@ export async function translate({ texts, to, from = SOURCE_LANGUAGE }) {
     if (!entry) {
       entry = {
         text,
-        // Masking version in the key: changing masking rules must not serve old cached output.
-        key: sha256(`${from}|${to}|${glossary.version}|m${MASKING_VERSION}|${text}`),
+        // Masking version + provider in the key: changing masking rules must not serve old output,
+        // and switching to a better provider must not be answered from the old provider's cache.
+        key: sha256(
+          `${from}|${to}|${glossary.version}|m${MASKING_VERSION}|${provider.name}|${text}`,
+        ),
         m: mask(text, { terms }),
         indexes: [],
       };

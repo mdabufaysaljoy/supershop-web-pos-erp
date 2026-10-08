@@ -12,7 +12,16 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     plugins: [react(), tailwindcss()],
-    resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
+    resolve: {
+      alias: {
+        '@': path.resolve(import.meta.dirname, 'src'),
+        // Read-only: storefront UI catalogs, so Settings → Languages can show and correct them.
+        '@storefront-i18n': path.resolve(
+          import.meta.dirname,
+          '../storefront/src/i18n/dictionaries',
+        ),
+      },
+    },
     server: {
       port: 5173,
       strictPort: true,

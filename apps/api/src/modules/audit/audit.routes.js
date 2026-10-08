@@ -15,7 +15,18 @@ const isoDate = z.iso.datetime({ offset: true }).transform((v) => new Date(v));
 const listQuery = validators.paginationQuery({ sortable: ['at'], defaultSort: '-at' }).extend({
   action: z.enum(auditedEvents()).optional(),
   actorId: validators.objectId.optional(),
-  entityType: z.enum(['staff', 'customer', 'role', 'setting', 'request']).optional(),
+  entityType: z
+    .enum([
+      'staff',
+      'customer',
+      'role',
+      'setting',
+      'request',
+      'glossaryTerm',
+      'uiString',
+      'translation',
+    ])
+    .optional(),
   entityId: z
     .string()
     .max(100)

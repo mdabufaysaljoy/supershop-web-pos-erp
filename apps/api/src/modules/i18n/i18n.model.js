@@ -45,6 +45,25 @@ const glossarySchema = new Schema(
   { collection: 'glossary_terms', timestamps: true },
 );
 
+/**
+ * Human overrides of generated UI strings (e.g. storefront ar.json), applied at render time on top
+ * of the generated file. `srcHash` = hash of the English text when the override was written, so the
+ * admin screen can flag overrides whose English has since changed.
+ */
+const uiOverrideSchema = new Schema(
+  {
+    catalog: { type: String, required: true, enum: ['storefront', 'admin'] },
+    lang: { type: String, required: true },
+    key: { type: String, required: true, maxlength: 150 },
+    value: { type: String, required: true, maxlength: 500 },
+    srcHash: { type: String, required: true },
+    updatedBy: { type: Schema.Types.ObjectId, default: null },
+  },
+  { collection: 'ui_string_overrides', timestamps: true },
+);
+uiOverrideSchema.index({ catalog: 1, lang: 1, key: 1 }, { unique: true });
+
 export const Language = model('Language', languageSchema);
+export const UiStringOverride = model('UiStringOverride', uiOverrideSchema);
 export const Translation = model('Translation', translationSchema);
 export const GlossaryTerm = model('GlossaryTerm', glossarySchema);

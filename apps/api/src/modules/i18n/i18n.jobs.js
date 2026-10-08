@@ -18,10 +18,11 @@ const get = (obj, path) => path.split('.').reduce((o, k) => (o == null ? undefin
 export class TranslationRetryableError extends Error {}
 
 /**
- * @param {{ model: string, id: string, items: { field: string, lang: string }[] }} job
+ * @param {{ model: string, id: string, items: { field: string, lang: string }[], force?: boolean }} job
+ *   force: re-translate even if already done for the current English ("retranslate all")
  * @returns {Promise<{ translated: number, failed: number, disabled: boolean, skipped: number }>}
  */
-export async function processTranslationJob({ model, id, items }) {
+export async function processTranslationJob({ model, id, items, force = false }) {
   const fields = localizedFieldsOf(model);
   if (!fields) throw new Error(`Model "${model}" is not localized`);
   const Model = mongoose.model(model);
@@ -37,7 +38,7 @@ export async function processTranslationJob({ model, id, items }) {
     const en = value?.[SOURCE_LANGUAGE] ?? '';
     const meta = value?.meta?.[lang];
     if (!en.trim() || meta?.mode === 'manual') continue;
-    if (meta?.status === 'done' && meta.srcHash === sourceHash(en)) continue;
+    if (!force && meta?.status === 'done' && meta.srcHash === sourceHash(en)) continue;
     work.push({ field, lang, en });
   }
   const stats = { translated: 0, failed: 0, disabled: false, skipped: items.length - work.length };

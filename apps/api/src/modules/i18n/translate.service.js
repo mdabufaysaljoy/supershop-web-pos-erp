@@ -11,7 +11,7 @@ import { getRedis } from '../../core/redis.js';
 import { getSecretSetting, getSetting, registerSettingDefinitions } from '../settings/index.js';
 import { getGlossary, protectedTermsFor } from './glossary.js';
 import * as repo from './i18n.repo.js';
-import { mask, MaskMismatchError, rejectReason, unmask } from './masking.js';
+import { mask, MASKING_VERSION, MaskMismatchError, rejectReason, unmask } from './masking.js';
 
 /**
  * translate({ texts, to }) — the ONE entry point for machine translation (CLAUDE.md §5.7):
@@ -128,7 +128,8 @@ export async function translate({ texts, to, from = SOURCE_LANGUAGE }) {
     if (!entry) {
       entry = {
         text,
-        key: sha256(`${from}|${to}|${glossary.version}|${text}`),
+        // Masking version in the key: changing masking rules must not serve old cached output.
+        key: sha256(`${from}|${to}|${glossary.version}|m${MASKING_VERSION}|${text}`),
         m: mask(text, { terms }),
         indexes: [],
       };
@@ -174,57 +175,62 @@ export async function translate({ texts, to, from = SOURCE_LANGUAGE }) {
   }
 
   const stored = [];
-  for (const batch of chunk(pending)) {
+  const retry = []; // rejected as "untranslated" → one more try with a lower-cased first letter
+  const accept = (e, out, attempt) => {
+    let value;
+    try {
+      value = unmask(out, e.m);
+    } catch (err) {
+      if (!(err instanceof MaskMismatchError)) throw err;
+      logger.warn(
+        { reason: err.message, provider: provider.name },
+        'translation rejected: placeholder mismatch',
+      );
+      return;
+    }
+    const reason = rejectReason(e.text, value, { to, maskedOutput: out });
+    if (reason) {
+      // NMT engines often leave Title-Case fragments ("Skip to content") untouched but translate
+      // the same fragment in lower case.
+      if (reason === 'untranslated' && attempt === 0 && /^\p{Lu}/u.test(e.m.masked)) retry.push(e);
+      else logger.warn({ reason, provider: provider.name }, 'translation rejected');
+      return;
+    }
+    settle(e, value);
+    stored.push({
+      key: e.key,
+      from,
+      to,
+      source: e.text,
+      text: value,
+      provider: provider.name,
+      glossaryVersion: glossary.version,
+    });
+  };
+
+  const runBatch = async (batch, attempt) => {
+    const inputs = batch.map((e) =>
+      attempt === 0 ? e.m.masked : e.m.masked[0].toLowerCase() + e.m.masked.slice(1),
+    );
     let outputs;
     try {
-      outputs = await breaker.exec(() =>
-        provider.translateBatch(
-          batch.map((e) => e.m.masked),
-          { from, to },
-        ),
-      );
+      outputs = await breaker.exec(() => provider.translateBatch(inputs, { from, to }));
       await incrementCounter(
         monthKey(),
-        batch.reduce((n, e) => n + e.m.masked.length, 0),
+        inputs.reduce((n, t) => n + t.length, 0),
       );
     } catch (err) {
       logger.warn(
         { err: { message: err.message }, provider: provider.name, count: batch.length },
         'translation batch failed',
       );
-      continue; // leave these as null; jobs retry later
+      return; // leave these as null; jobs retry later
     }
-    batch.forEach((e, i) => {
-      const out = outputs?.[i];
-      if (typeof out !== 'string') return;
-      let value;
-      try {
-        value = unmask(out, e.m);
-      } catch (err) {
-        if (!(err instanceof MaskMismatchError)) throw err;
-        logger.warn(
-          { reason: err.message, provider: provider.name },
-          'translation rejected: placeholder mismatch',
-        );
-        return;
-      }
-      const reason = rejectReason(e.text, value);
-      if (reason) {
-        logger.warn({ reason, provider: provider.name }, 'translation rejected');
-        return;
-      }
-      settle(e, value);
-      stored.push({
-        key: e.key,
-        from,
-        to,
-        source: e.text,
-        text: value,
-        provider: provider.name,
-        glossaryVersion: glossary.version,
-      });
-    });
-  }
+    batch.forEach((e, i) => typeof outputs?.[i] === 'string' && accept(e, outputs[i], attempt));
+  };
+
+  for (const batch of chunk(pending)) await runBatch(batch, 0);
+  for (const batch of chunk(retry)) await runBatch(batch, 1);
 
   await repo.insertCachedTranslations(stored);
   await hot.mset(stored.map((r) => [r.key, r.text]));

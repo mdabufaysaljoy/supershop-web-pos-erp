@@ -1,0 +1,64 @@
+{
+  "ar": {
+    "site.skipToContent": {
+      "src": "ac576a66d4563e60",
+      "out": "4d1259c2b830c52b"
+    },
+    "site.tagline": {
+      "src": "546d88904c098928",
+      "out": "4d496a1ac6d92f6b"
+    },
+    "nav.home": {
+      "src": "3a78695388b38b5c",
+      "out": "d49bcb58be1a4279"
+    },
+    "nav.primary": {
+      "src": "eb355944b92d1058",
+      "out": "0abfce99d97f0919"
+    },
+    "nav.footer": {
+      "src": "26c87bb51e6978fe",
+      "out": "ddb46aeae3e8283f"
+    },
+    "home.title": {
+      "src": "3f78d63115b2d895",
+      "out": "53a46a25ba0ce254"
+    },
+    "home.intro": {
+      "src": "6daa3e1f6cd155ad",
+      "out": "b997e216fcbe3428"
+    },
+    "footer.rights": {
+      "src": "88b74b601e8de1e4",
+      "status": "failed"
+    },
+    "footer.vatIncluded": {
+      "src": "f94f04ca5923e73d",
+      "out": "f39a9723f981dd19"
+    },
+    "notFound.title": {
+      "src": "a469ab4ca4e55bf5",
+      "out": "4f137908a13f49d0"
+    },
+    "notFound.body": {
+      "src": "f0583e7c30c88d06",
+      "out": "2ffebbc08a6e4e77"
+    },
+    "notFound.back": {
+      "src": "76c5505ff2e27ef4",
+      "out": "412ee29ced378096"
+    },
+    "error.title": {
+      "src": "ab827e3fe17da220",
+      "out": "e00e610c7dba24e3"
+    },
+    "error.body": {
+      "src": "7ba353b04a5b3c44",
+      "out": "4e1e5bf21e53fbde"
+    },
+    "error.retry": {
+      "src": "d8b8392e2c542950",
+      "out": "64fdf0330af8190e"
+    }
+  }
+}

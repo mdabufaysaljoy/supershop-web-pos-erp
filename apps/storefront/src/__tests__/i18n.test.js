@@ -33,10 +33,19 @@ describe('locale routing', () => {
 });
 
 describe('dictionaries', () => {
-  it('missing translations fall back to English (site never shows blank text)', async () => {
-    const ar = await getDictionary('ar');
-    const en = await getDictionary('en');
-    expect(ar.home.title).toBe(en.home.title); // ar.json is generated in P0.11
+  it('every key resolves to non-empty text in every language; missing ones fall back to English', async () => {
+    const flat = (o, p = '', r = {}) => {
+      for (const [k, v] of Object.entries(o))
+        typeof v === 'object' ? flat(v, p ? `${p}.${k}` : k, r) : (r[p ? `${p}.${k}` : k] = v);
+      return r;
+    };
+    const en = flat(await getDictionary('en'));
+    const ar = flat(await getDictionary('ar'));
+    const generated = flat((await import('@/i18n/dictionaries/ar.json')).default);
+    for (const key of Object.keys(en)) {
+      expect(typeof ar[key] === 'string' && ar[key].trim() !== '', key).toBe(true);
+      if (!(key in generated)) expect(ar[key], `${key} falls back to English`).toBe(en[key]);
+    }
     expect(mergeFallback({ a: { b: 'en', c: 'en' } }, { a: { b: 'ar' } })).toEqual({
       a: { b: 'ar', c: 'en' },
     });

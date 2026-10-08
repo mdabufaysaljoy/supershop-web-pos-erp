@@ -43,6 +43,8 @@ jobs:
         run: npm run lint
       - name: Format
         run: npm run format:check
+      - name: UI translations complete & up to date
+        run: npm run i18n:check
       - name: Test
         run: npm test
       - name: Dependency audit (production deps)

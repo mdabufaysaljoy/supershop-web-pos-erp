@@ -4,6 +4,8 @@ import { SiteHeader } from '@/components/layout/SiteHeader';
 import { JsonLd } from '@/components/JsonLd';
 import { dirOf, isLocale, LOCALES } from '@/i18n/config';
 import { getDictionary, translator } from '@/i18n/dictionaries';
+import { I18nProvider } from '@/i18n/I18nProvider';
+import { pickNamespaces } from '@/i18n/translate';
 import { getPublicSettings } from '@/lib/api';
 import { SITE_URL } from '@/lib/site';
 import { organizationLd, websiteLd } from '@/lib/structuredData';
@@ -50,9 +52,11 @@ export default async function LangLayout({ children, params }) {
           {t('site.skipToContent')}
         </a>
         <SiteHeader lang={lang} storeName={storeName} t={t} />
-        <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
-          {children}
-        </main>
+        <I18nProvider lang={lang} dict={pickNamespaces(dict)}>
+          <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+            {children}
+          </main>
+        </I18nProvider>
         <SiteFooter
           storeName={storeName}
           pricesIncludeVat={settings['tax.pricesIncludeVat']}

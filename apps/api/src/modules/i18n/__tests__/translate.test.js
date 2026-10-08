@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { fakeAr } from '../../../../test/fakeArabic.js';
 import { useMemoryMongo } from '../../../../test/mongo.js';
 import { nextEvent } from '../../../../test/http.js';
 import { EVENTS } from '@supershop/shared';
@@ -11,8 +12,8 @@ import { _breakerState, setTranslationProviderOverride, translate } from '../tra
 
 useMemoryMongo({ beforeAll, afterAll, afterEach });
 
-/** Deterministic fake provider: "AR:" + masked text (tokens untouched). */
-function fakeProvider(transform = (t) => `AR:${t}`) {
+/** Deterministic fake provider: Arabic-script transliteration of the masked text (tokens untouched). */
+function fakeProvider(transform = fakeAr) {
   const calls = [];
   return {
     calls,
@@ -40,15 +41,17 @@ describe('translate()', () => {
       texts: ['Add to cart', '', 'Blue', 'Add to cart'],
       to: 'ar',
     });
-    expect(results).toEqual(['AR:Add to cart', '', 'AR:Blue', 'AR:Add to cart']);
+    expect(results).toEqual([fakeAr('Add to cart'), '', fakeAr('Blue'), fakeAr('Add to cart')]);
     expect(provider.calls.flat()).toEqual(['Add to cart', 'Blue']); // sent once each
   });
 
   it('protects placeholders/numbers/HTML end-to-end', async () => {
     const { results } = await translate({ texts: ['<b>Save {amount}</b> on 2 items'], to: 'ar' });
-    expect(results[0]).toBe('AR:<b>Save {amount}</b> on 2 items');
+    expect(results[0]).toBe(
+      `<b>${fakeAr('Save')} {amount}</b> ${fakeAr('on')} 2 ${fakeAr('items')}`,
+    );
     const sent = provider.calls[0][0];
-    expect(sent.replace(/\u27E6\d+\u27E7/g, '')).not.toMatch(/<b>|\{amount\}|\d/); // provider never saw them
+    expect(sent.replace(/\[\d+\]/g, '')).not.toMatch(/<b>|\{amount\}|\d/); // provider never saw them
     expect(sent).toMatch(/Save/);
   });
 
@@ -70,7 +73,7 @@ describe('translate()', () => {
     await GlossaryTerm.create({ term: 'Mada', termKey: 'mada', doNotTranslate: true });
     await bumpGlossaryVersion();
     const { results } = await translate({ texts: ['Pay with Mada'], to: 'ar' });
-    expect(results[0]).toBe('AR:Pay with Mada');
+    expect(results[0]).toBe(`${fakeAr('Pay with')} Mada`);
     expect(provider.calls).toHaveLength(2); // new glossary version → not served from old cache
     expect(provider.calls[1][0]).not.toContain('Mada');
 
@@ -86,7 +89,9 @@ describe('translate()', () => {
   it('rejects provider output that mangles placeholders or injects markup (keeps null)', async () => {
     setTranslationProviderOverride(fakeProvider(() => 'dropped all tokens'));
     expect((await translate({ texts: ['Hello {name}'], to: 'ar' })).results).toEqual([null]);
-    setTranslationProviderOverride(fakeProvider((t) => `${t}<script>`));
+    setTranslationProviderOverride(fakeProvider((t) => `${fakeAr(t)}<script>`));
+    expect((await translate({ texts: ['Hello there'], to: 'ar' })).results).toEqual([null]);
+    setTranslationProviderOverride(fakeProvider((t) => t)); // engine returned English untouched
     expect((await translate({ texts: ['Hello there'], to: 'ar' })).results).toEqual([null]);
     expect(await Translation.countDocuments()).toBe(0); // nothing bad was cached
   });
@@ -115,7 +120,7 @@ describe('translate()', () => {
     await Setting.create({ key: 'i18n.monthlyCharBudget', value: 10 });
     await loadSettings();
     const alert = nextEvent(EVENTS.TRANSLATION_BUDGET_EXCEEDED);
-    expect((await translate({ texts: ['short'], to: 'ar' })).results).toEqual(['AR:short']);
+    expect((await translate({ texts: ['short'], to: 'ar' })).results).toEqual([fakeAr('short')]);
     expect((await translate({ texts: ['this one is far too long'], to: 'ar' })).results).toEqual([
       null,
     ]);

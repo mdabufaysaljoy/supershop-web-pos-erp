@@ -2,10 +2,11 @@
   "name": "supershop",
   "private": true,
   "type": "module",
-  "description": "Multi-category e-commerce + ERP/POS (Saudi Arabia) — modular monolith monorepo",
+  "description": "Multi-category e-commerce + ERP/POS (Saudi Arabia) \u2014 modular monolith monorepo",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "tools/*"
   ],
   "engines": {
     "node": ">=22.12.0",
@@ -21,13 +22,15 @@
     "format:check": "prettier --check .",
     "test": "npm run test --workspaces --if-present",
     "seed": "npm run seed --workspaces --if-present",
-    "check": "npm run lint && npm run format:check && npm test",
+    "check": "npm run lint && npm run format:check && npm run i18n:check && npm test",
     "infra:up": "docker compose up -d",
     "infra:down": "docker compose down",
     "prepare": "husky",
     "dev:admin": "npm run dev -w apps/admin",
     "build": "npm run build --workspaces --if-present",
-    "dev:web": "npm run dev -w apps/storefront"
+    "dev:web": "npm run dev -w apps/storefront",
+    "i18n:translate": "node --env-file-if-exists=.env tools/i18n/src/translate.js",
+    "i18n:check": "node tools/i18n/src/check.js"
   },
   "lint-staged": {
     "*.{js,mjs,cjs,jsx}": [

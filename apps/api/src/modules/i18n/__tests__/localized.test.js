@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { fakeAr } from '../../../../test/fakeArabic.js';
 import { useMemoryMongo } from '../../../../test/mongo.js';
 import { loadSettings } from '../../settings/index.js';
 import { processTranslationJob } from '../i18n.jobs.js';
@@ -31,7 +32,7 @@ beforeEach(async () => {
   await loadSettings();
   jobs = [];
   setTranslationScheduler(async (job) => jobs.push(job));
-  translateFn = (t) => `AR:${t}`;
+  translateFn = fakeAr;
   setTranslationProviderOverride({
     name: 'fake',
     enabled: true,
@@ -66,8 +67,8 @@ describe('localized plugin', () => {
 
     await runJobs();
     const saved = await Item.findById(doc._id).lean();
-    expect(saved.name.ar).toBe('AR:Blue shirt');
-    expect(saved.seo.title.ar).toBe('AR:Buy a blue shirt');
+    expect(saved.name.ar).toBe(fakeAr('Blue shirt'));
+    expect(saved.seo.title.ar).toBe(fakeAr('Buy a blue shirt'));
     expect(saved.name.meta.ar).toMatchObject({ status: 'done', mode: 'auto', provider: 'fake' });
   });
 
@@ -78,12 +79,12 @@ describe('localized plugin', () => {
     fresh.name.en = 'Navy shirt';
     await fresh.save();
     const between = await Item.findById(doc._id).lean();
-    expect(between.name.ar).toBe('AR:Blue shirt'); // still served
+    expect(between.name.ar).toBe(fakeAr('Blue shirt')); // still served
     expect(between.name.meta.ar.status).toBe('pending');
-    expect(resolveDoc(between, ['name'], 'ar').name).toBe('AR:Blue shirt');
+    expect(resolveDoc(between, ['name'], 'ar').name).toBe(fakeAr('Blue shirt'));
 
     await runJobs();
-    expect((await Item.findById(doc._id).lean()).name.ar).toBe('AR:Navy shirt');
+    expect((await Item.findById(doc._id).lean()).name.ar).toBe(fakeAr('Navy shirt'));
   });
 
   it('saving without changing English schedules nothing', async () => {
@@ -115,20 +116,20 @@ describe('localized plugin', () => {
     revertToAuto(d3, 'name', 'ar');
     await d3.save();
     await runJobs();
-    expect((await Item.findById(doc._id).lean()).name.ar).toBe('AR:Navy shirt');
+    expect((await Item.findById(doc._id).lean()).name.ar).toBe(fakeAr('Navy shirt'));
   });
 
   it('race-safe: if English changes between scheduling and processing, the stale result is not written', async () => {
     const doc = await Item.create({ name: { en: 'Blue shirt' } });
     const [job] = jobs.splice(0);
     // Admin edits English while the first job is "in flight": translation returns, then is discarded.
-    translateFn = (t) => `AR:${t}`;
+    translateFn = fakeAr;
     const slow = processTranslationJob(job);
     await Item.updateOne({ _id: doc._id }, { $set: { 'name.en': 'Edited meanwhile' } });
     await slow.catch(() => {});
     const saved = await Item.findById(doc._id).lean();
-    expect(saved.name.ar === undefined || saved.name.ar === 'AR:Edited meanwhile').toBe(true);
-    expect(saved.name.ar).not.toBe('AR:Blue shirt');
+    expect(saved.name.ar === undefined || saved.name.ar === fakeAr('Edited meanwhile')).toBe(true);
+    expect(saved.name.ar).not.toBe(fakeAr('Blue shirt'));
   });
 
   it('a failed translation is marked failed (and retried by the queue), English still served', async () => {

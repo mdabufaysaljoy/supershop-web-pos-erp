@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { mask, MaskMismatchError, rejectReason, unmask } from '../masking.js';
 
-const T = (n) => `⟦${n}⟧`;
+const T = (n) => `[${n}]`;
 // A "translator" that uppercases words but keeps tokens — enough to prove the round trip.
 const fakeTranslate = (s) => s.replace(/[a-z]+/g, (w) => w.toUpperCase());
 
@@ -17,6 +17,7 @@ describe('mask', () => {
     ],
     ['Only 199.99 SAR, 15% off, 10:30', ['199.99', '15%', '10:30']],
     ['SKU TSH-BLK-01 and model A15', ['TSH-BLK-01', 'A15']],
+    ['© 2026 Brand™. Registered®', ['©', '2026', '™', '®']],
   ])('%s', (text, protectedParts) => {
     const m = mask(text);
     expect(m.restore).toEqual(protectedParts);
@@ -58,15 +59,41 @@ describe('unmask rejects mangled provider output', () => {
     ['missing token', `HI ${T(0)} NEW`],
     ['duplicated token', `HI ${T(0)} ${T(0)} ${T(1)}`],
     ['unknown token', `HI ${T(0)} ${T(1)} ${T(7)}`],
-    ['stray bracket', `HI ${T(0)} ${T(1)} ⟦`],
+    ['mangled token ("[1" lost its bracket)', `HI ${T(0)} [1 NEW`],
   ])('%s', (_, out) => expect(() => unmask(out, m)).toThrow(MaskMismatchError));
 
   it('tolerates spaces the engine inserts inside tokens', () => {
-    expect(unmask('HI ⟦ 0 ⟧ ⟦1 ⟧ NEW', m)).toBe('HI {name} {count} NEW');
+    expect(unmask('HI [ 0 ] [1 ] NEW', m)).toBe('HI {name} {count} NEW');
+  });
+
+  it('protects literal [n] in the source so it cannot collide with tokens', () => {
+    const lit = mask('See note [1] for {name}');
+    expect(lit.restore).toEqual(['[1]', '{name}']);
+    expect(unmask(lit.masked.toUpperCase(), lit)).toBe('SEE NOTE [1] FOR {name}');
   });
 });
 
 describe('rejectReason', () => {
+  it('rejects output that is still mostly Latin for an Arabic target (engine returned English)', () => {
+    // Real LibreTranslate output observed in P0.11: second sentence left in English.
+    const out = 'ادفع مع [0]. Only [1] for [2] items, SKU [3]. [4]Limited[5]';
+    expect(rejectReason('x', 'x', { to: 'ar', maskedOutput: out })).toBe('untranslated');
+    expect(
+      rejectReason('x', 'x', { to: 'ar', maskedOutput: 'التسليم الحر بناء على أوامر من [0] SAR' }),
+    ).toBeNull();
+    expect(rejectReason('x', 'x', { to: 'ar', maskedOutput: '[0] [1]' })).toBeNull(); // only tokens
+  });
+
+  it('rejects output that is still mostly Latin for an Arabic target (engine returned English)', () => {
+    // Real LibreTranslate output observed in P0.11: second sentence left in English.
+    const out = 'ادفع مع [0]. Only [1] for [2] items, SKU [3]. [4]Limited[5]';
+    expect(rejectReason('x', 'x', { to: 'ar', maskedOutput: out })).toBe('untranslated');
+    expect(
+      rejectReason('x', 'x', { to: 'ar', maskedOutput: 'التسليم الحر بناء على أوامر من [0] SAR' }),
+    ).toBeNull();
+    expect(rejectReason('x', 'x', { to: 'ar', maskedOutput: '[0] [1]' })).toBeNull(); // only tokens
+  });
+
   it('rejects empty, injected markup and absurd lengths', () => {
     expect(rejectReason('Hello', '  ')).toBe('empty');
     expect(rejectReason('Hello', 'مرحبا <script>')).toBe('markup_changed');

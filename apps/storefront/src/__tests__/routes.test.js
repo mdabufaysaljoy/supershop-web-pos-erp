@@ -11,13 +11,52 @@ describe('robots & sitemap', () => {
     );
   });
 
-  it('sitemap lists every language with hreflang alternates', () => {
-    const entries = sitemap();
-    expect(entries.map((e) => e.url)).toEqual(['https://shop.example/', 'https://shop.example/ar']);
+  it('sitemap lists home, categories and products in every language with hreflang', async () => {
+    const json = (data, meta = {}) =>
+      new Response(JSON.stringify({ data, meta }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url) => {
+        const u = new URL(url);
+        if (u.pathname === '/api/v1/categories/public')
+          return json([
+            { id: '1', slug: 'fashion', children: [{ id: '2', slug: 'shirts', children: [] }] },
+          ]);
+        if (u.pathname === '/api/v1/products/public-sitemap')
+          return json([{ slug: 'oxford', updatedAt: '2026-10-01T00:00:00.000Z' }], {
+            page: 1,
+            limit: 5000,
+          });
+        throw new Error(`unexpected ${u}`);
+      }),
+    );
+    const entries = await sitemap();
+    vi.unstubAllGlobals();
+    expect(entries.map((e) => e.url)).toEqual([
+      'https://shop.example/',
+      'https://shop.example/ar',
+      'https://shop.example/category/fashion',
+      'https://shop.example/ar/category/fashion',
+      'https://shop.example/category/shirts',
+      'https://shop.example/ar/category/shirts',
+      'https://shop.example/product/oxford',
+      'https://shop.example/ar/product/oxford',
+    ]);
     expect(entries[0].alternates.languages).toEqual({
       en: 'https://shop.example/',
       ar: 'https://shop.example/ar',
+      'x-default': 'https://shop.example/',
     });
+    expect(entries.at(-1).lastModified).toBe('2026-10-01T00:00:00.000Z');
+  });
+
+  it('sitemap still renders the static part when the API is down', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('ECONNREFUSED')));
+    const entries = await sitemap();
+    vi.unstubAllGlobals();
+    expect(entries.map((e) => e.url)).toEqual(['https://shop.example/', 'https://shop.example/ar']);
   });
 });
 

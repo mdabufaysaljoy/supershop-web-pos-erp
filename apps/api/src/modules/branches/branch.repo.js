@@ -13,6 +13,9 @@ export const findActiveByIds = (ids) =>
 /** Deleted included: history (stock ledger, orders) keeps showing the branch. */
 export const findByIds = (ids) =>
   Branch.find({ _id: { $in: ids } }, { code: 1, name: 1, deletedAt: 1 }).lean();
+/** Ids of branches whose stock serves online orders (active, not deleted). */
+export const findOnlineBranchIds = () =>
+  Branch.distinct('_id', { ...ACTIVE, isActive: true, fulfillsOnlineOrders: true });
 export const codeExists = async (code, excludeId) =>
   Boolean(await Branch.exists({ code, ...ACTIVE, ...(excludeId && { _id: { $ne: excludeId } }) }));
 export const countActive = () => Branch.countDocuments(ACTIVE);

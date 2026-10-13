@@ -24,13 +24,29 @@
       "src": "a4fe65264ef7dbb3",
       "out": "6520b21edd4d2913"
     },
+    "nav.allProducts": {
+      "src": "718622df41f1b644",
+      "out": "280b0eaed715ea5e"
+    },
     "home.title": {
       "src": "3f78d63115b2d895",
       "out": "53a46a25ba0ce254"
     },
-    "home.intro": {
-      "src": "6daa3e1f6cd155ad",
-      "out": "b997e216fcbe3428"
+    "home.shopAll": {
+      "src": "89037fd12b2a8c3f",
+      "out": "280b0eaed715ea5e"
+    },
+    "home.categories": {
+      "src": "a9dbe2a0f2abbd84",
+      "out": "eff85e6015289d61"
+    },
+    "home.newArrivals": {
+      "src": "01ebe8120defb923",
+      "out": "f459fd318ff9c49a"
+    },
+    "home.viewAll": {
+      "src": "30a64216eaeac5d3",
+      "out": "5e62c4936c4917c4"
     },
     "footer.rights": {
       "src": "88b74b601e8de1e4",
@@ -63,6 +79,218 @@
     "error.retry": {
       "src": "d8b8392e2c542950",
       "out": "64fdf0330af8190e"
+    },
+    "search.label": {
+      "src": "c65cb6b210b9b6fc",
+      "out": "946b2a6964368486"
+    },
+    "search.placeholder": {
+      "src": "d6c7eae4c6a370f6",
+      "out": "399aaa311030dc6e"
+    },
+    "search.suggestions": {
+      "src": "16c1d601fc669504",
+      "out": "7331817a1ac633fd"
+    },
+    "search.product": {
+      "src": "fb9ef894175c3274",
+      "out": "c8775206b2527c6b"
+    },
+    "search.category": {
+      "src": "292c06f0045a45d0",
+      "out": "ff61fb213ffc92d5"
+    },
+    "catalog.allProducts": {
+      "src": "718622df41f1b644",
+      "out": "280b0eaed715ea5e"
+    },
+    "catalog.searchTitle": {
+      "src": "08c8ecca0e24641a",
+      "out": "6a38540862567459"
+    },
+    "catalog.categoryDescription": {
+      "src": "c50073ec402c8ee5",
+      "out": "46ddca0044af2ffe"
+    },
+    "catalog.pageN": {
+      "src": "aaf89a2e8dd2e9c7",
+      "out": "3f4e13372ca36275"
+    },
+    "catalog.breadcrumbs": {
+      "src": "2bd873d6c734e63e",
+      "out": "9e31e6db40d30c88"
+    },
+    "catalog.results": {
+      "src": "4edc8bfafc6bd936",
+      "out": "c8775206b2527c6b"
+    },
+    "catalog.count": {
+      "src": "ce1ffe95686a725b",
+      "out": "929c6f09e60daffb"
+    },
+    "catalog.empty": {
+      "src": "b36e59a3b5d47bcb",
+      "out": "e975b95991d37179"
+    },
+    "catalog.filters": {
+      "src": "546ebb8eb993ea56",
+      "out": "753238c29b45a414"
+    },
+    "catalog.subcategories": {
+      "src": "c249a9a4a69a8a45",
+      "out": "72472e65a2976da4"
+    },
+    "catalog.categories": {
+      "src": "b8b1d894c6837252",
+      "out": "8b6993cf9d9081a7"
+    },
+    "catalog.brands": {
+      "src": "ec26be2ce7a0612e",
+      "out": "e3a5283fa71ba1a5"
+    },
+    "catalog.price": {
+      "src": "93c91c851e7acc17",
+      "out": "259862e8b3137834"
+    },
+    "catalog.min": {
+      "src": "dea79332147ffe1f",
+      "out": "2559a58da60b3914"
+    },
+    "catalog.max": {
+      "src": "a1a5936d3b0f8a69",
+      "out": "3a059e1adf4b98e4"
+    },
+    "catalog.minPrice": {
+      "src": "deed481aef753c67",
+      "out": "721cd370c96bd26f"
+    },
+    "catalog.maxPrice": {
+      "src": "56a4f47ea1f080e4",
+      "out": "5094024bb6619ef5"
+    },
+    "catalog.priceInSar": {
+      "src": "7dd0667df2f8be87",
+      "out": "6ccefe333d64089e"
+    },
+    "catalog.apply": {
+      "src": "31e392d1c0378bec",
+      "out": "d83483faf7f90448"
+    },
+    "catalog.clear": {
+      "src": "7179ea0035fca783",
+      "out": "923e7ad54f76bab6"
+    },
+    "catalog.sortBy": {
+      "src": "c9129025bd3ff652",
+      "out": "6cbccc3d3912c692"
+    },
+    "catalog.sort.default": {
+      "src": "c533cafab69e4033",
+      "out": "19bb1398e22d79f7"
+    },
+    "catalog.sort.relevance": {
+      "src": "d83ab68f742891bc",
+      "out": "988bf6035a2e144d"
+    },
+    "catalog.sort.newest": {
+      "src": "d15efa178cf65ae1",
+      "out": "b5cfe7a2a0d12140"
+    },
+    "catalog.sort.price_asc": {
+      "src": "b46704b1c86843bf",
+      "out": "01538983dd277ca6"
+    },
+    "catalog.sort.price_desc": {
+      "src": "f2aec532cfbfa3b4",
+      "out": "7783f80926cc094f"
+    },
+    "catalog.sort.name": {
+      "src": "dcd1d5223f73b3a9",
+      "out": "52ab09847cf82787"
+    },
+    "catalog.pagination": {
+      "src": "9046da16aea909ba",
+      "out": "4f137908a13f49d0"
+    },
+    "catalog.previous": {
+      "src": "1208ec01f223c616",
+      "out": "bea963cb7b74da38"
+    },
+    "catalog.next": {
+      "src": "c08ac736a5e29c29",
+      "out": "56ed8bb2532c0db0"
+    },
+    "catalog.from": {
+      "src": "3f91622db84f0e7a",
+      "out": "fbe5df95d5b6665a"
+    },
+    "catalog.wasPrice": {
+      "src": "9f276c3991cc8cd2",
+      "out": "c43fd54f0e65cb9c"
+    },
+    "catalog.save": {
+      "src": "6e71eaeca651b575",
+      "out": "888cc879c697eb7e"
+    },
+    "catalog.outOfStock": {
+      "src": "b804f4350903a467",
+      "out": "b300277d597db714"
+    },
+    "catalog.inStock": {
+      "src": "e674447337e83c13",
+      "out": "1f5830f563aba718"
+    },
+    "catalog.valueOutOfStock": {
+      "src": "edf57f90a1b6b6a5",
+      "out": "e3731c3fce2390db"
+    },
+    "catalog.chooseOptions": {
+      "src": "be1d602b4905f318",
+      "out": "cd979038477742fc"
+    },
+    "catalog.sku": {
+      "src": "eda375001fceb955",
+      "out": "a6f06b4b6f3b332b"
+    },
+    "catalog.vatIncluded": {
+      "src": "9a09ed9e4f99ead2",
+      "out": "f189ac5269b30356"
+    },
+    "catalog.vatExcluded": {
+      "src": "087a06e268dec584",
+      "out": "e217b7388c381450"
+    },
+    "catalog.gallery": {
+      "src": "b65675ba6b50707a",
+      "out": "b979909813ac9abf"
+    },
+    "catalog.showImage": {
+      "src": "772215ec819a223c",
+      "out": "57c6e8cdb2cca69b"
+    },
+    "catalog.details": {
+      "src": "fd294f8ad38350bf",
+      "out": "9db08774022d4cad"
+    },
+    "catalog.description": {
+      "src": "526e0087cc3f254d",
+      "out": "95023fc76e1b1460"
+    },
+    "catalog.specifications": {
+      "src": "015b4e0a76e50458",
+      "out": "1941d730b1c97a7f"
+    },
+    "catalog.yes": {
+      "src": "85a39ab345d672ff",
+      "out": "4b2d2c65d365e371"
+    },
+    "catalog.no": {
+      "src": "1ea442a134b2a184",
+      "out": "2bd073516a87c409"
+    },
+    "catalog.related": {
+      "src": "925a46fefcd19d1a",
+      "out": "21c7ceb6fba68c9e"
     }
   }
 }

@@ -120,6 +120,14 @@ export const findVariantByCode = async (code) =>
   (await Variant.findOne({ barcode: code, ...ACTIVE }).lean()) ??
   (await Variant.findOne({ sku: code, ...ACTIVE }).lean());
 
+/** Sitemap: active products' slugs and last change, in stable order. */
+export const listPublicSlugs = (skip, limit) =>
+  Product.find({ ...ACTIVE, status: 'active' }, { slug: 1, updatedAt: 1 })
+    .sort({ _id: 1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
 // ---------- inventory lookups ----------
 /** Variants by id, deleted included (the stock ledger keeps referring to them). */
 export const findVariantsByIds = (ids) => Variant.find({ _id: { $in: ids } }).lean();

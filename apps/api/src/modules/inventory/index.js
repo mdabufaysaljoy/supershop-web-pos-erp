@@ -5,6 +5,7 @@ export {
   countStockRecordsInBranch,
   findOperationByIdempotencyKey,
   getOnHand,
+  getOnlineInStock,
   getTotalOnHand,
   publishStockResult,
 } from './inventory.service.js';

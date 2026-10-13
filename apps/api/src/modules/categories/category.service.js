@@ -6,7 +6,7 @@ import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { isDuplicateKey, slugTakenError, uniqueSlug } from '../../core/slug.js';
 import { eventBus } from '../../core/events.js';
 import { resolveDoc } from '../i18n/index.js';
-import { getMediaByIds } from '../media/index.js';
+import { getMediaByIds, publicImage } from '../media/index.js';
 import * as repo from './category.repo.js';
 
 /**
@@ -37,14 +37,7 @@ const auditView = (c) => ({
   imageId: c.imageId ? String(c.imageId) : null,
 });
 
-const imageView = (m) =>
-  m && {
-    id: m.id,
-    url: m.url,
-    thumbUrl: m.variants.thumb?.url ?? m.url,
-    width: m.width,
-    height: m.height,
-  };
+const imageView = (m) => m && publicImage(m);
 
 async function mediaMap(categories) {
   const ids = [...new Set(categories.filter((c) => c.imageId).map((c) => String(c.imageId)))];

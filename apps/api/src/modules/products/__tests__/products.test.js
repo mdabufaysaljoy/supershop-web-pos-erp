@@ -533,6 +533,8 @@ describe('products: listing, public, deletion & references', () => {
   it('public view: active only, no cost/supplier, inactive variants hidden', async () => {
     const p = await create(TSHIRT());
     expect((await request(app).get(`/api/v1/products/public/${p.slug}`)).status).toBe(404);
+    const sitemap = async () => (await request(app).get('/api/v1/products/public-sitemap')).body;
+    expect((await sitemap()).data).toEqual([]); // drafts aren't listed
     const v = p.variants;
     await as('root').patch(`/api/v1/products/${p.id}`, {
       status: 'active',
@@ -553,6 +555,7 @@ describe('products: listing, public, deletion & references', () => {
     expect(text).not.toContain('cost');
     expect(text).not.toContain('supplier');
     expect(text).not.toContain('6281000000014');
+    expect((await sitemap()).data).toEqual([{ slug: p.slug, updatedAt: expect.any(String) }]);
   });
 
   it('referenced categories/brands/suppliers cannot be deleted until the product is', async () => {

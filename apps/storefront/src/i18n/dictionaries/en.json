@@ -7,11 +7,15 @@
     "home": "Home",
     "primary": "Main navigation",
     "footer": "Footer",
-    "language": "Language"
+    "language": "Language",
+    "allProducts": "All products"
   },
   "home": {
     "title": "Welcome to {{store}}",
-    "intro": "Our online store is getting ready. Product listings, cart and checkout are coming soon."
+    "shopAll": "Shop all products",
+    "categories": "Shop by category",
+    "newArrivals": "New arrivals",
+    "viewAll": "View all"
   },
   "footer": {
     "rights": "© {{year}} {{store}}. All rights reserved.",
@@ -26,5 +30,64 @@
     "title": "Something went wrong",
     "body": "Please try again in a moment.",
     "retry": "Try again"
+  },
+  "search": {
+    "label": "Search products",
+    "placeholder": "Search for products",
+    "suggestions": "Suggestions",
+    "product": "Product",
+    "category": "Category"
+  },
+  "catalog": {
+    "allProducts": "All products",
+    "searchTitle": "Search results: {{q}}",
+    "categoryDescription": "Shop {{name}} at {{store}}. Delivery across Saudi Arabia.",
+    "pageN": "Page {{page}}",
+    "breadcrumbs": "Breadcrumb",
+    "results": "Products",
+    "count": "Number of products: {{count}}",
+    "empty": "No products match your selection.",
+    "filters": "Filters",
+    "subcategories": "Subcategories",
+    "categories": "Categories",
+    "brands": "Brands",
+    "price": "Price",
+    "min": "Min",
+    "max": "Max",
+    "minPrice": "Minimum price (SAR)",
+    "maxPrice": "Maximum price (SAR)",
+    "priceInSar": "Prices in SAR.",
+    "apply": "Apply",
+    "clear": "Clear filters",
+    "sortBy": "Sort by",
+    "sort": {
+      "default": "Featured",
+      "relevance": "Best match",
+      "newest": "Newest",
+      "price_asc": "Price: low to high",
+      "price_desc": "Price: high to low",
+      "name": "Name"
+    },
+    "pagination": "Pages",
+    "previous": "Previous page",
+    "next": "Next page",
+    "from": "From {{price}}",
+    "wasPrice": "Was",
+    "save": "{{percent}}% discount",
+    "outOfStock": "Out of stock",
+    "inStock": "Available",
+    "valueOutOfStock": "{{value}} (out of stock)",
+    "chooseOptions": "Choose your options to see availability.",
+    "sku": "Product code",
+    "vatIncluded": "Price includes VAT.",
+    "vatExcluded": "VAT is added at checkout.",
+    "gallery": "Product images",
+    "showImage": "Show image {{n}}",
+    "details": "Product details",
+    "description": "Description",
+    "specifications": "Specifications",
+    "yes": "Yes",
+    "no": "No",
+    "related": "You may also like"
   }
 }

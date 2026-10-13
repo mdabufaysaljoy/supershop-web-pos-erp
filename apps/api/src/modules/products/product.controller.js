@@ -29,3 +29,9 @@ export const lookup = async (req, res) =>
   sendData(res, await service.lookupByCode(req.access, req.valid.query.code));
 export const variants = async (req, res) =>
   sendData(res, await service.searchVariants(req.access, req.valid.query));
+export const sitemap = async (req, res) => {
+  res.set('Cache-Control', 'public, max-age=600');
+  sendData(res, await service.listPublicSlugs(req.valid.query.page), {
+    meta: { page: req.valid.query.page, limit: service.SITEMAP_PAGE_SIZE },
+  });
+};

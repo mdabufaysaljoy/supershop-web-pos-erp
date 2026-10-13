@@ -6,7 +6,12 @@ import { withTransaction } from '../../core/db.js';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { isDuplicateKey } from '../../core/slug.js';
-import { findUnknownBranches, getBranchSummaries, listBranchOptions } from '../branches/index.js';
+import {
+  findUnknownBranches,
+  getBranchSummaries,
+  listBranchOptions,
+  listOnlineBranchIds,
+} from '../branches/index.js';
 import { findStockableVariants, getVariantSummaries, matchVariantIds } from '../products/index.js';
 import { getSetting } from '../settings/index.js';
 import { getStaffNames } from '../staff/index.js';
@@ -545,6 +550,19 @@ export async function getOnHand(branchId, variantIds) {
 export async function getTotalOnHand(variantIds, { session } = {}) {
   const rows = await repo.sumOnHand(variantIds.map(oid), session);
   return new Map(rows.map((r) => [str(r._id), r.onHand]));
+}
+
+/**
+ * Online availability (storefront): variant ids with stock in a branch that fulfils online
+ * orders. In/out only — quantities are never exposed publicly.
+ * @returns {Promise<Set<string>>}
+ */
+export async function getOnlineInStock(variantIds) {
+  if (!variantIds.length) return new Set();
+  const branches = await listOnlineBranchIds();
+  if (!branches.length) return new Set();
+  const ids = await repo.variantsInStock(variantIds.map(oid), branches);
+  return new Set(ids.map(String));
 }
 
 /** Stock records in a branch (levels or operations) — such branches can't be deleted. */

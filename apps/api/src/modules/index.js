@@ -15,7 +15,11 @@ import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
 import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
-import { countStockRecordsInBranch, createInventoryRouter } from './inventory/index.js';
+import {
+  countStockRecordsInBranch,
+  createInventoryRouter,
+  getOnlineInStock,
+} from './inventory/index.js';
 import { createMediaRouter } from './media/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
@@ -29,6 +33,7 @@ import {
   countProductsOfBrand,
   countProductsOfSupplier,
   createProductRouter,
+  setAvailabilityProvider,
 } from './products/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
 import { createSettingsRouter, getSetting } from './settings/index.js';
@@ -113,6 +118,7 @@ export function registerModules() {
   // Branches with stock or purchasing history stay.
   registerBranchUsage(countStockRecordsInBranch);
   registerBranchUsage(countPurchaseOrdersInBranch);
+  setAvailabilityProvider(getOnlineInStock); // storefront in/out of stock
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */

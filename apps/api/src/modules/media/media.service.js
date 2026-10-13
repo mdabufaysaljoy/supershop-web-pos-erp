@@ -70,6 +70,22 @@ export function toMediaDto(m) {
   };
 }
 
+/**
+ * Public image view for storefront DTOs: main URL, thumbnail, intrinsic size and every stored
+ * size as `sources` (ascending width) so pages can build a responsive `srcset`.
+ * @param {ReturnType<typeof toMediaDto>} m
+ */
+export const publicImage = (m) => ({
+  id: m.id,
+  url: m.url,
+  thumbUrl: m.variants.thumb?.url ?? m.url,
+  width: m.width,
+  height: m.height,
+  sources: Object.values(m.variants)
+    .map((v) => ({ url: v.url, width: v.width }))
+    .sort((a, b) => a.width - b.width),
+});
+
 const emit = (actor, name, payload) =>
   void eventBus.emit(name, { ...payload, actorId: actor.staffId });
 const auditView = (m) => ({

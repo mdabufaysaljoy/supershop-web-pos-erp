@@ -7,11 +7,15 @@
     "home": "البيت",
     "primary": "الملاحة الرئيسية",
     "footer": "قدم",
-    "language": "اللغة"
+    "language": "اللغة",
+    "allProducts": "جميع المنتجات"
   },
   "home": {
     "title": "مرحبا بكم في {{store}}",
-    "intro": "متجرنا على الإنترنت يستعد قوائم المنتجات والعربات والخروج قريباً."
+    "shopAll": "جميع المنتجات",
+    "categories": "عرض حسب الفئة",
+    "newArrivals": "الوافدين الجدد",
+    "viewAll": "شاهدوا كل شيء"
   },
   "footer": {
     "vatIncluded": "وتشمل الأسعار ضريبة القيمة المضافة."
@@ -25,5 +29,64 @@
     "title": "شيء ما حدث",
     "body": "حاول مرة أخرى في لحظة.",
     "retry": "حاول مرة أخرى"
+  },
+  "search": {
+    "label": "منتجات البحث",
+    "placeholder": "البحث عن المنتجات",
+    "suggestions": "الاقتراحات",
+    "product": "المنتجات",
+    "category": "الفئة"
+  },
+  "catalog": {
+    "allProducts": "جميع المنتجات",
+    "searchTitle": "نتائج البحث: {{q}}",
+    "categoryDescription": "Shop {{name}} at {{store}}. تسليم عبر المملكة العربية السعودية.",
+    "pageN": "الصفحة {{page}}",
+    "breadcrumbs": "الخبز",
+    "results": "المنتجات",
+    "count": "عدد المنتجات: {{count}}",
+    "empty": "لا منتجات تطابق اختيارك.",
+    "filters": "الأفلام",
+    "subcategories": "الفئات الفرعية",
+    "categories": "فئات",
+    "brands": "براندز",
+    "price": "السعر",
+    "min": "مين",
+    "max": "ماكس",
+    "minPrice": "السعر الأدنى",
+    "maxPrice": "الحد الأقصى للأسعار",
+    "priceInSar": "الأسعار في SAR.",
+    "apply": "التطبيق",
+    "clear": "مرشحات واضحة",
+    "sortBy": "نوعا ما",
+    "sort": {
+      "default": "المرشح",
+      "relevance": "أفضل مباراة",
+      "newest": "أحدث",
+      "price_asc": "السعر: منخفض إلى مرتفع",
+      "price_desc": "السعر: مرتفع إلى منخفض",
+      "name": "الاسم"
+    },
+    "pagination": "الصفحة",
+    "previous": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "from": "من {{price}}",
+    "wasPrice": "كان",
+    "save": "{{percent}}٪ خصم",
+    "outOfStock": "خارج المخزون",
+    "inStock": "متاح",
+    "valueOutOfStock": "{{value}} (من المخزون)",
+    "chooseOptions": "اختر خياراتك لرؤية التوافر.",
+    "sku": "رمز المنتجات",
+    "vatIncluded": "السعر يشمل ضريبة القيمة المضافة.",
+    "vatExcluded": "تُضاف ضريبة القيمة المضافة عند المغادرة.",
+    "gallery": "صور المنتجات",
+    "showImage": "صورة العرض {{n}}",
+    "details": "تفاصيل المنتجات",
+    "description": "الوصف",
+    "specifications": "المواصفات",
+    "yes": "نعم",
+    "no": "لا",
+    "related": "قد تحب أيضاً"
   }
 }

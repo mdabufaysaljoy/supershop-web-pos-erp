@@ -112,6 +112,9 @@ export async function listBranchOptions(actor) {
   }));
 }
 
+/** For other modules: branches that fulfil online orders. */
+export const listOnlineBranchIds = () => repo.findOnlineBranchIds();
+
 /** For other modules: `Map<id, { id, code, name, deleted }>` (deleted branches included). */
 export async function getBranchSummaries(ids) {
   const docs = ids.length ? await repo.findByIds([...new Set(ids.map(String))]) : [];

@@ -31,6 +31,7 @@ const as = (who) => {
       return (key ? r.set('Idempotency-Key', key) : r).send(body);
     },
     put: (url, body) => auth(request(app).put(url)).send(body),
+    patch: (url, body) => auth(request(app).patch(url)).send(body),
     delete: (url) => auth(request(app).delete(url)),
   };
 };
@@ -449,6 +450,35 @@ describe('reads and scope', () => {
     const res = await as('root').delete(`/api/v1/branches/${ids.jed}`);
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe('BRANCH_IN_USE');
+  });
+});
+
+describe('storefront availability', () => {
+  it('reports in/out of stock from branches that fulfil online orders only', async () => {
+    const pub = async () =>
+      (await request(app).get('/api/v1/products/public/oxford-shirt?lang=en')).body.data;
+    await as('root').patch(`/api/v1/products/${ids.shirt}`, { status: 'active' });
+    expect(await pub()).toMatchObject({ inStock: false });
+
+    await ok(await receive('root', ids.ruh, [{ variantId: ids.red, qty: 2 }]));
+    expect((await pub()).inStock).toBe(false); // Riyadh doesn't ship online orders yet
+    await as('root').patch(`/api/v1/branches/${ids.ruh}`, { fulfillsOnlineOrders: true });
+    const p = await pub();
+    expect(p.inStock).toBe(true);
+    expect(Object.fromEntries(p.variants.map((v) => [v.sku, v.inStock]))).toEqual({
+      'OX-RED': true,
+      'OX-BLUE': false,
+    });
+    expect(p.variants[0]).not.toHaveProperty('onHand'); // never quantities
+
+    await ok(
+      await as('root').post('/api/v1/inventory/adjust', {
+        branchId: ids.ruh,
+        reason: 'lost',
+        lines: [{ variantId: ids.red, delta: -2 }],
+      }),
+    );
+    expect((await pub()).inStock).toBe(false);
   });
 });
 

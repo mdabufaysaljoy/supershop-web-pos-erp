@@ -4,7 +4,7 @@ import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { isDuplicateKey, nameTakenError, slugTakenError, uniqueSlug } from '../../core/slug.js';
 import { resolveDoc } from '../i18n/index.js';
-import { getMediaByIds } from '../media/index.js';
+import { getMediaByIds, publicImage } from '../media/index.js';
 import * as repo from './brand.repo.js';
 
 /** Brands (P1.3). Name is never translated; description/SEO are auto-translated. */
@@ -29,14 +29,7 @@ const auditView = (b) => ({
   website: b.website ?? null,
 });
 
-const logoView = (m) =>
-  m && {
-    id: m.id,
-    url: m.url,
-    thumbUrl: m.variants.thumb?.url ?? m.url,
-    width: m.width,
-    height: m.height,
-  };
+const logoView = (m) => m && publicImage(m);
 
 async function mediaMap(brands) {
   const ids = [...new Set(brands.filter((b) => b.logoId).map((b) => String(b.logoId)))];

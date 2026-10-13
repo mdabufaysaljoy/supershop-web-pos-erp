@@ -101,6 +101,14 @@ export const sumOnHand = (variantIds, session) =>
     { session },
   );
 
+/** Variant ids with stock on hand in any of `branchIds`. */
+export const variantsInStock = (variantIds, branchIds) =>
+  StockLevel.distinct('variantId', {
+    variantId: { $in: variantIds },
+    branchId: { $in: branchIds },
+    onHand: { $gt: 0 },
+  });
+
 /** Anything recorded for a branch (blocks deleting it). */
 export const countBranchRecords = async (branchId) =>
   (await StockOperation.countDocuments({ $or: [{ branchId }, { toBranchId: branchId }] })) +

@@ -16,6 +16,7 @@ export {
   matchVariantIds,
   productIdBatches,
   publishCostChanges,
+  setAvailabilityProvider,
   setVariantCosts,
   updateProduct,
 } from './product.service.js';

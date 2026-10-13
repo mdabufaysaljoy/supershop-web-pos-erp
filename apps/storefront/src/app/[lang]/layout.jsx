@@ -9,6 +9,7 @@ import { getDictionary, translator } from '@/i18n/dictionaries';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import { pickNamespaces } from '@/i18n/translate';
 import { getPublicSettings } from '@/lib/api';
+import { getCategoryTree } from '@/lib/catalog';
 import { SITE_URL } from '@/lib/site';
 import { organizationLd, websiteLd } from '@/lib/structuredData';
 import '../globals.css';
@@ -17,7 +18,8 @@ import '../globals.css';
  * Root layout per language: `<html lang dir>` is rendered on the SERVER, so Arabic pages are RTL
  * from the first byte (no flash, correct for crawlers).
  */
-export const dynamicParams = false; // only known languages; anything else 404s
+// Unknown languages 404 via notFound() below. (Not `dynamicParams = false`: that would also stop
+// on-demand ISR of child pages such as products.)
 export const generateStaticParams = () => LOCALES.map((lang) => ({ lang }));
 
 export async function generateMetadata({ params }) {
@@ -40,7 +42,11 @@ export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#
 export default async function LangLayout({ children, params }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const [settings, dict] = await Promise.all([getPublicSettings(), getDictionary(lang)]);
+  const [settings, dict, categories] = await Promise.all([
+    getPublicSettings(),
+    getDictionary(lang),
+    getCategoryTree(lang),
+  ]);
   const t = translator(dict);
   const storeName = settings['store.name'];
   const fmt = createFormatters({
@@ -60,18 +66,18 @@ export default async function LangLayout({ children, params }) {
         >
           {t('site.skipToContent')}
         </a>
-        <SiteHeader lang={lang} storeName={storeName} t={t} />
         <I18nProvider lang={lang} dict={pickNamespaces(dict)}>
+          <SiteHeader lang={lang} storeName={storeName} categories={categories} t={t} />
           <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
             {children}
           </main>
+          <SiteFooter
+            storeName={storeName}
+            pricesIncludeVat={settings['tax.pricesIncludeVat']}
+            t={t}
+            fmt={fmt}
+          />
         </I18nProvider>
-        <SiteFooter
-          storeName={storeName}
-          pricesIncludeVat={settings['tax.pricesIncludeVat']}
-          t={t}
-          fmt={fmt}
-        />
         <JsonLd data={organizationLd({ name: storeName })} />
         <JsonLd data={websiteLd({ name: storeName, lang })} />
       </body>

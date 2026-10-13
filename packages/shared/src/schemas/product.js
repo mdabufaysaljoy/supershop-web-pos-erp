@@ -247,6 +247,14 @@ export function createProductSchemas() {
     }),
     /** GET /products/lookup?code= — a scanned barcode or typed SKU. */
     lookupQuery: z.object({ code: z.string({ error: V.REQUIRED }).trim().min(1).max(64) }),
+    sitemapQuery: z.object({
+      page: z.coerce
+        .number({ error: V.INVALID_TYPE })
+        .int({ error: V.INVALID_TYPE })
+        .min(1, { error: V.INVALID_TYPE })
+        .max(1000, { error: V.TOO_LONG })
+        .default(1),
+    }),
     variantSearchQuery: z.object({
       q: plainText({ min: 1, max: 100 }),
       limit: z.coerce

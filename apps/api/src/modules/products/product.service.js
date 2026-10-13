@@ -19,7 +19,7 @@ import { getCategoriesByIds } from '../categories/index.js';
 import { publicCustomValues, validateCustomValues } from '../customFields/index.js';
 import { resolveDoc } from '../i18n/index.js';
 import { getSetting } from '../settings/index.js';
-import { getMediaByIds } from '../media/index.js';
+import { getMediaByIds, publicImage } from '../media/index.js';
 import { getSuppliersByIds } from '../suppliers/index.js';
 import * as repo from './product.repo.js';
 
@@ -46,14 +46,7 @@ const emit = (actor, name, payload) =>
 
 // ---------------------------------------------------------------- DTOs
 
-const imageView = (m) => ({
-  id: m.id,
-  url: m.url,
-  thumbUrl: m.variants.thumb?.url ?? m.url,
-  mdUrl: m.variants.md?.url ?? m.url,
-  width: m.width,
-  height: m.height,
-});
+const imageView = (m) => ({ ...publicImage(m), mdUrl: m.variants.md?.url ?? m.url });
 
 /** Gallery in stored order (deleted media silently dropped). */
 async function galleryOf(imageIds) {
@@ -479,6 +472,16 @@ export async function deleteProduct(actor, id) {
 // ---------------------------------------------------------------- storefront
 
 /** Active product by slug in one language: no cost, no supplier, only active variants. */
+/**
+ * Online availability, provided by the inventory module at the composition root (avoids an import
+ * cycle): variant ids → Set of those in stock. Unset → availability unknown (`inStock: null`).
+ * @type {(variantIds: string[]) => Promise<Set<string>> | null}
+ */
+let onlineInStock = async () => null;
+export function setAvailabilityProvider(fn) {
+  onlineInStock = fn;
+}
+
 export async function getPublicProduct(slug, lang) {
   const p = await repo.findPublicBySlug(slug);
   if (!p) throw notFound();
@@ -490,6 +493,8 @@ export async function getPublicProduct(slug, lang) {
   ]);
   const r = resolveDoc(p, LOCALIZED, lang);
   const brand = brands[0]?.isActive ? brands[0] : null;
+  const active = variants.filter((v) => v.isActive);
+  const stock = await onlineInStock(active.map((v) => String(v._id)));
   return {
     id: String(p._id),
     name: r.name,
@@ -504,22 +509,29 @@ export async function getPublicProduct(slug, lang) {
       name: o.name,
       values: o.values.map((v) => ({ key: v.key, label: v.label, swatch: v.swatch ?? null })),
     })),
-    variants: variants
-      .filter((v) => v.isActive)
-      .map((v) => ({
-        id: String(v._id),
-        sku: v.sku,
-        optionValues: v.optionValues ?? {},
-        price: v.price,
-        compareAtPrice: v.compareAtPrice ?? null,
-        imageIds: ids(v.imageIds),
-      })),
+    variants: active.map((v) => ({
+      id: String(v._id),
+      sku: v.sku,
+      optionValues: v.optionValues ?? {},
+      price: v.price,
+      compareAtPrice: v.compareAtPrice ?? null,
+      imageIds: ids(v.imageIds),
+      inStock: stock ? stock.has(String(v._id)) : null,
+    })),
+    inStock: stock ? active.some((v) => stock.has(String(v._id))) : null,
     priceMin: p.priceMin,
     priceMax: p.priceMax,
     taxCategory: p.taxCategory,
     attributes,
     seo: { title: r.seo.title, description: r.seo.description },
   };
+}
+
+/** Sitemap page: `{ slug, updatedAt }` of active products (5000 per page). */
+export const SITEMAP_PAGE_SIZE = 5000;
+export async function listPublicSlugs(page) {
+  const rows = await repo.listPublicSlugs((page - 1) * SITEMAP_PAGE_SIZE, SITEMAP_PAGE_SIZE);
+  return rows.map((p) => ({ slug: p.slug, updatedAt: p.updatedAt }));
 }
 
 // ---------------------------------------------------------------- bulk import/export (P1.7)
@@ -600,6 +612,7 @@ export async function getPublicCards(ids, lang) {
       .map(String),
   );
   const mediaById = new Map(media.map((m) => [m.id, m]));
+  const stock = await onlineInStock(variants.filter((v) => v.isActive).map((v) => String(v._id)));
   const brandIds = [
     ...new Set(
       products
@@ -631,6 +644,9 @@ export async function getPublicCards(ids, lang) {
           compareAtPrice: cheapest?.compareAtPrice ?? null,
           brand: brand ? { name: brand.name, slug: brand.slug } : null,
           variantCount: p.variantCount,
+          inStock: stock
+            ? (byProduct.get(String(p._id)) ?? []).some((v) => stock.has(String(v._id)))
+            : null,
         },
       ];
     }),

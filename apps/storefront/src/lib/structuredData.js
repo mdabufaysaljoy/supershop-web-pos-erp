@@ -1,9 +1,9 @@
+import { fromMinor } from '@supershop/shared';
 import { localizePath } from '@/i18n/config';
 import { absoluteUrl, SITE_URL } from './site';
 
 /**
- * JSON-LD builders (schema.org). Product/Offer/BreadcrumbList for catalog pages are added with
- * P3.1; these cover the site-wide entities.
+ * JSON-LD builders (schema.org): site-wide entities, breadcrumbs and Product/Offer (P3.1).
  */
 
 /** @param {{ name: string, logoUrl?: string, sameAs?: string[] }} p */
@@ -47,6 +47,54 @@ export const breadcrumbLd = (items, lang) => ({
     item: absoluteUrl(localizePath(item.path, lang)),
   })),
 });
+
+const AVAILABILITY = { true: 'https://schema.org/InStock', false: 'https://schema.org/OutOfStock' };
+
+/**
+ * Product with Offer (one price) or AggregateOffer (variants with different prices). Prices are
+ * the displayed ones (major units, 2 decimals). Availability only when known.
+ * @param {{ product: object, path: string, lang: string, currency: string }} p
+ */
+export function productLd({ product: p, path, lang, currency }) {
+  const url = absoluteUrl(localizePath(path, lang));
+  const availability = p.inStock == null ? undefined : AVAILABILITY[p.inStock];
+  const major = (minor) => fromMinor(minor);
+  const single = p.variants.length === 1 ? p.variants[0] : null;
+  const offers =
+    single || p.priceMin === p.priceMax
+      ? {
+          '@type': 'Offer',
+          url,
+          price: major(p.priceMin),
+          priceCurrency: currency,
+          itemCondition: 'https://schema.org/NewCondition',
+          ...(availability && { availability }),
+        }
+      : {
+          '@type': 'AggregateOffer',
+          url,
+          lowPrice: major(p.priceMin),
+          highPrice: major(p.priceMax),
+          offerCount: p.variants.length,
+          priceCurrency: currency,
+          ...(availability && { availability }),
+        };
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    '@id': `${url}#product`,
+    name: p.name,
+    url,
+    inLanguage: lang,
+    ...((p.shortDescription || p.description) && {
+      description: (p.shortDescription || p.description).slice(0, 5000),
+    }),
+    ...(p.images?.length && { image: p.images.map((i) => i.url) }),
+    ...(single && { sku: single.sku }),
+    ...(p.brand && { brand: { '@type': 'Brand', name: p.brand.name } }),
+    offers,
+  };
+}
 
 // Built at runtime: some compilers inline `/\u2028/` as a raw line separator inside the regex
 // literal, which breaks the bundle ("Invalid regular expression: missing /").

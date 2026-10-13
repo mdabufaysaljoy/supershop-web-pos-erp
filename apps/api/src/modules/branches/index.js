@@ -5,6 +5,7 @@ export {
   getBranch,
   getBranchSummaries,
   listBranchOptions,
+  listOnlineBranchIds,
   registerBranchUsage,
   seedMainBranch,
 } from './branch.service.js';

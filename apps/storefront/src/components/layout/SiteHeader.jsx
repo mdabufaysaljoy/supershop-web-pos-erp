@@ -1,28 +1,50 @@
 import Link from 'next/link';
+import { SearchBox } from '@/components/search/SearchBox';
 import { languageOptions, localizePath } from '@/i18n/config';
+import { categoryPath } from '@/lib/categories';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 /**
- * Site header. Menus are admin-built (P5.4).
- * Logical spacing only (RTL-safe).
+ * Site header: logo, search with suggestions, language switch and the top-level categories
+ * (admin-built menus replace the category row in P5.4). Logical spacing only (RTL-safe); the
+ * category row scrolls sideways on phones.
  */
-export function SiteHeader({ lang, storeName, t }) {
+export function SiteHeader({ lang, storeName, categories = [], t }) {
   return (
     <header className="border-b">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4">
+      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 px-4 py-3 md:grid-cols-[auto_minmax(0,36rem)_1fr_auto]">
         <Link href={localizePath('/', lang)} className="text-lg font-semibold">
           {storeName}
         </Link>
-        <nav aria-label={t('nav.primary')} className="ms-auto flex items-center gap-4 text-sm">
-          <Link
-            href={localizePath('/', lang)}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            {t('nav.home')}
-          </Link>
-        </nav>
-        <LanguageSwitcher lang={lang} languages={languageOptions()} label={t('nav.language')} />
+        <div className="col-span-3 row-start-2 md:col-span-1 md:row-start-1 md:col-start-2">
+          <SearchBox />
+        </div>
+        <div className="col-start-3 row-start-1 flex justify-end md:col-start-4">
+          <LanguageSwitcher lang={lang} languages={languageOptions()} label={t('nav.language')} />
+        </div>
       </div>
+      <nav aria-label={t('nav.primary')} className="mx-auto max-w-7xl px-4">
+        <ul className="-mb-px flex gap-5 overflow-x-auto text-sm whitespace-nowrap">
+          <li>
+            <Link
+              href={localizePath('/search', lang)}
+              className="inline-block border-b-2 border-transparent py-2.5 font-medium hover:border-foreground"
+            >
+              {t('nav.allProducts')}
+            </Link>
+          </li>
+          {categories.slice(0, 10).map((c) => (
+            <li key={c.id}>
+              <Link
+                href={localizePath(categoryPath(c.slug), lang)}
+                className="inline-block border-b-2 border-transparent py-2.5 text-muted-foreground hover:border-foreground hover:text-foreground"
+              >
+                {c.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   );
 }

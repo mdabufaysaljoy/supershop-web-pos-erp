@@ -8,6 +8,7 @@ import * as c from './product.controller.js';
 /**
  * Mounted at `/api/v1/products`.
  *  GET    /public/:slug   PUBLIC — active product in one language (?lang | cookie | Accept-Language)
+ *  GET    /public-sitemap?page=  PUBLIC — `{ slug, updatedAt }` of active products (sitemap.xml)
  *  GET    /lookup?code=   product.view — scanned barcode / SKU → variant + product summary
  *  GET    /variants?q=    product.view | purchase.* | inventory.view — variant picker (SKU/barcode/name)
  *  POST   /barcodes       product.create | product.update — { count } new internal EAN-13 codes
@@ -26,6 +27,7 @@ export function createProductRouter({ schemas = createProductSchemas() } = {}) {
     validate({ params: schemas.slugParam, query: schemas.publicQuery }),
     c.publicGet,
   );
+  r.get('/public-sitemap', validate({ query: schemas.sitemapQuery }), c.sitemap);
   r.get(
     '/lookup',
     requirePermission(P.PRODUCT_VIEW),

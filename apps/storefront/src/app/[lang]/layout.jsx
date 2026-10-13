@@ -55,9 +55,18 @@ export default async function LangLayout({ children, params }) {
   const fmtOptions = formatOptions(lang, settings);
   const fmt = createFormatters(fmtOptions);
 
+  // suppressHydrationWarning: browser extensions add attributes to <html>/<body> before React
+  // hydrates (password managers, launchers, Grammarly…), which React reports as a hydration
+  // mismatch. It only silences attribute mismatches on these two elements — anything the app
+  // itself renders differently on server and client is still reported.
   return (
-    <html lang={lang} dir={dirOf(lang)} className={`${latinFont.variable} ${arabicFont.variable}`}>
-      <body className="flex min-h-svh flex-col font-sans">
+    <html
+      lang={lang}
+      dir={dirOf(lang)}
+      className={`${latinFont.variable} ${arabicFont.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="flex min-h-svh flex-col font-sans" suppressHydrationWarning>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"

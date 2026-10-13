@@ -595,6 +595,33 @@ export const productIdBatches = (filter) => repo.activeProductIds(filter);
  * Storefront product cards in `lang`, in the order of `ids` (unknown/inactive ids skipped):
  * name, slug, main image, price range and the compare-at price of the cheapest variant.
  */
+/** Max swatch dots per card. */
+const CARD_SWATCHES = 8;
+
+/**
+ * First option whose values have swatch colours, with each value's variants and the first
+ * variant image showing it (card image swap). Null when the product has no swatch option.
+ */
+function swatchOption(p, variants) {
+  const o = (p.options ?? []).find((opt) => opt.values?.some((v) => v.swatch));
+  if (!o) return null;
+  const values = o.values
+    .map((v) => {
+      const matching = variants
+        .filter((x) => x.optionValues?.[o.key] === v.key)
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      return {
+        key: v.key,
+        swatch: v.swatch ?? null,
+        variantIds: matching.map((x) => String(x._id)),
+        imageId: matching.find((x) => x.imageIds?.length)?.imageIds[0] ?? null,
+      };
+    })
+    .filter((v) => v.variantIds.length)
+    .slice(0, CARD_SWATCHES);
+  return values.length ? { key: o.key, values } : null;
+}
+
 export async function getPublicCards(ids, lang) {
   if (!ids.length) return [];
   const products = (await repo.findForIndex(ids)).filter(
@@ -605,12 +632,19 @@ export async function getPublicCards(ids, lang) {
     variants.filter((v) => v.isActive),
     (v) => String(v.productId),
   );
-  const media = await getMediaByIds(
-    products
-      .map((p) => p.imageIds?.[0])
-      .filter(Boolean)
-      .map(String),
+  const swatchesOf = new Map(
+    products.map((p) => [String(p._id), swatchOption(p, byProduct.get(String(p._id)) ?? [])]),
   );
+  const media = await getMediaByIds([
+    ...new Set(
+      [
+        ...products.map((p) => p.imageIds?.[0]),
+        ...[...swatchesOf.values()].flatMap((s) => s?.values.map((v) => v.imageId) ?? []),
+      ]
+        .filter(Boolean)
+        .map(String),
+    ),
+  ]);
   const mediaById = new Map(media.map((m) => [m.id, m]));
   const stock = await onlineInStock(variants.filter((v) => v.isActive).map((v) => String(v._id)));
   const brandIds = [
@@ -628,7 +662,10 @@ export async function getPublicCards(ids, lang) {
   );
   const cards = new Map(
     products.map((p) => {
-      const r = resolveDoc(p, ['name'], lang);
+      const r = resolveDoc(p, ['name', 'options.*.name', 'options.*.values.*.label'], lang);
+      const own = byProduct.get(String(p._id)) ?? [];
+      const sw = swatchesOf.get(String(p._id));
+      const swatchName = sw && r.options.find((o) => o.key === sw.key);
       const cheapest = (byProduct.get(String(p._id)) ?? []).sort((a, b) => a.price - b.price)[0];
       const img = p.imageIds?.[0] && mediaById.get(String(p.imageIds[0]));
       const brand = p.brandId && brands.get(String(p.brandId));
@@ -644,8 +681,25 @@ export async function getPublicCards(ids, lang) {
           compareAtPrice: cheapest?.compareAtPrice ?? null,
           brand: brand ? { name: brand.name, slug: brand.slug } : null,
           variantCount: p.variantCount,
-          inStock: stock
-            ? (byProduct.get(String(p._id)) ?? []).some((v) => stock.has(String(v._id)))
+          inStock: stock ? own.some((v) => stock.has(String(v._id))) : null,
+          /** One-click add: the only variant of a product without choices. */
+          defaultVariantId: own.length === 1 ? String(own[0]._id) : null,
+          /** Colour-style option shown as dots on the card; each value swaps the card image. */
+          swatches: sw
+            ? {
+                key: sw.key,
+                name: swatchName?.name ?? '',
+                values: sw.values.map((v) => {
+                  const m = v.imageId && mediaById.get(String(v.imageId));
+                  return {
+                    key: v.key,
+                    label: swatchName?.values.find((x) => x.key === v.key)?.label ?? v.key,
+                    swatch: v.swatch,
+                    image: m ? { ...imageView(m), alt: r.name } : null,
+                    inStock: stock ? v.variantIds.some((id) => stock.has(id)) : null,
+                  };
+                }),
+              }
             : null,
         },
       ];

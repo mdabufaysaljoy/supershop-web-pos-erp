@@ -77,3 +77,19 @@
     animation: none;
   }
 }
+
+/* Centered dialogs (quick view) fade + scale in. */
+@keyframes dialog-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.97);
+  }
+}
+.dialog-pop {
+  animation: dialog-pop 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-pop {
+    animation: none;
+  }
+}

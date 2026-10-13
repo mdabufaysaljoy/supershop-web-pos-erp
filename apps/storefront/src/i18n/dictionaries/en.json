@@ -4,9 +4,9 @@
     "tagline": "Gadgets, fashion and everyday essentials — delivered across Saudi Arabia."
   },
   "nav": {
-    "home": "Home",
+    "home": "Main page",
     "primary": "Main navigation",
-    "footer": "Footer",
+    "footer": "Site information",
     "language": "Language",
     "allProducts": "All products"
   },
@@ -14,8 +14,8 @@
     "title": "Welcome to {{store}}",
     "shopAll": "Shop all products",
     "categories": "Shop by category",
-    "newArrivals": "New arrivals",
-    "viewAll": "View all"
+    "newArrivals": "Latest products",
+    "viewAll": "See all products"
   },
   "footer": {
     "rights": "© {{year}} {{store}}. All rights reserved.",
@@ -41,28 +41,28 @@
   "catalog": {
     "allProducts": "All products",
     "searchTitle": "Search results: {{q}}",
-    "categoryDescription": "Shop {{name}} at {{store}}. Delivery across Saudi Arabia.",
+    "categoryDescription": "Buy {{name}} online from {{store}}. Delivery across Saudi Arabia.",
     "pageN": "Page {{page}}",
-    "breadcrumbs": "Breadcrumb",
+    "breadcrumbs": "You are here",
     "results": "Products",
     "count": "Number of products: {{count}}",
     "empty": "No products match your selection.",
-    "filters": "Filters",
+    "filters": "Search options",
     "subcategories": "Subcategories",
     "categories": "Categories",
     "brands": "Brands",
     "price": "Price",
-    "min": "Min",
-    "max": "Max",
+    "min": "Minimum",
+    "max": "Maximum",
     "minPrice": "Minimum price (SAR)",
     "maxPrice": "Maximum price (SAR)",
     "priceInSar": "Prices in SAR.",
-    "apply": "Apply",
-    "clear": "Clear filters",
-    "sortBy": "Sort by",
+    "apply": "Search",
+    "clear": "Remove all filters",
+    "sortBy": "Arrange by",
     "sort": {
-      "default": "Featured",
-      "relevance": "Best match",
+      "default": "Recommended",
+      "relevance": "Most relevant",
       "newest": "Newest",
       "price_asc": "Price: low to high",
       "price_desc": "Price: high to low",
@@ -76,11 +76,11 @@
     "save": "{{percent}}% discount",
     "outOfStock": "Out of stock",
     "inStock": "Available",
-    "valueOutOfStock": "{{value}} (out of stock)",
+    "valueOutOfStock": "{{value}}: out of stock",
     "chooseOptions": "Choose your options to see availability.",
     "sku": "Product code",
     "vatIncluded": "Price includes VAT.",
-    "vatExcluded": "VAT is added at checkout.",
+    "vatExcluded": "VAT is added when you pay.",
     "gallery": "Product images",
     "showImage": "Show image {{n}}",
     "details": "Product details",
@@ -88,7 +88,13 @@
     "specifications": "Specifications",
     "yes": "Yes",
     "no": "No",
-    "related": "You may also like"
+    "related": "You may also like",
+    "addNamed": "Add to cart: {{name}}",
+    "buyNamed": "Buy {{name}}",
+    "chooseNamed": "Choose options for {{name}}",
+    "viewDetails": "View full details",
+    "close": "Close this window",
+    "loading": "Please wait"
   },
   "cart": {
     "title": "Your cart",
@@ -125,6 +131,8 @@
       "NOT_FOUND": "This product is no longer available.",
       "NETWORK_ERROR": "We couldn't reach the store. Check your connection and try again.",
       "generic": "Something went wrong. Please try again."
-    }
+    },
+    "added": "Added to cart",
+    "buyNow": "Buy now"
   }
 }

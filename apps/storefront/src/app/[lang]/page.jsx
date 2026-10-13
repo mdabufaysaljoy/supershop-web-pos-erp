@@ -28,7 +28,7 @@ export async function generateMetadata({ params }) {
 
 export default async function HomePage({ params }) {
   const { lang } = await params;
-  const [{ settings, t, fmt }, categories, newest] = await Promise.all([
+  const [{ settings, t }, categories, newest] = await Promise.all([
     getPageContext(lang),
     getCategoryTree(lang),
     searchProducts(lang, { sort: 'newest', limit: 8 }).catch(() => ({ data: [] })),
@@ -89,7 +89,7 @@ export default async function HomePage({ params }) {
               {t('home.viewAll')}
             </Link>
           </div>
-          <ProductGrid products={newest.data} lang={lang} fmt={fmt} t={t} eager={0} />
+          <ProductGrid products={newest.data} eager={0} />
         </section>
       )}
     </div>

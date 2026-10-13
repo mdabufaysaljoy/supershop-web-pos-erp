@@ -110,7 +110,7 @@ export default async function ProductPage({ params }) {
           <h2 id="related" className="text-lg font-semibold">
             {t('catalog.related')}
           </h2>
-          <ProductGrid products={related} lang={lang} fmt={fmt} t={t} eager={0} />
+          <ProductGrid products={related} eager={0} />
         </section>
       )}
       <JsonLd

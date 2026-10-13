@@ -174,7 +174,17 @@ export const findForIndex = (ids) => Product.find({ _id: { $in: ids } }).lean();
 export const activeVariantsOf = (productIds) =>
   Variant.find(
     { productId: { $in: productIds }, ...ACTIVE },
-    { productId: 1, sku: 1, barcode: 1, price: 1, compareAtPrice: 1, isActive: 1 },
+    {
+      productId: 1,
+      sku: 1,
+      barcode: 1,
+      price: 1,
+      compareAtPrice: 1,
+      isActive: 1,
+      optionValues: 1,
+      imageIds: 1,
+      position: 1,
+    },
   ).lean();
 /** Active product ids in batches (cursor) — optionally limited to a category or brand. */
 export async function* activeProductIds({ categoryId, brandId } = {}, batch = 500) {

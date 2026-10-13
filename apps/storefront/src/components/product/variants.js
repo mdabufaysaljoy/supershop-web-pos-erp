@@ -40,3 +40,15 @@ export function galleryFor(product, variant) {
   const ownIds = new Set(own.map((i) => i.id));
   return [...own, ...product.images.filter((i) => !ownIds.has(i.id))];
 }
+
+/**
+ * Selection after picking `valueKey` for `optionKey`: keeps the other choices when that
+ * combination exists, otherwise switches to a variant having the value (in stock first).
+ */
+export function selectionWith(product, selection, optionKey, valueKey) {
+  const next = { ...selection, [optionKey]: valueKey };
+  if (product.variants.some((v) => matches(v, next))) return next;
+  const having = product.variants.filter((v) => v.optionValues?.[optionKey] === valueKey);
+  const pick = having.find((v) => v.inStock !== false) ?? having[0];
+  return pick ? { ...pick.optionValues } : next;
+}

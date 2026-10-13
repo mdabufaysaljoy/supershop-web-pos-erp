@@ -66,9 +66,10 @@ export function CartProvider({ fmtOptions, children }) {
       setOpen,
       count: cart?.totals.itemCount ?? 0,
       reload: () => run('GET', ''),
-      add: async (variantId, qty = 1) => {
+      /** Adds and (unless `open: false`, e.g. Buy now) opens the mini-cart. */
+      add: async (variantId, qty = 1, { open: openAfter = true } = {}) => {
         const res = await run('POST', '/items', { variantId, qty });
-        if (res.ok) setOpen(true);
+        if (res.ok && openAfter) setOpen(true);
         return res;
       },
       setQty: (variantId, qty) => run('PATCH', `/items/${variantId}`, { qty }),

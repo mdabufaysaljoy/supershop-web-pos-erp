@@ -1,10 +1,11 @@
 'use client';
 
+import { m } from 'motion/react';
 import { useT } from '@/i18n/I18nProvider';
 import { useCart } from './CartProvider';
 import { MiniCart } from './MiniCart';
 
-/** Header bag button with the item count; opens the mini-cart. */
+/** Header bag button with the item count (pops when it changes); opens the mini-cart. */
 export function CartButton() {
   const t = useT();
   const { count, setOpen, fmt } = useCart();
@@ -28,9 +29,15 @@ export function CartButton() {
           <path d="M9 7a3 3 0 0 1 6 0" />
         </svg>
         {count > 0 && (
-          <span className="absolute -end-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground tabular-nums">
+          <m.span
+            key={count}
+            initial={{ scale: 0.6 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+            className="absolute -end-0.5 -top-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground tabular-nums"
+          >
             {count > 99 ? '99+' : fmt.number(count)}
-          </span>
+          </m.span>
         )}
       </button>
       <MiniCart />

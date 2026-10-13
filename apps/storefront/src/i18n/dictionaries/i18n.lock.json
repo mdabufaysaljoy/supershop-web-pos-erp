@@ -9,16 +9,16 @@
       "out": "4d496a1ac6d92f6b"
     },
     "nav.home": {
-      "src": "3a78695388b38b5c",
-      "out": "d49bcb58be1a4279"
+      "src": "ca4442da33d220f2",
+      "out": "3a461d033f1f9082"
     },
     "nav.primary": {
       "src": "eb355944b92d1058",
       "out": "0abfce99d97f0919"
     },
     "nav.footer": {
-      "src": "26c87bb51e6978fe",
-      "out": "ddb46aeae3e8283f"
+      "src": "ed2d8fa9ab6fe324",
+      "out": "ba7b24356c601e76"
     },
     "nav.language": {
       "src": "a4fe65264ef7dbb3",
@@ -41,12 +41,12 @@
       "out": "eff85e6015289d61"
     },
     "home.newArrivals": {
-      "src": "01ebe8120defb923",
-      "out": "f459fd318ff9c49a"
+      "src": "958ae9ecf1fcd06c",
+      "out": "c6ba40043e45e66c"
     },
     "home.viewAll": {
-      "src": "30a64216eaeac5d3",
-      "out": "5e62c4936c4917c4"
+      "src": "4e4677a4cf28c707",
+      "out": "f17a65848d9b0f89"
     },
     "footer.rights": {
       "src": "88b74b601e8de1e4",
@@ -109,16 +109,16 @@
       "out": "6a38540862567459"
     },
     "catalog.categoryDescription": {
-      "src": "c50073ec402c8ee5",
-      "out": "46ddca0044af2ffe"
+      "src": "52785fd59d0bca72",
+      "out": "23e49c4a45df8627"
     },
     "catalog.pageN": {
       "src": "aaf89a2e8dd2e9c7",
       "out": "3f4e13372ca36275"
     },
     "catalog.breadcrumbs": {
-      "src": "2bd873d6c734e63e",
-      "out": "9e31e6db40d30c88"
+      "src": "b0b52ce074f3c6d0",
+      "out": "8fd4fa4c5b36db1c"
     },
     "catalog.results": {
       "src": "4edc8bfafc6bd936",
@@ -133,8 +133,8 @@
       "out": "e975b95991d37179"
     },
     "catalog.filters": {
-      "src": "546ebb8eb993ea56",
-      "out": "753238c29b45a414"
+      "src": "556a085010faa647",
+      "out": "4e9a43fd1d27bf5a"
     },
     "catalog.subcategories": {
       "src": "c249a9a4a69a8a45",
@@ -153,12 +153,12 @@
       "out": "259862e8b3137834"
     },
     "catalog.min": {
-      "src": "dea79332147ffe1f",
-      "out": "2559a58da60b3914"
+      "src": "735beee2e390c797",
+      "out": "a3e1e14240795647"
     },
     "catalog.max": {
-      "src": "a1a5936d3b0f8a69",
-      "out": "3a059e1adf4b98e4"
+      "src": "66c9ab177708cbc6",
+      "out": "fb25b04335dd8f20"
     },
     "catalog.minPrice": {
       "src": "deed481aef753c67",
@@ -173,24 +173,24 @@
       "out": "6ccefe333d64089e"
     },
     "catalog.apply": {
-      "src": "31e392d1c0378bec",
-      "out": "d83483faf7f90448"
+      "src": "49c266baaaa70981",
+      "out": "41a3c0033a4243ce"
     },
     "catalog.clear": {
-      "src": "7179ea0035fca783",
-      "out": "923e7ad54f76bab6"
+      "src": "274ffd0bfada7021",
+      "out": "ea16d9171e3d1144"
     },
     "catalog.sortBy": {
-      "src": "c9129025bd3ff652",
-      "out": "6cbccc3d3912c692"
+      "src": "07035b546c564400",
+      "out": "9a85fb1e253a2acf"
     },
     "catalog.sort.default": {
-      "src": "c533cafab69e4033",
-      "out": "19bb1398e22d79f7"
+      "src": "d70604e843046137",
+      "out": "d891c914292c1f39"
     },
     "catalog.sort.relevance": {
-      "src": "d83ab68f742891bc",
-      "out": "988bf6035a2e144d"
+      "src": "6e9317d86b2194bd",
+      "out": "2ff2357fb083bd14"
     },
     "catalog.sort.newest": {
       "src": "d15efa178cf65ae1",
@@ -241,8 +241,8 @@
       "out": "1f5830f563aba718"
     },
     "catalog.valueOutOfStock": {
-      "src": "edf57f90a1b6b6a5",
-      "out": "e3731c3fce2390db"
+      "src": "f919806564a241e6",
+      "out": "cce12ac93545dc41"
     },
     "catalog.chooseOptions": {
       "src": "be1d602b4905f318",
@@ -257,8 +257,8 @@
       "out": "f189ac5269b30356"
     },
     "catalog.vatExcluded": {
-      "src": "087a06e268dec584",
-      "out": "e217b7388c381450"
+      "src": "3f7be334e846276f",
+      "out": "007d010f131c45f6"
     },
     "catalog.gallery": {
       "src": "b65675ba6b50707a",
@@ -291,6 +291,30 @@
     "catalog.related": {
       "src": "925a46fefcd19d1a",
       "out": "21c7ceb6fba68c9e"
+    },
+    "catalog.addNamed": {
+      "src": "9947bde6ab87cf38",
+      "out": "28bd85fdcb1e975c"
+    },
+    "catalog.buyNamed": {
+      "src": "9f556d577e1105a0",
+      "out": "1b32aed2d4e39bce"
+    },
+    "catalog.chooseNamed": {
+      "src": "8b833b6e596adcb1",
+      "out": "422a1fe479bd9527"
+    },
+    "catalog.viewDetails": {
+      "src": "d4d3a809a114bb2c",
+      "out": "df0e57a183a61f55"
+    },
+    "catalog.close": {
+      "src": "3f02fc8e07baa8d6",
+      "out": "6069ea15259a7345"
+    },
+    "catalog.loading": {
+      "src": "650cfe3a448fe06b",
+      "out": "f19d407372688fd2"
     },
     "cart.title": {
       "src": "7eb1262c5cccd796",
@@ -415,6 +439,14 @@
     "cart.errors.generic": {
       "src": "3ccd9d6586ef9143",
       "out": "c254ae04b7839b6b"
+    },
+    "cart.added": {
+      "src": "1b03d087daa8efe3",
+      "out": "05a06bf2e4b32248"
+    },
+    "cart.buyNow": {
+      "src": "9c0e74e6c04b89e8",
+      "out": "6d758e359fbad32b"
     }
   }
 }

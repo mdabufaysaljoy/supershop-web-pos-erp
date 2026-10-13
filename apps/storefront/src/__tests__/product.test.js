@@ -4,6 +4,7 @@ import {
   galleryFor,
   initialSelection,
   selectedVariant,
+  selectionWith,
   valueState,
 } from '@/components/product/variants';
 import { productLd } from '@/lib/structuredData';
@@ -61,6 +62,18 @@ describe('variant selection', () => {
     expect(valueState(product, sel, 'size', 'l')).toBe('unavailable'); // blue/l doesn't exist
     expect(valueState(product, sel, 'color', 'red')).toBe('out'); // red/m out of stock
     expect(valueState(product, { color: 'red', size: 'l' }, 'size', 'l')).toBe('ok');
+  });
+
+  it('keeps other choices when possible, else jumps to a variant with the picked value', () => {
+    expect(selectionWith(product, { color: 'red', size: 'm' }, 'size', 'l')).toEqual({
+      color: 'red',
+      size: 'l',
+    });
+    // blue only exists in size m → switches size too
+    expect(selectionWith(product, { color: 'red', size: 'l' }, 'color', 'blue')).toEqual({
+      color: 'blue',
+      size: 'm',
+    });
   });
 
   it("puts the variant's own images first", () => {

@@ -218,4 +218,40 @@ describe('product search', () => {
     const status = (await auth(request(app).get('/api/v1/search/status'))).body.data;
     expect(status).toMatchObject({ driver: 'mongo', documents: 4, rebuilding: false });
   });
+
+  it('cards offer one-click add for single-variant products and swatches for colour options', async () => {
+    await product({
+      name: 'Swatch Tee',
+      options: [
+        {
+          name: 'Colour',
+          values: [
+            { label: 'Red', swatch: '#ff0000' },
+            { label: 'Green', swatch: '#00ff00' },
+            { label: 'Black', swatch: '#000000' },
+          ],
+        },
+      ],
+      variants: [
+        { sku: 'ST-R', optionValues: { colour: 'red' }, price: 5000 },
+        { sku: 'ST-G', optionValues: { colour: 'green' }, price: 5000 },
+      ],
+    });
+    await expectNames('q=swatch', ['Swatch Tee']);
+    const [tee] = (await search('q=swatch')).data;
+    expect(tee).toMatchObject({
+      defaultVariantId: null,
+      swatches: {
+        key: 'colour',
+        name: 'Colour',
+        values: [
+          { key: 'red', label: 'Red', swatch: '#ff0000', image: null, inStock: false },
+          { key: 'green', label: 'Green', swatch: '#00ff00', image: null, inStock: false },
+        ], // black has no variant → not offered
+      },
+    });
+    const [rice] = (await search('q=basmati')).data;
+    expect(rice.defaultVariantId).toMatch(/^[a-f\d]{24}$/);
+    expect(rice.swatches).toBeNull();
+  });
 });

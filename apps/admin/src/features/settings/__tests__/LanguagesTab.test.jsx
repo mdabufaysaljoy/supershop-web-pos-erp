@@ -96,7 +96,7 @@ describe('Settings → Languages', () => {
       expect(m.count('PUT /api/v1/i18n/admin/ui-overrides/storefront/ar/nav.home')).toBe(1),
     );
     const sent = JSON.parse(m.calls.find((c) => c.key.startsWith('PUT')).init.body);
-    expect(sent).toEqual({ value: 'CORRECTED', source: 'Home' });
+    expect(sent).toEqual({ value: 'CORRECTED', source: 'Main page' }); // the storefront's English for nav.home
   });
 
   it('shows the placeholder rule inline when a correction drops {{store}}', async () => {

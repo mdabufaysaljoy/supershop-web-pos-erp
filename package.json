@@ -2,7 +2,7 @@
   "name": "supershop",
   "private": true,
   "type": "module",
-  "description": "Multi-category e-commerce + ERP/POS (Saudi Arabia) — modular monolith monorepo",
+  "description": "Multi-category e-commerce + ERP/POS (Saudi Arabia) \u2014 modular monolith monorepo",
   "workspaces": [
     "apps/*",
     "packages/*",
@@ -59,6 +59,9 @@
   },
   "overrides": {
     "shell-quote": "^1.12.0",
-    "uuid": "^11.1.1"
+    "uuid": "^11.1.1",
+    "framer-motion": "13.4.4",
+    "motion-dom": "13.4.4",
+    "motion-utils": "13.3.0"
   }
 }

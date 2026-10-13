@@ -196,7 +196,7 @@ export function ListingView({
               )}
             </div>
           ) : (
-            <ProductGrid products={result.data} lang={lang} fmt={fmt} t={t} />
+            <ProductGrid products={result.data} />
           )}
           <ListingPagination path={path} listing={listing} total={total} t={t} />
         </section>

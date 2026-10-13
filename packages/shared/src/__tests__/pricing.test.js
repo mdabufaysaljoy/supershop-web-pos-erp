@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { priceLines, vatRateFor } from '../index.js';
+import { deliveryCharge, orderTotals, priceLines, vatRateFor } from '../index.js';
 
 const tax = { vatRateBps: 1500, pricesIncludeVat: true };
 
@@ -60,5 +60,57 @@ describe('priceLines', () => {
       total: 0,
     });
     expect(() => priceLines([{ unitPrice: 10.5, qty: 1 }], tax)).toThrow();
+  });
+});
+
+describe('deliveryCharge', () => {
+  const base = { fee: 2300, itemsTotal: 10000, vatRateBps: 1500, pricesIncludeVat: true };
+
+  it('splits VAT out of a VAT-inclusive fee', () => {
+    expect(deliveryCharge(base)).toEqual({ gross: 2300, net: 2000, vat: 300, free: false });
+  });
+
+  it('adds VAT on top when prices exclude VAT, and can be untaxed', () => {
+    expect(deliveryCharge({ ...base, pricesIncludeVat: false })).toEqual({
+      gross: 2645,
+      net: 2300,
+      vat: 345,
+      free: false,
+    });
+    expect(deliveryCharge({ ...base, taxed: false })).toEqual({
+      gross: 2300,
+      net: 2300,
+      vat: 0,
+      free: false,
+    });
+  });
+
+  it('is free with no fee or above the free-delivery threshold', () => {
+    expect(deliveryCharge({ ...base, fee: 0 }).free).toBe(true);
+    expect(deliveryCharge({ ...base, freeOver: 10000 }).free).toBe(true);
+    expect(deliveryCharge({ ...base, freeOver: 10001 }).free).toBe(false);
+    expect(deliveryCharge({ ...base, freeOver: 0 }).free).toBe(false);
+  });
+});
+
+describe('orderTotals', () => {
+  it('adds delivery to the item totals, keeping net + vat = total', () => {
+    const items = priceLines([{ unitPrice: 11500, qty: 2 }], tax).totals;
+    const delivery = deliveryCharge({
+      fee: 2300,
+      itemsTotal: items.total,
+      vatRateBps: 1500,
+      pricesIncludeVat: true,
+    });
+    const t = orderTotals(items, delivery);
+    expect(t).toEqual({
+      itemCount: 2,
+      subtotal: 23000,
+      deliveryFee: 2300,
+      net: 22000,
+      vat: 3300,
+      total: 25300,
+    });
+    expect(t.net + t.vat).toBe(t.total);
   });
 });

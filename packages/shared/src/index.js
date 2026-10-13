@@ -28,7 +28,13 @@ export { createProductTransferSchemas, PRODUCT_TRANSFER } from './schemas/produc
 export { createSearchSchemas, SEARCH } from './schemas/search.js';
 export { BRANCH, createBranchSchemas } from './schemas/branch.js';
 export { CART, createCartSchemas } from './schemas/cart.js';
-export { priceLines, TAX_CATEGORIES, vatRateFor } from './pricing.js';
+export {
+  createCheckoutSchemas,
+  ORDER,
+  orderTotals,
+  shippingAddressSchema,
+} from './schemas/order.js';
+export { deliveryCharge, priceLines, TAX_CATEGORIES, vatRateFor } from './pricing.js';
 export { createInventorySchemas, STOCK } from './schemas/inventory.js';
 export {
   createPurchaseOrderSchemas,

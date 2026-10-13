@@ -578,5 +578,21 @@ export async function getOnlineOnHand(variantIds) {
   return new Map(rows.map((r) => [str(r._id), r.onHand]));
 }
 
+/**
+ * Where online stock sits: `[{ variantId, branchId, onHand }]` over branches that fulfil online
+ * orders (checkout allocation). Read in the caller's transaction when one is given.
+ */
+export async function getOnlineStockByBranch(variantIds, { session } = {}) {
+  if (!variantIds.length) return [];
+  const branches = await listOnlineBranchIds();
+  if (!branches.length) return [];
+  const rows = await repo.levelsIn(variantIds.map(oid), branches, session);
+  return rows.map((r) => ({
+    variantId: str(r.variantId),
+    branchId: str(r.branchId),
+    onHand: r.onHand,
+  }));
+}
+
 /** Stock records in a branch (levels or operations) — such branches can't be deleted. */
 export const countStockRecordsInBranch = (branchId) => repo.countBranchRecords(oid(branchId));

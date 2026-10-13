@@ -1,0 +1,91 @@
+import mongoose from 'mongoose';
+
+const { ObjectId, Mixed } = mongoose.Schema.Types;
+
+/**
+ * Order (P3.4). Everything the shop needs to fulfil and invoice is SNAPSHOTTED here (names,
+ * prices, VAT, address): the live catalog may change, history may not. Money in halalas.
+ * Financial record: never deleted, never edited in place by the storefront.
+ */
+const itemSchema = new mongoose.Schema(
+  {
+    productId: { type: ObjectId, required: true },
+    variantId: { type: ObjectId, required: true },
+    sku: { type: String, required: true },
+    /** Product name as shown to the customer, in the order's language. */
+    name: { type: String, required: true },
+    /** `[{ name, value }]` option labels, already resolved. */
+    options: { type: [{ _id: false, name: String, value: String }], default: [] },
+    imageUrl: { type: String, default: null },
+    unitPrice: { type: Number, required: true },
+    qty: { type: Number, required: true },
+    taxCategory: { type: String, default: 'standard' },
+    vatRateBps: { type: Number, required: true },
+    /** What the customer sees for the line (gross when prices include VAT). */
+    lineTotal: { type: Number, required: true },
+    net: { type: Number, required: true },
+    vat: { type: Number, required: true },
+  },
+  { _id: false },
+);
+
+const orderSchema = new mongoose.Schema(
+  {
+    orderNo: { type: String, required: true },
+    channel: { type: String, required: true, default: 'online' },
+    status: { type: String, required: true, default: 'pending' },
+    /** Language the order was placed in — receipts and messages use it (§5.7). */
+    lang: { type: String, required: true, default: 'en' },
+    customer: {
+      customerId: { type: ObjectId, default: null },
+      name: { type: String, required: true },
+      phone: { type: String, required: true },
+      email: { type: String, default: null },
+    },
+    deliveryMethod: { type: String, required: true, default: 'delivery' },
+    address: { type: Mixed, default: null },
+    items: { type: [itemSchema], default: [] },
+    totals: {
+      itemCount: { type: Number, required: true },
+      subtotal: { type: Number, required: true },
+      deliveryFee: { type: Number, required: true, default: 0 },
+      net: { type: Number, required: true },
+      vat: { type: Number, required: true },
+      total: { type: Number, required: true },
+    },
+    currency: { type: String, required: true, default: 'SAR' },
+    pricesIncludeVat: { type: Boolean, required: true, default: true },
+    payment: {
+      method: { type: String, required: true },
+      status: { type: String, required: true, default: 'pending' },
+    },
+    /** Values of admin-defined `checkout` custom fields. */
+    customFields: { type: Mixed, default: () => ({}) },
+    note: { type: String, default: '' },
+    /** Stock taken for this order, per branch (ledger operations). */
+    fulfillment: {
+      type: [{ _id: false, branchId: ObjectId, operationId: ObjectId, docNo: String }],
+      default: [],
+    },
+    /** Primary branch (most lines) — reports and pick lists start here. */
+    branchId: { type: ObjectId, default: null },
+    /** SHA-256 of the link token that shows the confirmation page again. */
+    confirmationTokenHash: { type: String, default: null },
+    /** `<cart|customer>:<Idempotency-Key>` — a retried checkout returns the first order. */
+    idempotencyKey: { type: String, default: null },
+    placedAt: { type: Date, required: true },
+  },
+  { collection: 'orders', timestamps: true, minimize: false },
+);
+orderSchema.index({ orderNo: 1 }, { unique: true });
+orderSchema.index(
+  { idempotencyKey: 1 },
+  { unique: true, partialFilterExpression: { idempotencyKey: { $type: 'string' } } },
+);
+orderSchema.index({ confirmationTokenHash: 1 });
+orderSchema.index({ 'customer.phone': 1, createdAt: -1 });
+orderSchema.index({ 'customer.customerId': 1, createdAt: -1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ branchId: 1, createdAt: -1 });
+
+export const Order = mongoose.models.Order ?? mongoose.model('Order', orderSchema);

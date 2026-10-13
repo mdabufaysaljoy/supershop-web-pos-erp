@@ -222,6 +222,8 @@ async function buildView(cart, lang, extraNotices = new Map()) {
       image: l.v?.image ?? null,
       unitPrice: l.v?.price ?? l.item.unitPriceSeen ?? 0,
       compareAtPrice: l.v?.compareAtPrice ?? null,
+      /** VAT treatment of the product (checkout prices the order from this view). */
+      taxCategory: l.v?.taxCategory ?? 'standard',
       qty: l.item.qty,
       maxQty: l.maxQty,
       lineTotal: lineTotals.get(l)?.lineTotal ?? null,
@@ -243,6 +245,23 @@ export async function getCart(ctx, lang) {
   const { cart, cookie } = await loadCart(ctx);
   return { view: await buildView(cart, lang), cookie };
 }
+
+/**
+ * Checkout (orders module): the cart with its revalidated view, or `null` when there is none.
+ * `rev` is the revision the order must still see when it empties the cart.
+ */
+export async function getCheckoutCart(ctx, lang) {
+  const { cart, cookie } = await loadCart(ctx);
+  if (!cart) return { cart: null, view: await buildView(null, lang), cookie };
+  const view = await buildView(cart, lang);
+  // buildView may have corrected the cart (price/stock), so read the current revision back.
+  const current = (await repo.findById(cart._id)) ?? cart;
+  return { cart: current, view, cookie };
+}
+
+/** Empties a cart inside the order transaction; `null` when it changed meanwhile. */
+export const emptyCartForOrder = (cartId, rev, session) =>
+  repo.replaceItems(cartId, rev, [], {}, session);
 
 /** Adds `qty` of a variant (to what is already in the cart), capped to what can be sold. */
 export async function addItem(ctx, { variantId, qty }, lang) {

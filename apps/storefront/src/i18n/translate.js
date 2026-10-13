@@ -20,7 +20,15 @@ export function translate(dict, key, vars) {
 export const translator = (dict) => (key, vars) => translate(dict, key, vars);
 
 /** Top-level namespaces available to client components (keep small: shipped to the browser). */
-export const CLIENT_NAMESPACES = Object.freeze(['notFound', 'error', 'catalog', 'search', 'cart']);
+export const CLIENT_NAMESPACES = Object.freeze([
+  'notFound',
+  'error',
+  'catalog',
+  'search',
+  'cart',
+  'checkout',
+  'validation',
+]);
 
 /** Subset of a dictionary with the given top-level namespaces. */
 export const pickNamespaces = (dict, namespaces = CLIENT_NAMESPACES) =>

@@ -7,6 +7,7 @@ export {
   getOnHand,
   getOnlineInStock,
   getOnlineOnHand,
+  getOnlineStockByBranch,
   getTotalOnHand,
   publishStockResult,
 } from './inventory.service.js';

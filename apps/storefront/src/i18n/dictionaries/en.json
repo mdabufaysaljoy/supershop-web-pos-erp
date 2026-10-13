@@ -111,7 +111,6 @@
     "shippingAtCheckout": "Delivery costs are shown at checkout.",
     "removeUnavailable": "Items that are unavailable or out of stock are not included in the total.",
     "checkout": "Complete your order",
-    "checkoutSoon": "Checkout opens soon.",
     "add": "Add to cart",
     "chooseOptions": "Choose options",
     "quantity": "Quantity",
@@ -134,5 +133,91 @@
     },
     "added": "Added to cart",
     "buyNow": "Buy now"
+  },
+  "checkout": {
+    "title": "Complete your order",
+    "contact": "Your details",
+    "name": "Full name",
+    "phone": "Mobile number",
+    "phoneHint": "We send order updates to this number.",
+    "email": "Email address (optional)",
+    "emailHint": "For the order confirmation.",
+    "address": "Delivery address",
+    "addressLine": "Street and building",
+    "addressLinePlaceholder": "King Fahd Road, building 12",
+    "city": "City",
+    "district": "District",
+    "postalCode": "Postal code",
+    "shortAddress": "Short address",
+    "shortAddressHint": "Four letters and four numbers, as on your national address.",
+    "landmark": "Extra directions",
+    "landmarkPlaceholder": "Opposite the pharmacy, second floor",
+    "extra": "Additional information",
+    "choose": "Choose…",
+    "payment": "Payment",
+    "methods": {
+      "cod": "Cash payment on delivery"
+    },
+    "methodHints": {
+      "cod": "Pay the driver when your order is delivered."
+    },
+    "note": "Note with your order (optional)",
+    "notePlaceholder": "Anything we should know?",
+    "summary": "Items in your order",
+    "editCart": "Edit cart",
+    "delivery": "Delivery",
+    "freeDelivery": "Free",
+    "freeDeliveryHint": "Add {{amount}} more for free delivery.",
+    "placeOrder": "Send my order",
+    "placing": "Sending your order…",
+    "privacy": "We use your details only to deliver this order.",
+    "errors": {
+      "CART_EMPTY": "Your cart is empty. Add something before ordering.",
+      "OUT_OF_STOCK": "Something in your cart is no longer available. We updated it — please check and try again.",
+      "PRICE_CHANGED": "Prices in your cart changed. Please review them and order again.",
+      "CONFLICT": "Your cart changed while you were ordering. Please check it and try again.",
+      "generic": "We couldn't place your order. Please try again."
+    },
+    "confirmation": {
+      "title": "Thank you for your order",
+      "body": "Your order details were sent to {{email}}.",
+      "items": "What you ordered",
+      "delivery": "Delivery and payment",
+      "next": "We will contact you to arrange delivery.",
+      "keepShopping": "Continue shopping",
+      "notFound": "We can't find that order. Check the link from your confirmation.",
+      "vat": "Value added tax"
+    }
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalidType": "Please check this value.",
+    "tooShort": "Too short.",
+    "tooLong": "Too long.",
+    "duplicate": "Already used.",
+    "name": {
+      "invalid": "Use letters, spaces, apostrophes, dots or hyphens only."
+    },
+    "email": {
+      "invalid": "Enter a valid email address."
+    },
+    "phone": {
+      "invalid": "Enter a valid phone number.",
+      "ksaOnly": "Enter a Saudi mobile number (05XXXXXXXX)."
+    },
+    "quantity": {
+      "invalid": "Enter a whole number of 1 or more.",
+      "tooLarge": "That is too many.",
+      "insufficient": "Not enough stock."
+    },
+    "address": {
+      "invalid": "Remove < > and special control characters."
+    },
+    "code": {
+      "invalid": "This value is not in the right format."
+    },
+    "id": {
+      "invalid": "Invalid identifier."
+    }
   }
 }

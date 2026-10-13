@@ -40,9 +40,10 @@ import { errorMessage, fieldMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
 import { issuesToDetails } from '@/lib/resource';
 import { ReceiveDialog } from '../components/ReceiveDialog';
-import { VariantPicker } from '../components/VariantPicker';
+import { VariantPicker } from '@/components/VariantPicker';
+import { optionLabel } from '@/lib/variants';
 import { purchaseOrders, usePurchaseOrder, usePurchaseOrderAction } from '../resource';
-import { optionLabel, PO_STATUS_TONE } from '../status';
+import { PO_STATUS_TONE } from '../status';
 
 const schemas = createPurchaseOrderSchemas();
 

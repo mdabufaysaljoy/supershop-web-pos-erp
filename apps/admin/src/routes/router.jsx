@@ -7,6 +7,7 @@ import { BranchesPage } from '@/features/branches/pages/BranchesPage';
 import { BrandsPage } from '@/features/brands/pages/BrandsPage';
 import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
+import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
 import { ProductTransferPage } from '@/features/productTransfer/pages/ProductTransferPage';
 import { ProductEditorPage } from '@/features/products/pages/ProductEditorPage';
@@ -30,6 +31,7 @@ const PAGES = {
   '/brands': <BrandsPage />,
   '/suppliers': <SuppliersPage />,
   '/branches': <BranchesPage />,
+  '/inventory': <InventoryPage />,
   '/purchase-orders': <PurchaseOrdersPage />,
   '/categories': <CategoriesPage />,
   '/media': <MediaLibraryPage />,

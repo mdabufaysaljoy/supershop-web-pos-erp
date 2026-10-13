@@ -4,6 +4,7 @@ export {
   findUnknownBranches,
   getBranch,
   getBranchSummaries,
+  listBranchOptions,
   registerBranchUsage,
   seedMainBranch,
 } from './branch.service.js';

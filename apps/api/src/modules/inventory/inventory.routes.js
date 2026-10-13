@@ -7,6 +7,7 @@ import * as c from './inventory.controller.js';
 /**
  * Mounted at `/api/v1/inventory`. Everything is limited to the actor's branches; a transfer
  * needs both branches in scope. Write endpoints accept an `Idempotency-Key` header.
+ *  GET  /branches                        inventory.view — branches in scope (pickers)
  *  GET  /levels                          inventory.view — ?branchId&productId&variantId&q&low
  *  GET  /variants/:variantId/levels      inventory.view — one variant across branches
  *  PUT  /levels/threshold                inventory.adjust — low-stock threshold per variant+branch
@@ -21,6 +22,7 @@ export function createInventoryRouter({ schemas = createInventorySchemas() } = {
   const r = express.Router();
   const view = requirePermission(P.INVENTORY_VIEW);
 
+  r.get('/branches', view, c.branches);
   r.get('/levels', view, validate({ query: schemas.levelsQuery }), c.levels);
   r.get(
     '/variants/:variantId/levels',

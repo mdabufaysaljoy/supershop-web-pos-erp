@@ -284,3 +284,10 @@ export const staffPrincipal = {
     return s ? toStaffProfile(s) : null;
   },
 };
+
+/** For other modules' history views: `Map<id, { id, name }>` (deleted staff included). */
+export async function getStaffNames(ids) {
+  const unique = [...new Set(ids.filter(Boolean).map(String))];
+  const rows = unique.length ? await repo.findNamesByIds(unique) : [];
+  return new Map(rows.map((s) => [String(s._id), { id: String(s._id), name: s.name }]));
+}

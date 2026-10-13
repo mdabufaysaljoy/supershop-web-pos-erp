@@ -6,6 +6,7 @@ export {
   countStaffWithRole,
   createStaff,
   getStaff,
+  getStaffNames,
   listBranchStaff,
   ensureSuperAdmin,
   resolveStaffAccess,

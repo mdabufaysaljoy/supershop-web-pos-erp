@@ -13,6 +13,7 @@ const sendOperation = (res, result) => {
   return sendCreated(res, data);
 };
 
+export const branches = async (req, res) => sendData(res, await service.branchOptions(req.access));
 export const levels = async (req, res) => {
   const { items, meta } = await service.listLevels(req.access, req.valid.query);
   sendData(res, items, { meta });

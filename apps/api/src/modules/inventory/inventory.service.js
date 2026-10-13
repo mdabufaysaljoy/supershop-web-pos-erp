@@ -6,9 +6,10 @@ import { withTransaction } from '../../core/db.js';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { isDuplicateKey } from '../../core/slug.js';
-import { findUnknownBranches, getBranchSummaries } from '../branches/index.js';
+import { findUnknownBranches, getBranchSummaries, listBranchOptions } from '../branches/index.js';
 import { findStockableVariants, getVariantSummaries, matchVariantIds } from '../products/index.js';
 import { getSetting } from '../settings/index.js';
+import { getStaffNames } from '../staff/index.js';
 import * as repo from './inventory.repo.js';
 
 /**
@@ -357,12 +358,13 @@ export async function setLowStockThreshold(actor, { branchId, variantId, lowStoc
 
 // ---------------------------------------------------------------- reads
 
-async function lookups(actor, { variantIds = [], branchIds = [] }) {
-  const [variants, branches] = await Promise.all([
+async function lookups(actor, { variantIds = [], branchIds = [], actorIds = [] }) {
+  const [variants, branches, staff] = await Promise.all([
     getVariantSummaries(variantIds.map(String), { withCost: actor.can(P.PRODUCT_VIEW_COST) }),
     getBranchSummaries(branchIds.filter(Boolean).map(String)),
+    getStaffNames(actorIds),
   ]);
-  return { variants, branches };
+  return { variants, branches, staff };
 }
 
 async function levelDtos(actor, levels) {
@@ -424,9 +426,10 @@ async function movementDtos(actor, movements, opsById = null) {
         (o) => [str(o._id), o],
       ),
     );
-  const { variants, branches } = await lookups(actor, {
+  const { variants, branches, staff } = await lookups(actor, {
     variantIds: movements.map((m) => m.variantId),
     branchIds: movements.map((m) => m.branchId),
+    actorIds: movements.map((m) => m.actorId),
   });
   const withCost = actor.can(P.PRODUCT_VIEW_COST);
   return movements.map((m) => {
@@ -444,6 +447,7 @@ async function movementDtos(actor, movements, opsById = null) {
       countedQty: m.countedQty ?? null,
       ...(withCost && { unitCost: m.unitCost ?? null }),
       actorId: str(m.actorId),
+      actor: staff.get(str(m.actorId)) ?? null,
       createdAt: m.createdAt,
     };
   });
@@ -468,8 +472,9 @@ const canSeeOperation = (actor, op) =>
   actor.canAccessBranch(op.branchId) || (op.toBranchId && actor.canAccessBranch(op.toBranchId));
 
 async function operationDtos(actor, ops) {
-  const { branches } = await lookups(actor, {
+  const { branches, staff } = await lookups(actor, {
     branchIds: ops.flatMap((o) => [o.branchId, o.toBranchId]),
+    actorIds: ops.map((o) => o.actorId),
   });
   return ops.map((o) => ({
     id: str(o._id),
@@ -485,6 +490,7 @@ async function operationDtos(actor, ops) {
     refId: str(o.refId),
     lineCount: o.lineCount,
     actorId: str(o.actorId),
+    actor: staff.get(str(o.actorId)) ?? null,
     createdAt: o.createdAt,
   }));
 }
@@ -514,6 +520,9 @@ export async function getOperation(actor, id) {
   if (!op || !canSeeOperation(actor, op)) throw notFound();
   return operationDetail(actor, op);
 }
+
+/** Branches the actor may pick in stock screens (no branch.view needed). */
+export const branchOptions = (actor) => listBranchOptions(actor);
 
 // ---------------------------------------------------------------- other modules
 

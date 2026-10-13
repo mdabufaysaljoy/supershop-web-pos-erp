@@ -7,10 +7,3 @@ export const PO_STATUS_TONE = {
   closed: 'muted',
   cancelled: 'bad',
 };
-
-/** "Red / M" from a variant summary's option values (English source). */
-export const optionLabel = (variant) =>
-  (variant?.options ?? [])
-    .map((o) => o.value?.en)
-    .filter(Boolean)
-    .join(' / ');

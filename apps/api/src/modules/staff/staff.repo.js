@@ -7,6 +7,9 @@ const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export const findStaffByEmail = (email) => Staff.findOne({ email, ...notDeleted }).lean();
 export const findStaffById = (id) => Staff.findOne({ _id: id, ...notDeleted }).lean();
 
+/** Names for history screens — deleted staff included (they still did what the log says). */
+export const findNamesByIds = (ids) => Staff.find({ _id: { $in: ids } }, { name: 1 }).lean();
+
 export const createStaff = (data, { session } = {}) =>
   Staff.create([data], { session }).then(([doc]) => doc.toObject());
 

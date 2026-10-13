@@ -101,6 +101,17 @@ export async function findUnknownBranches(ids) {
   return ids.filter((id) => !found.has(String(id)));
 }
 
+/** Branch pickers in other modules: active-or-not, non-deleted branches in the actor's scope. */
+export async function listBranchOptions(actor) {
+  return (await repo.listBranches(actor.allBranches ? null : actor.branchIds)).map((b) => ({
+    id: String(b._id),
+    code: b.code,
+    name: b.name ?? { en: '' },
+    type: b.type,
+    isActive: b.isActive,
+  }));
+}
+
 /** For other modules: `Map<id, { id, code, name, deleted }>` (deleted branches included). */
 export async function getBranchSummaries(ids) {
   const docs = ids.length ? await repo.findByIds([...new Set(ids.map(String))]) : [];

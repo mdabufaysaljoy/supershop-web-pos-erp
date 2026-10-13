@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { fieldMessage } from '@/lib/i18n';
 import { usePurchaseOrderAction } from '../resource';
-import { optionLabel } from '../status';
+import { optionLabel } from '@/lib/variants';
 
 /**
  * Goods arrived: quantities per line (default = everything still expected; 0 = not in this

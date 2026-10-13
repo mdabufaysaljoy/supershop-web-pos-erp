@@ -798,10 +798,7 @@
       "total": "Line total",
       "qtyFor": "Quantity for {{sku}}",
       "costFor": "Unit cost for {{sku}}",
-      "remove": "Remove {{sku}}",
-      "search": "Search by SKU, barcode or product name",
-      "noMatches": "No matching products.",
-      "addVariant": "Add {{sku}}"
+      "remove": "Remove {{sku}}"
     },
     "receive": {
       "title": "Receive goods — {{poNo}}",
@@ -815,6 +812,139 @@
       "title": "Deliveries",
       "units_one": "{{count}} unit",
       "units_other": "{{count}} units"
+    }
+  },
+  "variantPicker": {
+    "search": "Search by SKU, barcode or product name",
+    "noMatches": "No matching products.",
+    "add": "Add {{sku}}"
+  },
+  "inventory": {
+    "title": "Inventory",
+    "description": "Stock in each branch, every movement, and stock documents. Quantities change only through these documents, so the history always adds up.",
+    "tabs": {
+      "levels": "Stock levels",
+      "movements": "Movements",
+      "documents": "Documents"
+    },
+    "branchFilter": "Branch",
+    "allBranches": "All branches",
+    "myBranches": "My branches",
+    "branch": "Branch",
+    "fromBranch": "From branch",
+    "toBranch": "To branch",
+    "chooseBranch": "Choose a branch…",
+    "search": "Search by SKU, barcode or product name (or scan)",
+    "lowOnly": "Low stock only",
+    "noLevels": "No stock found.",
+    "noMovements": "No movements found.",
+    "noDocuments": "No documents found.",
+    "item": "Item",
+    "items": "Items",
+    "noItems": "No items yet. Search below to add products.",
+    "onHand": "On hand",
+    "lowLevel": "Low-stock level",
+    "default": "(default)",
+    "out": "Out of stock",
+    "low": "Low",
+    "inStock": "In stock",
+    "lastMovement": "Last change",
+    "actions": "Actions",
+    "history": "History",
+    "historyFor": "Movement history of {{sku}} in {{branch}}",
+    "adjust": "Adjust",
+    "adjustFor": "Adjust {{sku}} in {{branch}}",
+    "thresholdFor": "Low-stock level of {{sku}} in {{branch}}",
+    "date": "Date",
+    "document": "Document",
+    "view": "View",
+    "type": "Type",
+    "allTypes": "All types",
+    "change": "Change",
+    "balance": "Balance after",
+    "by": "By",
+    "lines": "Items",
+    "from": "From",
+    "to": "To",
+    "onlyItem": "Only {{sku}}",
+    "clearItem": "Show all items",
+    "reason": "Reason",
+    "note": "Note",
+    "reference": "Delivery note / invoice number",
+    "supplier": "Supplier",
+    "noSupplier": "No supplier",
+    "unitCost": "Unit cost",
+    "unitCostFor": "Unit cost for {{sku}}",
+    "removeItem": "Remove {{sku}}",
+    "onHandNow_one": "{{count}} on hand now",
+    "onHandNow_other": "{{count}} on hand now",
+    "onlyAvailable_one": "Only {{count}} available.",
+    "onlyAvailable_other": "Only {{count}} available.",
+    "counted_one": "counted {{count}}",
+    "counted_other": "counted {{count}}",
+    "booked": "Saved as {{docNo}}.",
+    "source": "Source",
+    "purchaseOrder": "Purchase order",
+    "types": {
+      "receive": "Received",
+      "adjust": "Adjustment",
+      "transfer_out": "Transfer out",
+      "transfer_in": "Transfer in",
+      "sale": "Sale",
+      "return": "Return"
+    },
+    "operations": {
+      "receive": "Goods received",
+      "adjust": "Adjustment",
+      "transfer": "Transfer",
+      "sale": "Sale",
+      "return": "Return"
+    },
+    "reasons": {
+      "count": "Stock count",
+      "damaged": "Damaged",
+      "expired": "Expired",
+      "lost": "Lost or stolen",
+      "found": "Found",
+      "correction": "Correction",
+      "other": "Other"
+    },
+    "modes": {
+      "receive": {
+        "title": "Receive stock",
+        "help": "Goods that arrived without a purchase order. For ordered goods, receive them on the purchase order instead.",
+        "action": "Receive",
+        "submit": "Add to stock",
+        "lineLabel": "Quantity received of {{sku}}"
+      },
+      "adjust": {
+        "title": "Adjust stock",
+        "help": "Add or remove units with a reason (use a minus sign to remove, e.g. -2). Stock can't go below zero — use a stock count to correct the number.",
+        "action": "Adjust",
+        "submit": "Save adjustment",
+        "lineLabel": "Change for {{sku}}"
+      },
+      "count": {
+        "title": "Stock count",
+        "help": "Enter what you counted on the shelf. The difference to the recorded stock is booked automatically.",
+        "action": "Stock count",
+        "submit": "Save count",
+        "lineLabel": "Counted quantity of {{sku}}"
+      },
+      "transfer": {
+        "title": "Transfer stock",
+        "help": "Move stock from one branch to another. It leaves the first branch and arrives in the second immediately.",
+        "action": "Transfer",
+        "submit": "Transfer",
+        "lineLabel": "Quantity to transfer of {{sku}}"
+      }
+    },
+    "threshold": {
+      "title": "Low-stock level",
+      "useDefault": "Use the store default",
+      "useDefaultHint": "Items without their own level use the store-wide default.",
+      "level": "Alert when stock is at or below",
+      "levelHint": "0 = only when out of stock."
     }
   }
 }

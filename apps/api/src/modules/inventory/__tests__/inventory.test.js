@@ -147,6 +147,8 @@ describe('receive', () => {
       lineCount: 2,
     });
     expect(op.movements).toHaveLength(2);
+    expect(op.actor).toMatchObject({ name: 'Root Admin' });
+    expect(op.movements[0].actor).toMatchObject({ name: 'Root Admin' });
     const red = op.movements.find((m) => m.variant.sku === 'OX-RED');
     expect(red).toMatchObject({ type: 'receive', delta: 10, balanceAfter: 10, unitCost: 4100 });
     expect(red.variant.options[0]).toMatchObject({ name: { en: 'Color' }, value: { en: 'Red' } });
@@ -353,6 +355,8 @@ describe('reads and scope', () => {
       isOut: false,
     });
 
+    const picker = await ok(await as('clerk').get('/api/v1/inventory/branches'), 200);
+    expect(picker.map((b) => b.code)).toEqual(['RUH']);
     const mine = await ok(await as('clerk').get('/api/v1/inventory/levels'), 200);
     expect(mine.map((l) => l.branch.code)).toEqual(['RUH', 'RUH']);
     expect((await as('clerk').get(`/api/v1/inventory/levels?branchId=${ids.jed}`)).status).toBe(

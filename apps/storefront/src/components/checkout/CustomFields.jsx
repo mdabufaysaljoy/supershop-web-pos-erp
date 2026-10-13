@@ -2,7 +2,7 @@
 
 import { FormField, PlainTextArea, PlainTextInput, useFieldControlProps } from '@supershop/ui';
 import { useT } from '@/i18n/I18nProvider';
-import { fieldError } from './fieldError';
+import { fieldError } from '@/lib/fieldError';
 
 /** Native select wired to its FormField label (id, aria-invalid, described-by). */
 function FieldSelect({ children, ...props }) {

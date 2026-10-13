@@ -162,6 +162,29 @@ const DEFINITIONS = [
     default: false,
     public: true,
   },
+  // ---------- customer sign-in with Google (P3.5) ----------
+  // Credentials come from the Google Cloud console; the storefront only learns whether the button
+  // should be shown. Turning this off takes the button away and refuses the routes.
+  {
+    key: 'auth.google.enabled',
+    group: 'customers',
+    schema: bool(),
+    default: false,
+    public: true,
+  },
+  {
+    key: 'auth.google.clientId',
+    group: 'customers',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+  },
+  {
+    key: 'auth.google.clientSecret',
+    group: 'customers',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
   {
     key: 'cart.maxLineQty',
     group: 'checkout',

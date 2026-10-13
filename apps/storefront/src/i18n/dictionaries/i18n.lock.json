@@ -624,6 +624,14 @@
       "src": "657102c192a8b56e",
       "out": "98dcf296111bc83a"
     },
+    "checkout.buildingNumber": {
+      "src": "c16322ce4420d5fa",
+      "out": "33df50ce9596a55c"
+    },
+    "checkout.additionalNumber": {
+      "src": "79790686ca8112ba",
+      "out": "67edc15e135657e8"
+    },
     "validation.required": {
       "src": "68cadcee19d24b1a",
       "out": "9813a0f0f0e01374"
@@ -683,6 +691,426 @@
     "validation.id.invalid": {
       "src": "4a4c5394eb0db5f5",
       "out": "a15da803c1947c8f"
+    },
+    "validation.tooMany": {
+      "src": "6616bf19fc3a72e2",
+      "out": "6e707c38862200f3"
+    },
+    "account.title": {
+      "src": "b53181a4d853c390",
+      "out": "3f3089b7561ee8bc"
+    },
+    "account.loading": {
+      "src": "ba3bbbe10d8bef66",
+      "out": "f7bbcd052dcef465"
+    },
+    "account.name": {
+      "src": "f13a64ba2fea87ef",
+      "out": "6c2ab9bdeb2c0ade"
+    },
+    "account.email": {
+      "src": "f2488fd4ef4adbc6",
+      "out": "8a0b55ab8c62713f"
+    },
+    "account.phone": {
+      "src": "187e80ba4d8a22bb",
+      "out": "42095a7a6c15272a"
+    },
+    "account.password.title": {
+      "src": "3f9c991f63a9a376",
+      "out": "7ae8cd54e95fe3ce"
+    },
+    "account.password.current": {
+      "src": "72ed2bd767cef627",
+      "out": "78fd615ec32cf202"
+    },
+    "account.password.new": {
+      "src": "3dd9df4441fb348f",
+      "out": "6a50536400669472"
+    },
+    "account.password.submit": {
+      "src": "3f9c991f63a9a376",
+      "out": "7ae8cd54e95fe3ce"
+    },
+    "account.password.changed": {
+      "src": "0f5834d5358cd660",
+      "out": "8d77bd0b9a374df9"
+    },
+    "account.password.label": {
+      "src": "e7cf3ef4f17c3999",
+      "out": "31395b1d99f29be4"
+    },
+    "account.password.show": {
+      "src": "6aeaa6a53d09dcad",
+      "out": "b05d306b5591e1e6"
+    },
+    "account.password.hide": {
+      "src": "a60a56c584b3b05b",
+      "out": "630fe6e3dfe048d5"
+    },
+    "account.save": {
+      "src": "dd0ae7a5cbcf2339",
+      "out": "e0b8179780f5bacf"
+    },
+    "account.saving": {
+      "src": "23e39291d6135814",
+      "out": "ebb9920ccec38f71"
+    },
+    "account.saved": {
+      "src": "af94af107781626f",
+      "out": "2eadb1c2a78f9fcf"
+    },
+    "account.cancel": {
+      "src": "19766ed6ccb2f4a3",
+      "out": "9a30dc2a96b897ab"
+    },
+    "account.signOut": {
+      "src": "48f0d3d397d49f13",
+      "out": "09560c02b9d6e317"
+    },
+    "account.or": {
+      "src": "7175517a370b5cd2",
+      "out": "2553faf2d7c4285c"
+    },
+    "account.backToSignIn": {
+      "src": "71fe31ccd37c3268",
+      "out": "07189cfdd218e7f8"
+    },
+    "account.nav.account": {
+      "src": "7e1b0d5641f2640c",
+      "out": "66dcee1f461697dd"
+    },
+    "account.nav.profile": {
+      "src": "d696a35bdd1883da",
+      "out": "813fa61e9fd0138f"
+    },
+    "account.nav.orders": {
+      "src": "b7e8acdd522e6190",
+      "out": "9582208d6161b486"
+    },
+    "account.nav.addresses": {
+      "src": "76179aafc43c51f3",
+      "out": "00ddce39552c7a6e"
+    },
+    "account.signIn.title": {
+      "src": "bfd402b2f6f38125",
+      "out": "09560c02b9d6e317"
+    },
+    "account.signIn.short": {
+      "src": "bfd402b2f6f38125",
+      "out": "09560c02b9d6e317"
+    },
+    "account.signIn.identifier": {
+      "src": "cdbf07e110af945a",
+      "out": "168eff4db6e289ce"
+    },
+    "account.signIn.identifierHint": {
+      "src": "8ebc4355176fc0dd",
+      "out": "2d291c8cb316f602"
+    },
+    "account.signIn.submit": {
+      "src": "bfd402b2f6f38125",
+      "out": "09560c02b9d6e317"
+    },
+    "account.signIn.submitting": {
+      "src": "8b9d3de8ae00c89c",
+      "out": "cf57b9073b6124a0"
+    },
+    "account.signIn.google": {
+      "src": "cce937e891444a74",
+      "out": "978f5427fa914f01"
+    },
+    "account.signIn.forgot": {
+      "src": "afd25fdf17c7f534",
+      "out": "b8cba1b1b1606294"
+    },
+    "account.signIn.noAccount": {
+      "src": "38c1c4457cd164cc",
+      "out": "e8091aa206ec9705"
+    },
+    "account.signIn.registerLink": {
+      "src": "86033f75a4c0876a",
+      "out": "af21ddc4ae9de640"
+    },
+    "account.register.title": {
+      "src": "86033f75a4c0876a",
+      "out": "af21ddc4ae9de640"
+    },
+    "account.register.submit": {
+      "src": "798ca2ce18bf2038",
+      "out": "ea1c4fc4478cc209"
+    },
+    "account.register.submitting": {
+      "src": "ae042262a93ae295",
+      "out": "8aeafba8242e1f33"
+    },
+    "account.register.google": {
+      "src": "fef12795d9f24c1f",
+      "out": "78e386f8b3110c91"
+    },
+    "account.register.passwordHint": {
+      "src": "9a3c970787ac3805",
+      "status": "failed"
+    },
+    "account.register.haveAccount": {
+      "src": "e77fea936d3e0118",
+      "out": "4a7c984a1163e70f"
+    },
+    "account.register.signInLink": {
+      "src": "bfd402b2f6f38125",
+      "out": "09560c02b9d6e317"
+    },
+    "account.forgot.title": {
+      "src": "59fa4379be1f3398",
+      "out": "f3204317c3b61b79"
+    },
+    "account.forgot.description": {
+      "src": "ea28f98ef587cca3",
+      "out": "dd074d123f709e94"
+    },
+    "account.forgot.submit": {
+      "src": "a587318a1ed1509e",
+      "out": "a272e2119d1697d9"
+    },
+    "account.forgot.submitting": {
+      "src": "b8ed5279e897be5d",
+      "out": "4e62fb555e4a491e"
+    },
+    "account.forgot.sent": {
+      "src": "cc8bfc021c79e6ee",
+      "out": "a65f28fc4c66cacb"
+    },
+    "account.reset.title": {
+      "src": "887a560b8253e394",
+      "out": "2a5f7c4ba5430194"
+    },
+    "account.reset.description": {
+      "src": "f75ad639bc5d2398",
+      "out": "ea735f7c9b6953cf"
+    },
+    "account.reset.newPassword": {
+      "src": "3dd9df4441fb348f",
+      "out": "6a50536400669472"
+    },
+    "account.reset.submit": {
+      "src": "acd9c1857b2989c3",
+      "out": "20e477a2ffb8625b"
+    },
+    "account.reset.submitting": {
+      "src": "23e39291d6135814",
+      "out": "ebb9920ccec38f71"
+    },
+    "account.reset.expired": {
+      "src": "926ffe211e361dc6",
+      "out": "400625b3a75de8ea"
+    },
+    "account.reset.askAgain": {
+      "src": "7b60613c7f6de774",
+      "out": "a71d840c249f1bce"
+    },
+    "account.profile.title": {
+      "src": "c0bcd4c0f8e70784",
+      "out": "ea5c0ad8109a1dc0"
+    },
+    "account.profile.emailHint": {
+      "src": "e2cd96c22d32bbf4",
+      "out": "7e02457efdb9c676"
+    },
+    "account.profile.language": {
+      "src": "3c3126394f104439",
+      "out": "1de42bd0de52662e"
+    },
+    "account.profile.languageHint": {
+      "src": "859ee8e09dae82ac",
+      "out": "395de15219823f4d"
+    },
+    "account.profile.languages.en": {
+      "src": "ba118bf7fc9c1aed",
+      "out": "01e0d4fe9390eacf"
+    },
+    "account.profile.languages.ar": {
+      "src": "bafb66f32cd77a32",
+      "out": "d274159863057eb5"
+    },
+    "account.addresses.title": {
+      "src": "f96830bed860d1c6",
+      "out": "82854e4464b3261f"
+    },
+    "account.addresses.empty": {
+      "src": "15e99fc650c6e761",
+      "out": "f006dcd1fbb58deb"
+    },
+    "account.addresses.add": {
+      "src": "fe6b080eaea13e63",
+      "out": "cb6943cb464cb5ae"
+    },
+    "account.addresses.newTitle": {
+      "src": "b71b5df47d4bef1e",
+      "out": "99c6eda98e9b30a5"
+    },
+    "account.addresses.editTitle": {
+      "src": "84712853b0ae770f",
+      "out": "1ee034228e8e38c1"
+    },
+    "account.addresses.label": {
+      "src": "00602eeb322ed90e",
+      "out": "7d803d43a429f739"
+    },
+    "account.addresses.labelHint": {
+      "src": "5997fcbc3e1582bd",
+      "out": "08671f0a5f3d97b3"
+    },
+    "account.addresses.untitled": {
+      "src": "56ef8f20955f2564",
+      "out": "2d110e56d5f53fde"
+    },
+    "account.addresses.default": {
+      "src": "21b111cbfe6e8fca",
+      "out": "20d3499e3043ae30"
+    },
+    "account.addresses.makeDefault": {
+      "src": "1440cdc8faaec131",
+      "out": "4dad782eb42cd551"
+    },
+    "account.addresses.useAsDefault": {
+      "src": "fd919b614f854587",
+      "out": "7aa07ba6a657da7e"
+    },
+    "account.addresses.edit": {
+      "src": "464c4ffd019e1e96",
+      "status": "failed"
+    },
+    "account.addresses.delete": {
+      "src": "e2d0a54968ead24e",
+      "out": "5ebc6ded8df2eb39"
+    },
+    "account.addresses.full": {
+      "src": "fe8b369510e01a15",
+      "out": "97763eab7511f2e4"
+    },
+    "account.orders.title": {
+      "src": "9000c7d9c98befa4",
+      "out": "780978ab5177ef25"
+    },
+    "account.orders.detailTitle": {
+      "src": "f7f1ee7d515fa8c6",
+      "out": "0015d9f614b05b79"
+    },
+    "account.orders.empty": {
+      "src": "93e7381b9fe909bf",
+      "out": "c70ef76fe2dbe36b"
+    },
+    "account.orders.startShopping": {
+      "src": "f393770e76f3501d",
+      "out": "d21e066dfb6b5be8"
+    },
+    "account.orders.itemCount": {
+      "src": "90129ae7f59b6785",
+      "out": "ffb83fec34ff664c"
+    },
+    "account.orders.quantity": {
+      "src": "01cc12482a872321",
+      "out": "713f23a7514eae0f"
+    },
+    "account.orders.previous": {
+      "src": "a57b08a480b822a0",
+      "out": "67fb747d6d02ff99"
+    },
+    "account.orders.next": {
+      "src": "1ff57a29d7c9d11b",
+      "out": "5cf7af74fd3aad4b"
+    },
+    "account.orders.deliveryTo": {
+      "src": "b21d63bdcebddbe0",
+      "out": "91b656001890d49f"
+    },
+    "account.orders.backToList": {
+      "src": "d38ed7d026c2f1b1",
+      "out": "d816add52247a45a"
+    },
+    "account.orders.notFound": {
+      "src": "b0118f3b57058d88",
+      "out": "b425cea760c7634d"
+    },
+    "account.orders.status.pending": {
+      "src": "331551b0de4157c9",
+      "out": "65c38c9a72d550cb"
+    },
+    "account.orders.status.paid": {
+      "src": "fb81b961af456e5e",
+      "out": "5e1b515f1b139534"
+    },
+    "account.orders.status.cod_confirmed": {
+      "src": "fe00b67b6dd1143f",
+      "out": "166d7cdcaa42363d"
+    },
+    "account.orders.status.processing": {
+      "src": "f0075175b0bf0205",
+      "out": "755de40df9ac2ac3"
+    },
+    "account.orders.status.shipped": {
+      "src": "c5d0f5f4b8b8dced",
+      "out": "3a7baec449ce958a"
+    },
+    "account.orders.status.delivered": {
+      "src": "906115657390f367",
+      "out": "1cd480f91b249766"
+    },
+    "account.orders.status.completed": {
+      "src": "22a970d2e5b1cc23",
+      "out": "f1d6d15f76dadeb7"
+    },
+    "account.orders.status.cancelled": {
+      "src": "d353a99eb4556847",
+      "out": "3d9505aedffec6c4"
+    },
+    "account.orders.status.refunded": {
+      "src": "117f6a7cf0372277",
+      "out": "58c929bf1aceb1c8"
+    },
+    "account.orders.status.partially_returned": {
+      "src": "787db9a3b50079a4",
+      "out": "ac5efa73cdc3d1e4"
+    },
+    "account.orders.status.exchanged": {
+      "src": "22080cb32e2de053",
+      "out": "d92a9a58c3f510d8"
+    },
+    "account.errors.generic": {
+      "src": "3ccd9d6586ef9143",
+      "out": "029f30812c57521d"
+    },
+    "account.errors.badCredentials": {
+      "src": "8dac2adc4552863b",
+      "out": "dfa0c382a87082cc"
+    },
+    "account.errors.locked": {
+      "src": "282db6f3126db611",
+      "out": "07203cc1f77cd648"
+    },
+    "account.errors.disabled": {
+      "src": "8240991c711e5b93",
+      "out": "b25ae7d7d6f98dab"
+    },
+    "account.errors.exists": {
+      "src": "d9827324c56cc0af",
+      "out": "6bed794ce65f6d9e"
+    },
+    "account.errors.phoneTaken": {
+      "src": "7aaa1edcd4b14b2b",
+      "out": "5c19e063a4057a75"
+    },
+    "account.errors.wrongPassword": {
+      "src": "4e968971dd26ac37",
+      "out": "64d46d9eac69321e"
+    },
+    "account.errors.tooMany": {
+      "src": "282db6f3126db611",
+      "out": "07203cc1f77cd648"
+    },
+    "account.errors.signin": {
+      "src": "84d9216f8af6f132",
+      "out": "0c0d48f94e523eca"
     }
   }
 }

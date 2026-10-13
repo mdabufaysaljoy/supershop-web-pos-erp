@@ -9,6 +9,7 @@ import { pickNamespaces } from '@/i18n/translate';
 const push = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 const { CartProvider } = await import('@/components/cart/CartProvider');
+const { AuthProvider } = await import('@/components/account/AuthProvider');
 const { CheckoutView } = await import('@/components/checkout/CheckoutView');
 const { OrderConfirmation } = await import('@/components/checkout/OrderConfirmation');
 
@@ -93,13 +94,18 @@ function setup(handler, { fields = [], cart = CART } = {}) {
   const fetchMock = vi.fn((url, init) => {
     const u = String(url);
     if (u.startsWith('/api/v1/cart')) return json(200, { data: cart });
+    // No refresh cookie in tests: the shopper is a guest, like most people at checkout.
+    if (u.startsWith('/api/v1/auth/') || u.startsWith('/api/v1/account'))
+      return json(401, { error: { code: 'UNAUTHENTICATED' } });
     return handler(u, init);
   });
   vi.stubGlobal('fetch', fetchMock);
   render(
     <I18nProvider lang="en" dict={pickNamespaces(en)}>
       <CartProvider fmtOptions={FMT}>
-        <CheckoutView fields={fields} deliveryFee={2300} freeDeliveryOver={50000} />
+        <AuthProvider>
+          <CheckoutView fields={fields} deliveryFee={2300} freeDeliveryOver={50000} />
+        </AuthProvider>
       </CartProvider>
     </I18nProvider>,
   );
@@ -111,7 +117,8 @@ const fill = async () => {
   await userEvent.type(screen.getByLabelText(/^Street and building/), 'King Fahd Rd 12');
   await userEvent.type(screen.getByLabelText(/^City/), 'Riyadh');
 };
-const posted = (m) => m.mock.calls.filter(([, i]) => i?.method === 'POST');
+const posted = (m) =>
+  m.mock.calls.filter(([u, i]) => i?.method === 'POST' && String(u).startsWith('/api/v1/checkout'));
 
 afterEach(() => {
   vi.unstubAllGlobals();

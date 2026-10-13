@@ -21,6 +21,7 @@ export const translator = (dict) => (key, vars) => translate(dict, key, vars);
 
 /** Top-level namespaces available to client components (keep small: shipped to the browser). */
 export const CLIENT_NAMESPACES = Object.freeze([
+  'account',
   'notFound',
   'error',
   'catalog',

@@ -8,6 +8,8 @@ export const V = Object.freeze({
   INVALID_TYPE: 'validation.invalidType',
   TOO_SHORT: 'validation.tooShort',
   TOO_LONG: 'validation.tooLong',
+  /** A list is full (e.g. the address book, P3.5). */
+  TOO_MANY: 'validation.tooMany',
 
   NAME_INVALID: 'validation.name.invalid',
   EMAIL_INVALID: 'validation.email.invalid',

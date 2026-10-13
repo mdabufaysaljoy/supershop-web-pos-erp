@@ -24,6 +24,10 @@ export const EVENTS = Object.freeze({
   STAFF_DISABLED: 'staff.disabled',
   STAFF_DELETED: 'staff.deleted',
   CUSTOMER_REGISTERED: 'customer.registered',
+  /** The customer changed their own profile or address book (P3.5). */
+  CUSTOMER_UPDATED: 'customer.updated',
+  /** A customer signed in through an identity provider (Google, P3.5). */
+  CUSTOMER_OAUTH_LINKED: 'customer.oauthLinked',
 
   // access control (audited by the audit-log module, P0.6)
   ROLE_CREATED: 'role.created',

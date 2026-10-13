@@ -90,9 +90,15 @@ export const EVENTS = Object.freeze({
   PRODUCT_EXPORT_FINISHED: 'product.exportFinished',
 
   // inventory
+  /** Payload: { operationId, docNo, type, branchId, toBranchId, reason, refType, refId, actorId,
+   *  lines: [{ variantId, productId, branchId, delta, balanceAfter }] } — after commit. */
   STOCK_MOVED: 'stock.moved',
+  /** Level fell to/below its threshold. Payload: { variantId, productId, branchId, onHand, threshold } */
   STOCK_LOW: 'stock.low',
+  /** Level fell to zero or below. Same payload as STOCK_LOW. */
   STOCK_OUT: 'stock.out',
+  /** Payload: { variantId, branchId, before, after, actorId } */
+  STOCK_THRESHOLD_CHANGED: 'stock.thresholdChanged',
 
   // cart / checkout / orders
   CART_UPDATED: 'cart.updated',

@@ -131,6 +131,38 @@ export const AUDIT_MAPPINGS = {
     entityId: p.categoryId,
   }),
 
+  // inventory — manual operations are audited; sales/returns are recorded by their orders
+  [EVENTS.STOCK_MOVED]: (p) =>
+    ['adjust', 'transfer', 'receive'].includes(p.type)
+      ? {
+          ...staffActor(p),
+          entityType: 'stockOperation',
+          entityId: p.operationId,
+          data: {
+            docNo: p.docNo,
+            type: p.type,
+            reason: p.reason,
+            branchId: p.branchId,
+            toBranchId: p.toBranchId,
+            lineCount: p.lines.length,
+            lines: p.lines.slice(0, 50).map((l) => ({
+              variantId: l.variantId,
+              branchId: l.branchId,
+              delta: l.delta,
+              balanceAfter: l.balanceAfter,
+            })),
+          },
+        }
+      : [],
+  [EVENTS.STOCK_THRESHOLD_CHANGED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'stockLevel',
+    entityId: p.variantId,
+    before: { lowStockThreshold: p.before },
+    after: { lowStockThreshold: p.after },
+    data: { branchId: p.branchId },
+  }),
+
   // branches
   [EVENTS.BRANCH_CREATED]: (p) => ({
     ...staffActor(p),

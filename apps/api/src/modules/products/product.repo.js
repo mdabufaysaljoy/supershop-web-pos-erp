@@ -120,6 +120,42 @@ export const findVariantByCode = async (code) =>
   (await Variant.findOne({ barcode: code, ...ACTIVE }).lean()) ??
   (await Variant.findOne({ sku: code, ...ACTIVE }).lean());
 
+// ---------- inventory lookups ----------
+/** Variants by id, deleted included (the stock ledger keeps referring to them). */
+export const findVariantsByIds = (ids) => Variant.find({ _id: { $in: ids } }).lean();
+export const findProductsByIds = (ids) =>
+  Product.find(
+    { _id: { $in: ids } },
+    { name: 1, slug: 1, options: 1, status: 1, deletedAt: 1 },
+  ).lean();
+
+/**
+ * Ids of active variants matching a staff search: SKU prefix, exact barcode, or product name
+ * (English or Arabic) containing the text. Bounded (`limit`).
+ */
+export async function matchVariantIds(q, limit = 1000) {
+  const code = q.trim().toUpperCase();
+  const rx = new RegExp(escapeRegex(q.trim()), 'i');
+  const productIds = await Product.distinct('_id', {
+    ...ACTIVE,
+    $or: [{ 'name.en': rx }, { 'name.ar': rx }],
+  });
+  const variants = await Variant.find(
+    {
+      ...ACTIVE,
+      $or: [
+        { sku: { $regex: `^${escapeRegex(code)}` } },
+        { barcode: code },
+        { productId: { $in: productIds.slice(0, limit) } },
+      ],
+    },
+    { _id: 1 },
+  )
+    .limit(limit)
+    .lean();
+  return variants.map((v) => v._id);
+}
+
 /** Raw products (deleted included, so the index can drop them) for search indexing. */
 export const findForIndex = (ids) => Product.find({ _id: { $in: ids } }).lean();
 export const activeVariantsOf = (productIds) =>

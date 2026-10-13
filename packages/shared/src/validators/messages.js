@@ -20,6 +20,8 @@ export const V = Object.freeze({
   MONEY_TOO_LARGE: 'validation.money.tooLarge',
   QTY_INVALID: 'validation.quantity.invalid',
   QTY_TOO_LARGE: 'validation.quantity.tooLarge',
+  /** More than the branch has on hand. */
+  QTY_INSUFFICIENT: 'validation.quantity.insufficient',
   ADDRESS_INVALID: 'validation.address.invalid',
   PASSWORD_TOO_SHORT: 'validation.password.tooShort',
   PASSWORD_TOO_LONG: 'validation.password.tooLong',

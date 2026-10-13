@@ -698,6 +698,65 @@ export async function lookupByCode(actor, raw) {
   };
 }
 
+// ---------------------------------------------------------------- inventory (other modules)
+
+/**
+ * Variants that can hold stock: not deleted, of a product that is not deleted (drafts included —
+ * stock is often received before a product is published). @returns {Promise<Map<string, { productId: string }>>}
+ */
+export async function findStockableVariants(ids) {
+  const variants = (await repo.findVariantsByIds(ids)).filter((v) => !v.deletedAt);
+  const products = await repo.findProductsByIds([
+    ...new Set(variants.map((v) => String(v.productId))),
+  ]);
+  const live = new Set(products.filter((p) => !p.deletedAt).map((p) => String(p._id)));
+  return new Map(
+    variants
+      .filter((v) => live.has(String(v.productId)))
+      .map((v) => [String(v._id), { productId: String(v.productId) }]),
+  );
+}
+
+/**
+ * Display data for stock screens, deleted variants included (history).
+ * `options` = the variant's option values as `{ name, value }` LocalizedStrings (e.g. Color: Red).
+ * @returns {Promise<Map<string, object>>}
+ */
+export async function getVariantSummaries(ids, { withCost = false } = {}) {
+  if (!ids.length) return new Map();
+  const variants = await repo.findVariantsByIds([...new Set(ids.map(String))]);
+  const products = new Map(
+    (await repo.findProductsByIds([...new Set(variants.map((v) => String(v.productId)))])).map(
+      (p) => [String(p._id), p],
+    ),
+  );
+  return new Map(
+    variants.map((v) => {
+      const p = products.get(String(v.productId));
+      const options = (p?.options ?? []).flatMap((o) => {
+        const value = (o.values ?? []).find((x) => x.key === v.optionValues?.[o.key]);
+        return value ? [{ name: o.name ?? en(''), value: value.label ?? en('') }] : [];
+      });
+      return [
+        String(v._id),
+        {
+          id: String(v._id),
+          productId: String(v.productId),
+          productName: p?.name ?? en(''),
+          sku: v.sku,
+          barcode: v.barcode ?? null,
+          options,
+          ...(withCost && { cost: v.cost ?? null }),
+          deleted: Boolean(v.deletedAt || !p || p.deletedAt),
+        },
+      ];
+    }),
+  );
+}
+
+/** Staff search (SKU prefix / barcode / product name) → active variant ids. */
+export const matchVariantIds = (q, limit) => repo.matchVariantIds(q, limit);
+
 // ---------------------------------------------------------------- usage counters (other modules)
 
 export const countProductsInCategory = (categoryId, { session } = {}) =>

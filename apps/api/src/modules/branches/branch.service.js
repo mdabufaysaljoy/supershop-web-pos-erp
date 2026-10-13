@@ -101,6 +101,22 @@ export async function findUnknownBranches(ids) {
   return ids.filter((id) => !found.has(String(id)));
 }
 
+/** For other modules: `Map<id, { id, code, name, deleted }>` (deleted branches included). */
+export async function getBranchSummaries(ids) {
+  const docs = ids.length ? await repo.findByIds([...new Set(ids.map(String))]) : [];
+  return new Map(
+    docs.map((b) => [
+      String(b._id),
+      {
+        id: String(b._id),
+        code: b.code,
+        name: b.name ?? { en: '' },
+        deleted: Boolean(b.deletedAt),
+      },
+    ]),
+  );
+}
+
 export async function createBranch(actor, input) {
   assertHq(actor);
   // The list is unpaginated (pickers, scope menus), so the number of branches is capped.

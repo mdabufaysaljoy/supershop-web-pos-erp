@@ -10,11 +10,12 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
-import { createBranchRouter, findUnknownBranches } from './branches/index.js';
+import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
 import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
 import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
+import { countStockRecordsInBranch, createInventoryRouter } from './inventory/index.js';
 import { createMediaRouter } from './media/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import { createSearchRouter, registerSearchSubscribers } from './search/index.js';
@@ -102,6 +103,7 @@ export function registerModules() {
   setCategoryUsageCounter(countProductsInCategory);
   setBrandUsageCounter(countProductsOfBrand);
   setSupplierUsageCounter(countProductsOfSupplier); // + purchase orders in P2.3
+  registerBranchUsage(countStockRecordsInBranch); // branches with stock history stay
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */
@@ -126,4 +128,5 @@ export function mountModuleRoutes(api) {
   api.use('/products', createProductRouter());
   api.use('/product-transfers', createProductTransferRouter());
   api.use('/search', createSearchRouter());
+  api.use('/inventory', createInventoryRouter());
 }

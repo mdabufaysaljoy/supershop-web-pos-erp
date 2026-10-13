@@ -104,7 +104,8 @@
     "BRANCH_IN_USE": "Staff, stock or sales still use this branch. Deactivate it instead.",
     "BRANCH_SCOPE_DENIED": "This is outside the branches you work in.",
     "PERMISSION_ESCALATION": "You can't grant access you don't have yourself.",
-    "CANNOT_MODIFY_SELF": "You can't change your own access."
+    "CANNOT_MODIFY_SELF": "You can't change your own access.",
+    "INSUFFICIENT_STOCK": "Not enough stock for one or more items."
   },
   "validation": {
     "required": "This field is required.",
@@ -131,7 +132,8 @@
     },
     "quantity": {
       "invalid": "Enter a whole number of 1 or more.",
-      "tooLarge": "Quantity is too large."
+      "tooLarge": "Quantity is too large.",
+      "insufficient": "Not enough stock."
     },
     "address": {
       "invalid": "Remove < > and special control characters."

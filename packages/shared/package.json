@@ -29,7 +29,8 @@
     "./schemas/product": "./src/schemas/product.js",
     "./schemas/productTransfer": "./src/schemas/productTransfer.js",
     "./schemas/search": "./src/schemas/search.js",
-    "./schemas/branch": "./src/schemas/branch.js"
+    "./schemas/branch": "./src/schemas/branch.js",
+    "./schemas/inventory": "./src/schemas/inventory.js"
   },
   "scripts": {
     "test": "vitest run"

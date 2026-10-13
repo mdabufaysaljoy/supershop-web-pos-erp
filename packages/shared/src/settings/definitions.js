@@ -192,6 +192,10 @@ const DEFINITIONS = [
     default: '20',
   },
 
+  // ---------- inventory (P2.2) ----------
+  /** Low-stock alert level for branches/variants without their own threshold; 0 = alert only when out. */
+  { key: 'inventory.lowStockThreshold', group: 'general', schema: int(0, 1_000_000), default: 5 },
+
   // ---------- languages / translation (CLAUDE.md §5.7) ----------
   {
     // 'noop' = automatic translation off (Arabic falls back to English). 'libretranslate' = the

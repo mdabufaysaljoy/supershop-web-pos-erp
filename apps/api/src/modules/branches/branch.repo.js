@@ -10,6 +10,9 @@ export const listBranches = (scope) =>
 export const findActiveById = (id) => Branch.findOne({ _id: id, ...ACTIVE }).lean();
 export const findActiveByIds = (ids) =>
   Branch.find({ _id: { $in: ids }, ...ACTIVE }, { _id: 1 }).lean();
+/** Deleted included: history (stock ledger, orders) keeps showing the branch. */
+export const findByIds = (ids) =>
+  Branch.find({ _id: { $in: ids } }, { code: 1, name: 1, deletedAt: 1 }).lean();
 export const codeExists = async (code, excludeId) =>
   Boolean(await Branch.exists({ code, ...ACTIVE, ...(excludeId && { _id: { $ne: excludeId } }) }));
 export const countActive = () => Branch.countDocuments(ACTIVE);

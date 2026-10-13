@@ -43,3 +43,29 @@ export function priceLines(lines, { vatRateBps, pricesIncludeVat }) {
     },
   };
 }
+
+/**
+ * Delivery charge for an order: free when the fee is 0 or the items reach the free-delivery
+ * threshold. Taxed delivery follows the same VAT convention as product prices.
+ * @param {{ fee: number, itemsTotal: number, freeOver?: number, taxed?: boolean,
+ *   vatRateBps: number, pricesIncludeVat: boolean }} p
+ * @returns {{ gross: number, net: number, vat: number, free: boolean }}
+ */
+export function deliveryCharge({
+  fee,
+  itemsTotal,
+  freeOver = 0,
+  taxed = true,
+  vatRateBps,
+  pricesIncludeVat,
+}) {
+  const free = fee <= 0 || (freeOver > 0 && itemsTotal >= freeOver);
+  if (free) return { gross: 0, net: 0, vat: 0, free: true };
+  if (!taxed) return { gross: fee, net: fee, vat: 0, free: false };
+  if (pricesIncludeVat) {
+    const vat = vatFromGross(fee, vatRateBps);
+    return { gross: fee, net: fee - vat, vat, free: false };
+  }
+  const vat = vatFromNet(fee, vatRateBps);
+  return { gross: sumMinor(fee, vat), net: fee, vat, free: false };
+}

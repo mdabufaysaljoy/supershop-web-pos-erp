@@ -87,6 +87,33 @@ export async function validateCustomValues(entity, values = {}, previous = {}) {
 }
 
 /**
+ * Public form definitions for an entity (checkout): active + public fields, labels/placeholders/
+ * help and option labels in `lang`. Values the shopper types are data and never translated.
+ */
+export async function publicDefinitions(entity, lang) {
+  const defs = await repo.listForEntity(entity);
+  return defs
+    .filter((d) => d.isActive && d.visibility === 'public')
+    .map((d) => {
+      const r = resolveDoc(d, LOCALIZED, lang);
+      return {
+        key: d.key,
+        type: d.type,
+        label: r.label,
+        placeholder: r.placeholder,
+        helpText: r.helpText,
+        required: Boolean(d.required),
+        min: d.min ?? null,
+        max: d.max ?? null,
+        options: (d.options ?? []).map((o, i) => ({
+          key: o.key,
+          label: r.options[i]?.label ?? o.key,
+        })),
+      };
+    });
+}
+
+/**
  * Storefront view of stored values: only active PUBLIC fields, labels in `lang`, select values
  * shown by their (translated) option label. Returns `[{ key, label, value }]` in field order.
  */

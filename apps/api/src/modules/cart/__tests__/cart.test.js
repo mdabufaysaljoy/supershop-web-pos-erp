@@ -171,8 +171,9 @@ describe('guest cart', () => {
     });
     expect(lineOf(await ok(await s.get()), ids.red).notices).toEqual([]);
 
-    // Zero-rated items carry no VAT.
+    // Zero-rated items carry no VAT (the line's tax treatment travels with the view).
     const withRice = await ok(await s.add(ids.rice, 2));
+    expect(lineOf(withRice, ids.rice).taxCategory).toBe('zero');
     expect(withRice.totals).toMatchObject({ itemCount: 7, total: 57500 + 6900, vat: 7500 });
     await waitFor(() => events.length >= 3);
     expect(events[0]).toMatchObject({ action: 'add', variantId: ids.red, qty: 2, previousQty: 0 });

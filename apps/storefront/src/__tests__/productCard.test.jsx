@@ -143,7 +143,7 @@ describe('ProductCard', () => {
   it('"Buy now" adds and goes on to checkout without opening the mini-cart', async () => {
     const m = setup(RICE);
     await userEvent.click(screen.getByRole('button', { name: 'Buy Basmati Rice' }));
-    await waitFor(() => expect(push).toHaveBeenCalledWith('/cart'));
+    await waitFor(() => expect(push).toHaveBeenCalledWith('/checkout'));
     expect(posts(m)).toHaveLength(1);
     expect(screen.queryByRole('dialog')).toBeNull();
   });

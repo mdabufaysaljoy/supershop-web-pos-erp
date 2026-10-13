@@ -196,6 +196,26 @@ const DEFINITIONS = [
   /** Low-stock alert level for branches/variants without their own threshold; 0 = alert only when out. */
   { key: 'inventory.lowStockThreshold', group: 'general', schema: int(0, 1_000_000), default: 5 },
 
+  // ---------- checkout / delivery (P3.4) ----------
+  /** Flat delivery fee in halalas (0 = free). Zones/couriers come with shipping (P4.3). */
+  {
+    key: 'checkout.deliveryFee',
+    group: 'checkout',
+    schema: int(0, 100_000_000),
+    default: 0,
+    public: true,
+  },
+  /** Order value (halalas) from which delivery is free; 0 = never free automatically. */
+  {
+    key: 'checkout.freeDeliveryOver',
+    group: 'checkout',
+    schema: int(0, 100_000_000),
+    default: 0,
+    public: true,
+  },
+  /** Delivery is taxed like products (same VAT rate); false = delivery is not taxed. */
+  { key: 'checkout.taxDelivery', group: 'checkout', schema: bool(), default: true, public: true },
+
   // ---------- purchasing (P2.3) ----------
   /** Variant cost after a purchase-order receipt: keep, last received cost, or weighted average. */
   {

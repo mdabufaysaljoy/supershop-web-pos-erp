@@ -33,6 +33,7 @@
     "./schemas/inventory": "./src/schemas/inventory.js",
     "./schemas/purchaseOrder": "./src/schemas/purchaseOrder.js",
     "./schemas/cart": "./src/schemas/cart.js",
+    "./schemas/order": "./src/schemas/order.js",
     "./pricing": "./src/pricing.js"
   },
   "scripts": {

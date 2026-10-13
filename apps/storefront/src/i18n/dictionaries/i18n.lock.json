@@ -372,10 +372,6 @@
       "src": "7df4c009994c2d29",
       "out": "4663a51d168e5e4c"
     },
-    "cart.checkoutSoon": {
-      "src": "e673c3bb9375878c",
-      "out": "a6f2c925f03e0e6d"
-    },
     "cart.add": {
       "src": "0e9408353c729c32",
       "out": "091e148d6b84464f"
@@ -447,6 +443,246 @@
     "cart.buyNow": {
       "src": "9c0e74e6c04b89e8",
       "out": "6d758e359fbad32b"
+    },
+    "checkout.title": {
+      "src": "7df4c009994c2d29",
+      "out": "4663a51d168e5e4c"
+    },
+    "checkout.contact": {
+      "src": "c0bcd4c0f8e70784",
+      "out": "ea5c0ad8109a1dc0"
+    },
+    "checkout.name": {
+      "src": "f13a64ba2fea87ef",
+      "out": "6c2ab9bdeb2c0ade"
+    },
+    "checkout.phone": {
+      "src": "187e80ba4d8a22bb",
+      "out": "42095a7a6c15272a"
+    },
+    "checkout.phoneHint": {
+      "src": "ce2e071a95e9d062",
+      "out": "2f9cd0a490831e13"
+    },
+    "checkout.email": {
+      "src": "c0b5f9f0ae301af9",
+      "out": "6761fe8925830a68"
+    },
+    "checkout.emailHint": {
+      "src": "36b71519edeb292a",
+      "out": "a390348c80fc1e33"
+    },
+    "checkout.address": {
+      "src": "eb4c6f5640860965",
+      "out": "c965a2b0d93f0cfc"
+    },
+    "checkout.addressLine": {
+      "src": "c24df5159b51bfa0",
+      "out": "3a77b5f0c0b7aaa7"
+    },
+    "checkout.addressLinePlaceholder": {
+      "src": "476e9e250a5a18c6",
+      "out": "c9fd23532b5d5e8f"
+    },
+    "checkout.city": {
+      "src": "fc33f73246f48295",
+      "out": "23ee0d351c7b1d0d"
+    },
+    "checkout.district": {
+      "src": "50f1878d24fe66e5",
+      "out": "a5dcc2cea17ad356"
+    },
+    "checkout.postalCode": {
+      "src": "ae53cea8228bcfc3",
+      "out": "b5a5fd340ef0b833"
+    },
+    "checkout.shortAddress": {
+      "src": "f35625b4926c94f7",
+      "out": "11e93a86eabc23b7"
+    },
+    "checkout.shortAddressHint": {
+      "src": "01a6e10c88d3dd47",
+      "out": "eff9250892b74ec8"
+    },
+    "checkout.landmark": {
+      "src": "4ae8ccf7adf721a9",
+      "out": "c2fd87bb3c9d6a54"
+    },
+    "checkout.landmarkPlaceholder": {
+      "src": "95195e71ca1255c3",
+      "out": "a13754e2be3721fc"
+    },
+    "checkout.extra": {
+      "src": "a42f24143514fb13",
+      "out": "65ae7825dd154b5f"
+    },
+    "checkout.choose": {
+      "src": "7ca41615c19be38d",
+      "out": "32f1fe14b6258482"
+    },
+    "checkout.payment": {
+      "src": "7048f38b33f135df",
+      "out": "46e02865def4ab49"
+    },
+    "checkout.methods.cod": {
+      "src": "aa448a1301e02eb5",
+      "out": "d971f9169e166e58"
+    },
+    "checkout.methodHints.cod": {
+      "src": "d17bd89850bfca6e",
+      "out": "30d1cf5f86b72c45"
+    },
+    "checkout.note": {
+      "src": "811fa1df3c8d329f",
+      "out": "b8f121d78b589058"
+    },
+    "checkout.notePlaceholder": {
+      "src": "e87784a6471e6dba",
+      "out": "16aa5d7b511cfcee"
+    },
+    "checkout.summary": {
+      "src": "e9fde08f022e3908",
+      "out": "435b573730296019"
+    },
+    "checkout.editCart": {
+      "src": "d2bee65356840a6b",
+      "out": "1fa2e4e06378a94c"
+    },
+    "checkout.delivery": {
+      "src": "52bfe584a5fc4505",
+      "out": "8a3e481b6f05cc26"
+    },
+    "checkout.freeDelivery": {
+      "src": "f411a1fb62758b4c",
+      "out": "244a432251f32e77"
+    },
+    "checkout.freeDeliveryHint": {
+      "src": "43edc2c73cbd5e18",
+      "out": "898311e9215bdd3c"
+    },
+    "checkout.placeOrder": {
+      "src": "39d3c3ab7ec84a29",
+      "out": "1199e7480c31fa19"
+    },
+    "checkout.placing": {
+      "src": "d05c68d9af0d7d67",
+      "out": "4df3277c214326d8"
+    },
+    "checkout.privacy": {
+      "src": "120a9525f975aa65",
+      "out": "a82a70a4b0375df6"
+    },
+    "checkout.errors.CART_EMPTY": {
+      "src": "b78e93cc46a4677e",
+      "out": "fcbc942475554e7f"
+    },
+    "checkout.errors.OUT_OF_STOCK": {
+      "src": "b20a0343929eef37",
+      "out": "39a7ccfdb2a7b61c"
+    },
+    "checkout.errors.PRICE_CHANGED": {
+      "src": "233e1e589335c7db",
+      "out": "5ea6174054fccbd6"
+    },
+    "checkout.errors.CONFLICT": {
+      "src": "4217aa8849bf44bc",
+      "out": "9f289371b02a52c1"
+    },
+    "checkout.errors.generic": {
+      "src": "7f9f3af5b0ca03a3",
+      "out": "8fdab6aa5f6af6b6"
+    },
+    "checkout.confirmation.title": {
+      "src": "3442382144d38088",
+      "out": "7ace071482b9445c"
+    },
+    "checkout.confirmation.body": {
+      "src": "07f55093d32d380b",
+      "out": "e7f8b97d51e56ffb"
+    },
+    "checkout.confirmation.items": {
+      "src": "a62e5462cde68e5b",
+      "out": "fce093f64d46409e"
+    },
+    "checkout.confirmation.delivery": {
+      "src": "8f4a8807691e7bbe",
+      "out": "48fa224e1fcf968c"
+    },
+    "checkout.confirmation.next": {
+      "src": "fb521aa39e2a4e1f",
+      "out": "71918e0d9eb164e9"
+    },
+    "checkout.confirmation.keepShopping": {
+      "src": "264a224fd18a1bf5",
+      "out": "d4cb9d675145bfc1"
+    },
+    "checkout.confirmation.notFound": {
+      "src": "af30e8196ada79f6",
+      "out": "91a5d07e17792263"
+    },
+    "checkout.confirmation.vat": {
+      "src": "657102c192a8b56e",
+      "out": "98dcf296111bc83a"
+    },
+    "validation.required": {
+      "src": "68cadcee19d24b1a",
+      "out": "9813a0f0f0e01374"
+    },
+    "validation.invalidType": {
+      "src": "5d9522efc336a15e",
+      "out": "402ece2eda22cd0c"
+    },
+    "validation.tooShort": {
+      "src": "187c592096a02c75",
+      "out": "90b5a2e4db347c39"
+    },
+    "validation.tooLong": {
+      "src": "0937f5066f99d4b2",
+      "out": "fd31e984442d9c46"
+    },
+    "validation.duplicate": {
+      "src": "31c1c577fbaa1bac",
+      "out": "87b88ff0eb44d738"
+    },
+    "validation.name.invalid": {
+      "src": "708d789f3c48749c",
+      "out": "f623928b737511f4"
+    },
+    "validation.email.invalid": {
+      "src": "8a966af884a06484",
+      "out": "23d55a191ce0fe18"
+    },
+    "validation.phone.invalid": {
+      "src": "90eeb8ff8c3a0212",
+      "out": "9a707123eab7e192"
+    },
+    "validation.phone.ksaOnly": {
+      "src": "fc76121bea4b4fe8",
+      "out": "bc44bd2cc1d6b0ff"
+    },
+    "validation.quantity.invalid": {
+      "src": "0a42e91a0f8a9650",
+      "out": "b56b86026de79faa"
+    },
+    "validation.quantity.tooLarge": {
+      "src": "69c65b17b927fb03",
+      "out": "6b18c2d718dc1827"
+    },
+    "validation.quantity.insufficient": {
+      "src": "63a7026aa8ff7338",
+      "out": "2ea4e5950feba856"
+    },
+    "validation.address.invalid": {
+      "src": "42f5890d500edf15",
+      "out": "bf23fb3081fc4642"
+    },
+    "validation.code.invalid": {
+      "src": "5eea2f3ec5513238",
+      "out": "0773c0cf7118e907"
+    },
+    "validation.id.invalid": {
+      "src": "4a4c5394eb0db5f5",
+      "out": "a15da803c1947c8f"
     }
   }
 }

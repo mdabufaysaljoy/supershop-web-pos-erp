@@ -130,7 +130,12 @@ function valueSchema(def) {
     default:
       s = z.never();
   }
-  return def.required ? s : s.nullable().optional();
+  // A missing required value must say "required", not "invalid value".
+  if (!def.required) return s.nullable().optional();
+  return z
+    .unknown()
+    .refine((v) => v !== undefined && v !== null && v !== '', { error: V.REQUIRED })
+    .pipe(s);
 }
 
 /**

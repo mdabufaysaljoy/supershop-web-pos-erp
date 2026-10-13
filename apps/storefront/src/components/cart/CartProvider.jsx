@@ -25,6 +25,7 @@ export function CartProvider({ fmtOptions, children }) {
   const [cart, setCart] = useState(null);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(0);
+  const [saving, setSaving] = useState(0);
   const [error, setError] = useState(null);
   const fmt = useMemo(() => createFormatters(fmtOptions), [fmtOptions]);
   const latest = useRef(0);
@@ -34,6 +35,7 @@ export function CartProvider({ fmtOptions, children }) {
     async (method, path, body) => {
       const n = (latest.current += 1);
       setPending((p) => p + 1);
+      if (method !== 'GET') setSaving((p) => p + 1);
       try {
         const view = await cartRequest(method, path, { lang, body });
         if (n === latest.current) {
@@ -46,6 +48,7 @@ export function CartProvider({ fmtOptions, children }) {
         return { ok: false, error: err };
       } finally {
         setPending((p) => p - 1);
+        if (method !== 'GET') setSaving((p) => p - 1);
       }
     },
     [lang],
@@ -60,7 +63,10 @@ export function CartProvider({ fmtOptions, children }) {
     () => ({
       cart,
       fmt,
-      busy: pending > 0,
+      /** A change is being saved — buttons that would change the cart wait for it. */
+      busy: saving > 0,
+      /** The first read hasn't finished; the cart is unknown, not empty. */
+      loading: cart === null && pending > 0,
       error,
       open,
       setOpen,
@@ -75,7 +81,7 @@ export function CartProvider({ fmtOptions, children }) {
       setQty: (variantId, qty) => run('PATCH', `/items/${variantId}`, { qty }),
       remove: (variantId) => run('DELETE', `/items/${variantId}`),
     }),
-    [cart, fmt, pending, error, open, run],
+    [cart, fmt, pending, saving, error, open, run],
   );
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

@@ -118,6 +118,14 @@ export const sumOnHandIn = (variantIds, branchIds) =>
     { $group: { _id: '$variantId', onHand: { $sum: '$onHand' } } },
   ]);
 
+/** Positive levels of these variants in these branches (allocation across branches). */
+export const levelsIn = (variantIds, branchIds, session) =>
+  StockLevel.find(
+    { variantId: { $in: variantIds }, branchId: { $in: branchIds }, onHand: { $gt: 0 } },
+    { variantId: 1, branchId: 1, onHand: 1 },
+    opts(session),
+  ).lean();
+
 /** Anything recorded for a branch (blocks deleting it). */
 export const countBranchRecords = async (branchId) =>
   (await StockOperation.countDocuments({ $or: [{ branchId }, { toBranchId: branchId }] })) +

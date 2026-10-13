@@ -374,10 +374,30 @@ describe('idempotency and reading the order back', () => {
       (await request(app).get(`${CHECKOUT}/confirmation?token=${'x'.repeat(32)}`)).status,
     ).toBe(404);
 
+    // Tracking (P3.6) tells the customer where the order is — not everything the order holds.
     const tracked = await ok(
       await request(app).get(`${CHECKOUT}/track?number=${order.orderNo}&phone=0512345678`),
     );
-    expect(tracked.orderNo).toBe(order.orderNo);
+    expect(tracked).toMatchObject({
+      orderNo: order.orderNo,
+      status: 'pending',
+      customerName: 'Sara Ali',
+      city: 'Riyadh',
+      totals: { itemCount: order.totals.itemCount, total: order.totals.total },
+      payment: { method: 'cod', status: 'pending' },
+    });
+    expect(tracked.items.map((i) => i.name)).toEqual(order.items.map((i) => i.name));
+    for (const field of ['address', 'customer', 'note', 'customFields', 'id'])
+      expect(tracked).not.toHaveProperty(field);
+    // An Arabic-Indic order number and a 05… phone find the same order (digits are normalized).
+    const arabicDigits = order.orderNo.replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[Number(d)]);
+    expect(
+      (
+        await request(app).get(
+          `${CHECKOUT}/track?number=${encodeURIComponent(arabicDigits)}&phone=%2B966512345678`,
+        )
+      ).status,
+    ).toBe(200);
     expect(
       (await request(app).get(`${CHECKOUT}/track?number=${order.orderNo}&phone=0599999999`)).status,
     ).toBe(404);

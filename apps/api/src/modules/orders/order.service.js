@@ -324,11 +324,37 @@ export async function getOrderByToken(token) {
   return toOrderDto(order);
 }
 
-/** Tracking (P3.6 uses the same pair): order number + the phone on the order. */
+/**
+ * What the public tracking page shows (P3.6). Anyone holding an order number and the phone on it
+ * sees enough to follow the delivery — and no more: no email, no street address, no custom-field
+ * answers. The person already knows the phone they typed, so it is not repeated back either.
+ */
+export const toTrackingDto = (o) => ({
+  orderNo: o.orderNo,
+  status: o.status,
+  placedAt: o.placedAt,
+  updatedAt: o.updatedAt ?? o.placedAt,
+  customerName: o.customer.name,
+  deliveryMethod: o.deliveryMethod,
+  /** Enough to recognise the delivery, not enough to find the door. */
+  city: o.address?.city ?? null,
+  items: o.items.map((i) => ({
+    name: i.name,
+    options: i.options ?? [],
+    image: i.imageUrl ?? null,
+    qty: i.qty,
+    lineTotal: i.lineTotal,
+  })),
+  totals: { itemCount: o.totals.itemCount, total: o.totals.total },
+  currency: o.currency,
+  payment: { method: o.payment.method, status: o.payment.status },
+});
+
+/** Tracking (P3.6): order number + the phone on the order. */
 export async function trackOrder({ number, phone }) {
   const order = await repo.findForTracking(number, phone);
   if (!order) throw new NotFoundError('Order not found');
-  return toOrderDto(order);
+  return toTrackingDto(order);
 }
 
 /** For other modules (admin order screens arrive with P4.4). */

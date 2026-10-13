@@ -149,12 +149,21 @@ export function OrderConfirmation({ token, fmtOptions }) {
             {line(t('checkout.note'), o.note)}
           </dl>
           <p className="text-sm text-muted-foreground">{t('checkout.confirmation.next')}</p>
-          <Link
-            href={localizePath('/search', lang)}
-            className="mt-2 inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
-          >
-            {t('checkout.confirmation.keepShopping')}
-          </Link>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link
+              href={localizePath('/search', lang)}
+              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
+            >
+              {t('checkout.confirmation.keepShopping')}
+            </Link>
+            {/* Only the order number travels in the link — the phone is typed on the page (§5.1). */}
+            <Link
+              href={`${localizePath('/track', lang)}?order=${encodeURIComponent(o.orderNo)}`}
+              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
+            >
+              {t('track.linkLabel')}
+            </Link>
+          </div>
         </section>
       </div>
     </div>

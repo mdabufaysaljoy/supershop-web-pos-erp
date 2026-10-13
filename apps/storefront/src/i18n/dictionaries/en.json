@@ -19,7 +19,8 @@
   },
   "footer": {
     "rights": "© {{year}} {{store}}. All rights reserved.",
-    "vatIncluded": "Prices include VAT."
+    "vatIncluded": "Prices include VAT.",
+    "links": "Helpful links"
   },
   "notFound": {
     "title": "Page not found",
@@ -352,5 +353,47 @@
       "tooMany": "Too many attempts. Please try again later.",
       "signin": "We could not sign you in. Please try again."
     }
+  },
+  "track": {
+    "title": "Track your order",
+    "description": "Enter your order number and the mobile number you ordered with.",
+    "orderNumber": "Order number",
+    "orderNumberHint": "It starts with {{prefix}} and is on your confirmation.",
+    "phone": "Mobile number",
+    "submit": "Find my order",
+    "searching": "Looking for your order…",
+    "placedOn": "Placed on {{date}}",
+    "currentStep": "Where your order is now",
+    "paymentLine": "Payment: {{method}} — {{status}}",
+    "notFound": "We cannot find an order with that number and mobile number. Check both and try again.",
+    "failed": "We could not check your order just now. Please try again.",
+    "tooMany": "Too many attempts. Please wait a moment and try again.",
+    "linkLabel": "Track your order",
+    "steps": {
+      "placed": "Order placed",
+      "processing": "Being prepared",
+      "shipped": "On its way",
+      "delivered": "Delivered"
+    },
+    "stepHints": {
+      "placed": "We have your order.",
+      "processing": "We are picking and packing it.",
+      "shipped": "It has left our branch.",
+      "delivered": "Handed over to you."
+    },
+    "paymentStatus": {
+      "pending": "due on delivery",
+      "authorized": "authorized",
+      "paid": "paid",
+      "failed": "not completed",
+      "refunded": "refunded"
+    },
+    "closed": {
+      "cancelled": "This order was cancelled.",
+      "refunded": "This order was refunded.",
+      "partially_returned": "Part of this order was returned.",
+      "exchanged": "This order was exchanged."
+    },
+    "progress": "Order progress"
   }
 }

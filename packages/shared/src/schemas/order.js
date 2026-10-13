@@ -31,7 +31,45 @@ export const ORDER = Object.freeze({
   MAX_LINES: 100,
   /** `?order=…&phone=…` tracking (P3.6) — how the order number is shown. */
   NUMBER_PREFIX: 'ORD-',
+  /**
+   * The steps a customer sees while an order travels (P3.6). Several statuses share a step:
+   * "paid" and "cod_confirmed" are both still "placed". The lifecycle itself becomes
+   * configuration in P4.3 — this map moves with it, the UI does not change.
+   */
+  TRACKING_STEPS: Object.freeze(['placed', 'processing', 'shipped', 'delivered']),
+  STATUS_STEP: Object.freeze({
+    pending: 'placed',
+    paid: 'placed',
+    cod_confirmed: 'placed',
+    processing: 'processing',
+    shipped: 'shipped',
+    delivered: 'delivered',
+    completed: 'delivered',
+  }),
+  /** An order that left the happy path: the steps are replaced by one clear statement. */
+  CLOSED_STATUSES: Object.freeze(['cancelled', 'refunded', 'partially_returned', 'exchanged']),
 });
+
+/**
+ * What the tracking page draws for a status (pure; the storefront and later the admin agree).
+ * @param {string} status
+ * @returns {{ closed: boolean, status: string, steps: { key: string, state: 'done'|'current'|'upcoming' }[] }}
+ *   `closed` means the order stopped (cancelled/refunded/…): show the status, not the steps.
+ */
+export function trackingTimeline(status) {
+  const closed = ORDER.CLOSED_STATUSES.includes(status);
+  const current = ORDER.STATUS_STEP[status] ?? ORDER.TRACKING_STEPS[0];
+  const reached = ORDER.TRACKING_STEPS.indexOf(current);
+  return {
+    closed,
+    status,
+    steps: ORDER.TRACKING_STEPS.map((key, i) => ({
+      key,
+      // A closed order keeps the steps it had reached, but nothing is "current" any more.
+      state: i < reached ? 'done' : i === reached ? (closed ? 'done' : 'current') : 'upcoming',
+    })),
+  };
+}
 
 /** Saudi National Address fields (optional detail) + the free-text line people actually type. */
 const digits = (n) =>

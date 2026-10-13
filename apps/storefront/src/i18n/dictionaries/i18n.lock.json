@@ -56,6 +56,10 @@
       "src": "f94f04ca5923e73d",
       "out": "f39a9723f981dd19"
     },
+    "footer.links": {
+      "src": "2791cc22a0f57c0e",
+      "out": "ccb646bff9a77a7d"
+    },
     "notFound.title": {
       "src": "a469ab4ca4e55bf5",
       "out": "4f137908a13f49d0"
@@ -1111,6 +1115,134 @@
     "account.errors.signin": {
       "src": "84d9216f8af6f132",
       "out": "0c0d48f94e523eca"
+    },
+    "track.title": {
+      "src": "cb88fb33b3193636",
+      "out": "41a172959198b417"
+    },
+    "track.description": {
+      "src": "5e73e294975302d4",
+      "out": "25d1f84633205a6d"
+    },
+    "track.orderNumber": {
+      "src": "9d7c486b4cc8d3a0",
+      "out": "1e9df11bf46a3504"
+    },
+    "track.orderNumberHint": {
+      "src": "40b08b6071108ece",
+      "out": "c9a7ca004abba247"
+    },
+    "track.phone": {
+      "src": "187e80ba4d8a22bb",
+      "out": "42095a7a6c15272a"
+    },
+    "track.submit": {
+      "src": "549387aa805bc016",
+      "out": "7fc40c74cae5ca50"
+    },
+    "track.searching": {
+      "src": "1a7c8d66c7002201",
+      "out": "88fb1522d1c9c621"
+    },
+    "track.placedOn": {
+      "src": "e51b08ec089138d7",
+      "out": "78a315f014379a85"
+    },
+    "track.currentStep": {
+      "src": "6b94b0ca9a93567c",
+      "out": "6ad7a97f42254445"
+    },
+    "track.paymentLine": {
+      "src": "3c846988c0b28a02",
+      "status": "failed"
+    },
+    "track.notFound": {
+      "src": "c2ee3fde7085810b",
+      "out": "bea00ecfe3eaf14b"
+    },
+    "track.failed": {
+      "src": "5cde1da3dae1fa35",
+      "out": "13ec5b002644975a"
+    },
+    "track.tooMany": {
+      "src": "c21bdfaac618ce2a",
+      "out": "4c87329daef61f3b"
+    },
+    "track.linkLabel": {
+      "src": "cb88fb33b3193636",
+      "out": "41a172959198b417"
+    },
+    "track.steps.placed": {
+      "src": "494c28566f1e426e",
+      "out": "2c4d5043b33abb94"
+    },
+    "track.steps.processing": {
+      "src": "f0075175b0bf0205",
+      "out": "755de40df9ac2ac3"
+    },
+    "track.steps.shipped": {
+      "src": "c5d0f5f4b8b8dced",
+      "out": "3a7baec449ce958a"
+    },
+    "track.steps.delivered": {
+      "src": "906115657390f367",
+      "out": "1cd480f91b249766"
+    },
+    "track.stepHints.placed": {
+      "src": "4d3578780cf7a456",
+      "out": "0c16bddfb00d8a84"
+    },
+    "track.stepHints.processing": {
+      "src": "c80c9f7fc547ee84",
+      "out": "902aa46efbe21351"
+    },
+    "track.stepHints.shipped": {
+      "src": "da4ee7516eea892a",
+      "out": "dfb29d384ecf630b"
+    },
+    "track.stepHints.delivered": {
+      "src": "d59f79efb439fc7b",
+      "out": "9d89a6b1564771bc"
+    },
+    "track.paymentStatus.pending": {
+      "src": "d3f59c6e6c61a6b4",
+      "out": "a593cd96e7940ff8"
+    },
+    "track.paymentStatus.authorized": {
+      "src": "04dd9c7e9464019a",
+      "out": "7b2cd43843334163"
+    },
+    "track.paymentStatus.paid": {
+      "src": "268ad70eb5bc4737",
+      "out": "75f7db4415ec9833"
+    },
+    "track.paymentStatus.failed": {
+      "src": "0d0395541303bb35",
+      "out": "cabb4d1827ff2f95"
+    },
+    "track.paymentStatus.refunded": {
+      "src": "fed1ce9f9259663d",
+      "out": "58c929bf1aceb1c8"
+    },
+    "track.closed.cancelled": {
+      "src": "fb9eef1ce32c3994",
+      "out": "2e3783ff745fedf6"
+    },
+    "track.closed.refunded": {
+      "src": "a5ae1b9d2e89cc59",
+      "out": "ddeb2b34ef47894f"
+    },
+    "track.closed.partially_returned": {
+      "src": "f6e05040bf0435e3",
+      "out": "d241cfdf0ca8ea0e"
+    },
+    "track.closed.exchanged": {
+      "src": "063b71d6e20f34f8",
+      "out": "4eec87017549256c"
+    },
+    "track.progress": {
+      "src": "a1d7e48cfbf6e359",
+      "out": "7fd563de5735ecbc"
     }
   }
 }

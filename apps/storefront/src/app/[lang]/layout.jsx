@@ -83,6 +83,7 @@ export default async function LangLayout({ children, params }) {
                   {children}
                 </main>
                 <SiteFooter
+                  lang={lang}
                   storeName={storeName}
                   pricesIncludeVat={settings['tax.pricesIncludeVat']}
                   t={t}

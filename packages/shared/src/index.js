@@ -34,6 +34,7 @@ export {
   ORDER,
   orderTotals,
   shippingAddressSchema,
+  trackingTimeline,
 } from './schemas/order.js';
 export { deliveryCharge, priceLines, TAX_CATEGORIES, vatRateFor } from './pricing.js';
 export { createInventorySchemas, STOCK } from './schemas/inventory.js';

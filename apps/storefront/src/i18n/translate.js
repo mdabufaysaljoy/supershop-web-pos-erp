@@ -28,6 +28,7 @@ export const CLIENT_NAMESPACES = Object.freeze([
   'search',
   'cart',
   'checkout',
+  'track',
   'validation',
 ]);
 

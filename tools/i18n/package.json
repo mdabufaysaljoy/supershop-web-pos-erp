@@ -1,0 +1,10 @@
+{
+  "name": "@supershop/tools-i18n",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "UI string pipeline: en.json → generated translations (i18n:translate) + CI check (i18n:check).",
+  "scripts": {
+    "test": "vitest run"
+  }
+}

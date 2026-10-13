@@ -5,12 +5,44 @@
   "type": "module",
   "description": "Shared contracts: zod schemas, validators, permission keys, event names, error codes, money utils.",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/index.js",
+    "./money": "./src/money.js",
+    "./barcode": "./src/barcode.js",
+    "./digits": "./src/digits.js",
+    "./validators": "./src/validators/index.js",
+    "./permissions": "./src/permissions.js",
+    "./events": "./src/events.js",
+    "./trackingEvents": "./src/trackingEvents.js",
+    "./errorCodes": "./src/errorCodes.js",
+    "./constants": "./src/constants.js",
+    "./schemas/auth": "./src/schemas/auth.js",
+    "./schemas/rbac": "./src/schemas/rbac.js",
+    "./settings": "./src/settings/definitions.js",
+    "./api": "./src/api/client.js",
+    "./i18n": "./src/i18n/localized.js",
+    "./schemas/i18n": "./src/schemas/i18n.js",
+    "./schemas/media": "./src/schemas/media.js",
+    "./schemas/category": "./src/schemas/category.js",
+    "./schemas/brand": "./src/schemas/brand.js",
+    "./schemas/supplier": "./src/schemas/supplier.js",
+    "./schemas/customField": "./src/schemas/customField.js",
+    "./schemas/product": "./src/schemas/product.js",
+    "./schemas/productTransfer": "./src/schemas/productTransfer.js",
+    "./schemas/search": "./src/schemas/search.js",
+    "./schemas/branch": "./src/schemas/branch.js",
+    "./schemas/inventory": "./src/schemas/inventory.js",
+    "./schemas/purchaseOrder": "./src/schemas/purchaseOrder.js",
+    "./schemas/cart": "./src/schemas/cart.js",
+    "./pricing": "./src/pricing.js"
   },
   "scripts": {
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run"
   },
   "devDependencies": {
+    "jsbarcode": "^3.12.3",
     "vitest": "^5.0.3"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
   }
 }

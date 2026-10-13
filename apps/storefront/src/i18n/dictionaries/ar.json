@@ -1,0 +1,137 @@
+{
+  "site": {
+    "skipToContent": "تخطى المضمون",
+    "tagline": "القفازات والأزياء والأساسيات اليومية - المسلمة عبر المملكة العربية السعودية."
+  },
+  "nav": {
+    "home": "الصفحة الرئيسية",
+    "primary": "الملاحة الرئيسية",
+    "footer": "معلومات الموقع",
+    "language": "اللغة",
+    "allProducts": "جميع المنتجات"
+  },
+  "home": {
+    "title": "مرحبا بكم في {{store}}",
+    "shopAll": "جميع المنتجات",
+    "categories": "عرض حسب الفئة",
+    "newArrivals": "آخر المنتجات",
+    "viewAll": "انظر جميع المنتجات"
+  },
+  "footer": {
+    "vatIncluded": "وتشمل الأسعار ضريبة القيمة المضافة."
+  },
+  "notFound": {
+    "title": "الصفحة",
+    "body": "الصفحة التي تبحث عنها غير موجودة أو انتقلت.",
+    "back": "العودة إلى المنزل"
+  },
+  "error": {
+    "title": "شيء ما حدث",
+    "body": "حاول مرة أخرى في لحظة.",
+    "retry": "حاول مرة أخرى"
+  },
+  "search": {
+    "label": "منتجات البحث",
+    "placeholder": "البحث عن المنتجات",
+    "suggestions": "الاقتراحات",
+    "product": "المنتجات",
+    "category": "الفئة"
+  },
+  "catalog": {
+    "allProducts": "جميع المنتجات",
+    "searchTitle": "نتائج البحث: {{q}}",
+    "categoryDescription": "اشتر {{name}} على الإنترنت من {{store}}. تسليم عبر المملكة العربية السعودية.",
+    "pageN": "الصفحة {{page}}",
+    "breadcrumbs": "أنت هنا",
+    "results": "المنتجات",
+    "count": "عدد المنتجات: {{count}}",
+    "empty": "لا منتجات تطابق اختيارك.",
+    "filters": "خيارات البحث",
+    "subcategories": "الفئات الفرعية",
+    "categories": "فئات",
+    "brands": "براندز",
+    "price": "السعر",
+    "min": "الحد الأدنى",
+    "max": "الحد الأقصى",
+    "minPrice": "السعر الأدنى",
+    "maxPrice": "الحد الأقصى للأسعار",
+    "priceInSar": "الأسعار في SAR.",
+    "apply": "البحث",
+    "clear": "إزالة جميع مرشحات",
+    "sortBy": "ترتيب",
+    "sort": {
+      "default": "الموصى بها",
+      "relevance": "الأهم",
+      "newest": "أحدث",
+      "price_asc": "السعر: منخفض إلى مرتفع",
+      "price_desc": "السعر: مرتفع إلى منخفض",
+      "name": "الاسم"
+    },
+    "pagination": "الصفحة",
+    "previous": "الصفحة السابقة",
+    "next": "الصفحة التالية",
+    "from": "من {{price}}",
+    "wasPrice": "كان",
+    "save": "{{percent}}٪ خصم",
+    "outOfStock": "خارج المخزون",
+    "inStock": "متاح",
+    "valueOutOfStock": "{{value}}: خارج المخزون",
+    "chooseOptions": "اختر خياراتك لرؤية التوافر.",
+    "sku": "رمز المنتجات",
+    "vatIncluded": "السعر يشمل ضريبة القيمة المضافة.",
+    "vatExcluded": "ضريبة القيمة المضافة تضيف عندما تدفع.",
+    "gallery": "صور المنتجات",
+    "showImage": "صورة العرض {{n}}",
+    "details": "تفاصيل المنتجات",
+    "description": "الوصف",
+    "specifications": "المواصفات",
+    "yes": "نعم",
+    "no": "لا",
+    "related": "قد تحب أيضاً",
+    "addNamed": "تضاف إلى العربة: {{name}}",
+    "buyNamed": "شراء {{name}}",
+    "chooseNamed": "خيارات الاختيار لـ {{name}}",
+    "viewDetails": "تفاصيل كاملة",
+    "close": "أغلق النافذة",
+    "loading": "من فضلك انتظر"
+  },
+  "cart": {
+    "title": "عربتك",
+    "openWithCount": "عربة مفتوحة ({{count}} أصناف)",
+    "close": "غلق العربة",
+    "empty": "عربتك فارغة.",
+    "startShopping": "بدء التسوق",
+    "viewCart": "شاحنة كاملة",
+    "summary": "موجز",
+    "subtotal": "المجموع الفرعي",
+    "vatIncluded": "يشمل ضريبة القيمة المضافة ({{rate}})",
+    "vatAdded": "ضريبة القيمة المضافة: {{rate}}",
+    "total": "المجموع",
+    "shippingAtCheckout": "وتظهر تكاليف التسليم عند المغادرة.",
+    "removeUnavailable": "ولا تدرج في المجموع البنود غير المتوفرة أو غير الموجودة في المخزون.",
+    "checkout": "أكمل طلبك",
+    "checkoutSoon": "المراقبة ستفتح قريباً.",
+    "add": "إضافة إلى العربة",
+    "chooseOptions": "خيارات الاختيار",
+    "quantity": "الكمية",
+    "quantityFor": "كمية {{name}}",
+    "decrease": "أقل {{name}}",
+    "increase": "أكثر {{name}}",
+    "removeItem": "إزالة {{name}}",
+    "each": "السعر لكل بند: {{price}}",
+    "outOfStock": "غير مدرجة في المجموع.",
+    "unavailable": "لم يعد متاحاً.",
+    "notices": {
+      "priceChanged": "وقد تغير السعر من {{from}} إلى {{to}}.",
+      "qtyReduced": "فقط {{qty}} يمكن أن يأمر. لقد استكملنا الكمية."
+    },
+    "errors": {
+      "OUT_OF_STOCK": "آسف، هذا البند خارج المخزون.",
+      "NOT_FOUND": "ولم يعد هذا المنتج متاحا.",
+      "NETWORK_ERROR": "لم نستطع الوصول للمتجر تحقق من اتصالك وحاول مرة أخرى.",
+      "generic": "حدث شيء خاطئ أرجوك حاول مرة أخرى."
+    },
+    "added": "مضافة إلى العربة",
+    "buyNow": "اشتري الآن"
+  }
+}

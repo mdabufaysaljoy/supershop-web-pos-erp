@@ -1,0 +1,95 @@
+@import 'tailwindcss';
+/* Shared components (@supershop/ui) use Tailwind classes too. */
+@source '../../../../packages/ui/src';
+
+/*
+ * Storefront design tokens. Theme colors/fonts/radius become admin-editable with the page builder
+ * (P5.4) by overriding these variables. Layout uses logical utilities only (ms-/me-/ps-/pe-,
+ * start/end, text-start) so every component mirrors correctly in RTL (Arabic).
+ * Directional icons (arrows, chevrons) must mirror in RTL: use Tailwind's `rtl:-scale-x-100`.
+ */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+}
+
+@theme inline {
+  /* Inter for Latin + Noto Sans Arabic for Arabic glyphs (unicode-range); system fonts as fallback. */
+  --font-sans:
+    var(--font-latin), var(--font-arabic), ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Tahoma, sans-serif;
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+/* Arabic text reads better slightly larger and with more line height than Latin at the same size. */
+:lang(ar) {
+  line-height: 1.75;
+}
+
+/* Slide-over panels open from the inline-end edge (right in LTR, left in RTL). */
+@keyframes sheet-in-ltr {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes sheet-in-rtl {
+  from {
+    transform: translateX(-100%);
+  }
+}
+.sheet-end {
+  animation: sheet-in-ltr 200ms ease-out;
+}
+[dir='rtl'] .sheet-end {
+  animation-name: sheet-in-rtl;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-end {
+    animation: none;
+  }
+}
+
+/* Centered dialogs (quick view) fade + scale in. */
+@keyframes dialog-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.97);
+  }
+}
+.dialog-pop {
+  animation: dialog-pop 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-pop {
+    animation: none;
+  }
+}

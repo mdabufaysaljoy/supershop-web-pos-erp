@@ -1,0 +1,149 @@
+/**
+ * Domain event names (CLAUDE.md §2.2). Services emit these after commit; subscribers in other
+ * modules react. One place for names = no typos and a visible map of who can react to what.
+ * Adding an event = add it here. Payloads are documented next to the emitter.
+ */
+export const EVENTS = Object.freeze({
+  // auth (payload always includes { principalType: 'staff' | 'customer', principalId? })
+  AUTH_LOGIN_SUCCEEDED: 'auth.loginSucceeded',
+  AUTH_LOGIN_FAILED: 'auth.loginFailed',
+  AUTH_ACCOUNT_LOCKED: 'auth.accountLocked',
+  AUTH_LOGGED_OUT: 'auth.loggedOut',
+  AUTH_SESSIONS_REVOKED: 'auth.sessionsRevoked',
+  AUTH_REFRESH_REUSE_DETECTED: 'auth.refreshReuseDetected',
+  AUTH_PASSWORD_CHANGED: 'auth.passwordChanged',
+  /** Payload carries the raw one-time `token`: subscribers may only put it in the email link. */
+  AUTH_PASSWORD_RESET_REQUESTED: 'auth.passwordResetRequested',
+  /** Payload carries the raw one-time `token`: subscribers may only put it in the email link. */
+  AUTH_EMAIL_VERIFICATION_REQUESTED: 'auth.emailVerificationRequested',
+  AUTH_EMAIL_VERIFIED: 'auth.emailVerified',
+
+  // users
+  STAFF_CREATED: 'staff.created',
+  STAFF_UPDATED: 'staff.updated',
+  STAFF_DISABLED: 'staff.disabled',
+  STAFF_DELETED: 'staff.deleted',
+  CUSTOMER_REGISTERED: 'customer.registered',
+
+  // access control (audited by the audit-log module, P0.6)
+  ROLE_CREATED: 'role.created',
+  ROLE_UPDATED: 'role.updated',
+  ROLE_DELETED: 'role.deleted',
+  /** A super-admin performed a mutating request via the permission bypass. */
+  ACCESS_SUPER_ADMIN_USED: 'access.superAdminUsed',
+
+  // settings / content
+  /** Payload: { changes: [{ key, before, after }] (secrets masked), actorId } */
+  SETTINGS_UPDATED: 'settings.updated',
+  PAGE_PUBLISHED: 'page.published',
+  TRANSLATION_REQUESTED: 'translation.requested',
+  TRANSLATION_COMPLETED: 'translation.completed',
+  TRANSLATION_FAILED: 'translation.failed',
+  TRANSLATION_BUDGET_EXCEEDED: 'translation.budgetExceeded',
+  TRANSLATION_RETRANSLATE_REQUESTED: 'translation.retranslateRequested',
+  GLOSSARY_UPDATED: 'glossary.updated',
+  UI_STRING_OVERRIDE_SET: 'uiString.overrideSet',
+  UI_STRING_OVERRIDE_REMOVED: 'uiString.overrideRemoved',
+
+  // branches
+  /** Payload: { branchId, actorId, after } */
+  BRANCH_CREATED: 'branch.created',
+  /** Payload: { branchId, actorId, before, after } */
+  BRANCH_UPDATED: 'branch.updated',
+  BRANCH_DELETED: 'branch.deleted',
+
+  // catalog
+  /** Payload: { categoryId, actorId, after } */
+  CATEGORY_CREATED: 'category.created',
+  /** Payload: { categoryId, actorId, before, after } */
+  CATEGORY_UPDATED: 'category.updated',
+  /** Payload: { categoryId, actorId, before: { parentId, position }, after: { parentId, position } } */
+  CATEGORY_MOVED: 'category.moved',
+  /** Payload: { categoryId, actorId } (soft delete) */
+  CATEGORY_DELETED: 'category.deleted',
+  /** Payload: { brandId, actorId, after: { name, slug, isActive, protectName, … } } */
+  BRAND_CREATED: 'brand.created',
+  /** Payload: { brandId, actorId, before, after } */
+  BRAND_UPDATED: 'brand.updated',
+  BRAND_DELETED: 'brand.deleted',
+  /** Payload: { supplierId, actorId, after } (no contact details) */
+  SUPPLIER_CREATED: 'supplier.created',
+  SUPPLIER_UPDATED: 'supplier.updated',
+  SUPPLIER_DELETED: 'supplier.deleted',
+  /** Payload: { fieldId, entity, key, actorId, before?, after? } */
+  CUSTOM_FIELD_CREATED: 'customField.created',
+  CUSTOM_FIELD_UPDATED: 'customField.updated',
+  CUSTOM_FIELD_DELETED: 'customField.deleted',
+  /** Payload: { mediaId, actorId, after } */
+  MEDIA_UPLOADED: 'media.uploaded',
+  /** Payload: { mediaId, actorId, before, after } */
+  MEDIA_UPDATED: 'media.updated',
+  /** Payload: { mediaId, actorId } (soft delete) */
+  MEDIA_DELETED: 'media.deleted',
+  PRODUCT_CREATED: 'product.created',
+  PRODUCT_UPDATED: 'product.updated',
+  PRODUCT_DELETED: 'product.deleted',
+  PRODUCT_PRICE_CHANGED: 'product.priceChanged',
+  /** Variant unit cost changed by a goods receipt. Payload: { productId, variantId, before, after, source, actorId } */
+  PRODUCT_COST_CHANGED: 'product.costChanged',
+  /** Payload: { jobId, actorId, status, dryRun, counts, errorCount } */
+  PRODUCT_IMPORT_FINISHED: 'product.importFinished',
+  /** Payload: { jobId, actorId, status, counts } */
+  PRODUCT_EXPORT_FINISHED: 'product.exportFinished',
+
+  // inventory
+  /** Payload: { operationId, docNo, type, branchId, toBranchId, reason, refType, refId, actorId,
+   *  lines: [{ variantId, productId, branchId, delta, balanceAfter }] } — after commit. */
+  STOCK_MOVED: 'stock.moved',
+  /** Level fell to/below its threshold. Payload: { variantId, productId, branchId, onHand, threshold } */
+  STOCK_LOW: 'stock.low',
+  /** Level fell to zero or below. Same payload as STOCK_LOW. */
+  STOCK_OUT: 'stock.out',
+  /** Payload: { variantId, branchId, before, after, actorId } */
+  STOCK_THRESHOLD_CHANGED: 'stock.thresholdChanged',
+
+  // purchasing — payload: { purchaseOrderId, poNo, actorId, ... }
+  PURCHASE_ORDER_CREATED: 'purchaseOrder.created',
+  PURCHASE_ORDER_UPDATED: 'purchaseOrder.updated',
+  PURCHASE_ORDER_ORDERED: 'purchaseOrder.ordered',
+  /** + { operationId, docNo, status, lines: [{ variantId, qty }] } */
+  PURCHASE_ORDER_RECEIVED: 'purchaseOrder.received',
+  PURCHASE_ORDER_CLOSED: 'purchaseOrder.closed',
+  PURCHASE_ORDER_CANCELLED: 'purchaseOrder.cancelled',
+
+  // cart / checkout / orders
+  /** Payload: { cartId, customerId, action: add|set|remove|clear|merge, variantId?, qty?, previousQty? } */
+  CART_UPDATED: 'cart.updated',
+  ORDER_CREATED: 'order.created',
+  ORDER_PAID: 'order.paid',
+  ORDER_COD_CONFIRMED: 'order.codConfirmed',
+  ORDER_STATUS_CHANGED: 'order.statusChanged',
+  ORDER_SHIPPED: 'order.shipped',
+  ORDER_DELIVERED: 'order.delivered',
+  ORDER_COMPLETED: 'order.completed',
+  ORDER_CANCELLED: 'order.cancelled',
+  ORDER_REFUNDED: 'order.refunded',
+
+  // payments
+  PAYMENT_SUCCEEDED: 'payment.succeeded',
+  PAYMENT_FAILED: 'payment.failed',
+  PAYMENT_REFUNDED: 'payment.refunded',
+
+  // POS / shifts / returns
+  POS_SALE_COMPLETED: 'pos.saleCompleted',
+  SHIFT_OPENED: 'shift.opened',
+  SHIFT_CLOSED: 'shift.closed',
+  RETURN_COMPLETED: 'return.completed',
+  EXCHANGE_COMPLETED: 'exchange.completed',
+
+  // loyalty / campaigns
+  LOYALTY_EARNED: 'loyalty.earned',
+  LOYALTY_REDEEMED: 'loyalty.redeemed',
+  LOYALTY_REVERSED: 'loyalty.reversed',
+  CAMPAIGN_SENT: 'campaign.sent',
+});
+
+const KNOWN = new Set(Object.values(EVENTS));
+
+/** @param {unknown} name */
+export const isEventName = (name) => typeof name === 'string' && KNOWN.has(name);

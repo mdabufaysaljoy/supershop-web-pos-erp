@@ -1,0 +1,950 @@
+{
+  "app": {
+    "name": "Supershop Admin",
+    "loading": "Loading…"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signInSubtitle": "Use your staff account to continue.",
+    "email": "Email",
+    "password": "Password",
+    "showPassword": "Show",
+    "hidePassword": "Hide",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "signOut": "Sign out",
+    "signOutEverywhere": "Sign out on all devices",
+    "sessionExpired": "Your session ended. Please sign in again."
+  },
+  "nav": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "sections": {
+      "overview": "Overview",
+      "sales": "Sales",
+      "catalog": "Catalog",
+      "content": "Content & marketing",
+      "insights": "Insights",
+      "admin": "Administration"
+    },
+    "dashboard": "Dashboard",
+    "pos": "Point of sale",
+    "orders": "Orders",
+    "customers": "Customers",
+    "products": "Products",
+    "inventory": "Inventory",
+    "pages": "Pages",
+    "campaigns": "Campaigns",
+    "reports": "Reports",
+    "staff": "Staff",
+    "roles": "Roles",
+    "settings": "Settings",
+    "audit": "Audit log",
+    "media": "Media library",
+    "categories": "Categories",
+    "brands": "Brands",
+    "suppliers": "Suppliers",
+    "branches": "Branches",
+    "purchaseOrders": "Purchase orders"
+  },
+  "pages": {
+    "dashboard": {
+      "welcome": "Welcome, {{name}}",
+      "intro": "This is your admin home. Sections you have access to are in the menu."
+    },
+    "comingSoon": {
+      "title": "{{section}}",
+      "body": "This section is being built and will appear in a later release."
+    },
+    "noAccess": {
+      "title": "No sections yet",
+      "body": "Your account has no permissions assigned. Ask an administrator to give you a role."
+    },
+    "forbidden": {
+      "title": "Access denied",
+      "body": "You don't have permission to view this page.",
+      "back": "Go to home"
+    },
+    "notFound": {
+      "title": "Page not found",
+      "body": "The page you are looking for does not exist.",
+      "back": "Go to home"
+    }
+  },
+  "user": {
+    "superAdmin": "Super admin"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Can't reach the server. Check your connection.",
+    "INVALID_CREDENTIALS": "Email or password is incorrect.",
+    "ACCOUNT_LOCKED": "Too many failed attempts. Your account is temporarily locked — try again later.",
+    "ACCOUNT_DISABLED": "Your account is disabled. Contact an administrator.",
+    "RATE_LIMITED": "Too many requests. Please wait a moment and try again.",
+    "VALIDATION_ERROR": "Please correct the highlighted fields.",
+    "FORBIDDEN": "You don't have permission to do that.",
+    "UNAUTHENTICATED": "Please sign in.",
+    "TOKEN_INVALID": "Your session ended. Please sign in again.",
+    "TOKEN_EXPIRED": "Your session ended. Please sign in again.",
+    "NOT_FOUND": "Not found.",
+    "CONFLICT": "This conflicts with existing data.",
+    "INTERNAL_ERROR": "Something went wrong on our side. Please try again.",
+    "UNSUPPORTED_MEDIA_TYPE": "This file isn't a supported image (JPEG, PNG, WebP, GIF or AVIF).",
+    "PAYLOAD_TOO_LARGE": "This file is too large.",
+    "SLUG_TAKEN": "This URL slug is already used. Choose another.",
+    "INVALID_MOVE": "A category can't be moved inside itself or one of its subcategories.",
+    "CATEGORY_HAS_CHILDREN": "Move or delete its subcategories first.",
+    "CATEGORY_IN_USE": "Products still use this category. Move them first.",
+    "NAME_TAKEN": "This name is already used.",
+    "BRAND_IN_USE": "Products still use this brand.",
+    "SUPPLIER_IN_USE": "Products or purchase orders still use this supplier.",
+    "SKU_TAKEN": "This SKU is already used by another product.",
+    "BARCODE_TAKEN": "This barcode is already used by another product.",
+    "GONE": "This file has expired. Run the export again.",
+    "SERVICE_UNAVAILABLE": "The service is temporarily unavailable. Try again shortly.",
+    "BRANCH_IN_USE": "Staff, stock or sales still use this branch. Deactivate it instead.",
+    "BRANCH_SCOPE_DENIED": "This is outside the branches you work in.",
+    "PERMISSION_ESCALATION": "You can't grant access you don't have yourself.",
+    "CANNOT_MODIFY_SELF": "You can't change your own access.",
+    "INSUFFICIENT_STOCK": "Not enough stock for one or more items.",
+    "INVALID_STATE_TRANSITION": "That isn't possible in the order's current status.",
+    "IDEMPOTENCY_CONFLICT": "This request was already used for something else. Reload and try again."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "invalidType": "Invalid value.",
+    "tooShort": "Too short.",
+    "tooLong": "Too long.",
+    "duplicate": "Already in use.",
+    "name": {
+      "invalid": "Use letters, spaces, apostrophes, dots or hyphens only."
+    },
+    "email": {
+      "invalid": "Enter a valid email address."
+    },
+    "phone": {
+      "invalid": "Enter a valid phone number.",
+      "ksaOnly": "Enter a Saudi mobile number (05XXXXXXXX)."
+    },
+    "money": {
+      "invalid": "Enter a valid amount.",
+      "tooManyDecimals": "Use at most 2 decimal places.",
+      "negative": "Amount can't be negative.",
+      "zero": "Amount must be greater than zero.",
+      "tooLarge": "Amount is too large."
+    },
+    "quantity": {
+      "invalid": "Enter a whole number of 1 or more.",
+      "tooLarge": "Quantity is too large.",
+      "insufficient": "Not enough stock."
+    },
+    "address": {
+      "invalid": "Remove < > and special control characters."
+    },
+    "password": {
+      "tooShort": "Password is too short.",
+      "tooLong": "Password is too long.",
+      "needsLower": "Add a lowercase letter.",
+      "needsUpper": "Add an uppercase letter.",
+      "needsDigit": "Add a number.",
+      "needsSymbol": "Add a symbol."
+    },
+    "code": {
+      "invalid": "Use A–Z, 0–9, dash, underscore or dot only.",
+      "checksum": "The check digit is wrong — re-scan or re-type the barcode."
+    },
+    "slug": {
+      "invalid": "Use lowercase letters, numbers and single hyphens."
+    },
+    "id": {
+      "invalid": "Invalid identifier."
+    },
+    "sort": {
+      "invalid": "Invalid sort option."
+    },
+    "url": {
+      "invalid": "Enter a valid http(s) URL."
+    },
+    "placeholdersChanged": "Keep every placeholder like {{name}} exactly as in the English text.",
+    "product": {
+      "singleVariant": "A product without options has exactly one variant.",
+      "variantOptions": "Choose one value for every option.",
+      "compareAtPrice": "The compare-at price must be higher than the price.",
+      "variantImage": "Variant images must be in the product gallery."
+    },
+    "import": {
+      "unknownReference": "Not found — check the spelling (use the slug for categories).",
+      "alreadyExists": "A product with this product_key already exists (create-only mode)."
+    }
+  },
+  "common": {
+    "save": "Save",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "saved": "Saved.",
+    "deleted": "Deleted.",
+    "close": "Close",
+    "charCount": "{{count}} / {{max}} characters",
+    "create": "Create",
+    "confirmDelete": "Delete this item?",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "pagination": "Pages",
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "done": "Done"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",
+    "readOnly": "You can view these settings but not change them.",
+    "tabs": {
+      "languages": "Languages"
+    }
+  },
+  "languages": {
+    "provider": {
+      "title": "Automatic translation",
+      "description": "English is the only language you write in. Arabic is generated automatically by this engine and can be corrected below.",
+      "engine": "Translation engine",
+      "off": "Off — show English until enabled",
+      "libretranslate": "LibreTranslate (self-hosted, free)",
+      "url": "LibreTranslate address",
+      "apiKey": "API key (optional)",
+      "apiKeySet": "A key is saved ({{masked}}). Type a new one to replace it.",
+      "apiKeyHelp": "Only needed if your LibreTranslate server requires keys.",
+      "budget": "Monthly character limit",
+      "budgetHelp": "0 = unlimited (recommended for self-hosted).",
+      "usage": "Used in {{month}}: {{chars}} characters of {{budget}}.",
+      "unlimited": "unlimited",
+      "test": "Test connection",
+      "testing": "Testing…",
+      "testOk": "Works: “{{sample}}” → “{{result}}” ({{ms}} ms).",
+      "testFailed": "The engine did not return a usable translation. Check the address and that the server is running.",
+      "testOff": "Automatic translation is off. Choose an engine and save first."
+    },
+    "storefront": {
+      "title": "Storefront language",
+      "description": "How the Arabic version of your website behaves for visitors.",
+      "autoDetect": "Detect visitor language",
+      "autoDetectHelp": "First-time visitors whose browser prefers Arabic open the Arabic site. Search engines are never redirected.",
+      "digits": "Digits on the Arabic site",
+      "digitsHelp": "Most Saudi stores use Western digits.",
+      "digitsWestern": "Western ({{sample}})",
+      "digitsArabic": "Arabic-Indic ({{sample}})"
+    },
+    "glossary": {
+      "title": "Glossary",
+      "description": "Teach the engine your vocabulary once: words to keep as-is (brands, payment methods) and your preferred translation for common shop terms. Changes apply to new translations; use “Retranslate everything” to update existing ones.",
+      "term": "English term",
+      "type": "Rule",
+      "preferred": "Preferred translation",
+      "keep": "Never translate",
+      "arabic": "Arabic",
+      "empty": "No glossary terms yet."
+    },
+    "ui": {
+      "title": "Storefront text",
+      "description": "Website labels translated by the engine. Correct any that are wrong — your version goes live within a minute and is never overwritten. Keep placeholders like {{store}} exactly as they are.",
+      "filter": "Show",
+      "filterReview": "Needs review ({{count}})",
+      "filterAll": "All ({{count}})",
+      "search": "Search key or English text",
+      "empty": "Nothing to review.",
+      "machineWas": "Machine translation:",
+      "arabicFor": "Arabic for {{key}}",
+      "confirm": "Confirm translation",
+      "revert": "Use machine translation",
+      "reverted": "Reverted to the machine translation.",
+      "status": {
+        "override": "Corrected",
+        "overrideStale": "English changed — review",
+        "machine": "Machine translation",
+        "english": "Shown in English"
+      }
+    },
+    "queue": {
+      "title": "Translation status",
+      "description": "Background translation of products, pages and other content.",
+      "providerOff": "Automatic translation is off, so new content stays in English until you enable an engine and retry.",
+      "unavailable": "The job queue is unreachable right now (Redis). Translation will resume automatically.",
+      "counts": {
+        "waiting": "Waiting",
+        "active": "Running",
+        "delayed": "Scheduled",
+        "failed": "Failed",
+        "completed": "Done"
+      },
+      "contentType": "Content",
+      "pending": "Pending",
+      "failedItems": "Failed",
+      "manual": "Corrected by staff",
+      "failedJobs": "Failed jobs",
+      "retry": "Retry",
+      "retryAll": "Retry all failed",
+      "retryPending": "Translate pending & failed",
+      "retranslateAll": "Retranslate everything…",
+      "confirmAll": "Yes, retranslate all automatic translations",
+      "scheduled": "{{count}} item(s) queued for translation.",
+      "retried": "Queued again.",
+      "uiNote": "Website labels are generated by developers with “npm run i18n:translate”; correct them in “Storefront text” above."
+    }
+  },
+  "media": {
+    "title": "Media library",
+    "description": "Images for products, categories and pages. Uploads are checked, resized, converted to WebP and stripped of hidden data such as location.",
+    "search": "Search by name or alt text",
+    "empty": "No images yet. Upload some above.",
+    "dimensions": "{{width}} × {{height}}",
+    "upload": {
+      "title": "Upload images",
+      "drop": "Drag images here, or",
+      "choose": "Choose files",
+      "uploading": "Uploading…",
+      "hint": "JPEG, PNG, WebP, GIF or AVIF. Large images are scaled down automatically.",
+      "status": {
+        "queued": "Waiting",
+        "uploading": "Uploading…",
+        "done": "Uploaded",
+        "duplicate": "Already in the library"
+      }
+    },
+    "details": {
+      "name": "Name",
+      "alt": "Alt text (English)",
+      "altHint": "Describe the image for search engines and screen readers. Arabic is generated automatically.",
+      "altArabic": "Arabic alt text",
+      "sizes": "Sizes",
+      "copyUrl": "Copy URL",
+      "copied": "URL copied.",
+      "confirmDelete": "Remove from the library? Pages and products already using it keep working."
+    },
+    "picker": {
+      "title": "Choose an image",
+      "description": "Pick from the media library or upload a new image."
+    }
+  },
+  "translation": {
+    "status": {
+      "done": "Translated",
+      "pending": "Translating",
+      "failed": "Translation failed",
+      "stale": "Will re-translate",
+      "manual": "Edited by hand"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "description": "Organize the catalog. The order here is the order on the storefront. Arabic is generated automatically.",
+    "add": "Add category",
+    "newTitle": "New category",
+    "empty": "No categories yet.",
+    "selectHint": "Select a category to edit it, or add a new one.",
+    "reorderHint": "Drag the handle to reorder. To move a category under another one, change its parent.",
+    "hidden": "Hidden",
+    "dragHandle": "Reorder {{name}}",
+    "expand": "Show subcategories of {{name}}",
+    "collapse": "Hide subcategories of {{name}}",
+    "addChild": "Add a subcategory to {{name}}",
+    "dnd": {
+      "instructions": "To reorder, press Space, use the arrow keys to move, and press Space again to drop. Press Escape to cancel.",
+      "picked": "Picked up {{name}}.",
+      "over": "{{name}} is over position {{position}}.",
+      "dropped": "{{name}} dropped at position {{position}}.",
+      "cancelled": "Reordering {{name}} cancelled."
+    },
+    "form": {
+      "name": "Name",
+      "nameArabic": "Arabic name",
+      "slug": "URL slug",
+      "slugAuto": "Leave empty to create it from the name.",
+      "slugHint": "Changing it changes the page address.",
+      "parent": "Parent category",
+      "topLevel": "None (top level)",
+      "description": "Description",
+      "image": "Image",
+      "active": "Visible on the storefront",
+      "activeHint": "Hiding a category also hides its subcategories.",
+      "seo": "Search engines",
+      "seoTitle": "SEO title",
+      "seoDescription": "SEO description",
+      "create": "Create category",
+      "confirmDelete": "Delete this category?"
+    }
+  },
+  "imageField": {
+    "choose": "Choose image",
+    "change": "Change image",
+    "remove": "Remove"
+  },
+  "brands": {
+    "title": "Brands",
+    "description": "Brand names are never translated. Descriptions and SEO text get Arabic automatically.",
+    "add": "Add brand",
+    "newTitle": "New brand",
+    "search": "Search brands",
+    "empty": "No brands found.",
+    "form": {
+      "name": "Brand name",
+      "protectName": "Never translate this name",
+      "protectNameHint": "Keeps the brand name as-is in Arabic product text. Turn off for brands that are common words (e.g. \"Apple\" would also stop \"apple juice\" from being translated).",
+      "website": "Website",
+      "descriptionArabic": "Arabic description",
+      "logo": "Logo"
+    }
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "description": "Companies you buy stock from. Used by products and purchase orders. Internal only.",
+    "add": "Add supplier",
+    "newTitle": "New supplier",
+    "search": "Search by name, contact, email, phone or tax number",
+    "empty": "No suppliers found.",
+    "terms": "Payment terms",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "form": {
+      "name": "Company name",
+      "contactName": "Contact person",
+      "phone": "Phone",
+      "phoneHint": "Saudi mobiles like 05XXXXXXXX, or any number in +country format.",
+      "email": "Email",
+      "address": "Address",
+      "taxNumber": "VAT number",
+      "registrationNumber": "CR number",
+      "paymentTerms": "Payment terms (days)",
+      "notes": "Notes",
+      "active": "Active supplier"
+    }
+  },
+  "products": {
+    "title": "Products",
+    "description": "Everything you sell online and in store. Write in English — Arabic is generated automatically.",
+    "add": "Add product",
+    "newTitle": "New product",
+    "create": "Create product",
+    "saving": "Saving…",
+    "search": "Search by name, SKU or barcode",
+    "empty": "No products found.",
+    "allStatuses": "All statuses",
+    "allCategories": "All categories",
+    "customFields": "Product fields",
+    "variantsCount": "Variants",
+    "updated": "Updated",
+    "fixErrors_one": "Please fix {{count}} field.",
+    "fixErrors_other": "Please fix {{count}} fields.",
+    "readOnly": "You can view this product but not change it.",
+    "delete": "Delete product",
+    "confirmDelete": "Delete this product? It disappears from the shop; past orders keep their copy.",
+    "status": {
+      "draft": "Draft",
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "tax": {
+      "standard": "Standard VAT",
+      "zero": "Zero-rated",
+      "exempt": "VAT exempt"
+    },
+    "sort": {
+      "label": "Sort",
+      "desc_updatedAt": "Recently updated",
+      "name": "Name A–Z",
+      "priceMin": "Price: low to high",
+      "desc_priceMin": "Price: high to low",
+      "desc_createdAt": "Newest"
+    },
+    "sections": {
+      "basics": "Basics",
+      "gallery": "Images",
+      "options": "Options",
+      "variants": "Variants ({{count}})",
+      "customFields": "More details",
+      "publishing": "Publishing",
+      "organization": "Organization"
+    },
+    "form": {
+      "name": "Product name",
+      "nameArabic": "Arabic name",
+      "shortDescription": "Short description",
+      "description": "Description",
+      "status": "Status",
+      "statusHint": "Only active products are shown on the storefront.",
+      "taxCategory": "VAT",
+      "categories": "Categories",
+      "mainCategory": "Main",
+      "brand": "Brand",
+      "supplier": "Supplier",
+      "tags": "Tags",
+      "tagsHint": "Press Enter after each tag.",
+      "removeTag": "Remove tag {{tag}}"
+    },
+    "gallery": {
+      "description": "The first image is the main image. Drag to reorder.",
+      "add": "Add images",
+      "hint": "Drag the handle to change the order.",
+      "main": "Main",
+      "remove": "Remove image",
+      "reorder": "Reorder image"
+    },
+    "options": {
+      "description": "Options like Color or Size. Every combination becomes a variant with its own SKU and price.",
+      "none": "No options — this product is sold as a single item.",
+      "add": "Add option",
+      "option": "Option {{n}}",
+      "name": "Option name",
+      "namePlaceholder": "e.g. Color",
+      "remove": "Remove option",
+      "swatches": "Show colour swatches",
+      "swatchFor": "Colour for {{value}}",
+      "valueLabel": "Value {{n}}",
+      "removeValue": "Remove {{value}}",
+      "addValue": "Add a value",
+      "addValuePlaceholder": "Type a value and press Enter"
+    },
+    "variants": {
+      "description": "Turn off combinations you don’t sell. Prices include VAT when the store shows VAT-inclusive prices.",
+      "default": "Default",
+      "variant": "Variant",
+      "sku": "SKU",
+      "barcode": "Barcode",
+      "price": "Price",
+      "compareAtPrice": "Compare-at price",
+      "cost": "Cost",
+      "weightGrams": "Weight (g)",
+      "images": "Images",
+      "active": "Active",
+      "skuFor": "SKU for {{variant}}",
+      "barcodeFor": "Barcode for {{variant}}",
+      "priceFor": "Price for {{variant}}",
+      "compareAtPriceFor": "Compare-at price for {{variant}}",
+      "costFor": "Cost for {{variant}}",
+      "weightGramsFor": "Weight for {{variant}}",
+      "activeFor": "{{variant}} is sold",
+      "imagesFor": "Images for {{variant}} ({{count}})",
+      "imagesTitle": "Images for {{variant}}",
+      "imagesHint": "Pick the gallery images that show this variant. The first picked is its main image.",
+      "bulkPrice": "Price for all",
+      "applyToAll": "Apply to all variants",
+      "skuPrefix": "SKU prefix",
+      "skuPrefixHint": "New variants get SKUs like PREFIX-RED-M. Defaults to the product name.",
+      "defaultPrice": "Default price",
+      "defaultPriceHint": "Used for newly added combinations."
+    },
+    "unsaved": {
+      "title": "Leave without saving?",
+      "body": "Your changes to this product will be lost.",
+      "stay": "Keep editing",
+      "leave": "Leave"
+    },
+    "barcodes": {
+      "generateMissing_one": "Generate {{count}} missing barcode",
+      "generateMissing_other": "Generate {{count}} missing barcodes",
+      "generateFor": "Generate a barcode for {{variant}}",
+      "showFor": "Show the barcode of {{variant}}",
+      "downloadSvg": "Download SVG",
+      "cannotDraw": "This code can't be drawn as a barcode.",
+      "type": {
+        "ean13": "EAN-13",
+        "ean8": "EAN-8",
+        "upca": "UPC-A",
+        "code128": "Code 128"
+      },
+      "notFound": "No product with barcode or SKU {{code}}.",
+      "scanHint": "Tip: scan a barcode on this page to open its product."
+    }
+  },
+  "customFields": {
+    "title": {
+      "product": "Product fields"
+    },
+    "back": {
+      "product": "Products"
+    },
+    "description": "Extra fields shown on every product form. Labels get Arabic automatically; values you type are never translated — use a dropdown for values that should appear in Arabic.",
+    "add": "Add field",
+    "newTitle": "New field",
+    "empty": "No custom fields yet.",
+    "none": "None",
+    "types": {
+      "text": "Text",
+      "textarea": "Long text",
+      "number": "Number",
+      "boolean": "Yes / no",
+      "select": "Dropdown",
+      "multiselect": "Multiple choice",
+      "date": "Date"
+    },
+    "visibility": {
+      "admin": "Staff only",
+      "public": "Shown on the storefront"
+    },
+    "form": {
+      "label": "Label",
+      "key": "Key",
+      "keyHint": "Used in imports/exports. Leave empty to create it from the label.",
+      "keyLocked": "Can't be changed after creation.",
+      "type": "Type",
+      "visibility": "Visibility",
+      "placeholder": "Placeholder",
+      "helpText": "Help text",
+      "minLength": "Minimum length",
+      "maxLength": "Maximum length",
+      "minValue": "Minimum",
+      "maxValue": "Maximum",
+      "options": "Choices",
+      "optionLabel": "Choice {{n}}",
+      "removeOption": "Remove {{label}}",
+      "addOption": "Add choice",
+      "required": "Required",
+      "active": "Active",
+      "activeHint": "Inactive fields are hidden but keep their saved values."
+    }
+  },
+  "transfer": {
+    "title": "Import & export",
+    "description": "Add or update many products at once with a spreadsheet, or download your catalog. One row per variant; rows with the same product_key belong to one product.",
+    "format": "File format",
+    "recent": "Recent imports and exports",
+    "recentHint": "Export files can be downloaded for 24 hours.",
+    "when": "Started",
+    "kind": "Job",
+    "result": "Result",
+    "open": "View",
+    "progress": "{{done}} of {{total}} products processed…",
+    "jobTitle": {
+      "import": "Import {{file}}",
+      "export": "Export"
+    },
+    "status": {
+      "queued": "Waiting",
+      "running": "Running",
+      "done": "Finished",
+      "failed": "Failed"
+    },
+    "failure": {
+      "missingColumns": "The file needs at least the product_key and sku columns. Start from the template.",
+      "unreadable": "The file couldn't be read. Save it as CSV (UTF-8) or XLSX.",
+      "tooManyRows": "Too many rows. Split the file (max 10,000 rows).",
+      "staffInactive": "Your account is no longer active.",
+      "interrupted": "The job was interrupted (server restart). Run it again.",
+      "unexpected": "Something went wrong while processing the file."
+    },
+    "import": {
+      "title": "Import products",
+      "description": "Download the template, fill it in Excel or Google Sheets, then upload it. Images are added in the product editor.",
+      "template": "{{format}} template",
+      "choose": "Choose file",
+      "noFile": "No file chosen",
+      "mode": "When a product_key already exists",
+      "modes": {
+        "upsert": "Update it",
+        "create": "Skip it (create new products only)"
+      },
+      "dryRun": "Validate only (nothing is saved)",
+      "dryRunHint": "Check the file first, then run it again with this switched off.",
+      "dryRunBadge": "Validation only",
+      "validate": "Validate file",
+      "start": "Import",
+      "limits": "CSV (UTF-8) or XLSX, up to 10 MB and 10,000 rows.",
+      "summary": "Created {{created}}, updated {{updated}}, failed {{failed}} ({{rows}} rows).",
+      "summaryDry": "Would create {{created}}, update {{updated}}; {{failed}} with problems ({{rows}} rows). Nothing was saved.",
+      "short": "+{{created}} / ~{{updated}} / ✕{{failed}}",
+      "ignored": "Ignored columns: {{columns}}"
+    },
+    "export": {
+      "title": "Export products",
+      "description": "Every variant as a row — the same layout as the import template, so you can edit and re-import.",
+      "start": "Export",
+      "download": "Download file",
+      "summary": "{{products}} products, {{rows}} rows.",
+      "short": "{{products}} products"
+    },
+    "report": {
+      "title_one": "{{count}} problem",
+      "title_other": "{{count}} problems",
+      "row": "Row",
+      "column": "Column",
+      "problem": "Problem",
+      "download": "Download report",
+      "truncated": "Showing the first {{shown}} problems."
+    }
+  },
+  "search": {
+    "button": "Search",
+    "title": "Storefront search",
+    "description": "Products are indexed automatically when they change. Rebuild only after a large data change or if results look stale.",
+    "ready": "Ready",
+    "rebuilding": "Rebuilding…",
+    "documents_one": "{{count}} product indexed",
+    "documents_other": "{{count}} products indexed",
+    "lastRebuild": "Last rebuilt {{at}}",
+    "rebuild": "Rebuild index",
+    "tryLabel": "Try a search",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "ar": "Arabic"
+    },
+    "results": "Search results",
+    "noResults": "No matching products."
+  },
+  "branches": {
+    "title": "Branches",
+    "description": "Your stores and warehouses. Staff, stock, sales and shifts belong to a branch. Write names in English — Arabic is generated automatically.",
+    "add": "Add branch",
+    "newTitle": "New branch",
+    "empty": "No branches yet.",
+    "location": "Location",
+    "staffCol": "Staff",
+    "online": "Online orders",
+    "pickup": "Pick-up",
+    "types": {
+      "store": "Store",
+      "warehouse": "Warehouse"
+    },
+    "form": {
+      "code": "Code",
+      "codeHint": "Short and unique, e.g. RUH-01. Printed on receipts.",
+      "name": "Name",
+      "nameHint": "Shown to customers in the store locator.",
+      "type": "Type",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "National address (optional)",
+      "lat": "Latitude",
+      "lng": "Longitude",
+      "isActive": "Active",
+      "isActiveHint": "Inactive branches are hidden from customers and cannot sell.",
+      "fulfillsOnlineOrders": "Ships online orders",
+      "fulfillsOnlineOrdersHint": "Online orders can be fulfilled from this branch's stock.",
+      "pickupEnabled": "In-store pick-up",
+      "pickupEnabledHint": "Customers can choose to collect their order here."
+    },
+    "address": {
+      "buildingNumber": "Building number",
+      "street": "Street",
+      "district": "District",
+      "city": "City",
+      "postalCode": "Postal code",
+      "additionalNumber": "Additional number",
+      "shortAddress": "Short address (e.g. RRRD2929)"
+    },
+    "staff": {
+      "title": "Staff at {{name}}",
+      "open": "Staff at {{name}}",
+      "assigned": "Assigned staff",
+      "none": "No staff assigned to this branch.",
+      "remove": "Remove",
+      "removeFrom": "Remove {{name}} from this branch",
+      "addTitle": "Assign staff",
+      "search": "Search staff by name or email",
+      "noMatches": "No other staff found.",
+      "assign": "Assign",
+      "assignTo": "Assign {{name}} to this branch"
+    }
+  },
+  "purchaseOrders": {
+    "title": "Purchase orders",
+    "description": "What you ordered from suppliers and what has arrived. Receiving adds the stock to the branch.",
+    "add": "New purchase order",
+    "newTitle": "New purchase order",
+    "search": "Search by PO number, supplier or reference",
+    "statusFilter": "Status",
+    "allStatuses": "All statuses",
+    "empty": "No purchase orders found.",
+    "poNo": "PO number",
+    "total": "Total",
+    "totalExVat": "Total (excl. VAT)",
+    "received": "Received",
+    "unitsOf": "{{received}} of {{total}}",
+    "saveDraft": "Save draft",
+    "status": {
+      "draft": "Draft",
+      "ordered": "Ordered",
+      "partially_received": "Partially received",
+      "received": "Received",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "order": "Place order",
+      "receive": "Receive goods",
+      "close": "Close order",
+      "cancel": "Cancel order"
+    },
+    "confirm": {
+      "close": "Close this order? Items not yet received will no longer be expected.",
+      "cancel": "Cancel this order? This can't be undone."
+    },
+    "form": {
+      "supplier": "Supplier",
+      "branch": "Deliver to branch",
+      "expectedAt": "Expected delivery",
+      "reference": "Supplier reference",
+      "note": "Note",
+      "choose": "Choose…"
+    },
+    "lines": {
+      "title": "Items",
+      "none": "No items yet. Search below to add products.",
+      "item": "Item",
+      "qty": "Quantity",
+      "unitCost": "Unit cost (SAR)",
+      "total": "Line total",
+      "qtyFor": "Quantity for {{sku}}",
+      "costFor": "Unit cost for {{sku}}",
+      "remove": "Remove {{sku}}"
+    },
+    "receive": {
+      "title": "Receive goods — {{poNo}}",
+      "remaining_one": "{{count}} still expected",
+      "remaining_other": "{{count}} still expected",
+      "reference": "Delivery note number (optional)",
+      "submit": "Add to stock",
+      "nothing": "Enter a quantity for at least one item."
+    },
+    "receipts": {
+      "title": "Deliveries",
+      "units_one": "{{count}} unit",
+      "units_other": "{{count}} units"
+    }
+  },
+  "variantPicker": {
+    "search": "Search by SKU, barcode or product name",
+    "noMatches": "No matching products.",
+    "add": "Add {{sku}}"
+  },
+  "inventory": {
+    "title": "Inventory",
+    "description": "Stock in each branch, every movement, and stock documents. Quantities change only through these documents, so the history always adds up.",
+    "tabs": {
+      "levels": "Stock levels",
+      "movements": "Movements",
+      "documents": "Documents"
+    },
+    "branchFilter": "Branch",
+    "allBranches": "All branches",
+    "myBranches": "My branches",
+    "branch": "Branch",
+    "fromBranch": "From branch",
+    "toBranch": "To branch",
+    "chooseBranch": "Choose a branch…",
+    "search": "Search by SKU, barcode or product name (or scan)",
+    "lowOnly": "Low stock only",
+    "noLevels": "No stock found.",
+    "noMovements": "No movements found.",
+    "noDocuments": "No documents found.",
+    "item": "Item",
+    "items": "Items",
+    "noItems": "No items yet. Search below to add products.",
+    "onHand": "On hand",
+    "lowLevel": "Low-stock level",
+    "default": "(default)",
+    "out": "Out of stock",
+    "low": "Low",
+    "inStock": "In stock",
+    "lastMovement": "Last change",
+    "actions": "Actions",
+    "history": "History",
+    "historyFor": "Movement history of {{sku}} in {{branch}}",
+    "adjust": "Adjust",
+    "adjustFor": "Adjust {{sku}} in {{branch}}",
+    "thresholdFor": "Low-stock level of {{sku}} in {{branch}}",
+    "date": "Date",
+    "document": "Document",
+    "view": "View",
+    "type": "Type",
+    "allTypes": "All types",
+    "change": "Change",
+    "balance": "Balance after",
+    "by": "By",
+    "lines": "Items",
+    "from": "From",
+    "to": "To",
+    "onlyItem": "Only {{sku}}",
+    "clearItem": "Show all items",
+    "reason": "Reason",
+    "note": "Note",
+    "reference": "Delivery note / invoice number",
+    "supplier": "Supplier",
+    "noSupplier": "No supplier",
+    "unitCost": "Unit cost",
+    "unitCostFor": "Unit cost for {{sku}}",
+    "removeItem": "Remove {{sku}}",
+    "onHandNow_one": "{{count}} on hand now",
+    "onHandNow_other": "{{count}} on hand now",
+    "onlyAvailable_one": "Only {{count}} available.",
+    "onlyAvailable_other": "Only {{count}} available.",
+    "counted_one": "counted {{count}}",
+    "counted_other": "counted {{count}}",
+    "booked": "Saved as {{docNo}}.",
+    "source": "Source",
+    "purchaseOrder": "Purchase order",
+    "types": {
+      "receive": "Received",
+      "adjust": "Adjustment",
+      "transfer_out": "Transfer out",
+      "transfer_in": "Transfer in",
+      "sale": "Sale",
+      "return": "Return"
+    },
+    "operations": {
+      "receive": "Goods received",
+      "adjust": "Adjustment",
+      "transfer": "Transfer",
+      "sale": "Sale",
+      "return": "Return"
+    },
+    "reasons": {
+      "count": "Stock count",
+      "damaged": "Damaged",
+      "expired": "Expired",
+      "lost": "Lost or stolen",
+      "found": "Found",
+      "correction": "Correction",
+      "other": "Other"
+    },
+    "modes": {
+      "receive": {
+        "title": "Receive stock",
+        "help": "Goods that arrived without a purchase order. For ordered goods, receive them on the purchase order instead.",
+        "action": "Receive",
+        "submit": "Add to stock",
+        "lineLabel": "Quantity received of {{sku}}"
+      },
+      "adjust": {
+        "title": "Adjust stock",
+        "help": "Add or remove units with a reason (use a minus sign to remove, e.g. -2). Stock can't go below zero — use a stock count to correct the number.",
+        "action": "Adjust",
+        "submit": "Save adjustment",
+        "lineLabel": "Change for {{sku}}"
+      },
+      "count": {
+        "title": "Stock count",
+        "help": "Enter what you counted on the shelf. The difference to the recorded stock is booked automatically.",
+        "action": "Stock count",
+        "submit": "Save count",
+        "lineLabel": "Counted quantity of {{sku}}"
+      },
+      "transfer": {
+        "title": "Transfer stock",
+        "help": "Move stock from one branch to another. It leaves the first branch and arrives in the second immediately.",
+        "action": "Transfer",
+        "submit": "Transfer",
+        "lineLabel": "Quantity to transfer of {{sku}}"
+      }
+    },
+    "threshold": {
+      "title": "Low-stock level",
+      "useDefault": "Use the store default",
+      "useDefaultHint": "Items without their own level use the store-wide default.",
+      "level": "Alert when stock is at or below",
+      "levelHint": "0 = only when out of stock."
+    }
+  }
+}

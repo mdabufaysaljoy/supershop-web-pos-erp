@@ -1,0 +1,138 @@
+{
+  "site": {
+    "skipToContent": "Skip to content",
+    "tagline": "Gadgets, fashion and everyday essentials — delivered across Saudi Arabia."
+  },
+  "nav": {
+    "home": "Main page",
+    "primary": "Main navigation",
+    "footer": "Site information",
+    "language": "Language",
+    "allProducts": "All products"
+  },
+  "home": {
+    "title": "Welcome to {{store}}",
+    "shopAll": "Shop all products",
+    "categories": "Shop by category",
+    "newArrivals": "Latest products",
+    "viewAll": "See all products"
+  },
+  "footer": {
+    "rights": "© {{year}} {{store}}. All rights reserved.",
+    "vatIncluded": "Prices include VAT."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for doesn't exist or has moved.",
+    "back": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "Please try again in a moment.",
+    "retry": "Try again"
+  },
+  "search": {
+    "label": "Search products",
+    "placeholder": "Search for products",
+    "suggestions": "Suggestions",
+    "product": "Product",
+    "category": "Category"
+  },
+  "catalog": {
+    "allProducts": "All products",
+    "searchTitle": "Search results: {{q}}",
+    "categoryDescription": "Buy {{name}} online from {{store}}. Delivery across Saudi Arabia.",
+    "pageN": "Page {{page}}",
+    "breadcrumbs": "You are here",
+    "results": "Products",
+    "count": "Number of products: {{count}}",
+    "empty": "No products match your selection.",
+    "filters": "Search options",
+    "subcategories": "Subcategories",
+    "categories": "Categories",
+    "brands": "Brands",
+    "price": "Price",
+    "min": "Minimum",
+    "max": "Maximum",
+    "minPrice": "Minimum price (SAR)",
+    "maxPrice": "Maximum price (SAR)",
+    "priceInSar": "Prices in SAR.",
+    "apply": "Search",
+    "clear": "Remove all filters",
+    "sortBy": "Arrange by",
+    "sort": {
+      "default": "Recommended",
+      "relevance": "Most relevant",
+      "newest": "Newest",
+      "price_asc": "Price: low to high",
+      "price_desc": "Price: high to low",
+      "name": "Name"
+    },
+    "pagination": "Pages",
+    "previous": "Previous page",
+    "next": "Next page",
+    "from": "From {{price}}",
+    "wasPrice": "Was",
+    "save": "{{percent}}% discount",
+    "outOfStock": "Out of stock",
+    "inStock": "Available",
+    "valueOutOfStock": "{{value}}: out of stock",
+    "chooseOptions": "Choose your options to see availability.",
+    "sku": "Product code",
+    "vatIncluded": "Price includes VAT.",
+    "vatExcluded": "VAT is added when you pay.",
+    "gallery": "Product images",
+    "showImage": "Show image {{n}}",
+    "details": "Product details",
+    "description": "Description",
+    "specifications": "Specifications",
+    "yes": "Yes",
+    "no": "No",
+    "related": "You may also like",
+    "addNamed": "Add to cart: {{name}}",
+    "buyNamed": "Buy {{name}}",
+    "chooseNamed": "Choose options for {{name}}",
+    "viewDetails": "View full details",
+    "close": "Close this window",
+    "loading": "Please wait"
+  },
+  "cart": {
+    "title": "Your cart",
+    "openWithCount": "Open cart ({{count}} items)",
+    "close": "Close cart",
+    "empty": "Your cart is empty.",
+    "startShopping": "Start shopping",
+    "viewCart": "View full cart",
+    "summary": "Order summary",
+    "subtotal": "Subtotal",
+    "vatIncluded": "Includes VAT ({{rate}})",
+    "vatAdded": "Value added tax: {{rate}}",
+    "total": "Total",
+    "shippingAtCheckout": "Delivery costs are shown at checkout.",
+    "removeUnavailable": "Items that are unavailable or out of stock are not included in the total.",
+    "checkout": "Complete your order",
+    "checkoutSoon": "Checkout opens soon.",
+    "add": "Add to cart",
+    "chooseOptions": "Choose options",
+    "quantity": "Quantity",
+    "quantityFor": "Quantity of {{name}}",
+    "decrease": "Fewer {{name}}",
+    "increase": "More {{name}}",
+    "removeItem": "Remove {{name}}",
+    "each": "Price per item: {{price}}",
+    "outOfStock": "Out of stock — not included in the total.",
+    "unavailable": "No longer available.",
+    "notices": {
+      "priceChanged": "The price changed from {{from}} to {{to}}.",
+      "qtyReduced": "Only {{qty}} can be ordered. We updated the quantity."
+    },
+    "errors": {
+      "OUT_OF_STOCK": "Sorry, this item is out of stock.",
+      "NOT_FOUND": "This product is no longer available.",
+      "NETWORK_ERROR": "We couldn't reach the store. Check your connection and try again.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "added": "Added to cart",
+    "buyNow": "Buy now"
+  }
+}

@@ -1,0 +1,48 @@
+/**
+ * Validation message KEYS (not English text). Validators return these as zod issue messages;
+ * the UI renders them with `t(key)` and the API forwards them in `error.details[].message`.
+ * English copy lives in the i18n `en.json` (P0.11); Arabic is generated.
+ */
+export const V = Object.freeze({
+  REQUIRED: 'validation.required',
+  INVALID_TYPE: 'validation.invalidType',
+  TOO_SHORT: 'validation.tooShort',
+  TOO_LONG: 'validation.tooLong',
+
+  NAME_INVALID: 'validation.name.invalid',
+  EMAIL_INVALID: 'validation.email.invalid',
+  PHONE_INVALID: 'validation.phone.invalid',
+  PHONE_KSA_ONLY: 'validation.phone.ksaOnly',
+  MONEY_INVALID: 'validation.money.invalid',
+  MONEY_TOO_MANY_DECIMALS: 'validation.money.tooManyDecimals',
+  MONEY_NEGATIVE: 'validation.money.negative',
+  MONEY_ZERO: 'validation.money.zero',
+  MONEY_TOO_LARGE: 'validation.money.tooLarge',
+  QTY_INVALID: 'validation.quantity.invalid',
+  QTY_TOO_LARGE: 'validation.quantity.tooLarge',
+  /** More than the branch has on hand. */
+  QTY_INSUFFICIENT: 'validation.quantity.insufficient',
+  ADDRESS_INVALID: 'validation.address.invalid',
+  PASSWORD_TOO_SHORT: 'validation.password.tooShort',
+  PASSWORD_TOO_LONG: 'validation.password.tooLong',
+  PASSWORD_NEEDS_LOWER: 'validation.password.needsLower',
+  PASSWORD_NEEDS_UPPER: 'validation.password.needsUpper',
+  PASSWORD_NEEDS_DIGIT: 'validation.password.needsDigit',
+  PASSWORD_NEEDS_SYMBOL: 'validation.password.needsSymbol',
+  CODE_INVALID: 'validation.code.invalid',
+  BARCODE_CHECKSUM: 'validation.code.checksum',
+  /** Import: a category/brand/supplier name or slug that doesn't exist. */
+  UNKNOWN_REFERENCE: 'validation.import.unknownReference',
+  /** Import: product_key already exists in create-only mode. */
+  ALREADY_EXISTS: 'validation.import.alreadyExists',
+  SLUG_INVALID: 'validation.slug.invalid',
+  ID_INVALID: 'validation.id.invalid',
+  SORT_INVALID: 'validation.sort.invalid',
+  URL_INVALID: 'validation.url.invalid',
+  DUPLICATE: 'validation.duplicate',
+  PLACEHOLDERS_CHANGED: 'validation.placeholdersChanged',
+  VARIANTS_SINGLE: 'validation.product.singleVariant',
+  VARIANT_OPTIONS_MISMATCH: 'validation.product.variantOptions',
+  COMPARE_AT_PRICE: 'validation.product.compareAtPrice',
+  VARIANT_IMAGE_NOT_IN_GALLERY: 'validation.product.variantImage',
+});

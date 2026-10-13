@@ -8,12 +8,32 @@
     "dev": "node --env-file-if-exists=../../.env --watch src/server.js",
     "start": "node src/server.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed": "node --env-file-if-exists=../../.env src/seed/run.js"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "@supershop/shared": "*",
+    "argon2": "^0.45.1",
+    "bullmq": "^6.3.11",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.3.0",
+    "ioredis": "^5.11.1",
+    "jose": "^6.2.12",
+    "mongoose": "^9.11.1",
+    "multer": "^2.4.0",
+    "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
+    "rate-limit-redis": "^6.0.1",
+    "sharp": "^0.35.5",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
+    "mongodb-memory-server": "^11.3.0",
+    "pino-pretty": "^13.2.0",
     "supertest": "^7.3.1",
     "vitest": "^5.0.3"
   }

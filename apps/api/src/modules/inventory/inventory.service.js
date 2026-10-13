@@ -565,5 +565,18 @@ export async function getOnlineInStock(variantIds) {
   return new Set(ids.map(String));
 }
 
+/**
+ * Quantity sellable online per variant (sum over branches that fulfil online orders). Used by
+ * the cart to cap quantities; never sent to the storefront as such.
+ * @returns {Promise<Map<string, number>>} missing = 0
+ */
+export async function getOnlineOnHand(variantIds) {
+  if (!variantIds.length) return new Map();
+  const branches = await listOnlineBranchIds();
+  if (!branches.length) return new Map();
+  const rows = await repo.sumOnHandIn(variantIds.map(oid), branches);
+  return new Map(rows.map((r) => [str(r._id), r.onHand]));
+}
+
 /** Stock records in a branch (levels or operations) — such branches can't be deleted. */
 export const countStockRecordsInBranch = (branchId) => repo.countBranchRecords(oid(branchId));

@@ -1,11 +1,12 @@
 import Link from 'next/link';
+import { CartButton } from '@/components/cart/CartButton';
 import { SearchBox } from '@/components/search/SearchBox';
 import { languageOptions, localizePath } from '@/i18n/config';
 import { categoryPath } from '@/lib/categories';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 /**
- * Site header: logo, search with suggestions, language switch and the top-level categories
+ * Site header: logo, search with suggestions, language switch, cart and the top-level categories
  * (admin-built menus replace the category row in P5.4). Logical spacing only (RTL-safe); the
  * category row scrolls sideways on phones.
  */
@@ -19,8 +20,9 @@ export function SiteHeader({ lang, storeName, categories = [], t }) {
         <div className="col-span-3 row-start-2 md:col-span-1 md:row-start-1 md:col-start-2">
           <SearchBox />
         </div>
-        <div className="col-start-3 row-start-1 flex justify-end md:col-start-4">
+        <div className="col-start-3 row-start-1 flex items-center justify-end gap-2 md:col-start-4">
           <LanguageSwitcher lang={lang} languages={languageOptions()} label={t('nav.language')} />
+          <CartButton />
         </div>
       </div>
       <nav aria-label={t('nav.primary')} className="mx-auto max-w-7xl px-4">

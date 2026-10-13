@@ -88,5 +88,42 @@
     "yes": "نعم",
     "no": "لا",
     "related": "قد تحب أيضاً"
+  },
+  "cart": {
+    "title": "عربتك",
+    "openWithCount": "عربة مفتوحة ({{count}} أصناف)",
+    "close": "غلق العربة",
+    "empty": "عربتك فارغة.",
+    "startShopping": "بدء التسوق",
+    "viewCart": "شاحنة كاملة",
+    "summary": "موجز",
+    "subtotal": "المجموع الفرعي",
+    "vatIncluded": "يشمل ضريبة القيمة المضافة ({{rate}})",
+    "vatAdded": "ضريبة القيمة المضافة: {{rate}}",
+    "total": "المجموع",
+    "shippingAtCheckout": "وتظهر تكاليف التسليم عند المغادرة.",
+    "removeUnavailable": "ولا تدرج في المجموع البنود غير المتوفرة أو غير الموجودة في المخزون.",
+    "checkout": "أكمل طلبك",
+    "checkoutSoon": "المراقبة ستفتح قريباً.",
+    "add": "إضافة إلى العربة",
+    "chooseOptions": "خيارات الاختيار",
+    "quantity": "الكمية",
+    "quantityFor": "كمية {{name}}",
+    "decrease": "أقل {{name}}",
+    "increase": "أكثر {{name}}",
+    "removeItem": "إزالة {{name}}",
+    "each": "السعر لكل بند: {{price}}",
+    "outOfStock": "غير مدرجة في المجموع.",
+    "unavailable": "لم يعد متاحاً.",
+    "notices": {
+      "priceChanged": "وقد تغير السعر من {{from}} إلى {{to}}.",
+      "qtyReduced": "فقط {{qty}} يمكن أن يأمر. لقد استكملنا الكمية."
+    },
+    "errors": {
+      "OUT_OF_STOCK": "آسف، هذا البند خارج المخزون.",
+      "NOT_FOUND": "ولم يعد هذا المنتج متاحا.",
+      "NETWORK_ERROR": "لم نستطع الوصول للمتجر تحقق من اتصالك وحاول مرة أخرى.",
+      "generic": "حدث شيء خاطئ أرجوك حاول مرة أخرى."
+    }
   }
 }

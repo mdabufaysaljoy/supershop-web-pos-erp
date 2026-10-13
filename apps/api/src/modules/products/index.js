@@ -7,6 +7,7 @@ export {
   createProduct,
   findProductBySlug,
   findStockableVariants,
+  getCartVariants,
   getIndexSources,
   getProduct,
   getVariantCosts,

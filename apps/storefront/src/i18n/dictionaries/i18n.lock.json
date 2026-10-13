@@ -291,6 +291,130 @@
     "catalog.related": {
       "src": "925a46fefcd19d1a",
       "out": "21c7ceb6fba68c9e"
+    },
+    "cart.title": {
+      "src": "7eb1262c5cccd796",
+      "out": "140160a46002d115"
+    },
+    "cart.openWithCount": {
+      "src": "de44a6ac8b8047ca",
+      "out": "b423c5d5c6b8f437"
+    },
+    "cart.close": {
+      "src": "f7cd363cf71c563d",
+      "out": "27ba10a61b7a4364"
+    },
+    "cart.empty": {
+      "src": "cdefccfa695c9a3a",
+      "out": "7953eb16ca74fff5"
+    },
+    "cart.startShopping": {
+      "src": "f393770e76f3501d",
+      "out": "d21e066dfb6b5be8"
+    },
+    "cart.viewCart": {
+      "src": "84475b395ab96a97",
+      "out": "9e553d951f39c742"
+    },
+    "cart.summary": {
+      "src": "6c200a8a390e2b61",
+      "out": "813fa61e9fd0138f"
+    },
+    "cart.subtotal": {
+      "src": "8c0f2cb34079ede4",
+      "out": "4793cceb7aa378a3"
+    },
+    "cart.vatIncluded": {
+      "src": "d4cde48a7dcc1327",
+      "out": "80dfbc971cb758dc"
+    },
+    "cart.vatAdded": {
+      "src": "8725e71d4073c62e",
+      "out": "ed76c191b1b69f02"
+    },
+    "cart.total": {
+      "src": "c9b3c38247f744e1",
+      "out": "9c33cdc71a8931ed"
+    },
+    "cart.shippingAtCheckout": {
+      "src": "d90e854dd82a5d61",
+      "out": "e2377453c7c83ad7"
+    },
+    "cart.removeUnavailable": {
+      "src": "f5e2fed0539a298f",
+      "out": "299df3aeee9a220e"
+    },
+    "cart.checkout": {
+      "src": "7df4c009994c2d29",
+      "out": "4663a51d168e5e4c"
+    },
+    "cart.checkoutSoon": {
+      "src": "e673c3bb9375878c",
+      "out": "a6f2c925f03e0e6d"
+    },
+    "cart.add": {
+      "src": "0e9408353c729c32",
+      "out": "091e148d6b84464f"
+    },
+    "cart.chooseOptions": {
+      "src": "cf2a66cc0c539dbf",
+      "out": "21b2952534b3dce1"
+    },
+    "cart.quantity": {
+      "src": "822bab8d41bca8d7",
+      "out": "935e21853946d9a9"
+    },
+    "cart.quantityFor": {
+      "src": "73bef7f3cb5c1065",
+      "out": "d44966e82426dd22"
+    },
+    "cart.decrease": {
+      "src": "e369342d1b07f2dd",
+      "out": "3212a588feb6e792"
+    },
+    "cart.increase": {
+      "src": "560b40ef78777749",
+      "out": "cbd2c31192924b03"
+    },
+    "cart.removeItem": {
+      "src": "43e1269ac88aba53",
+      "out": "3d5a434b458eaeb3"
+    },
+    "cart.each": {
+      "src": "a3a152160d3bbf09",
+      "out": "138a4525244caff4"
+    },
+    "cart.outOfStock": {
+      "src": "ae7e83484f2d619e",
+      "out": "ad386a95eb1a8d6f"
+    },
+    "cart.unavailable": {
+      "src": "b0d95b062d8bd26b",
+      "out": "e201abed056c1a8c"
+    },
+    "cart.notices.priceChanged": {
+      "src": "f2e21c343409fbb0",
+      "out": "1af5dce1e856088e"
+    },
+    "cart.notices.qtyReduced": {
+      "src": "16dd2efa2ed6ab83",
+      "out": "15604d2eed7c1308"
+    },
+    "cart.errors.OUT_OF_STOCK": {
+      "src": "9cb883b00a64e199",
+      "out": "45e5904942543439"
+    },
+    "cart.errors.NOT_FOUND": {
+      "src": "d3fd4ad5607d0f7f",
+      "out": "071e2f1bd9e68467"
+    },
+    "cart.errors.NETWORK_ERROR": {
+      "src": "a15a0615ede39be6",
+      "out": "bbee1bee75d23423"
+    },
+    "cart.errors.generic": {
+      "src": "3ccd9d6586ef9143",
+      "out": "c254ae04b7839b6b"
     }
   }
 }

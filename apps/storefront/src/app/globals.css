@@ -54,3 +54,26 @@
 :lang(ar) {
   line-height: 1.75;
 }
+
+/* Slide-over panels open from the inline-end edge (right in LTR, left in RTL). */
+@keyframes sheet-in-ltr {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes sheet-in-rtl {
+  from {
+    transform: translateX(-100%);
+  }
+}
+.sheet-end {
+  animation: sheet-in-ltr 200ms ease-out;
+}
+[dir='rtl'] .sheet-end {
+  animation-name: sheet-in-rtl;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-end {
+    animation: none;
+  }
+}

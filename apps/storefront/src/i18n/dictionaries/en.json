@@ -89,5 +89,42 @@
     "yes": "Yes",
     "no": "No",
     "related": "You may also like"
+  },
+  "cart": {
+    "title": "Your cart",
+    "openWithCount": "Open cart ({{count}} items)",
+    "close": "Close cart",
+    "empty": "Your cart is empty.",
+    "startShopping": "Start shopping",
+    "viewCart": "View full cart",
+    "summary": "Order summary",
+    "subtotal": "Subtotal",
+    "vatIncluded": "Includes VAT ({{rate}})",
+    "vatAdded": "Value added tax: {{rate}}",
+    "total": "Total",
+    "shippingAtCheckout": "Delivery costs are shown at checkout.",
+    "removeUnavailable": "Items that are unavailable or out of stock are not included in the total.",
+    "checkout": "Complete your order",
+    "checkoutSoon": "Checkout opens soon.",
+    "add": "Add to cart",
+    "chooseOptions": "Choose options",
+    "quantity": "Quantity",
+    "quantityFor": "Quantity of {{name}}",
+    "decrease": "Fewer {{name}}",
+    "increase": "More {{name}}",
+    "removeItem": "Remove {{name}}",
+    "each": "Price per item: {{price}}",
+    "outOfStock": "Out of stock — not included in the total.",
+    "unavailable": "No longer available.",
+    "notices": {
+      "priceChanged": "The price changed from {{from}} to {{to}}.",
+      "qtyReduced": "Only {{qty}} can be ordered. We updated the quantity."
+    },
+    "errors": {
+      "OUT_OF_STOCK": "Sorry, this item is out of stock.",
+      "NOT_FOUND": "This product is no longer available.",
+      "NETWORK_ERROR": "We couldn't reach the store. Check your connection and try again.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }

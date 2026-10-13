@@ -112,6 +112,7 @@ export const EVENTS = Object.freeze({
   PURCHASE_ORDER_CANCELLED: 'purchaseOrder.cancelled',
 
   // cart / checkout / orders
+  /** Payload: { cartId, customerId, action: add|set|remove|clear|merge, variantId?, qty?, previousQty? } */
   CART_UPDATED: 'cart.updated',
   ORDER_CREATED: 'order.created',
   ORDER_PAID: 'order.paid',

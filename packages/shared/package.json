@@ -31,7 +31,9 @@
     "./schemas/search": "./src/schemas/search.js",
     "./schemas/branch": "./src/schemas/branch.js",
     "./schemas/inventory": "./src/schemas/inventory.js",
-    "./schemas/purchaseOrder": "./src/schemas/purchaseOrder.js"
+    "./schemas/purchaseOrder": "./src/schemas/purchaseOrder.js",
+    "./schemas/cart": "./src/schemas/cart.js",
+    "./pricing": "./src/pricing.js"
   },
   "scripts": {
     "test": "vitest run"

@@ -770,6 +770,61 @@ export async function getVariantSummaries(ids, { withCost = false } = {}) {
   );
 }
 
+/**
+ * Cart/checkout view of variants in one language. `sellable` = active product, not deleted, and
+ * an active variant — anything else stays in the cart as "unavailable".
+ * @returns {Promise<Map<string, object>>}
+ */
+export async function getCartVariants(variantIds, lang) {
+  if (!variantIds.length) return new Map();
+  const variants = await repo.findVariantsByIds([...new Set(variantIds.map(String))]);
+  const products = new Map(
+    (await repo.findForIndex([...new Set(variants.map((v) => String(v.productId)))])).map((p) => [
+      String(p._id),
+      p,
+    ]),
+  );
+  const media = await getMediaByIds([
+    ...new Set(
+      variants.flatMap((v) => {
+        const p = products.get(String(v.productId));
+        const first = v.imageIds?.[0] ?? p?.imageIds?.[0];
+        return first ? [String(first)] : [];
+      }),
+    ),
+  ]);
+  const mediaById = new Map(media.map((m) => [m.id, m]));
+  return new Map(
+    variants.map((v) => {
+      const p = products.get(String(v.productId));
+      const r = p ? resolveDoc(p, LOCALIZED, lang) : null;
+      const img = mediaById.get(String(v.imageIds?.[0] ?? p?.imageIds?.[0] ?? ''));
+      const options = (r?.options ?? []).flatMap((o) => {
+        const value = o.values.find((x) => x.key === v.optionValues?.[o.key]);
+        return value ? [{ name: o.name, value: value.label }] : [];
+      });
+      return [
+        String(v._id),
+        {
+          variantId: String(v._id),
+          productId: String(v.productId),
+          slug: p?.slug ?? null,
+          name: r?.name ?? '',
+          options,
+          sku: v.sku,
+          image: img ? { ...imageView(img), alt: r?.name ?? '' } : null,
+          price: v.price,
+          compareAtPrice: v.compareAtPrice ?? null,
+          taxCategory: p?.taxCategory ?? 'standard',
+          sellable: Boolean(
+            p && !p.deletedAt && p.status === 'active' && !v.deletedAt && v.isActive,
+          ),
+        },
+      ];
+    }),
+  );
+}
+
 /** Staff search (SKU prefix / barcode / product name) → active variant ids. */
 export const matchVariantIds = (q, limit) => repo.matchVariantIds(q, limit);
 

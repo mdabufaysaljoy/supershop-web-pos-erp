@@ -27,6 +27,8 @@ export * from './barcode.js';
 export { createProductTransferSchemas, PRODUCT_TRANSFER } from './schemas/productTransfer.js';
 export { createSearchSchemas, SEARCH } from './schemas/search.js';
 export { BRANCH, createBranchSchemas } from './schemas/branch.js';
+export { CART, createCartSchemas } from './schemas/cart.js';
+export { priceLines, TAX_CATEGORIES, vatRateFor } from './pricing.js';
 export { createInventorySchemas, STOCK } from './schemas/inventory.js';
 export {
   createPurchaseOrderSchemas,

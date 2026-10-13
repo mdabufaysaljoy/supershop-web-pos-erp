@@ -25,3 +25,16 @@ export function requireAuth(type) {
     next();
   };
 }
+
+/**
+ * Like `requireAuth` but anonymous requests pass (`req.auth` stays undefined). A PRESENT but
+ * expired/invalid token still fails, so clients refresh instead of silently acting as a guest.
+ * @param {'staff' | 'customer'} type
+ */
+export function optionalAuth(type) {
+  const authenticate = requireAuth(type);
+  return async function maybeAuthenticate(req, res, next) {
+    if (!req.get('authorization')) return next();
+    return authenticate(req, res, next);
+  };
+}

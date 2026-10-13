@@ -2,6 +2,7 @@
 
 import { createFormatters } from '@supershop/shared';
 import { useEffect, useMemo, useState } from 'react';
+import { AddToCart } from '@/components/cart/AddToCart';
 import { MediaImage } from '@/components/catalog/MediaImage';
 import { PriceTag } from '@/components/catalog/PriceTag';
 import { useT } from '@/i18n/I18nProvider';
@@ -11,7 +12,7 @@ import { galleryFor, initialSelection, selectedVariant, valueState } from './var
 /**
  * Interactive part of the product page: gallery + option selector. Choosing options swaps the
  * price, availability, SKU and images; the chosen variant is kept in `?variant=` (shareable, not
- * indexed — the canonical URL has no query). Add to cart arrives with the cart (P3.2/P3.3).
+ * indexed — the canonical URL has no query).
  */
 export function ProductView({ product, fmtOptions, pricesIncludeVat }) {
   const t = useT();
@@ -169,6 +170,8 @@ export function ProductView({ product, fmtOptions, pricesIncludeVat }) {
             </p>
           )}
         </div>
+
+        <AddToCart variant={variant} productName={product.name} />
 
         {product.shortDescription && (
           <p className="whitespace-pre-line text-muted-foreground">{product.shortDescription}</p>

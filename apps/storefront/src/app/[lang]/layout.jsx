@@ -7,6 +7,8 @@ import { JsonLd } from '@/components/JsonLd';
 import { dirOf, isLocale, LOCALES } from '@/i18n/config';
 import { getDictionary, translator } from '@/i18n/dictionaries';
 import { I18nProvider } from '@/i18n/I18nProvider';
+import { CartProvider } from '@/components/cart/CartProvider';
+import { formatOptions } from '@/lib/catalog';
 import { pickNamespaces } from '@/i18n/translate';
 import { getPublicSettings } from '@/lib/api';
 import { getCategoryTree } from '@/lib/catalog';
@@ -49,13 +51,8 @@ export default async function LangLayout({ children, params }) {
   ]);
   const t = translator(dict);
   const storeName = settings['store.name'];
-  const fmt = createFormatters({
-    lang,
-    digits: settings['i18n.digitStyle'],
-    timeZone: settings['store.timeZone'],
-    calendar: settings['store.calendarDisplay'],
-    currency: settings['store.currency'],
-  });
+  const fmtOptions = formatOptions(lang, settings);
+  const fmt = createFormatters(fmtOptions);
 
   return (
     <html lang={lang} dir={dirOf(lang)} className={`${latinFont.variable} ${arabicFont.variable}`}>
@@ -67,16 +64,18 @@ export default async function LangLayout({ children, params }) {
           {t('site.skipToContent')}
         </a>
         <I18nProvider lang={lang} dict={pickNamespaces(dict)}>
-          <SiteHeader lang={lang} storeName={storeName} categories={categories} t={t} />
-          <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
-            {children}
-          </main>
-          <SiteFooter
-            storeName={storeName}
-            pricesIncludeVat={settings['tax.pricesIncludeVat']}
-            t={t}
-            fmt={fmt}
-          />
+          <CartProvider fmtOptions={fmtOptions}>
+            <SiteHeader lang={lang} storeName={storeName} categories={categories} t={t} />
+            <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+              {children}
+            </main>
+            <SiteFooter
+              storeName={storeName}
+              pricesIncludeVat={settings['tax.pricesIncludeVat']}
+              t={t}
+              fmt={fmt}
+            />
+          </CartProvider>
         </I18nProvider>
         <JsonLd data={organizationLd({ name: storeName })} />
         <JsonLd data={websiteLd({ name: storeName, lang })} />

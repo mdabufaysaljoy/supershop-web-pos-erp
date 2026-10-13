@@ -10,6 +10,7 @@ import {
   setAuthPolicyProvider,
 } from './auth/index.js';
 import { createCustomerRouter, customerPrincipal } from './customers/index.js';
+import { createCartRouter } from './cart/index.js';
 import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
 import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
@@ -143,6 +144,7 @@ export function mountModuleRoutes(api) {
   api.use('/products', createProductRouter());
   api.use('/product-transfers', createProductTransferRouter());
   api.use('/search', createSearchRouter());
+  api.use('/cart', createCartRouter());
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
 }

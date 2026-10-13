@@ -6,6 +6,7 @@ export {
   findOperationByIdempotencyKey,
   getOnHand,
   getOnlineInStock,
+  getOnlineOnHand,
   getTotalOnHand,
   publishStockResult,
 } from './inventory.service.js';

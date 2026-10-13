@@ -12,6 +12,9 @@ export const TableHeader = ({ className, ...props }) => (
 export const TableBody = ({ className, ...props }) => (
   <tbody className={cn('[&_tr:last-child]:border-0', className)} {...props} />
 );
+export const TableFooter = ({ className, ...props }) => (
+  <tfoot className={cn('border-t bg-muted/50 [&>tr]:last:border-b-0', className)} {...props} />
+);
 export const TableRow = ({ className, ...props }) => (
   <tr className={cn('border-b transition-colors hover:bg-muted/50', className)} {...props} />
 );

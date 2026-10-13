@@ -30,7 +30,8 @@
     "./schemas/productTransfer": "./src/schemas/productTransfer.js",
     "./schemas/search": "./src/schemas/search.js",
     "./schemas/branch": "./src/schemas/branch.js",
-    "./schemas/inventory": "./src/schemas/inventory.js"
+    "./schemas/inventory": "./src/schemas/inventory.js",
+    "./schemas/purchaseOrder": "./src/schemas/purchaseOrder.js"
   },
   "scripts": {
     "test": "vitest run"

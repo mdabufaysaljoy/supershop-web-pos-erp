@@ -92,6 +92,15 @@ export const findOperationByKey = (idempotencyKey) =>
 export const findOperationsByIds = (ids) =>
   StockOperation.find({ _id: { $in: ids } }, { docNo: 1, type: 1, reason: 1 }).lean();
 
+export const sumOnHand = (variantIds, session) =>
+  StockLevel.aggregate(
+    [
+      { $match: { variantId: { $in: variantIds } } },
+      { $group: { _id: '$variantId', onHand: { $sum: '$onHand' } } },
+    ],
+    { session },
+  );
+
 /** Anything recorded for a branch (blocks deleting it). */
 export const countBranchRecords = async (branchId) =>
   (await StockOperation.countDocuments({ $or: [{ branchId }, { toBranchId: branchId }] })) +

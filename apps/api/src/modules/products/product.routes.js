@@ -9,6 +9,7 @@ import * as c from './product.controller.js';
  * Mounted at `/api/v1/products`.
  *  GET    /public/:slug   PUBLIC — active product in one language (?lang | cookie | Accept-Language)
  *  GET    /lookup?code=   product.view — scanned barcode / SKU → variant + product summary
+ *  GET    /variants?q=    product.view | purchase.* | inventory.view — variant picker (SKU/barcode/name)
  *  POST   /barcodes       product.create | product.update — { count } new internal EAN-13 codes
  *  GET    /               product.view — ?page&limit&sort&q(name/slug/SKU/barcode)&status&categoryId&brandId&supplierId
  *  GET    /:id            product.view (cost only with product.viewCost)
@@ -30,6 +31,12 @@ export function createProductRouter({ schemas = createProductSchemas() } = {}) {
     requirePermission(P.PRODUCT_VIEW),
     validate({ query: schemas.lookupQuery }),
     c.lookup,
+  );
+  r.get(
+    '/variants',
+    requireAnyPermission(P.PRODUCT_VIEW, P.PURCHASE_VIEW, P.PURCHASE_MANAGE, P.INVENTORY_VIEW),
+    validate({ query: schemas.variantSearchQuery }),
+    c.variants,
   );
   r.post(
     '/barcodes',

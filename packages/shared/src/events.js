@@ -84,6 +84,8 @@ export const EVENTS = Object.freeze({
   PRODUCT_UPDATED: 'product.updated',
   PRODUCT_DELETED: 'product.deleted',
   PRODUCT_PRICE_CHANGED: 'product.priceChanged',
+  /** Variant unit cost changed by a goods receipt. Payload: { productId, variantId, before, after, source, actorId } */
+  PRODUCT_COST_CHANGED: 'product.costChanged',
   /** Payload: { jobId, actorId, status, dryRun, counts, errorCount } */
   PRODUCT_IMPORT_FINISHED: 'product.importFinished',
   /** Payload: { jobId, actorId, status, counts } */
@@ -99,6 +101,15 @@ export const EVENTS = Object.freeze({
   STOCK_OUT: 'stock.out',
   /** Payload: { variantId, branchId, before, after, actorId } */
   STOCK_THRESHOLD_CHANGED: 'stock.thresholdChanged',
+
+  // purchasing — payload: { purchaseOrderId, poNo, actorId, ... }
+  PURCHASE_ORDER_CREATED: 'purchaseOrder.created',
+  PURCHASE_ORDER_UPDATED: 'purchaseOrder.updated',
+  PURCHASE_ORDER_ORDERED: 'purchaseOrder.ordered',
+  /** + { operationId, docNo, status, lines: [{ variantId, qty }] } */
+  PURCHASE_ORDER_RECEIVED: 'purchaseOrder.received',
+  PURCHASE_ORDER_CLOSED: 'purchaseOrder.closed',
+  PURCHASE_ORDER_CANCELLED: 'purchaseOrder.cancelled',
 
   // cart / checkout / orders
   CART_UPDATED: 'cart.updated',

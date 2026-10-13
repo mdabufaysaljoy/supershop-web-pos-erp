@@ -3,7 +3,7 @@ import { V } from '@supershop/shared/validators';
 import mongoose from 'mongoose';
 import { formatSequence, nextSequence } from '../../core/counter.js';
 import { withTransaction } from '../../core/db.js';
-import { AppError, ConflictError, NotFoundError, ValidationError } from '../../core/errors.js';
+import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { isDuplicateKey } from '../../core/slug.js';
 import { findUnknownBranches, getBranchSummaries } from '../branches/index.js';
@@ -26,7 +26,6 @@ const oid = (id) => new mongoose.Types.ObjectId(String(id));
 const str = (id) => (id == null ? null : String(id));
 /** Manual operations get their own document number; sales/returns use their order's. */
 const NUMBERED = new Set(['receive', 'adjust', 'transfer']);
-const IDEMPOTENCY_KEY_RE = /^[A-Za-z0-9_.:-]{8,100}$/;
 
 const notFound = () => new NotFoundError('Stock operation not found');
 const fallbackThreshold = () => getSetting('inventory.lowStockThreshold');
@@ -238,10 +237,16 @@ async function book(op, { actorId, idempotencyKey }, session) {
  * @param {StockOperationInput} input
  * @param {{ session: import('mongoose').ClientSession, actor?: object | null, actorId?: string | null }} ctx
  */
-export async function applyStockOperation(input, { session, actor = null, actorId = null }) {
+export async function applyStockOperation(
+  input,
+  { session, actor = null, actorId = null, idempotencyKey = null },
+) {
   const op = await prepare(actor, input);
-  return book(op, { actorId: actorId ?? actor?.staffId ?? null }, session);
+  return book(op, { actorId: actorId ?? actor?.staffId ?? null, idempotencyKey }, session);
 }
+
+/** Stock operation already booked with this idempotency key (callers handle their replays). */
+export const findOperationByIdempotencyKey = (key) => repo.findOperationByKey(key);
 
 /** Emits `stock.moved` and low/out alerts for a committed operation. */
 export function publishStockResult({ operation, changes }) {
@@ -304,16 +309,10 @@ async function runOperation(actor, input, idempotencyKey) {
 
 async function replay(actor, operation, type) {
   if (operation.type !== type)
-    throw new ConflictError('Idempotency key already used for another operation');
+    throw new AppError(ERROR_CODES.IDEMPOTENCY_CONFLICT, 'Idempotency key already used', {
+      status: 409,
+    });
   return { ...(await operationDetail(actor, operation)), replayed: true };
-}
-
-/** `Idempotency-Key` header value, or a validation error. */
-export function parseIdempotencyKey(value) {
-  if (value == null || value === '') return null;
-  if (!IDEMPOTENCY_KEY_RE.test(value))
-    throw new ValidationError([{ path: 'Idempotency-Key', message: V.CODE_INVALID }]);
-  return value;
 }
 
 // ---------------------------------------------------------------- manual operations (routes)
@@ -528,6 +527,15 @@ export async function getOnHand(branchId, variantIds) {
     variantId: { $in: variantIds.map(oid) },
   });
   return new Map(levels.map((l) => [str(l.variantId), l.onHand]));
+}
+
+/**
+ * On hand summed over ALL branches (weighted-average costing), read in the caller's transaction.
+ * @returns {Promise<Map<string, number>>}
+ */
+export async function getTotalOnHand(variantIds, { session } = {}) {
+  const rows = await repo.sumOnHand(variantIds.map(oid), session);
+  return new Map(rows.map((r) => [str(r._id), r.onHand]));
 }
 
 /** Stock records in a branch (levels or operations) — such branches can't be deleted. */

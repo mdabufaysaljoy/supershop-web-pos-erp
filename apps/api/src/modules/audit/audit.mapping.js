@@ -131,6 +131,43 @@ export const AUDIT_MAPPINGS = {
     entityId: p.categoryId,
   }),
 
+  [EVENTS.PRODUCT_COST_CHANGED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'variant',
+    entityId: p.variantId,
+    before: { cost: p.before },
+    after: { cost: p.after },
+    data: { productId: p.productId, source: p.source },
+  }),
+
+  // purchasing
+  ...Object.fromEntries(
+    [
+      EVENTS.PURCHASE_ORDER_CREATED,
+      EVENTS.PURCHASE_ORDER_UPDATED,
+      EVENTS.PURCHASE_ORDER_ORDERED,
+      EVENTS.PURCHASE_ORDER_RECEIVED,
+      EVENTS.PURCHASE_ORDER_CLOSED,
+      EVENTS.PURCHASE_ORDER_CANCELLED,
+    ].map((name) => [
+      name,
+      (p) => ({
+        ...staffActor(p),
+        entityType: 'purchaseOrder',
+        entityId: p.purchaseOrderId,
+        before: p.before ?? null,
+        after: p.after ?? null,
+        data: {
+          poNo: p.poNo,
+          ...(p.status && { status: p.status }),
+          ...(p.docNo && { docNo: p.docNo, operationId: p.operationId }),
+          ...(p.lines && { lines: p.lines.slice(0, 50) }),
+          ...(p.note && { note: p.note }),
+        },
+      }),
+    ]),
+  ),
+
   // inventory — manual operations are audited; sales/returns are recorded by their orders
   [EVENTS.STOCK_MOVED]: (p) =>
     ['adjust', 'transfer', 'receive'].includes(p.type)

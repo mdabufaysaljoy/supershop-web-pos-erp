@@ -1,6 +1,7 @@
 import { PERMISSIONS as P } from '@supershop/shared';
 import {
   BarChart3,
+  ClipboardList,
   Boxes,
   Factory,
   FileText,
@@ -53,6 +54,12 @@ export const NAV = [
       },
       { path: '/brands', label: 'nav.brands', icon: Tags, permission: P.BRAND_MANAGE },
       { path: '/suppliers', label: 'nav.suppliers', icon: Factory, permission: P.SUPPLIER_MANAGE },
+      {
+        path: '/purchase-orders',
+        label: 'nav.purchaseOrders',
+        icon: ClipboardList,
+        permission: [P.PURCHASE_VIEW, P.PURCHASE_MANAGE], // any of them
+      },
       { path: '/media', label: 'nav.media', icon: Images, permission: P.MEDIA_MANAGE },
     ],
   },
@@ -82,7 +89,7 @@ export const NAV = [
 /** Sections with only the items the user may open; empty sections are dropped. */
 export const filterNav = (nav, can) =>
   nav
-    .map((s) => ({ ...s, items: s.items.filter((i) => can(i.permission)) }))
+    .map((s) => ({ ...s, items: s.items.filter((i) => [i.permission].flat().some(can)) }))
     .filter((s) => s.items.length > 0);
 
 export const allNavItems = (nav = NAV) => nav.flatMap((s) => s.items);

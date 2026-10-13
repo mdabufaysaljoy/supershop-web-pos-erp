@@ -44,7 +44,8 @@
     "categories": "Categories",
     "brands": "Brands",
     "suppliers": "Suppliers",
-    "branches": "Branches"
+    "branches": "Branches",
+    "purchaseOrders": "Purchase orders"
   },
   "pages": {
     "dashboard": {
@@ -105,7 +106,9 @@
     "BRANCH_SCOPE_DENIED": "This is outside the branches you work in.",
     "PERMISSION_ESCALATION": "You can't grant access you don't have yourself.",
     "CANNOT_MODIFY_SELF": "You can't change your own access.",
-    "INSUFFICIENT_STOCK": "Not enough stock for one or more items."
+    "INSUFFICIENT_STOCK": "Not enough stock for one or more items.",
+    "INVALID_STATE_TRANSITION": "That isn't possible in the order's current status.",
+    "IDEMPOTENCY_CONFLICT": "This request was already used for something else. Reload and try again."
   },
   "validation": {
     "required": "This field is required.",
@@ -743,6 +746,75 @@
       "noMatches": "No other staff found.",
       "assign": "Assign",
       "assignTo": "Assign {{name}} to this branch"
+    }
+  },
+  "purchaseOrders": {
+    "title": "Purchase orders",
+    "description": "What you ordered from suppliers and what has arrived. Receiving adds the stock to the branch.",
+    "add": "New purchase order",
+    "newTitle": "New purchase order",
+    "search": "Search by PO number, supplier or reference",
+    "statusFilter": "Status",
+    "allStatuses": "All statuses",
+    "empty": "No purchase orders found.",
+    "poNo": "PO number",
+    "total": "Total",
+    "totalExVat": "Total (excl. VAT)",
+    "received": "Received",
+    "unitsOf": "{{received}} of {{total}}",
+    "saveDraft": "Save draft",
+    "status": {
+      "draft": "Draft",
+      "ordered": "Ordered",
+      "partially_received": "Partially received",
+      "received": "Received",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "order": "Place order",
+      "receive": "Receive goods",
+      "close": "Close order",
+      "cancel": "Cancel order"
+    },
+    "confirm": {
+      "close": "Close this order? Items not yet received will no longer be expected.",
+      "cancel": "Cancel this order? This can't be undone."
+    },
+    "form": {
+      "supplier": "Supplier",
+      "branch": "Deliver to branch",
+      "expectedAt": "Expected delivery",
+      "reference": "Supplier reference",
+      "note": "Note",
+      "choose": "Choose…"
+    },
+    "lines": {
+      "title": "Items",
+      "none": "No items yet. Search below to add products.",
+      "item": "Item",
+      "qty": "Quantity",
+      "unitCost": "Unit cost (SAR)",
+      "total": "Line total",
+      "qtyFor": "Quantity for {{sku}}",
+      "costFor": "Unit cost for {{sku}}",
+      "remove": "Remove {{sku}}",
+      "search": "Search by SKU, barcode or product name",
+      "noMatches": "No matching products.",
+      "addVariant": "Add {{sku}}"
+    },
+    "receive": {
+      "title": "Receive goods — {{poNo}}",
+      "remaining_one": "{{count}} still expected",
+      "remaining_other": "{{count}} still expected",
+      "reference": "Delivery note number (optional)",
+      "submit": "Add to stock",
+      "nothing": "Enter a quantity for at least one item."
+    },
+    "receipts": {
+      "title": "Deliveries",
+      "units_one": "{{count}} unit",
+      "units_other": "{{count}} units"
     }
   }
 }

@@ -27,3 +27,5 @@ export const generateBarcodes = async (req, res) =>
   sendCreated(res, { codes: await service.generateBarcodes(req.valid.body.count) });
 export const lookup = async (req, res) =>
   sendData(res, await service.lookupByCode(req.access, req.valid.query.code));
+export const variants = async (req, res) =>
+  sendData(res, await service.searchVariants(req.access, req.valid.query));

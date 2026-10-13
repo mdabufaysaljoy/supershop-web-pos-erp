@@ -9,10 +9,13 @@ export {
   findStockableVariants,
   getIndexSources,
   getProduct,
+  getVariantCosts,
   getPublicCards,
   getVariantSummaries,
   iterateProducts,
   matchVariantIds,
   productIdBatches,
+  publishCostChanges,
+  setVariantCosts,
   updateProduct,
 } from './product.service.js';

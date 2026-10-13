@@ -1,7 +1,8 @@
 import { sendCreated, sendData } from '../../core/http.js';
+import { parseIdempotencyKey } from '../../core/idempotency.js';
 import * as service from './inventory.service.js';
 
-const key = (req) => service.parseIdempotencyKey(req.get('Idempotency-Key'));
+const key = (req) => parseIdempotencyKey(req.get('Idempotency-Key'));
 /** 201 for a new operation; 200 + `Idempotent-Replayed` when the key was seen before. */
 const sendOperation = (res, result) => {
   const { replayed, ...data } = result;

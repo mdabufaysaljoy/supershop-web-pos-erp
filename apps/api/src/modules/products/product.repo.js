@@ -156,6 +156,11 @@ export async function matchVariantIds(q, limit = 1000) {
   return variants.map((v) => v._id);
 }
 
+export const findVariantCosts = (ids, session) =>
+  Variant.find({ _id: { $in: ids } }, { cost: 1, productId: 1 }, opts(session)).lean();
+export const setVariantCost = (id, cost, session) =>
+  Variant.updateOne({ _id: id }, { $set: { cost } }, opts(session));
+
 /** Raw products (deleted included, so the index can drop them) for search indexing. */
 export const findForIndex = (ids) => Product.find({ _id: { $in: ids } }).lean();
 export const activeVariantsOf = (productIds) =>

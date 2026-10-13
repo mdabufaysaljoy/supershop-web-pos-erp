@@ -247,6 +247,15 @@ export function createProductSchemas() {
     }),
     /** GET /products/lookup?code= — a scanned barcode or typed SKU. */
     lookupQuery: z.object({ code: z.string({ error: V.REQUIRED }).trim().min(1).max(64) }),
+    variantSearchQuery: z.object({
+      q: plainText({ min: 1, max: 100 }),
+      limit: z.coerce
+        .number({ error: V.INVALID_TYPE })
+        .int({ error: V.INVALID_TYPE })
+        .min(1, { error: V.INVALID_TYPE })
+        .max(50, { error: V.TOO_LONG })
+        .default(20),
+    }),
     publicQuery: z.object({
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
     }),

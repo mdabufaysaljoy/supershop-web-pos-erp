@@ -11,6 +11,8 @@ import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
 import { ProductTransferPage } from '@/features/productTransfer/pages/ProductTransferPage';
 import { ProductEditorPage } from '@/features/products/pages/ProductEditorPage';
 import { ProductsPage } from '@/features/products/pages/ProductsPage';
+import { PurchaseOrderEditorPage } from '@/features/purchaseOrders/pages/PurchaseOrderEditorPage';
+import { PurchaseOrdersPage } from '@/features/purchaseOrders/pages/PurchaseOrdersPage';
 import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
 import { RequirePermission } from '@/features/auth/components/RequirePermission';
@@ -28,6 +30,7 @@ const PAGES = {
   '/brands': <BrandsPage />,
   '/suppliers': <SuppliersPage />,
   '/branches': <BranchesPage />,
+  '/purchase-orders': <PurchaseOrdersPage />,
   '/categories': <CategoriesPage />,
   '/media': <MediaLibraryPage />,
   '/settings': <SettingsPage />,
@@ -48,6 +51,14 @@ const SUB_PAGES = {
       element: <ProductTransferPage />,
     },
     { path: ':id', permission: P.PRODUCT_VIEW, element: <ProductEditorPage /> },
+  ],
+  '/purchase-orders': [
+    { path: 'new', permission: P.PURCHASE_MANAGE, element: <PurchaseOrderEditorPage /> },
+    {
+      path: ':id',
+      permission: [P.PURCHASE_VIEW, P.PURCHASE_MANAGE],
+      element: <PurchaseOrderEditorPage />,
+    },
   ],
 };
 

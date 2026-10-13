@@ -18,6 +18,11 @@ import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js'
 import { countStockRecordsInBranch, createInventoryRouter } from './inventory/index.js';
 import { createMediaRouter } from './media/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
+import {
+  countPurchaseOrdersInBranch,
+  countPurchaseOrdersOfSupplier,
+  createPurchaseOrderRouter,
+} from './purchasing/index.js';
 import { createSearchRouter, registerSearchSubscribers } from './search/index.js';
 import {
   countProductsInCategory,
@@ -102,8 +107,12 @@ export function registerModules() {
   // Catalog items can't be deleted while products reference them.
   setCategoryUsageCounter(countProductsInCategory);
   setBrandUsageCounter(countProductsOfBrand);
-  setSupplierUsageCounter(countProductsOfSupplier); // + purchase orders in P2.3
-  registerBranchUsage(countStockRecordsInBranch); // branches with stock history stay
+  setSupplierUsageCounter(
+    async (id) => (await countProductsOfSupplier(id)) + (await countPurchaseOrdersOfSupplier(id)),
+  );
+  // Branches with stock or purchasing history stay.
+  registerBranchUsage(countStockRecordsInBranch);
+  registerBranchUsage(countPurchaseOrdersInBranch);
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */
@@ -129,4 +138,5 @@ export function mountModuleRoutes(api) {
   api.use('/product-transfers', createProductTransferRouter());
   api.use('/search', createSearchRouter());
   api.use('/inventory', createInventoryRouter());
+  api.use('/purchase-orders', createPurchaseOrderRouter());
 }

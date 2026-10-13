@@ -757,6 +757,55 @@ export async function getVariantSummaries(ids, { withCost = false } = {}) {
 /** Staff search (SKU prefix / barcode / product name) → active variant ids. */
 export const matchVariantIds = (q, limit) => repo.matchVariantIds(q, limit);
 
+/** Variant picker for purchase orders and stock screens (cost only with product.viewCost). */
+export async function searchVariants(actor, { q, limit }) {
+  const ids = await repo.matchVariantIds(q, limit);
+  const summaries = await getVariantSummaries(ids.map(String), {
+    withCost: actor.can(P.PRODUCT_VIEW_COST),
+  });
+  return [...summaries.values()]
+    .filter((v) => !v.deleted)
+    .sort((a, b) => a.sku.localeCompare(b.sku));
+}
+
+/** `Map<variantId, { productId, cost }>` — read inside the caller's transaction. */
+export async function getVariantCosts(ids, { session } = {}) {
+  const rows = await repo.findVariantCosts(ids, session);
+  return new Map(
+    rows.map((v) => [String(v._id), { productId: String(v.productId), cost: v.cost ?? null }]),
+  );
+}
+
+/**
+ * Sets unit costs inside the caller's transaction (goods receipts). Only real changes are written.
+ * Publish the returned changes with `publishCostChanges` after commit.
+ * @param {{ variantId: string, cost: number | null }[]} updates
+ */
+export async function setVariantCosts(updates, { session } = {}) {
+  const current = await getVariantCosts(
+    updates.map((u) => u.variantId),
+    { session },
+  );
+  const changes = [];
+  for (const u of updates) {
+    const before = current.get(String(u.variantId));
+    if (!before || before.cost === u.cost) continue;
+    await repo.setVariantCost(u.variantId, u.cost, session);
+    changes.push({
+      variantId: String(u.variantId),
+      productId: before.productId,
+      before: before.cost,
+      after: u.cost,
+    });
+  }
+  return changes;
+}
+
+export function publishCostChanges(changes, { actorId = null, source }) {
+  for (const c of changes)
+    void eventBus.emit(EVENTS.PRODUCT_COST_CHANGED, { ...c, source, actorId });
+}
+
 // ---------------------------------------------------------------- usage counters (other modules)
 
 export const countProductsInCategory = (categoryId, { session } = {}) =>

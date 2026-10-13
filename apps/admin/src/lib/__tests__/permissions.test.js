@@ -25,8 +25,19 @@ describe('filterNav', () => {
 
   it('every nav item is gated by a real permission', async () => {
     const { isPermission } = await import('@supershop/shared');
-    for (const item of NAV.flatMap((s) => s.items))
-      expect(isPermission(item.permission)).toBe(true);
+    for (const item of NAV.flatMap((s) => s.items)) {
+      const keys = [item.permission].flat(); // a list = any of them
+      expect(keys.length).toBeGreaterThan(0);
+      keys.forEach((key) => expect(isPermission(key)).toBe(true));
+    }
+  });
+
+  it('shows items needing any of several permissions', () => {
+    const items = (perms) =>
+      filterNav(NAV, (k) => perms.includes(k)).flatMap((s) => s.items.map((i) => i.path));
+    expect(items(['purchase.manage'])).toContain('/purchase-orders');
+    expect(items(['purchase.view'])).toContain('/purchase-orders');
+    expect(items(['product.view'])).not.toContain('/purchase-orders');
   });
 });
 

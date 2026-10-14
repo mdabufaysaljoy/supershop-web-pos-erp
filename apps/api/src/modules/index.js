@@ -59,7 +59,8 @@ import {
   createNotificationRouter,
   registerNotificationSubscribers,
 } from './notifications/index.js';
-import { createPageRouter, setBlockDataProviders } from './pages/index.js';
+import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from './pages/index.js';
+import { createSiteRouter, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countPurchaseOrdersInBranch,
@@ -191,6 +192,18 @@ export function registerModules() {
   registerBranchUsage(countPurchaseOrdersInBranch);
   setAvailabilityProvider(getOnlineInStock); // storefront in/out of stock
   // A page's blocks say what they want; these lookups fill them in (P5.3). Pages import no module.
+  // A menu item points at a page, category or brand; these say whether it is still there (P5.4).
+  setMenuRefProviders({
+    page: getPublishedPageSlugs,
+    category: async (ids) =>
+      Object.fromEntries(
+        (await getCategoriesByIds(ids)).filter((c) => c.isActive).map((c) => [c.id, c.slug]),
+      ),
+    brand: async (ids) =>
+      Object.fromEntries(
+        (await getBrandsByIds(ids)).filter((b) => b.isActive).map((b) => [b.id, b.slug]),
+      ),
+  });
   setBlockDataProviders({
     searchProducts,
     getProductCards: getPublicCards,
@@ -222,6 +235,7 @@ export function mountModuleRoutes(api) {
   api.use('/i18n', createI18nAdminRouter());
   api.use('/media', createMediaRouter());
   api.use('/pages', createPageRouter());
+  api.use('/site', createSiteRouter());
   api.use('/categories', createCategoryRouter());
   api.use('/brands', createBrandRouter());
   api.use('/suppliers', createSupplierRouter());

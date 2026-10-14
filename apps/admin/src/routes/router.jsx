@@ -10,6 +10,8 @@ import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage
 import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
 import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage';
+import { AppearancePage } from '@/features/site/pages/AppearancePage';
+import { MenuEditorPage } from '@/features/site/pages/MenuEditorPage';
 import { PageBuilderPage } from '@/features/pages/pages/PageBuilderPage';
 import { PagesPage } from '@/features/pages/pages/PagesPage';
 import { OrdersPage } from '@/features/orders/pages/OrdersPage';
@@ -33,6 +35,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 const PAGES = {
   '/orders': <OrdersPage />,
   '/pages': <PagesPage />,
+  '/appearance': <AppearancePage />,
   '/products': <ProductsPage />,
   '/brands': <BrandsPage />,
   '/suppliers': <SuppliersPage />,
@@ -48,6 +51,9 @@ const PAGES = {
 const SUB_PAGES = {
   '/orders': [{ path: ':id', permission: P.ORDER_VIEW, element: <OrderDetailPage /> }],
   '/pages': [{ path: ':id', permission: P.PAGE_VIEW, element: <PageBuilderPage /> }],
+  '/appearance': [
+    { path: ':id', permission: [P.PAGE_VIEW, P.MENU_MANAGE], element: <MenuEditorPage /> },
+  ],
   '/products': [
     { path: 'new', permission: P.PRODUCT_CREATE, element: <ProductEditorPage /> },
     {

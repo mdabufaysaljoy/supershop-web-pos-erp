@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { V } from '../validators/messages.js';
 import { resolveLocalized } from '../i18n/localized.js';
+import { syncTextEntries } from '../i18n/textList.js';
 import { getBlock } from './registry.js';
 
 /**
@@ -147,22 +148,13 @@ export function collectTexts(content) {
 }
 
 /**
- * Brings the page's `texts` in line with its blocks: new strings appear, changed English is
- * written to the source language (which marks the translation stale), text belonging to deleted
- * blocks goes away. Existing translations and manual overrides are left alone.
+ * Brings the page's `texts` in line with its blocks (see `syncTextEntries`).
  * @param {object} content
  * @param {{ key: string, value: object }[]} existing
  * @returns {{ key: string, value: object }[]} the array to store
  */
-export function syncTexts(content, existing = []) {
-  const byKey = new Map(existing.map((t) => [t.key, t]));
-  return collectTexts(content).map(({ key, text }) => {
-    const current = byKey.get(key);
-    if (!current) return { key, value: { en: text } };
-    // Keep translations and meta; only the source changes here (staleness is the plugin's job).
-    return { key, value: { ...current.value, en: text } };
-  });
-}
+export const syncTexts = (content, existing = []) =>
+  syncTextEntries(collectTexts(content), existing);
 
 /**
  * The blocks as a visitor in `lang` should see them: every translatable prop replaced by its

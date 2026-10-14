@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
+import { PageSettingsDialog } from '../components/PageSettingsDialog';
 import { BlockPalette } from '../builder/BlockPalette';
 import { BuilderCanvas } from '../builder/BuilderCanvas';
 import { PropsPanel } from '../builder/PropsPanel';
@@ -125,6 +126,8 @@ function Builder({ page }) {
               </Button>
             ))}
           </div>
+
+          <PageSettingsDialog page={page} disabled={!canEdit} />
 
           {canEdit && (
             <Button type="button" variant="outline" onClick={saveNow}>

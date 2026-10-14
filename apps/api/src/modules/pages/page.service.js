@@ -280,3 +280,12 @@ const emit = (name, page, actor) =>
   });
 
 export { LOCALIZED as PAGE_LOCALIZED_FIELDS, resolveLocalized };
+
+/**
+ * `{ [pageId]: slug }` for the pages among `ids` that are published — what a menu item needs to
+ * know whether its target still exists (P5.4).
+ */
+export async function getPublishedPageSlugs(ids) {
+  const pages = await repo.findPublishedByIds(ids);
+  return Object.fromEntries(pages.map((p) => [String(p._id), p.slug]));
+}

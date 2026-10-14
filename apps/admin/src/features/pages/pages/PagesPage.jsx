@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/table';
 import { fmt } from '@/lib/format';
 import { useCan } from '@/lib/permissions';
+import { NewPageDialog } from '../components/NewPageDialog';
 import { pages } from '../resource';
 
-/** The shop's pages. The builder that edits them arrives with P5.2. */
+/** The shop's pages: what there is, and a way to start another one (P5.4). */
 export function PagesPage() {
   const { t } = useTranslation();
   const can = useCan();
@@ -24,9 +25,12 @@ export function PagesPage() {
 
   return (
     <div className="grid gap-6">
-      <header className="grid gap-1">
-        <h1 className="text-2xl font-semibold">{t('cms.title')}</h1>
-        <p className="text-sm text-muted-foreground">{t('cms.description')}</p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div className="grid gap-1">
+          <h1 className="text-2xl font-semibold">{t('cms.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('cms.description')}</p>
+        </div>
+        {can(P.PAGE_MANAGE) && <NewPageDialog />}
       </header>
 
       {isPending ? (

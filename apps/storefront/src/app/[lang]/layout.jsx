@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { arabicFont, latinFont } from '@/fonts';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
+import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 import { JsonLd } from '@/components/JsonLd';
 import { dirOf, isLocale, LOCALES } from '@/i18n/config';
 import { getDictionary, translator } from '@/i18n/dictionaries';
@@ -14,6 +15,7 @@ import { formatOptions } from '@/lib/catalog';
 import { pickNamespaces } from '@/i18n/translate';
 import { getPublicSettings } from '@/lib/api';
 import { getCategoryTree } from '@/lib/catalog';
+import { getSiteChrome } from '@/lib/chrome';
 import { SITE_URL } from '@/lib/site';
 import { organizationLd, websiteLd } from '@/lib/structuredData';
 import '../globals.css';
@@ -46,16 +48,20 @@ export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#
 export default async function LangLayout({ children, params }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const [settings, dict, categories] = await Promise.all([
+  const [settings, dict, categories, chrome] = await Promise.all([
     getPublicSettings(),
     getDictionary(lang),
     getCategoryTree(lang),
+    getSiteChrome(lang),
   ]);
   const t = translator(dict);
   const storeName = settings['store.name'];
   const fmtOptions = formatOptions(lang, settings);
   const fmt = createFormatters(fmtOptions);
 
+  // `style={chrome.theme}`: the shop's theme tokens (P5.4) override the stylesheet's defaults
+  // server-side, so the very first paint already has its colours.
+  //
   // suppressHydrationWarning: browser extensions add attributes to <html>/<body> before React
   // hydrates (password managers, launchers, Grammarly…), which React reports as a hydration
   // mismatch. It only silences attribute mismatches on these two elements — anything the app
@@ -65,6 +71,7 @@ export default async function LangLayout({ children, params }) {
       lang={lang}
       dir={dirOf(lang)}
       className={`${latinFont.variable} ${arabicFont.variable}`}
+      style={chrome.theme}
       suppressHydrationWarning
     >
       <body className="flex min-h-svh flex-col font-sans" suppressHydrationWarning>
@@ -78,7 +85,14 @@ export default async function LangLayout({ children, params }) {
           <MotionProvider>
             <CartProvider fmtOptions={fmtOptions}>
               <AuthProvider>
-                <SiteHeader lang={lang} storeName={storeName} categories={categories} t={t} />
+                <AnnouncementBar announcement={chrome.announcement} lang={lang} />
+                <SiteHeader
+                  lang={lang}
+                  storeName={storeName}
+                  categories={categories}
+                  header={chrome.header}
+                  t={t}
+                />
                 <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
                   {children}
                 </main>
@@ -86,6 +100,7 @@ export default async function LangLayout({ children, params }) {
                   lang={lang}
                   storeName={storeName}
                   pricesIncludeVat={settings['tax.pricesIncludeVat']}
+                  footer={chrome.footer}
                   t={t}
                   fmt={fmt}
                 />

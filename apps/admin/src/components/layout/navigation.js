@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Megaphone,
   Package,
+  Palette,
   Receipt,
   ScrollText,
   Settings,
@@ -67,6 +68,12 @@ export const NAV = [
     section: 'nav.sections.content',
     items: [
       { path: '/pages', label: 'nav.pages', icon: FileText, permission: P.PAGE_VIEW },
+      {
+        path: '/appearance',
+        label: 'nav.appearance',
+        icon: Palette,
+        permission: [P.PAGE_VIEW, P.MENU_MANAGE], // any of them
+      },
       { path: '/campaigns', label: 'nav.campaigns', icon: Megaphone, permission: P.CAMPAIGN_VIEW },
     ],
   },

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuthStore } from '@/features/auth/store';
 import { json, mockFetch } from '@/test/fetchMock';
 import { PageBuilderPage } from '../pages/PageBuilderPage';
+import { PagesPage } from '../pages/PagesPage';
 
 /** P5.2 — the builder: blocks on, blocks moved, props edited, undone, saved. */
 const PAGE = {
@@ -351,5 +352,121 @@ describe('the shop’s sections', () => {
       source: 'category',
       categoryId: 'c1',
     });
+  });
+});
+
+/** P5.4 — a page's own details: name, address, search listing, home page, delete. */
+describe('page settings', () => {
+  const openSettings = async (user) => {
+    await openBuilder();
+    await user.click(screen.getByRole('button', { name: 'Page settings' }));
+    return within(await screen.findByRole('dialog'));
+  };
+
+  it('saves the name, address and what search engines show', async () => {
+    const user = userEvent.setup();
+    const m = setup();
+    const dialog = await openSettings(user);
+
+    expect(dialog.getByLabelText(/^Page name/)).toHaveValue('About us');
+    expect(dialog.getByLabelText(/^Address/)).toHaveValue('about-us');
+    await user.clear(dialog.getByLabelText(/^Address/));
+    await user.type(dialog.getByLabelText(/^Address/), 'delivery');
+    await user.type(dialog.getByLabelText('Title in search results'), 'Delivery & returns');
+    await user.click(dialog.getByRole('checkbox', { name: /Use as the home page/ }));
+    await user.click(dialog.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/pages/pg1')).toBe(1));
+    expect(bodyOf(m, 'PATCH /api/v1/pages/pg1')).toEqual({
+      title: 'About us',
+      slug: 'delivery',
+      seo: { title: 'Delivery & returns', description: '' },
+      isHome: true,
+    });
+  });
+
+  it('shows the server’s complaint about the address next to the field', async () => {
+    const user = userEvent.setup();
+    setup({
+      routes: {
+        'PATCH /api/v1/pages/pg1': json(409, {
+          error: {
+            code: 'SLUG_TAKEN',
+            message: 'Taken',
+            details: [{ path: 'slug', message: 'validation.slug.taken' }],
+          },
+        }),
+      },
+    });
+    const dialog = await openSettings(user);
+    await user.click(dialog.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
+  });
+
+  it('deletes the page and goes back to the list', async () => {
+    const user = userEvent.setup();
+    const m = setup({ routes: { 'DELETE /api/v1/pages/pg1': json(204, undefined) } });
+    const dialog = await openSettings(user);
+    await user.click(dialog.getByRole('button', { name: 'Delete this page' }));
+    await waitFor(() => expect(m.count('DELETE /api/v1/pages/pg1')).toBe(1));
+  });
+
+  it('is read-only for staff who may not edit pages', async () => {
+    const user = userEvent.setup();
+    setup({ permissions: ['page.view'] });
+    const dialog = await openSettings(user);
+    expect(dialog.getByLabelText(/^Page name/)).toBeDisabled();
+    expect(dialog.queryByRole('button', { name: 'Delete this page' })).toBeNull();
+  });
+});
+
+/** P5.4 — the list, and starting a page from it. */
+describe('the pages list', () => {
+  const listSetup = (routes = {}) => {
+    useAuthStore.setState({
+      status: 'authenticated',
+      accessToken: 't',
+      profile: { name: 'A' },
+      access: { permissions: ['page.view', 'page.manage'] },
+    });
+    const m = mockFetch({
+      'GET /api/v1/pages': json(200, {
+        data: [{ ...PAGE, blockCount: 2, isHome: true }],
+        meta: { total: 1 },
+      }),
+      ...routes,
+    });
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <MemoryRouter initialEntries={['/pages']}>
+          <Routes>
+            <Route path="/pages" element={<PagesPage />} />
+            <Route path="/pages/:id" element={<PageBuilderPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    return m;
+  };
+
+  it('starts a page from its name and opens the builder on it', async () => {
+    const user = userEvent.setup();
+    const m = listSetup({
+      'POST /api/v1/pages': json(201, { data: { ...PAGE, id: 'pg9', title: { en: 'Delivery' } } }),
+      'GET /api/v1/pages/pg9': json(200, {
+        data: { ...PAGE, id: 'pg9', title: { en: 'Delivery' } },
+      }),
+    });
+    await screen.findByRole('heading', { name: 'Pages' });
+
+    await user.click(screen.getByRole('button', { name: 'New page' }));
+    await user.type(await screen.findByLabelText(/^Page name/), 'Delivery');
+    await user.click(screen.getByRole('button', { name: 'Create and open' }));
+
+    await waitFor(() => expect(m.count('POST /api/v1/pages')).toBe(1));
+    expect(bodyOf(m, 'POST /api/v1/pages')).toEqual({ title: 'Delivery' });
+    expect(await screen.findByRole('region', { name: 'Page' })).toBeInTheDocument();
   });
 });

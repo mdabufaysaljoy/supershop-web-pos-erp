@@ -6,6 +6,9 @@ const live = { deletedAt: null };
 export const findById = (id) => Page.findById(id).lean();
 export const findBySlug = (slug) => Page.findOne({ slug, ...live }).lean();
 export const findHome = () => Page.findOne({ isHome: true, ...live }).lean();
+/** Published pages among these ids — a menu never links to a page a visitor cannot see. */
+export const findPublishedByIds = (ids) =>
+  Page.find({ _id: { $in: ids }, status: 'published', ...live }, { slug: 1 }).lean();
 export const slugExists = (slug, exceptId) =>
   Page.exists({ slug, ...live, ...(exceptId ? { _id: { $ne: exceptId } } : {}) });
 export const list = async ({ skip, limit, status }) => {

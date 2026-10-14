@@ -45,7 +45,8 @@
     "brands": "Brands",
     "suppliers": "Suppliers",
     "branches": "Branches",
-    "purchaseOrders": "Purchase orders"
+    "purchaseOrders": "Purchase orders",
+    "appearance": "Appearance"
   },
   "pages": {
     "dashboard": {
@@ -1273,6 +1274,113 @@
         "3": "Three",
         "4": "Four"
       }
+    },
+    "newPage": {
+      "open": "New page",
+      "title": "Start a page",
+      "description": "Give it a name; you can arrange its blocks next.",
+      "name": "Page name",
+      "create": "Create and open"
+    },
+    "settings": {
+      "open": "Page settings",
+      "title": "Page settings",
+      "description": "The name, the address, and what search engines show.",
+      "name": "Page name",
+      "address": "Address",
+      "addressHelp": "Visitors reach the page at /p/<address>.",
+      "addressWarning": "This page is live: changing the address leaves the old one a dead link.",
+      "seoTitle": "Title in search results",
+      "seoDescription": "Description in search results",
+      "isHome": "Use as the home page",
+      "isHomeHelp": "The shop can have one home page; choosing this one releases the other.",
+      "delete": "Delete this page"
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "The strip above the header, the menus around your pages, and your colours.",
+    "announcement": {
+      "title": "Announcement bar",
+      "description": "One line above the header — delivery news, opening hours, an offer.",
+      "show": "Show it",
+      "text": "What it says",
+      "href": "Link it to",
+      "hrefHelp": "A path on your site such as /search, or leave it empty for no link.",
+      "tone": "Colour"
+    },
+    "tones": {
+      "primary": "Your brand colour",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "menus": {
+      "title": "Menus",
+      "description": "Groups of links you place in the header or the footer.",
+      "empty": "No menus yet — your categories are shown in the header until you make one.",
+      "itemCount_one": "{{count}} link",
+      "itemCount_other": "{{count}} links",
+      "newTitle": "Menu name",
+      "location": "Where it goes",
+      "add": "Add menu"
+    },
+    "locations": {
+      "header": "Header",
+      "footer": "Footer"
+    },
+    "chrome": {
+      "title": "Header and footer",
+      "description": "Which menu goes where.",
+      "headerMenu": "Header menu",
+      "headerMenuHelp": "Without one, the header shows your top-level categories.",
+      "noHeaderMenu": "My categories",
+      "showCategoryRow": "Show the category row",
+      "showCategoryRowHelp": "Only used when there is no header menu.",
+      "footerMenus": "Footer menus",
+      "footerNote": "Footer note"
+    },
+    "item": {
+      "label": "Label",
+      "target": "Points at",
+      "choose": "Choose one…",
+      "href": "Address",
+      "hrefHelp": "A path such as /track, or a full https:// address.",
+      "addChild": "Add a link under this",
+      "add": "Add a link",
+      "empty": "This menu has no links yet.",
+      "ref": {
+        "page": "Which page",
+        "category": "Which category",
+        "brand": "Which brand"
+      }
+    },
+    "targets": {
+      "page": "A page",
+      "category": "A category",
+      "brand": "A brand",
+      "products": "All products",
+      "url": "An address"
+    },
+    "theme": {
+      "title": "Colours and shapes",
+      "description": "Used across your site: buttons, links and highlights.",
+      "primary": "Brand colour",
+      "primaryForeground": "Text on the brand colour",
+      "radius": "Corners",
+      "font": "Font",
+      "preview": "Preview",
+      "previewButton": "Add to cart"
+    },
+    "radii": {
+      "none": "Square",
+      "sm": "Slightly rounded",
+      "md": "Rounded",
+      "lg": "Very rounded",
+      "full": "Pill"
+    },
+    "fonts": {
+      "bundled": "The one that ships with your site",
+      "system": "The visitor’s own system font"
     }
   }
 }

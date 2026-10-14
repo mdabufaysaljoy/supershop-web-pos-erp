@@ -19,7 +19,16 @@
   },
   "footer": {
     "vatIncluded": "وتشمل الأسعار ضريبة القيمة المضافة.",
-    "links": "الروابط المساعدة"
+    "links": "الروابط المساعدة",
+    "contact": "اتصل بنا",
+    "whatsapp": "رسالة لنا على WhatsApp",
+    "social": "جد لنا على الانترنت",
+    "platforms": {
+      "facebook": "الفيسبوك",
+      "youtube": "أنت تويب",
+      "whatsapp": "WhatsApp",
+      "linkedin": "متصل"
+    }
   },
   "notFound": {
     "title": "الصفحة",

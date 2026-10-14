@@ -3,6 +3,9 @@ import {
   collectItemTexts,
   createSiteSchemas,
   itemHref,
+  matchRedirect,
+  normalizeRedirectPath,
+  robotsPolicy,
   resolveMenu,
   syncTextEntries,
   themeCssVars,
@@ -160,5 +163,102 @@ describe('theme tokens', () => {
     expect(vars['--primary']).toBe('#1f1f1f');
     expect(vars['--radius']).toBe('0.625rem');
     expect(vars['--font-sans']).toContain('var(--font-latin)');
+  });
+});
+
+describe('redirects', () => {
+  const rules = [
+    { from: '/old-offer', to: '/search?sort=newest', status: 301 },
+    { from: '/temp', to: '/p/about-us', status: 302 },
+    { from: '/gone', to: '', status: 410 },
+  ];
+  const opts = { locales: ['en', 'ar'], defaultLocale: 'en' };
+
+  it('matches whatever the visitor typed, trailing slash and case included', () => {
+    expect(matchRedirect(rules, '/Old-Offer/', opts)).toEqual({
+      status: 301,
+      to: '/search?sort=newest',
+    });
+    expect(matchRedirect(rules, '/nothing-here', opts)).toBeNull();
+  });
+
+  it('keeps an Arabic visitor in Arabic', () => {
+    expect(matchRedirect(rules, '/ar/temp', opts)).toEqual({ status: 302, to: '/ar/p/about-us' });
+    expect(matchRedirect(rules, '/temp', opts)).toEqual({ status: 302, to: '/p/about-us' });
+  });
+
+  it('carries the query along to an internal target', () => {
+    expect(matchRedirect(rules, '/temp?utm_source=sms', opts)).toEqual({
+      status: 302,
+      to: '/p/about-us?utm_source=sms',
+    });
+  });
+
+  it('says a page is gone without sending anyone anywhere', () => {
+    expect(matchRedirect(rules, '/gone', opts)).toEqual({ status: 410, to: null });
+  });
+
+  it('normalizes a path the same way wherever it comes from', () => {
+    expect(normalizeRedirectPath('Offers/?x=1')).toBe('/offers');
+    expect(normalizeRedirectPath('/')).toBe('/');
+    expect(normalizeRedirectPath('')).toBe('/');
+  });
+});
+
+describe('robots.txt', () => {
+  it('keeps private areas out in every language', () => {
+    const policy = robotsPolicy({
+      indexable: true,
+      privatePaths: ['/cart', '/checkout'],
+      locales: ['ar'],
+    });
+    expect(policy.rules).toEqual({
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/cart', '/checkout', '/ar/cart', '/ar/checkout'],
+    });
+  });
+
+  it('shuts the whole site out when the shop says it is not ready', () => {
+    const policy = robotsPolicy({ indexable: false, privatePaths: ['/cart'], locales: ['ar'] });
+    expect(policy.rules).toEqual({ userAgent: '*', disallow: ['/'] });
+  });
+
+  it('keeps the shop’s own lines, without the blank ones', () => {
+    expect(robotsPolicy({ extra: 'Disallow: /tmp\n\n  # ours \n' }).extraLines).toEqual([
+      'Disallow: /tmp',
+      '# ours',
+    ]);
+  });
+});
+
+describe('what the admin may send for the site', () => {
+  it('takes a phone and an email, and refuses nonsense', () => {
+    expect(
+      schemas.layoutUpdate.parse({ contact: { phone: '0501234567', email: 'Hi@Shop.test' } })
+        .contact,
+    ).toEqual({ phone: '+966501234567', email: 'hi@shop.test' });
+    expect(schemas.layoutUpdate.safeParse({ contact: { email: 'nope' } }).success).toBe(false);
+  });
+
+  it('takes social profiles only as full addresses of known platforms', () => {
+    expect(
+      schemas.layoutUpdate.safeParse({
+        social: [{ platform: 'instagram', url: 'https://instagram.com/shop' }],
+      }).success,
+    ).toBe(true);
+    expect(
+      schemas.layoutUpdate.safeParse({ social: [{ platform: 'myspace', url: 'https://x.test' }] })
+        .success,
+    ).toBe(false);
+    expect(
+      schemas.layoutUpdate.safeParse({ social: [{ platform: 'x', url: 'shop' }] }).success,
+    ).toBe(false);
+  });
+
+  it('refuses a redirect source that is not a path on this site', () => {
+    expect(schemas.redirectCreate.safeParse({ from: 'https://evil.test', to: '/x' }).success).toBe(
+      false,
+    );
   });
 });

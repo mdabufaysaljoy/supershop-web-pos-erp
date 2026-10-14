@@ -8,6 +8,7 @@ import * as c from './page.controller.js';
  * Mounted at `/api/v1/pages`.
  *  GET    /public/home        PUBLIC — the published home page, in one language
  *  GET    /public/:slug       PUBLIC — a published page by its address
+ *  GET    /public-sitemap     PUBLIC — `{ slug, updatedAt }` of published pages (sitemap.xml)
  *  GET    /                   page.view
  *  GET    /:id                page.view — draft + published + the page's text
  *  POST   /                   page.manage
@@ -26,6 +27,7 @@ export function createPageRouter({ schemas = createPageSchemas() } = {}) {
   const publicQuery = validate({ query: schemas.publicQuery });
 
   r.get('/public/home', publicQuery, c.publicHome);
+  r.get('/public-sitemap', c.sitemap);
   r.get(
     '/public/:slug',
     validate({ params: schemas.slugParam, query: schemas.publicQuery }),

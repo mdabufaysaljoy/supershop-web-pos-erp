@@ -1299,7 +1299,7 @@
   },
   "appearance": {
     "title": "Appearance",
-    "description": "The strip above the header, the menus around your pages, and your colours.",
+    "description": "The strip above the header, the menus around your pages, your colours, and what search engines are told.",
     "announcement": {
       "title": "Announcement bar",
       "description": "One line above the header — delivery news, opening hours, an offer.",
@@ -1381,6 +1381,73 @@
     "fonts": {
       "bundled": "The one that ships with your site",
       "system": "The visitor’s own system font"
+    },
+    "tabs": {
+      "chrome": "Header, footer and colours",
+      "site": "Your shop’s details",
+      "redirects": "Moved addresses"
+    },
+    "brand": {
+      "title": "Logo and pictures",
+      "description": "Your logo in the header, the icon in the browser tab, and the picture used when a page is shared.",
+      "logoId": "Logo",
+      "faviconId": "Browser icon",
+      "ogImageId": "Sharing picture",
+      "set": "Chosen",
+      "unset": "Not set — your shop name is shown instead"
+    },
+    "contact": {
+      "title": "Contact and social",
+      "description": "Shown in the footer. Your address is translated; numbers and links are not.",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp number",
+      "whatsappHelp": "Adds a \"message us\" link to the footer.",
+      "email": "Email",
+      "address": "Address",
+      "nationalAddress": "National Address",
+      "nationalAddressHelp": "The Saudi short code, printed on invoices when you have one.",
+      "mapUrl": "Map link",
+      "social": "Social profiles",
+      "platform": "Platform",
+      "profileUrl": "Profile address"
+    },
+    "platforms": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "snapchat": "Snapchat",
+      "x": "X",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "whatsapp": "WhatsApp",
+      "linkedin": "LinkedIn"
+    },
+    "seo": {
+      "title": "Search engines",
+      "description": "What is shown when your pages appear in search results.",
+      "titleSuffix": "Title ending",
+      "titleSuffixHelp": "Added after every page title, e.g. \"Blue shirt · Supershop\".",
+      "defaultDescription": "Description",
+      "indexable": "Let search engines list this site",
+      "indexableHelp": "Switch off for a site that is not open yet — crawlers are shut out entirely.",
+      "robotsExtra": "Extra robots.txt lines",
+      "robotsExtraHelp": "One directive per line; they are added to the file as written."
+    },
+    "redirects": {
+      "title": "Moved addresses",
+      "description": "Send an old address to its new home — one rule covers both languages.",
+      "empty": "No redirects yet.",
+      "from": "Old address",
+      "fromHelp": "A path on your site, such as /old-offer.",
+      "to": "New address",
+      "toHelp": "A path such as /search, or a full https:// address.",
+      "statusLabel": "What should happen",
+      "status": {
+        "301": "Moved for good",
+        "302": "Moved for now",
+        "410": "Gone"
+      },
+      "note": "Note",
+      "add": "Add redirect"
     }
   }
 }

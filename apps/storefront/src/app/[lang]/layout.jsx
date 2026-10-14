@@ -30,15 +30,20 @@ export const generateStaticParams = () => LOCALES.map((lang) => ({ lang }));
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;
-  const settings = await getPublicSettings();
+  const [settings, chrome] = await Promise.all([getPublicSettings(), getSiteChrome(lang)]);
   const t = translator(await getDictionary(lang));
   const name = settings['store.name'];
+  // The shop's own suffix wins over the store name; its description over the built-in tagline.
+  const suffix = chrome.seo.titleSuffix || name;
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: name, template: `%s · ${name}` },
-    description: t('site.tagline'),
+    title: { default: suffix, template: `%s · ${suffix}` },
+    description: chrome.seo.defaultDescription || t('site.tagline'),
     applicationName: name,
-    icons: { icon: '/favicon.svg' },
+    icons: { icon: chrome.brand.favicon?.url ?? '/favicon.svg' },
+    ...(chrome.brand.ogImage && { openGraph: { images: [{ url: chrome.brand.ogImage.url }] } }),
+    // A shop that has not opened yet (or a copy of one) stays out of the index entirely.
+    ...(chrome.seo.indexable ? {} : { robots: { index: false, follow: false } }),
     formatDetection: { telephone: false }, // phone numbers render via our own components
   };
 }
@@ -89,6 +94,7 @@ export default async function LangLayout({ children, params }) {
                 <SiteHeader
                   lang={lang}
                   storeName={storeName}
+                  logo={chrome.brand.logo}
                   categories={categories}
                   header={chrome.header}
                   t={t}
@@ -101,6 +107,8 @@ export default async function LangLayout({ children, params }) {
                   storeName={storeName}
                   pricesIncludeVat={settings['tax.pricesIncludeVat']}
                   footer={chrome.footer}
+                  contact={chrome.contact}
+                  social={chrome.social}
                   t={t}
                   fmt={fmt}
                 />

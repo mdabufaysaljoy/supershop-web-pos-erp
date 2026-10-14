@@ -224,6 +224,139 @@ describe('what the storefront asks for', () => {
   });
 });
 
+describe('what the shop says about itself', () => {
+  it('normalizes a phone and keeps the address as content to translate', async () => {
+    await ok(
+      await root.patch(`${SITE}/layout`, {
+        contact: {
+          phone: '0501234567',
+          email: 'Hello@Shop.test',
+          address: 'King Fahd Road, Riyadh',
+          nationalAddress: 'RRRD2929',
+        },
+      }),
+    );
+    const layout = await ok(await root.get(`${SITE}/layout`));
+    expect(layout.contact).toMatchObject({
+      phone: '+966501234567',
+      email: 'hello@shop.test',
+      address: { en: 'King Fahd Road, Riyadh' },
+      nationalAddress: 'RRRD2929',
+    });
+    expect(scheduled.flatMap((j) => j.items.map((i) => i.field))).toContain('contact.address');
+  });
+
+  it('keeps the social profiles the shop gave, and refuses an unknown platform', async () => {
+    await ok(
+      await root.patch(`${SITE}/layout`, {
+        social: [{ platform: 'instagram', url: 'https://instagram.com/shop' }],
+      }),
+    );
+    expect((await ok(await root.get(`${SITE}/layout`))).social).toEqual([
+      { platform: 'instagram', url: 'https://instagram.com/shop' },
+    ]);
+    const bad = await root.patch(`${SITE}/layout`, {
+      social: [{ platform: 'myspace', url: 'https://x.test' }],
+    });
+    expect(bad.status).toBe(400);
+  });
+
+  it('hands the storefront its SEO defaults, and can shut crawlers out', async () => {
+    await ok(
+      await root.patch(`${SITE}/layout`, {
+        seo: {
+          titleSuffix: 'Supershop',
+          defaultDescription: 'Everyday essentials, delivered across the Kingdom.',
+          indexable: false,
+          robotsExtra: 'Disallow: /tmp',
+        },
+      }),
+    );
+    const chrome = await ok(await request(app).get(`${SITE}/public`));
+    expect(chrome.seo).toEqual({
+      titleSuffix: 'Supershop',
+      defaultDescription: 'Everyday essentials, delivered across the Kingdom.',
+      indexable: false,
+      robotsExtra: 'Disallow: /tmp',
+    });
+  });
+
+  it('comes with no pictures until the shop sets them', async () => {
+    const chrome = await ok(await request(app).get(`${SITE}/public`));
+    expect(chrome.brand).toEqual({ logo: null, favicon: null, ogImage: null });
+  });
+});
+
+describe('redirects', () => {
+  it('stores the address as a tidy path, whatever the admin typed', async () => {
+    const redirect = await ok(
+      await root.post(`${SITE}/redirects`, { from: '/Old-Offer/', to: '/search', note: 'Ramadan' }),
+      201,
+    );
+    expect(redirect).toMatchObject({ from: '/old-offer', to: '/search', status: 301 });
+  });
+
+  it('refuses a second rule for the same address, pointing at the field', async () => {
+    await ok(await root.post(`${SITE}/redirects`, { from: '/old', to: '/new' }), 201);
+    const res = await root.post(`${SITE}/redirects`, { from: '/old', to: '/other' });
+    expect(res.status).toBe(409);
+    expect(res.body.error.details[0].path).toBe('from');
+  });
+
+  it('insists on a destination unless the page is simply gone', async () => {
+    expect((await root.post(`${SITE}/redirects`, { from: '/x' })).status).toBe(400);
+    expect((await root.post(`${SITE}/redirects`, { from: '/x', status: 410 })).status).toBe(201);
+  });
+
+  it('gives the storefront the rules without an account, and forgets a deleted one', async () => {
+    const redirect = await ok(
+      await root.post(`${SITE}/redirects`, { from: '/old', to: '/new' }),
+      201,
+    );
+    expect(await ok(await request(app).get(`${SITE}/redirects/public`))).toEqual([
+      { from: '/old', to: '/new', status: 301 },
+    ]);
+    expect((await root.del(`${SITE}/redirects/${redirect.id}`)).status).toBe(204);
+    expect(await ok(await request(app).get(`${SITE}/redirects/public`))).toEqual([]);
+  });
+
+  it('needs `seo.manage` to write one', async () => {
+    const role = await ok(
+      await root.post('/api/v1/roles', { name: 'Page reader 2', permissions: ['page.view'] }),
+      201,
+    );
+    await ok(
+      await root.post('/api/v1/staff', {
+        name: 'Sam Seo',
+        email: 'seo@shop.test',
+        password: 'seo-pass-12345',
+        roleId: role.id,
+      }),
+      201,
+    );
+    const token = (
+      await request(app)
+        .post('/api/v1/auth/staff/login')
+        .send({ email: 'seo@shop.test', password: 'seo-pass-12345' })
+    ).body.data.accessToken;
+    const res = await request(app)
+      .post(`${SITE}/redirects`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ from: '/old', to: '/new' });
+    expect(res.status).toBe(403);
+  });
+});
+
+describe('the sitemap', () => {
+  it('lists published pages only, with when they went live', async () => {
+    const page = await makePage('Delivery');
+    await ok(await root.post('/api/v1/pages', { title: 'Draft only' }), 201);
+    const entries = await ok(await request(app).get('/api/v1/pages/public-sitemap'));
+    expect(entries).toEqual([{ slug: 'delivery', updatedAt: expect.any(String) }]);
+    expect(page.slug).toBe('delivery');
+  });
+});
+
 describe('who may change the chrome', () => {
   it('needs an account to look and `menu.manage` to change anything', async () => {
     const menu = await makeMenu();

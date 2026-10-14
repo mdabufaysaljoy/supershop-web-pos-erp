@@ -15,6 +15,10 @@ const FALLBACK = Object.freeze({
   header: { showCategoryRow: true, menu: [] },
   footer: { note: '', menus: [] },
   theme: themeCssVars(),
+  brand: { logo: null, favicon: null, ogImage: null },
+  contact: { phone: '', whatsapp: '', email: '', address: '', nationalAddress: '', mapUrl: '' },
+  social: [],
+  seo: { titleSuffix: '', defaultDescription: '', indexable: true, robotsExtra: '' },
 });
 
 export const getSiteChrome = cache(async (lang) => {

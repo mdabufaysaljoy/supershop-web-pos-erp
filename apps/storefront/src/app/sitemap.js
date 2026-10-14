@@ -1,13 +1,17 @@
 import { DEFAULT_LOCALE, LOCALES, localizePath } from '@/i18n/config';
 import { apiGet } from '@/lib/api';
 import { categoryPath, flattenTree, productPath } from '@/lib/categories';
+import { getSiteChrome } from '@/lib/chrome';
 import { absoluteUrl } from '@/lib/site';
 
 /**
  * sitemap.xml: every page in every language with hreflang alternates (CLAUDE.md §5.4/§5.7) —
- * home, categories and active products. CMS pages join in P5.4; split into several sitemaps
+ * home, categories, active products and the shop's own pages. Split into several sitemaps
  * (generateSitemaps) when the catalog outgrows one file (P9.3). Never fails: if the API is down
  * the static part is served and the next revalidation fills it in.
+ *
+ * A shop that has switched indexing off (P5.5) gets an EMPTY sitemap — robots.txt shuts crawlers
+ * out, and a sitemap listing pages nobody may index would contradict it.
  */
 export const revalidate = 3600;
 const MAX_URLS = 45_000; // one sitemap file holds 50k URLs; leave room for languages × pages
@@ -50,13 +54,35 @@ async function products() {
   return out;
 }
 
+/** The shop's published CMS pages (P5.5). */
+async function cmsPages() {
+  try {
+    return (await apiGet('/api/v1/pages/public-sitemap', { revalidate: 3600 })).data ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function sitemap() {
-  const [categories, items] = await Promise.all([categoryPaths(), products()]);
+  const [{ seo }, categories, items, pages] = await Promise.all([
+    getSiteChrome('en'),
+    categoryPaths(),
+    products(),
+    cmsPages(),
+  ]);
+  if (!seo.indexable) return [];
   return [
     ...entry('/', { priority: 1, changeFrequency: 'daily' }),
     ...categories.flatMap((path) => entry(path, { priority: 0.8, changeFrequency: 'daily' })),
     ...items.flatMap((p) =>
       entry(productPath(p.slug), { priority: 0.6, lastModified: p.updatedAt }),
+    ),
+    ...pages.flatMap((p) =>
+      entry(`/p/${p.slug}`, {
+        priority: 0.5,
+        changeFrequency: 'monthly',
+        lastModified: p.updatedAt,
+      }),
     ),
   ].slice(0, MAX_URLS);
 }

@@ -46,3 +46,9 @@ export const publicBySlug = publicPage((req, lang) =>
   service.getPublicPage({ slug: req.valid.params.slug }, lang),
 );
 export const publicHome = publicPage((_req, lang) => service.getPublicPage({ home: true }, lang));
+
+/** PUBLIC: the addresses of published pages, for sitemap.xml. */
+export const sitemap = async (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=600');
+  sendData(res, await service.listPublicPageSlugs());
+};

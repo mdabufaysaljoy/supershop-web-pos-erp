@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AccountButton } from '@/components/account/AccountButton';
 import { CartButton } from '@/components/cart/CartButton';
+import { MediaImage } from '@/components/catalog/MediaImage';
 import { SearchBox } from '@/components/search/SearchBox';
 import { languageOptions, localizePath } from '@/i18n/config';
 import { categoryPath } from '@/lib/categories';
@@ -12,12 +13,26 @@ import { SiteNav } from './SiteNav';
  * menu the shop arranged if it made one (P5.4), otherwise its top-level categories. Logical
  * spacing only (RTL-safe); the category row scrolls sideways on phones.
  */
-export function SiteHeader({ lang, storeName, categories = [], header = {}, t }) {
+export function SiteHeader({ lang, storeName, logo = null, categories = [], header = {}, t }) {
   return (
     <header className="border-b">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 px-4 py-3 md:grid-cols-[auto_minmax(0,36rem)_1fr_auto]">
-        <Link href={localizePath('/', lang)} className="text-lg font-semibold">
-          {storeName}
+        <Link
+          href={localizePath('/', lang)}
+          className="text-lg font-semibold"
+          aria-label={storeName}
+        >
+          {logo ? (
+            <MediaImage
+              image={logo}
+              alt={storeName}
+              sizes="180px"
+              priority
+              className="h-9 w-auto"
+            />
+          ) : (
+            storeName
+          )}
         </Link>
         <div className="col-span-3 row-start-2 md:col-span-1 md:row-start-1 md:col-start-2">
           <SearchBox />

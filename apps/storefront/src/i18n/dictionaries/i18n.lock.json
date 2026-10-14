@@ -60,6 +60,50 @@
       "src": "2791cc22a0f57c0e",
       "out": "ccb646bff9a77a7d"
     },
+    "footer.contact": {
+      "src": "47aaf31b83d6bfd7",
+      "out": "285a4700edd4eaab"
+    },
+    "footer.whatsapp": {
+      "src": "4094ce516d09008e",
+      "out": "04afdde8715b7aa2"
+    },
+    "footer.social": {
+      "src": "f74afb214a5fa0a4",
+      "out": "54fe42f5d073a722"
+    },
+    "footer.platforms.instagram": {
+      "src": "bad57ef7837c8e6b",
+      "status": "failed"
+    },
+    "footer.platforms.tiktok": {
+      "src": "1bb6fcfbf1368a7b",
+      "status": "failed"
+    },
+    "footer.platforms.snapchat": {
+      "src": "4eb2ce09b54c069a",
+      "status": "failed"
+    },
+    "footer.platforms.x": {
+      "src": "4b68ab3847feda7d",
+      "status": "failed"
+    },
+    "footer.platforms.facebook": {
+      "src": "d41f5b4977ee05c6",
+      "out": "501a1db055e9cfe0"
+    },
+    "footer.platforms.youtube": {
+      "src": "fb7accfff8c6f8ea",
+      "out": "b6348ddd35622359"
+    },
+    "footer.platforms.whatsapp": {
+      "src": "6a40edf1fc87a29f",
+      "out": "6a40edf1fc87a29f"
+    },
+    "footer.platforms.linkedin": {
+      "src": "dd84425b72da12c6",
+      "out": "490a4c57bf7ab538"
+    },
     "notFound.title": {
       "src": "a469ab4ca4e55bf5",
       "out": "4f137908a13f49d0"

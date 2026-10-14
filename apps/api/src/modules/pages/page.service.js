@@ -289,3 +289,9 @@ export async function getPublishedPageSlugs(ids) {
   const pages = await repo.findPublishedByIds(ids);
   return Object.fromEntries(pages.map((p) => [String(p._id), p.slug]));
 }
+
+/** `{ slug, updatedAt }` of every published page — the storefront's sitemap (P5.5). */
+export async function listPublicPageSlugs() {
+  const pages = await repo.listPublishedSlugs();
+  return pages.map((p) => ({ slug: p.slug, updatedAt: p.publishedAt ?? p.updatedAt }));
+}

@@ -1,13 +1,20 @@
 // @vitest-environment jsdom
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { translator } from '@/i18n/dictionaries';
 import en from '@/i18n/dictionaries/en.json';
 import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteNav } from '@/components/layout/SiteNav';
 
-/** P5.4 — the chrome the shop arranges: announcement bar, navigation, footer menus. */
+/** P5.4/P5.5 — the chrome the shop arranges: announcement bar, navigation, footer, logo. */
+// The header's own buttons are client components with their own providers; this is about the
+// header's structure, so they stand in as markers.
+vi.mock('@/components/search/SearchBox', () => ({ SearchBox: () => <div /> }));
+vi.mock('@/components/account/AccountButton', () => ({ AccountButton: () => <div /> }));
+vi.mock('@/components/cart/CartButton', () => ({ CartButton: () => <div /> }));
+vi.mock('@/components/layout/LanguageSwitcher', () => ({ LanguageSwitcher: () => <div /> }));
+const { SiteHeader } = await import('@/components/layout/SiteHeader');
 const t = translator(en);
 const fmt = { plain: (n) => String(n) };
 
@@ -98,5 +105,69 @@ describe('the footer', () => {
   it('keeps order tracking reachable before the shop has made any menu', () => {
     render(<SiteFooter lang="en" storeName="Supershop" footer={{}} t={t} fmt={fmt} />);
     expect(screen.getByRole('link', { name: en.track.linkLabel })).toBeInTheDocument();
+  });
+});
+
+describe('how to reach the shop', () => {
+  const contact = {
+    phone: '+966501234567',
+    whatsapp: '+966501234567',
+    email: 'hello@shop.test',
+    address: 'King Fahd Road, Riyadh',
+  };
+
+  it('shows the details the shop entered, each one actionable', () => {
+    render(
+      <SiteFooter
+        lang="en"
+        storeName="Supershop"
+        footer={{}}
+        contact={contact}
+        social={[{ platform: 'instagram', url: 'https://instagram.com/shop' }]}
+        t={t}
+        fmt={fmt}
+      />,
+    );
+    expect(screen.getByRole('link', { name: '+966501234567' })).toHaveAttribute(
+      'href',
+      'tel:+966501234567',
+    );
+    expect(screen.getByRole('link', { name: 'hello@shop.test' })).toHaveAttribute(
+      'href',
+      'mailto:hello@shop.test',
+    );
+    expect(screen.getByRole('link', { name: en.footer.whatsapp })).toHaveAttribute(
+      'href',
+      'https://wa.me/966501234567',
+    );
+    expect(screen.getByRole('link', { name: 'Instagram' })).toHaveAttribute(
+      'href',
+      'https://instagram.com/shop',
+    );
+    expect(screen.getByText('King Fahd Road, Riyadh')).toBeInTheDocument();
+  });
+
+  it('says nothing about contact when the shop has filled nothing in', () => {
+    render(<SiteFooter lang="en" storeName="Supershop" footer={{}} t={t} fmt={fmt} />);
+    expect(screen.queryByText(en.footer.contact)).toBeNull();
+  });
+});
+
+describe('the header', () => {
+  it('shows the shop’s logo when it has one, and its name when it does not', () => {
+    const { unmount } = render(
+      <SiteHeader
+        lang="en"
+        storeName="Supershop"
+        logo={{ url: '/m/logo.webp', width: 200, height: 60 }}
+        header={{ menu: [] }}
+        t={t}
+      />,
+    );
+    expect(screen.getByRole('img', { name: 'Supershop' })).toHaveAttribute('src', '/m/logo.webp');
+    unmount();
+
+    render(<SiteHeader lang="en" storeName="Supershop" header={{ menu: [] }} t={t} />);
+    expect(screen.getByRole('link', { name: 'Supershop' })).toHaveTextContent('Supershop');
   });
 });

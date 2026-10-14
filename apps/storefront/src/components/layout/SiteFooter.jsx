@@ -8,8 +8,19 @@ import { localizePath } from '@/i18n/config';
  */
 const linkHref = (href, lang) => (href?.startsWith('/') ? localizePath(href, lang) : href);
 
-export function SiteFooter({ lang, storeName, pricesIncludeVat, footer = {}, t, fmt }) {
+/** `instagram` → the label the dictionary has for it; the URL is the shop's own. */
+export function SiteFooter({
+  lang,
+  storeName,
+  pricesIncludeVat,
+  footer = {},
+  contact = {},
+  social = [],
+  t,
+  fmt,
+}) {
   const menus = footer.menus ?? [];
+  const hasContact = Boolean(contact.phone || contact.email || contact.address);
   return (
     <footer className="mt-16 border-t">
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-muted-foreground">
@@ -42,6 +53,54 @@ export function SiteFooter({ lang, storeName, pricesIncludeVat, footer = {}, t, 
               {t('track.linkLabel')}
             </Link>
           </nav>
+        )}
+
+        {(hasContact || social.length > 0) && (
+          <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-start sm:justify-between">
+            {hasContact && (
+              <address className="grid gap-1 not-italic">
+                <h2 className="text-sm font-medium text-foreground">{t('footer.contact')}</h2>
+                {contact.address && <span>{contact.address}</span>}
+                {contact.phone && (
+                  <a className="hover:underline" dir="ltr" href={`tel:${contact.phone}`}>
+                    {contact.phone}
+                  </a>
+                )}
+                {contact.email && (
+                  <a className="hover:underline" dir="ltr" href={`mailto:${contact.email}`}>
+                    {contact.email}
+                  </a>
+                )}
+                {contact.whatsapp && (
+                  <a
+                    className="hover:underline"
+                    dir="ltr"
+                    href={`https://wa.me/${contact.whatsapp.replace(/\D/g, '')}`}
+                    rel="noreferrer noopener"
+                    target="_blank"
+                  >
+                    {t('footer.whatsapp')}
+                  </a>
+                )}
+              </address>
+            )}
+
+            {social.length > 0 && (
+              <nav aria-label={t('footer.social')} className="flex flex-wrap gap-3">
+                {social.map((link) => (
+                  <a
+                    key={link.platform}
+                    href={link.url}
+                    rel="noreferrer noopener me"
+                    target="_blank"
+                    className="underline-offset-4 hover:underline"
+                  >
+                    {t(`footer.platforms.${link.platform}`)}
+                  </a>
+                ))}
+              </nav>
+            )}
+          </div>
         )}
 
         <div className="grid gap-1">

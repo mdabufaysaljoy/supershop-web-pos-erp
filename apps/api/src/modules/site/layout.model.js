@@ -27,6 +27,32 @@ const layoutSchema = new mongoose.Schema(
       note: localizedField(),
       menuIds: { type: [ObjectId], default: [] },
     },
+    /** Pictures the shop uploaded: its logo, its favicon, the one used when a page is shared. */
+    brand: {
+      logoId: { type: ObjectId, default: null },
+      faviconId: { type: ObjectId, default: null },
+      ogImageId: { type: ObjectId, default: null },
+    },
+    /** How to reach the shop. Plain strings: a phone number is not translated (§5.7). */
+    contact: {
+      phone: { type: String, default: '' },
+      whatsapp: { type: String, default: '' },
+      email: { type: String, default: '' },
+      address: localizedField(),
+      nationalAddress: { type: String, default: '' },
+      mapUrl: { type: String, default: '' },
+    },
+    social: {
+      type: [new mongoose.Schema({ platform: String, url: String }, { _id: false })],
+      default: [],
+    },
+    seo: {
+      titleSuffix: localizedField(),
+      defaultDescription: localizedField(),
+      /** Off for a site that is not ready: robots.txt shuts crawlers out and pages go noindex. */
+      indexable: { type: Boolean, default: true },
+      robotsExtra: { type: String, default: '' },
+    },
     theme: {
       primary: { type: String, default: THEME.DEFAULTS.primary },
       primaryForeground: { type: String, default: THEME.DEFAULTS.primaryForeground },
@@ -38,6 +64,14 @@ const layoutSchema = new mongoose.Schema(
   { collection: 'site_layout', timestamps: true, minimize: false },
 );
 
-layoutSchema.plugin(localized, { fields: ['announcement.text', 'footer.note'] });
+layoutSchema.plugin(localized, {
+  fields: [
+    'announcement.text',
+    'footer.note',
+    'contact.address',
+    'seo.titleSuffix',
+    'seo.defaultDescription',
+  ],
+});
 
 export const SiteLayout = mongoose.models.SiteLayout ?? mongoose.model('SiteLayout', layoutSchema);

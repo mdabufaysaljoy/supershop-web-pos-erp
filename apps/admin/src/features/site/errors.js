@@ -6,15 +6,16 @@ import { useState } from 'react';
  */
 export function useFieldErrors() {
   const [errors, setErrors] = useState({});
-  /** Runs a save; returns whether it went through, and keeps any field errors for the form. */
+  /** Runs a save; returns what came back (or false), and keeps any field errors for the form. */
   const run = async (promise) => {
     setErrors({});
     try {
-      await promise;
-      return true;
+      return (await promise) ?? true;
     } catch (err) {
-      if (err?.code === 'VALIDATION_ERROR')
-        setErrors(Object.fromEntries((err.details ?? []).map((d) => [d.path, d.message])));
+      // Any error carrying field details belongs beside the field — a clash (409) as much as a
+      // validation failure; anything without details was already toasted by the mutation.
+      if (err?.details?.length)
+        setErrors(Object.fromEntries(err.details.map((d) => [d.path, d.message])));
       return false;
     }
   };

@@ -6,7 +6,11 @@ import { errorMessage } from '@/lib/i18n';
 
 /** The site's chrome (P5.4): menus, announcement bar, footer and theme tokens. */
 const BASE = '/api/v1/site';
-const KEYS = { menus: ['site', 'menus'], layout: ['site', 'layout'] };
+const KEYS = {
+  menus: ['site', 'menus'],
+  layout: ['site', 'layout'],
+  redirects: ['site', 'redirects'],
+};
 
 export const useMenus = () =>
   useQuery({ queryKey: KEYS.menus, queryFn: () => apiData(`${BASE}/menus`) });
@@ -52,4 +56,18 @@ export const useDeleteMenu = () =>
 export const useUpdateLayout = () =>
   useSiteMutation((body) => apiData(`${BASE}/layout`, { method: 'PATCH', body }), {
     invalidate: KEYS.layout,
+  });
+
+export const useRedirects = () =>
+  useQuery({ queryKey: KEYS.redirects, queryFn: () => apiData(`${BASE}/redirects`) });
+
+export const useCreateRedirect = () =>
+  useSiteMutation((body) => apiData(`${BASE}/redirects`, { method: 'POST', body }), {
+    invalidate: KEYS.redirects,
+  });
+
+export const useDeleteRedirect = () =>
+  useSiteMutation((id) => api(`${BASE}/redirects/${id}`, { method: 'DELETE' }), {
+    invalidate: KEYS.redirects,
+    success: 'common.deleted',
   });

@@ -20,7 +20,20 @@
   "footer": {
     "rights": "© {{year}} {{store}}. All rights reserved.",
     "vatIncluded": "Prices include VAT.",
-    "links": "Helpful links"
+    "links": "Helpful links",
+    "contact": "Contact us",
+    "whatsapp": "Message us on WhatsApp",
+    "social": "Find us online",
+    "platforms": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "snapchat": "Snapchat",
+      "x": "X",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "whatsapp": "WhatsApp",
+      "linkedin": "LinkedIn"
+    }
   },
   "notFound": {
     "title": "Page not found",

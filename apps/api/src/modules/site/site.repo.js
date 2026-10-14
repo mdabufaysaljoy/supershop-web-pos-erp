@@ -1,4 +1,5 @@
 import { Menu } from './menu.model.js';
+import { Redirect } from './redirect.model.js';
 import { SiteLayout } from './layout.model.js';
 
 /** The ONLY place touching the menu and layout models. */
@@ -52,3 +53,13 @@ export const forgetMenu = (id) =>
   SiteLayout.updateOne({ key: 'default' }, { $pull: { 'footer.menuIds': id }, $set: {} }).then(() =>
     SiteLayout.updateOne({ key: 'default', headerMenuId: id }, { $set: { headerMenuId: null } }),
   );
+
+// ---------- redirects ----------
+
+export const listRedirects = () => Redirect.find().sort({ from: 1 }).lean();
+export const createRedirect = async (data) => (await Redirect.create(data)).toObject();
+export const updateRedirect = (id, patch) =>
+  Redirect.findByIdAndUpdate(id, { $set: patch }, { returnDocument: 'after' }).lean();
+export const deleteRedirect = (id) => Redirect.findByIdAndDelete(id).lean();
+export const redirectFromExists = (from, exceptId) =>
+  Redirect.exists({ from, ...(exceptId ? { _id: { $ne: exceptId } } : {}) });

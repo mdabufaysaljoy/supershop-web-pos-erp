@@ -31,3 +31,19 @@ export const publicChrome = async (req, res) => {
   res.set('Cache-Control', 'public, max-age=60');
   sendData(res, await service.getSiteChrome(lang));
 };
+
+export const listRedirects = async (_req, res) => sendData(res, await service.listRedirects());
+
+export const createRedirect = async (req, res) =>
+  sendCreated(res, await service.createRedirect(req.access, req.valid.body));
+
+export const deleteRedirect = async (req, res) => {
+  await service.deleteRedirect(req.access, req.valid.params.id);
+  sendNoContent(res);
+};
+
+/** PUBLIC: the redirect rules, for the storefront's edge to apply (cached briefly). */
+export const publicRedirects = async (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=60');
+  sendData(res, await service.getPublicRedirects());
+};

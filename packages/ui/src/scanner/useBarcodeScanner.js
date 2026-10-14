@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef } from 'react';
 import { charFromKeyEvent, isEnter } from './keys.js';
 import { createWedgeDetector } from './wedge.js';

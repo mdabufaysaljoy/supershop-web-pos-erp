@@ -48,6 +48,7 @@ import {
   createNotificationRouter,
   registerNotificationSubscribers,
 } from './notifications/index.js';
+import { createPageRouter } from './pages/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countPurchaseOrdersInBranch,
@@ -196,6 +197,7 @@ export function mountModuleRoutes(api) {
   api.use('/audit', createAuditRouter());
   api.use('/i18n', createI18nAdminRouter());
   api.use('/media', createMediaRouter());
+  api.use('/pages', createPageRouter());
   api.use('/categories', createCategoryRouter());
   api.use('/brands', createBrandRouter());
   api.use('/suppliers', createSupplierRouter());

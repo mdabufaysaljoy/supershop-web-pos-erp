@@ -23,7 +23,21 @@ export {
   restocksOn,
   transitionByAction,
 } from './stateMachines/order.js';
+export { blockPalette, blockTypes, defineBlock, getBlock, listBlocks } from './blocks/registry.js';
+export {
+  collectTexts,
+  countBlocks,
+  localizeBlocks,
+  migratePageContent,
+  PAGE_LIMITS,
+  PAGE_SCHEMA_VERSION,
+  pageContentSchema,
+  syncTexts,
+  textKey,
+  walkBlocks,
+} from './blocks/page.js';
 export { createNotificationSchemas, NOTIFICATION } from './schemas/notification.js';
+export { createPageSchemas, PAGE } from './schemas/page.js';
 export { createPaymentSchemas, PAYMENT } from './schemas/payment.js';
 export {
   createPaymentMethodSchemas,

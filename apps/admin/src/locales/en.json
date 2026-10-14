@@ -1177,5 +1177,28 @@
         "skipped": "Skipped"
       }
     }
+  },
+  "cms": {
+    "title": "Pages",
+    "description": "The pages of your site. Build them with blocks; publish when they read well.",
+    "empty": "No pages yet.",
+    "pageTitle": "Page",
+    "address": "Address",
+    "statusLabel": "Status",
+    "blocks": "Blocks",
+    "updated": "Updated",
+    "home": "Home page",
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "publish": "Publish",
+    "unpublish": "Take it down",
+    "preview": "Preview",
+    "noBlocks": "This page has no blocks yet.",
+    "languages": {
+      "en": "English",
+      "ar": "العربية"
+    }
   }
 }

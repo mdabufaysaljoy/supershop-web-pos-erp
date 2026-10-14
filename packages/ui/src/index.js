@@ -25,3 +25,13 @@ export { BarcodeInput } from './scanner/BarcodeInput.jsx';
 export { charFromKeyEvent } from './scanner/keys.js';
 export { createWedgeDetector } from './scanner/wedge.js';
 export { useBarcodeScanner } from './scanner/useBarcodeScanner.js';
+export { BlockRenderer } from './blocks/BlockRenderer.jsx';
+export { PagePreview } from './blocks/PagePreview.jsx';
+export {
+  ButtonLinkBlock,
+  CORE_BLOCK_COMPONENTS,
+  HeadingBlock,
+  ImageBlock,
+  RichTextBlock,
+  SpacerBlock,
+} from './blocks/coreBlocks.jsx';

@@ -39,7 +39,10 @@ export const EVENTS = Object.freeze({
   // settings / content
   /** Payload: { changes: [{ key, before, after }] (secrets masked), actorId } */
   SETTINGS_UPDATED: 'settings.updated',
+  PAGE_CREATED: 'page.created',
+  PAGE_UPDATED: 'page.updated',
   PAGE_PUBLISHED: 'page.published',
+  PAGE_DELETED: 'page.deleted',
   TRANSLATION_REQUESTED: 'translation.requested',
   TRANSLATION_COMPLETED: 'translation.completed',
   TRANSLATION_FAILED: 'translation.failed',

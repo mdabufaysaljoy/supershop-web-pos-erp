@@ -1,3 +1,5 @@
+'use client';
+
 import { validators } from '@supershop/shared';
 import { useRef } from 'react';
 import { cn } from '../lib/cn.js';

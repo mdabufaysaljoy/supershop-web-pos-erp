@@ -56,7 +56,7 @@ describe('BlockRenderer', () => {
         ]}
         components={CORE_BLOCK_COMPONENTS}
         context={{
-          localizeHref: (href) => `/ar${href}`,
+          langPrefix: '/ar',
           media: { m1: { url: 'https://cdn.test/shirt.webp', width: 800, height: 600 } },
         }}
       />,

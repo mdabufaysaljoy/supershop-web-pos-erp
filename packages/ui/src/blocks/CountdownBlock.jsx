@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { hrefIn, number } from './context.js';
 
 /**
  * Counts down to the end of an offer. The remaining time is computed on the client only —
@@ -39,11 +40,7 @@ export function CountdownBlock({ heading, endsAt, buttonLabel, href, context = {
         <ul className="flex gap-4 tabular-nums" suppressHydrationWarning>
           {parts(left).map(([unit, value]) => (
             <li key={unit} className="grid w-16 justify-items-center">
-              <span className="text-3xl font-semibold">
-                {context.formatNumber
-                  ? context.formatNumber(value)
-                  : String(value).padStart(2, '0')}
-              </span>
+              <span className="text-3xl font-semibold">{number(value, context)}</span>
               <span className="text-xs uppercase opacity-70">{labels[unit] ?? unit}</span>
             </li>
           ))}
@@ -51,7 +48,7 @@ export function CountdownBlock({ heading, endsAt, buttonLabel, href, context = {
       ) : null}
       {buttonLabel && !over ? (
         <a
-          href={context.localizeHref?.(href) ?? href}
+          href={hrefIn(href, context)}
           className="inline-flex h-11 items-center rounded-full bg-background px-6 text-sm font-medium text-foreground"
         >
           {buttonLabel}

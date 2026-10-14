@@ -1,4 +1,5 @@
 import { cn } from '../lib/cn.js';
+import { hrefIn } from './context.js';
 import { SHOP_BLOCK_COMPONENTS } from './shopBlocks.jsx';
 
 /**
@@ -51,7 +52,7 @@ export function ImageBlock({ mediaId, alt, href, width = 'contained', context = 
     />
   );
   return href ? (
-    <a href={context.localizeHref?.(href) ?? href} className="block">
+    <a href={hrefIn(href, context)} className="block">
       {img}
     </a>
   ) : (
@@ -66,7 +67,7 @@ export function SpacerBlock({ size = 'md' }) {
 export function ButtonLinkBlock({ label, href, variant = 'primary', context = {} }) {
   return (
     <a
-      href={context.localizeHref?.(href) ?? href}
+      href={hrefIn(href, context)}
       className={cn(
         'inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-medium',
         variant === 'primary' ? 'bg-primary text-primary-foreground' : 'border',

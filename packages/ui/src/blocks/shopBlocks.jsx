@@ -1,4 +1,5 @@
 import { cn } from '../lib/cn.js';
+import { hrefIn, money } from './context.js';
 import { CountdownBlock } from './CountdownBlock.jsx';
 import { HeroCarouselBlock } from './HeroCarouselBlock.jsx';
 
@@ -15,8 +16,7 @@ const Section = ({ heading, children, className }) => (
   </section>
 );
 
-const Money = ({ amount, context }) =>
-  context.formatMoney ? context.formatMoney(amount) : (amount / 100).toFixed(2);
+const Money = ({ amount, context }) => money(amount, context);
 
 // ---------------------------------------------------------------- shopping
 
@@ -28,7 +28,7 @@ export function ProductRailBlock({ id, heading, context = {} }) {
       <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2">
         {products.map((product) => (
           <li key={product.id} className="w-44 shrink-0 snap-start sm:w-52">
-            <a href={context.localizeHref?.(product.href) ?? product.href} className="grid gap-2">
+            <a href={hrefIn(product.href, context)} className="grid gap-2">
               <span className="block aspect-square overflow-hidden rounded-xl bg-muted">
                 {product.image ? (
                   <img
@@ -67,7 +67,7 @@ export function CategoryGridBlock({ id, heading, columns = '3', context = {} }) 
         {categories.map((category) => (
           <li key={category.id}>
             <a
-              href={context.localizeHref?.(category.href) ?? category.href}
+              href={hrefIn(category.href, context)}
               className="relative grid aspect-[4/3] place-items-end overflow-hidden rounded-xl bg-muted p-3"
             >
               {category.image ? (
@@ -99,7 +99,7 @@ export function BrandStripBlock({ id, heading, context = {} }) {
       <ul className="flex flex-wrap items-center gap-6">
         {brands.map((brand) => (
           <li key={brand.id}>
-            <a href={context.localizeHref?.(brand.href) ?? brand.href} className="block">
+            <a href={hrefIn(brand.href, context)} className="block">
               {brand.logo ? (
                 <img
                   src={brand.logo.url}
@@ -153,7 +153,7 @@ export function BannerBlock({
         {text ? <p className="text-base/7">{text}</p> : null}
         {buttonLabel ? (
           <a
-            href={context.localizeHref?.(href) ?? href}
+            href={hrefIn(href, context)}
             className="inline-flex h-11 w-fit items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground"
           >
             {buttonLabel}

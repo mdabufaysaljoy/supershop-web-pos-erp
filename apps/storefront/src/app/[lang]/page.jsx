@@ -34,14 +34,14 @@ export async function generateMetadata({ params }) {
 
 export default async function HomePage({ params }) {
   const { lang } = await params;
-  const [{ t, fmt }, page] = await Promise.all([getPageContext(lang), getHomePage(lang)]);
+  const [{ t, fmtOptions }, page] = await Promise.all([getPageContext(lang), getHomePage(lang)]);
   if (page)
     return (
       <div className="grid gap-14">
         <BlockRenderer
           blocks={page.content.blocks}
           components={ALL_BLOCK_COMPONENTS}
-          context={blockContext({ page, lang, t, fmt })}
+          context={blockContext({ page, lang, t, fmtOptions })}
         />
       </div>
     );

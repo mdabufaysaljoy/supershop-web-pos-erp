@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { cn } from '../lib/cn.js';
+import { hrefIn } from './context.js';
 
 /**
  * The hero at the top of a page: one slide at a time, with dots and (optional) autoplay.
@@ -69,7 +70,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
               ) : null}
               {slide.buttonLabel ? (
                 <a
-                  href={context.localizeHref?.(slide.href) ?? slide.href}
+                  href={hrefIn(slide.href, context)}
                   tabIndex={i === active ? undefined : -1}
                   className="inline-flex h-11 w-fit items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground"
                 >

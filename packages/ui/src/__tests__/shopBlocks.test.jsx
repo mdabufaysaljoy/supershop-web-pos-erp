@@ -17,7 +17,7 @@ const draw = (blocks, context = {}) =>
     <BlockRenderer
       blocks={pageContentSchema.parse({ blocks }).blocks}
       components={ALL_BLOCK_COMPONENTS}
-      context={{ formatMoney: (m) => `${(m / 100).toFixed(2)} SAR`, ...context }}
+      context={{ lang: 'en', fmtOptions: { lang: 'en', currency: 'SAR' }, ...context }}
     />,
   );
 
@@ -43,7 +43,7 @@ describe('data-backed blocks', () => {
     draw([{ id: 'blk-rail', type: 'productRail', props: { heading: 'Picked for you' } }], { data });
     expect(screen.getByRole('heading', { name: 'Picked for you' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Kettle/ })).toHaveAttribute('href', '/product/kettle');
-    expect(screen.getByText('129.00 SAR')).toBeInTheDocument();
+    expect(screen.getByText(/129\.00/)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Kettle' })).toHaveAttribute('srcset', '/m/a.webp 800w');
   });
 
@@ -66,10 +66,7 @@ describe('data-backed blocks', () => {
   });
 
   it('keeps internal links in the visitor’s language', () => {
-    draw([{ id: 'blk-rail', type: 'productRail', props: {} }], {
-      data,
-      localizeHref: (href) => `/ar${href}`,
-    });
+    draw([{ id: 'blk-rail', type: 'productRail', props: {} }], { data, langPrefix: '/ar' });
     expect(screen.getByRole('link', { name: /Kettle/ })).toHaveAttribute(
       'href',
       '/ar/product/kettle',

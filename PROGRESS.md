@@ -232,6 +232,8 @@
 - D-163 Payment-method `type` now also decides where a method may be used: `cash` is for the counter (and is the only kind that may be overpaid, with change from the drawer), `gateway` is for the website. `seedPaymentMethods` ensures missing built-ins rather than only seeding an empty list, so this reaches shops that are already running without touching their own edits.
 - D-164 The till looks a customer up by phone or email and attaches them when they already have an account; it never creates one. An unknown name and number are snapshotted on the sale instead — a receipt should not quietly open an account for someone.
 
+- D-165 The block renderer's context is DATA only — a language prefix and formatting options, never functions. Two blocks (hero carousel, countdown) run in the browser, and React refuses a function handed to a client component; `@supershop/ui` turns the prefix and options back into links and formatted money on both sides. (Found by opening the seeded home page, not by a test: jsdom does not enforce that boundary.)
+
 ## Open questions (blockers only)
 - SMS account for KSA: both Unifonic and Taqnyat adapters exist (Settings → Notifications picks one) — a real account key is needed to verify either, and SMS stays off until then. Same for SMTP credentials.
 - Moyasar account keys (Settings → Payments: secret key + webhook secret) and a sandbox run of the hosted flow — the adapter is written against the published API but has never talked to the real service (D-113).

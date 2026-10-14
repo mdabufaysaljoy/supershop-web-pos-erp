@@ -31,17 +31,22 @@ export const getHomePage = cache((lang) =>
 
 /**
  * What the block renderers need besides their own props: the page's images and resolved data, the
- * visitor's formatters, the few strings a block renders itself, and how to keep a link in their
- * language.
- * @param {{ page: object, lang: string, t: (key: string) => string, fmt: object }} args
+ * strings a block renders itself, and enough to format money and build links.
+ *
+ * DATA ONLY — no functions. Two blocks (the hero carousel and the countdown) run in the browser,
+ * and anything handed to a client component has to be serializable; `@supershop/ui` turns
+ * `langPrefix` and `fmtOptions` back into links and formatted numbers on either side.
+ *
+ * @param {{ page: object, lang: string, t: (key: string) => string, fmtOptions: object }} args
  */
-export function blockContext({ page, lang, t, fmt }) {
+export function blockContext({ page, lang, t, fmtOptions }) {
   return {
     lang,
+    /** Internal links keep the visitor in their language; external ones are left alone. */
+    langPrefix: localizePath('/', lang) === '/' ? '' : localizePath('/', lang),
+    fmtOptions,
     media: page.media ?? {},
     data: page.data ?? {},
-    formatMoney: fmt.money,
-    formatNumber: fmt.number,
     labels: {
       previous: t('blocks.previousSlide'),
       next: t('blocks.nextSlide'),
@@ -52,7 +57,5 @@ export function blockContext({ page, lang, t, fmt }) {
       seconds: t('blocks.seconds'),
     },
     emailLabel: t('blocks.emailAddress'),
-    /** Internal links keep the visitor in their language; external ones are left alone. */
-    localizeHref: (href) => (href?.startsWith('/') ? localizePath(href, lang) : href),
   };
 }

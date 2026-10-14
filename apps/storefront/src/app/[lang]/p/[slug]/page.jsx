@@ -25,7 +25,10 @@ export async function generateMetadata({ params }) {
 
 export default async function CmsPage({ params }) {
   const { lang, slug } = await params;
-  const [{ t, fmt }, page] = await Promise.all([getPageContext(lang), getCmsPage(slug, lang)]);
+  const [{ t, fmtOptions }, page] = await Promise.all([
+    getPageContext(lang),
+    getCmsPage(slug, lang),
+  ]);
   if (!page) notFound();
 
   return (
@@ -33,7 +36,7 @@ export default async function CmsPage({ params }) {
       <BlockRenderer
         blocks={page.content.blocks}
         components={ALL_BLOCK_COMPONENTS}
-        context={blockContext({ page, lang, t, fmt })}
+        context={blockContext({ page, lang, t, fmtOptions })}
       />
     </article>
   );

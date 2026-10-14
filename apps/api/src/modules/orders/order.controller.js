@@ -90,3 +90,8 @@ export const ship = async (req, res) => {
   privately(res);
   sendData(res, service.toStaffOrderDto(order));
 };
+
+export const addNote = async (req, res) => {
+  privately(res);
+  sendData(res, await service.addOrderNote(req.valid.params.id, req.valid.body.text, req.access));
+};

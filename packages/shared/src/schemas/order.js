@@ -174,6 +174,8 @@ export function createCheckoutSchemas({ allowInternationalPhone = false } = {}) 
         reason: plainText({ max: 200 }).optional(),
       })
       .strict(),
+    /** POST /orders/:id/notes — what the shop tells itself about this order. */
+    note: z.object({ text: plainText({ min: 1, max: ORDER.NOTE_MAX }) }).strict(),
     shipment: z
       .object({
         carrier: plainText({ min: 2, max: 60 }),

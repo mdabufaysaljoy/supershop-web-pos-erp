@@ -66,6 +66,13 @@ export const applyTransition = (id, expectedStatus, patch, historyEntry, session
     { returnDocument: 'after', session },
   ).lean();
 
+export const addNote = (id, note) =>
+  Order.findOneAndUpdate(
+    { _id: id },
+    { $push: { notes: note } },
+    { returnDocument: 'after' },
+  ).lean();
+
 export const addShipment = (id, shipment) =>
   Order.findOneAndUpdate(
     { _id: id },

@@ -122,6 +122,8 @@ export const EVENTS = Object.freeze({
   ORDER_PAID: 'order.paid',
   ORDER_COD_CONFIRMED: 'order.codConfirmed',
   ORDER_STATUS_CHANGED: 'order.statusChanged',
+  /** A staff note was added to an order (P4.4). */
+  ORDER_NOTE_ADDED: 'order.noteAdded',
   ORDER_SHIPPED: 'order.shipped',
   /** A parcel left the branch (carrier + tracking number recorded) — P4.3. */
   SHIPMENT_CREATED: 'shipment.created',

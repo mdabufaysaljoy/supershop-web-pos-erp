@@ -110,6 +110,19 @@ const orderSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    /** Staff notes (P4.4) — internal, never shown to the customer. */
+    notes: {
+      type: [
+        {
+          _id: false,
+          at: { type: Date, default: Date.now },
+          staffId: { type: ObjectId, default: null },
+          staffName: { type: String, default: null },
+          text: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
     cancelledAt: { type: Date, default: null },
     cancelReason: { type: String, default: null },
     /** SHA-256 of the link token that shows the confirmation page again. */

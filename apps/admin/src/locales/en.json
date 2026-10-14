@@ -1003,5 +1003,105 @@
       "notSet": "Not set yet.",
       "enterNew": "Paste a new key"
     }
+  },
+  "orders": {
+    "title": "Orders",
+    "description": "Everything the shop has sold online and at the till.",
+    "search": "Order number or phone",
+    "statusFilter": "Filter by status",
+    "channelFilter": "Filter by channel",
+    "allStatuses": "Any status",
+    "allChannels": "Any channel",
+    "empty": "No orders match this view.",
+    "number": "Order",
+    "placed": "Placed",
+    "customer": "Customer",
+    "statusLabel": "Status",
+    "payment": "Payment",
+    "total": "Total",
+    "shipped": "shipped",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "channels": {
+      "online": "Online",
+      "pos": "Point of sale"
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "cod_confirmed": "Confirmed",
+      "processing": "Being prepared",
+      "shipped": "On its way",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "partially_returned": "Partly returned",
+      "exchanged": "Exchanged"
+    },
+    "paymentStatus": {
+      "pending": "Not paid yet",
+      "authorized": "Authorized",
+      "paid": "Paid",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "actions": {
+      "title": "What happens next",
+      "none": "Nothing left to do with this order.",
+      "markPaid": "Mark as paid",
+      "confirmCod": "Confirm the order",
+      "startProcessing": "Start preparing",
+      "ship": "Mark as shipped",
+      "markDelivered": "Mark as delivered",
+      "complete": "Complete the order",
+      "cancel": "Cancel order",
+      "cancelTitle": "Cancel this order?",
+      "cancelHelp": "The goods go back on the shelf straight away. This cannot be undone.",
+      "cancelReason": "Reason (kept with the order)",
+      "cancelConfirm": "Yes, cancel it"
+    },
+    "shipments": {
+      "title": "Shipments",
+      "none": "Nothing has left the branch yet.",
+      "carrier": "Carrier",
+      "trackingNumber": "Tracking number",
+      "trackingUrl": "Tracking link",
+      "add": "Record shipment"
+    },
+    "notes": {
+      "title": "Notes",
+      "description": "For the shop only — customers never see these.",
+      "fromCustomer": "From the customer",
+      "add": "Add note",
+      "placeholder": "What should the team know?",
+      "someone": "Someone"
+    },
+    "history": {
+      "title": "History",
+      "none": "Nothing has happened yet.",
+      "restocked": "goods returned to stock",
+      "by": {
+        "staff": "by staff",
+        "system": "automatic"
+      }
+    },
+    "invoice": {
+      "title": "Invoice",
+      "print": "Print invoice",
+      "vatNumber": "VAT number",
+      "billTo": "Billed to",
+      "deliverTo": "Delivered to",
+      "item": "Item",
+      "qty": "Qty",
+      "unitPrice": "Price",
+      "lineTotal": "Amount",
+      "subtotal": "Subtotal",
+      "delivery": "Delivery",
+      "paymentFee": "Payment fee",
+      "vat": "VAT",
+      "total": "Total",
+      "paidWith": "Paid with {{method}} — {{status}}"
+    }
   }
 }

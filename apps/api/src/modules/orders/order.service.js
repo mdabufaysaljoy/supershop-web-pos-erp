@@ -28,6 +28,7 @@ import {
   publishStockResult,
 } from '../inventory/index.js';
 import { getSetting } from '../settings/index.js';
+import { getStaffNames } from '../staff/index.js';
 import * as repo from './order.repo.js';
 import { moveOrder, nextActions } from './order.states.js';
 import { allocateStock } from './stockAllocation.js';
@@ -532,6 +533,13 @@ export const toStaffOrderDto = (o) => ({
     reason: h.reason ?? null,
     restocked: Boolean(h.restocked),
   })),
+  /** Staff notes, oldest first — internal only (P4.4). */
+  notes: (o.notes ?? []).map((n) => ({
+    at: n.at,
+    staffId: str(n.staffId),
+    staffName: n.staffName ?? null,
+    text: n.text,
+  })),
   /** What the admin may offer right now, and why an action is blocked (P4.4 renders these). */
   nextActions: nextActions(o),
 });
@@ -577,4 +585,25 @@ export async function getOrderForStaff(id) {
   const order = await repo.findById(id);
   if (!order) throw new NotFoundError('Order not found');
   return toStaffOrderDto(order);
+}
+
+/** A note the shop leaves itself on an order (never shown to the customer). */
+export async function addOrderNote(id, text, actor) {
+  const staffId = actor?.staffId ?? null;
+  // The name is written WITH the note: who said this is part of the record, and a staff member
+  // may be renamed or leave (the stock history resolves names the same way, D-093).
+  const names = staffId ? await getStaffNames([staffId]) : new Map();
+  const updated = await repo.addNote(id, {
+    at: new Date(),
+    staffId: staffId ? new mongoose.Types.ObjectId(String(staffId)) : null,
+    staffName: names.get(String(staffId))?.name ?? null,
+    text,
+  });
+  if (!updated) throw new NotFoundError('Order not found');
+  void eventBus.emit(EVENTS.ORDER_NOTE_ADDED, {
+    orderId: str(updated._id),
+    orderNo: updated.orderNo,
+    staffId: str(actor?.staffId),
+  });
+  return toStaffOrderDto(updated);
 }

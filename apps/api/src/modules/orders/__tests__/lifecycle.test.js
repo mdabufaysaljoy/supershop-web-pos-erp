@@ -312,6 +312,32 @@ describe('who may do what', () => {
   });
 });
 
+describe('notes the shop leaves itself', () => {
+  it('records who wrote what, and keeps them off the customer\u2019s pages', async () => {
+    const order = await placeOrder();
+    const withNote = await ok(
+      await root().post(`${ORDERS}/${order.id}/notes`, { text: 'Customer asked to call first' }),
+    );
+    expect(withNote.notes).toHaveLength(1);
+    expect(withNote.notes[0]).toMatchObject({
+      text: 'Customer asked to call first',
+      staffName: 'Root Admin',
+    });
+
+    // Nothing internal reaches the tracking page.
+    const tracked = await ok(
+      await request(app).get(`/api/v1/checkout/track?number=${order.orderNo}&phone=0512345678`),
+    );
+    expect(tracked.notes).toBeUndefined();
+    expect(JSON.stringify(tracked)).not.toContain('call first');
+  });
+
+  it('refuses an empty note', async () => {
+    const order = await placeOrder();
+    expect((await root().post(`${ORDERS}/${order.id}/notes`, { text: '  ' })).status).toBe(400);
+  });
+});
+
 describe('the orders list', () => {
   it('filters by status and finds an order by its number or phone', async () => {
     const first = await placeOrder();

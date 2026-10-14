@@ -10,6 +10,7 @@ import * as c from './order.controller.js';
  *  GET  /:id                 order.view — full order + what it may do next
  *  POST /:id/transitions     order.update — { to, reason }; cancelling needs order.cancel
  *  POST /:id/shipments       order.update — { carrier, trackingNumber?, trackingUrl? }
+ *  POST /:id/notes           order.update — { text }: what the shop tells itself
  */
 export function createOrderAdminRouter({ schemas = createCheckoutSchemas() } = {}) {
   const r = express.Router();
@@ -28,6 +29,12 @@ export function createOrderAdminRouter({ schemas = createCheckoutSchemas() } = {
     requirePermission(P.ORDER_UPDATE),
     validate({ params: schemas.idParam, body: schemas.shipment }),
     c.ship,
+  );
+  r.post(
+    '/:id/notes',
+    requirePermission(P.ORDER_UPDATE),
+    validate({ params: schemas.idParam, body: schemas.note }),
+    c.addNote,
   );
   return r;
 }

@@ -7,4 +7,5 @@ export {
   findOrderByConfirmationToken,
   getOrderById,
   setPaymentHooks,
+  setPaymentMethodResolver,
 } from './order.service.js';

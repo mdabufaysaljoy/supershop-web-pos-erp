@@ -200,7 +200,8 @@
       }
     },
     "buildingNumber": "Building number",
-    "additionalNumber": "Additional number"
+    "additionalNumber": "Additional number",
+    "methodFee": "+ {{amount}}"
   },
   "validation": {
     "required": "This field is required.",

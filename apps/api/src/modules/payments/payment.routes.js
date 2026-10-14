@@ -11,7 +11,6 @@ import * as c from './payment.controller.js';
  *  POST /webhook/:provider   PUBLIC server-to-server: verified by the gateway's own secret, so no
  *                            session, no CSRF (a browser never sends it) — raw body, replay-safe
  *  POST /retry               PUBLIC with the confirmation token: a new payment page for an order
- *  GET  /methods             PUBLIC: the methods the storefront may offer
  *  POST /:id/refund          staff, `order.refund`
  *  GET  /order/:id           staff, `order.view`
  */
@@ -34,7 +33,6 @@ export function createPaymentRouter({ deps = {} } = {}) {
     validate({ body: schemas.retry }),
     c.retry(deps),
   );
-  r.get('/methods', c.methods(deps));
   r.post(
     '/:id/refund',
     requirePermission(P.ORDER_REFUND),

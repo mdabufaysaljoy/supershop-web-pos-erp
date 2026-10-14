@@ -134,6 +134,10 @@ export const EVENTS = Object.freeze({
   PAYMENT_SUCCEEDED: 'payment.succeeded',
   PAYMENT_FAILED: 'payment.failed',
   PAYMENT_REFUNDED: 'payment.refunded',
+  /** The shop changed what it accepts (P4.2) — audited like any settings change. */
+  PAYMENT_METHOD_CREATED: 'paymentMethod.created',
+  PAYMENT_METHOD_UPDATED: 'paymentMethod.updated',
+  PAYMENT_METHOD_DELETED: 'paymentMethod.deleted',
 
   // POS / shifts / returns
   POS_SALE_COMPLETED: 'pos.saleCompleted',

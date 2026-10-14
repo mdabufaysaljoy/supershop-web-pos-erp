@@ -199,7 +199,8 @@
       }
     },
     "buildingNumber": "رقم المبنى",
-    "additionalNumber": "العدد الإضافي"
+    "additionalNumber": "العدد الإضافي",
+    "methodFee": "+ {{amount}}"
   },
   "validation": {
     "required": "هذا المجال مطلوب.",

@@ -2,6 +2,7 @@ import { PERMISSIONS } from '@supershop/shared';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { PageHeader } from '@/pages/PageHeader';
+import { PaymentsTab } from '@/features/paymentMethods/pages/PaymentsTab';
 import { LanguagesTab } from './LanguagesTab';
 
 /**
@@ -9,6 +10,12 @@ import { LanguagesTab } from './LanguagesTab';
  * payments, printing…) are added by their feature tasks.
  */
 const TABS = [
+  {
+    id: 'payments',
+    label: 'settings.tabs.payments',
+    perm: PERMISSIONS.SETTINGS_VIEW,
+    Component: PaymentsTab,
+  },
   {
     id: 'languages',
     label: 'settings.tabs.languages',

@@ -1,6 +1,6 @@
 'use client';
 
-import { createCheckoutSchemas, ORDER } from '@supershop/shared';
+import { createCheckoutSchemas, ORDER, paymentFee } from '@supershop/shared';
 import { EmailInput, FormField, NameInput, PhoneInput, PlainTextArea } from '@supershop/ui';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -15,6 +15,12 @@ import { CustomFields } from './CustomFields';
 import { fieldError } from '@/lib/fieldError';
 
 const schemas = createCheckoutSchemas();
+
+/** "+ SAR 10.75" next to a method that charges for itself; nothing when it is free. */
+function feeLabel(method, cart, fmt, t) {
+  const amount = paymentFee(method.fee, cart?.totals.total ?? 0);
+  return amount > 0 ? t('checkout.methodFee', { amount: fmt.money(amount) }) : null;
+}
 /** Errors that mean "go back to the cart and look at it". */
 const CART_ERRORS = new Set(['CART_EMPTY', 'OUT_OF_STOCK', 'PRICE_CHANGED', 'CONFLICT']);
 
@@ -23,11 +29,11 @@ const CART_ERRORS = new Set(['CART_EMPTY', 'OUT_OF_STOCK', 'PRICE_CHANGED', 'CON
  * revalidates the cart, takes the stock and creates the order; the same `Idempotency-Key` is sent
  * for every retry of one filled-in form, so a double click or a flaky connection cannot order twice.
  */
-export function CheckoutForm({ fields, methods = ORDER.PAYMENT_METHODS }) {
+export function CheckoutForm({ fields, methods = [], method = null, onMethodChange }) {
   const t = useT();
   const lang = useLang();
   const router = useRouter();
-  const { cart, reload } = useCart();
+  const { cart, fmt, reload } = useCart();
   const { isSignedIn, authed } = useAuth();
   const [form, setForm] = useState({
     name: '',
@@ -35,7 +41,7 @@ export function CheckoutForm({ fields, methods = ORDER.PAYMENT_METHODS }) {
     email: '',
     address: EMPTY_ADDRESS,
     note: '',
-    paymentMethod: methods[0] ?? ORDER.PAYMENT_METHODS[0],
+    paymentMethod: method?.key ?? methods[0]?.key ?? ORDER.PAYMENT_METHODS[0],
   });
   const [custom, setCustom] = useState({});
   const [errors, setErrors] = useState({});
@@ -201,20 +207,28 @@ export function CheckoutForm({ fields, methods = ORDER.PAYMENT_METHODS }) {
         </h2>
         <fieldset className="grid gap-2">
           <legend className="sr-only">{t('checkout.payment')}</legend>
-          {methods.map((method) => (
-            <label key={method} className="flex items-start gap-3 rounded-lg border p-3 text-sm">
+          {methods.map((m) => (
+            <label key={m.key} className="flex items-start gap-3 rounded-lg border p-3 text-sm">
               <input
                 type="radio"
                 name="paymentMethod"
                 className="mt-0.5 size-4 accent-primary"
-                checked={form.paymentMethod === method}
-                onChange={() => set({ paymentMethod: method })}
+                checked={form.paymentMethod === m.key}
+                onChange={() => {
+                  set({ paymentMethod: m.key });
+                  onMethodChange?.(m);
+                }}
               />
               <span>
-                <span className="font-medium">{t(`checkout.methods.${method}`)}</span>
-                <span className="block text-muted-foreground">
-                  {t(`checkout.methodHints.${method}`)}
-                </span>
+                <span className="font-medium">{m.label}</span>
+                {feeLabel(m, cart, fmt, t) && (
+                  <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {feeLabel(m, cart, fmt, t)}
+                  </span>
+                )}
+                {m.instructions && (
+                  <span className="block text-muted-foreground">{m.instructions}</span>
+                )}
               </span>
             </label>
           ))}

@@ -13,6 +13,9 @@ const KEYS = {
 
 export const useLanguageSettings = () =>
   useQuery({ queryKey: KEYS.settings('languages'), queryFn: () => api.fetchSettings('languages') });
+/** The payments group: gateway choice and its (masked) keys — P4.2. */
+export const usePaymentSettings = () =>
+  useQuery({ queryKey: KEYS.settings('payments'), queryFn: () => api.fetchSettings('payments') });
 export const useI18nOverview = () =>
   useQuery({ queryKey: KEYS.overview, queryFn: api.fetchI18nOverview, refetchInterval: 15_000 });
 export const useGlossary = () => useQuery({ queryKey: KEYS.glossary, queryFn: api.fetchGlossary });

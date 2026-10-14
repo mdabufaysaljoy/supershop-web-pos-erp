@@ -44,14 +44,6 @@ export const retry =
     sendData(res, { redirectUrl });
   };
 
-/** Payment methods the storefront may show right now (P4.2 replaces this with admin methods). */
-export const methods =
-  (deps = {}) =>
-  async (_req, res) => {
-    res.set('Cache-Control', 'public, max-age=60');
-    sendData(res, service.availableMethods(deps));
-  };
-
 export const forOrder = async (req, res) => {
   const payments = await service.listOrderPayments(req.valid.params.id);
   if (!payments.length) return sendNoContent(res);

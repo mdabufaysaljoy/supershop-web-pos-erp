@@ -1,7 +1,7 @@
 /** Payments module — public API. */
 export { createPaymentRouter } from './payment.routes.js';
 export {
-  availableMethods,
+  isGatewayReady,
   listOrderPayments,
   resetGatewayCache,
   startPaymentForOrder,

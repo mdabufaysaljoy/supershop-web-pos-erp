@@ -28,13 +28,19 @@ async function checkoutFields(lang) {
   }
 }
 
-/** Methods the shop can actually take money with right now (P4.1); cash is the safe fallback. */
-async function paymentMethods() {
+/**
+ * The methods this shop offers, in its own order and words (P4.2). An unreachable API must not
+ * break checkout, so cash on delivery stands in — the server checks the choice again anyway.
+ */
+async function paymentMethods(lang) {
+  const fallback = [{ key: 'cod', type: 'cod', label: 'Cash payment on delivery', fee: null }];
   try {
-    const methods = (await apiGet('/api/v1/payments/methods', { tags: ['settings'] })).data;
-    return methods?.length ? methods : ['cod'];
+    const methods = (
+      await apiGet('/api/v1/payment-methods/public', { lang, tags: ['payment-methods'] })
+    ).data;
+    return methods?.length ? methods : fallback;
   } catch {
-    return ['cod'];
+    return fallback;
   }
 }
 
@@ -43,7 +49,7 @@ export default async function CheckoutPage({ params }) {
   const [{ settings, t }, fields, methods] = await Promise.all([
     getPageContext(lang),
     checkoutFields(lang),
-    paymentMethods(),
+    paymentMethods(lang),
   ]);
   return (
     <div className="grid gap-6">

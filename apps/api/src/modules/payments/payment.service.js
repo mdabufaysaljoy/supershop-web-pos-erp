@@ -43,15 +43,8 @@ export const resetGatewayCache = () => {
   cached = { key: null, provider: null };
 };
 
-/** Methods the storefront may offer right now (P4.2 turns this into admin-managed methods). */
-export function availableMethods({ fetchImpl } = {}) {
-  const provider = gateway({ fetchImpl });
-  return ORDER.PAYMENT_METHODS.filter((method) =>
-    method === COD
-      ? getSetting('payments.codEnabled')
-      : getSetting('payments.cardEnabled') && Boolean(provider?.enabled),
-  );
-}
+/** Can a gateway method be offered at all? (keys configured + a provider chosen) */
+export const isGatewayReady = ({ fetchImpl } = {}) => Boolean(gateway({ fetchImpl })?.enabled);
 
 const webhookSecret = () => {
   const name = getSetting('payments.gateway');
@@ -83,14 +76,16 @@ const callbackUrl = (order, token) =>
  */
 export async function startPaymentForOrder(order, { token, fetchImpl } = {}) {
   const method = order.payment?.method ?? COD;
-  if (!availableMethods({ fetchImpl }).includes(method)) throw unavailable();
+  const type = order.payment?.methodType ?? (method === COD ? COD : 'gateway');
 
-  if (method === COD) {
+  // Cash and offline methods (bank transfer, pay at the branch) are collected elsewhere: the
+  // record exists so every order has one payment history and P4.4 can mark it received.
+  if (type !== 'gateway') {
     const payment = await repo.insertPayment({
       orderId: order._id,
       orderNo: order.orderNo,
-      provider: COD,
-      method: COD,
+      provider: type === COD ? COD : method,
+      method,
       status: 'pending',
       amount: order.totals.total,
       currency: order.currency,
@@ -99,6 +94,7 @@ export async function startPaymentForOrder(order, { token, fetchImpl } = {}) {
   }
 
   const provider = gateway({ fetchImpl });
+  if (!provider?.enabled) throw unavailable();
   const checkout = await provider.createCheckout({
     orderNo: order.orderNo,
     amount: order.totals.total,

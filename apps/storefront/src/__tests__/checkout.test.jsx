@@ -90,7 +90,17 @@ const json = (status, body) =>
     new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }),
   );
 
-function setup(handler, { fields = [], cart = CART, methods = ['cod'] } = {}) {
+const METHOD = {
+  cod: { key: 'cod', type: 'cod', label: 'Cash payment on delivery', fee: { fixed: 0, bps: 0 } },
+  card: {
+    key: 'card',
+    type: 'gateway',
+    label: 'Card, Mada or Apple Pay',
+    fee: { fixed: 0, bps: 0 },
+  },
+};
+
+function setup(handler, { fields = [], cart = CART, methods = [METHOD.cod] } = {}) {
   const fetchMock = vi.fn((url, init) => {
     const u = String(url);
     if (u.startsWith('/api/v1/cart')) return json(200, { data: cart });
@@ -231,7 +241,7 @@ describe('paying by card (P4.1)', () => {
   };
 
   it('offers only the methods the shop can take, cash first', async () => {
-    setup(() => json(404, {}), { methods: ['cod'] });
+    setup(() => json(404, {}), { methods: [METHOD.cod] });
     await screen.findByText('Oxford Shirt');
     expect(screen.getByLabelText(/Cash payment on delivery/)).toBeChecked();
     expect(screen.queryByLabelText(/Card, Mada or Apple Pay/)).toBeNull();
@@ -254,7 +264,7 @@ describe('paying by card (P4.1)', () => {
               },
             })
           : json(404, {}),
-      { methods: ['cod', 'card'] },
+      { methods: [METHOD.cod, METHOD.card] },
     );
     await screen.findByText('Oxford Shirt');
     await userEvent.click(screen.getByLabelText(/Card, Mada or Apple Pay/));

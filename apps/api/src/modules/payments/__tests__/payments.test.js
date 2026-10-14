@@ -8,6 +8,7 @@ import { eventBus } from '../../../core/events.js';
 import { Cart } from '../../cart/cart.model.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
 import { Order } from '../../orders/order.model.js';
+import { seedPaymentMethods } from '../../paymentMethods/index.js';
 import { findSystemRoleId, seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
 import { ensureSuperAdmin } from '../../staff/index.js';
@@ -92,17 +93,21 @@ const gatewayStub = ({ invoiceStatus = 'initiated', failRefund = false } = {}) =
   return calls;
 };
 
-const enableGateway = async () =>
-  ok(
+/** Keys in settings + the "card" method switched on, which is what a shop actually does. */
+const enableGateway = async () => {
+  const methods = await ok(await root.get('/api/v1/payment-methods'));
+  const card = methods.find((m) => m.key === 'card');
+  await ok(await root.patch(`/api/v1/payment-methods/${card.id}`, { enabled: true }));
+  return ok(
     await root.patch('/api/v1/settings', {
       changes: [
-        { key: 'payments.cardEnabled', value: true },
         { key: 'payments.gateway', value: 'moyasar' },
         { key: 'payments.moyasar.secretKey', value: 'sk_test_123' },
         { key: 'payments.moyasar.webhookSecret', value: WEBHOOK_SECRET },
       ],
     }),
   );
+};
 
 /** A shopper with a cart cookie, like the storefront. */
 const shopper = () => {
@@ -128,6 +133,7 @@ beforeEach(async () => {
   await Promise.all([Cart.init(), Order.init(), Payment.init()]);
   app = createApp({ checks: { db: () => true, redis: async () => true } });
   await seedDefaultRoles();
+  await seedPaymentMethods();
   await ensureSuperAdmin({ name: 'Root Admin', email: 'root@shop.test', password: ADMIN_PW });
   rootToken = (
     await request(app)
@@ -171,20 +177,22 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('payment methods', () => {
   it('offers cash only until a gateway is configured', async () => {
-    expect(await ok(await request(app).get('/api/v1/payments/methods'))).toEqual(['cod']);
+    const keys = async () =>
+      (await ok(await request(app).get('/api/v1/payment-methods/public'))).map((m) => m.key);
+    expect(await keys()).toEqual(['cod']);
     await enableGateway();
     gatewayStub();
-    expect(await ok(await request(app).get('/api/v1/payments/methods'))).toEqual(['cod', 'card']);
+    expect(await keys()).toEqual(['cod', 'card']);
   });
 
-  it('refuses a card order while the gateway is off', async () => {
+  it('refuses a card order while the gateway is off — no order, no stock taken', async () => {
     const s = shopper();
     await ok(await s.add());
     const res = await s.place('card');
-    expect(res.status).toBe(201); // the order exists…
-    expect(res.body.data.payment.redirectUrl).toBeUndefined(); // …but there is no payment page
-    const payments = await Payment.find({}).lean();
-    expect(payments).toHaveLength(0);
+    expect(res.status).toBe(400);
+    expect(res.body.error.details[0].path).toBe('paymentMethod');
+    expect(await Order.countDocuments({})).toBe(0);
+    expect(await Payment.countDocuments({})).toBe(0);
   });
 });
 

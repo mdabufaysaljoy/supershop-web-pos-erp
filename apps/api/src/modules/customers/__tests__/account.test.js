@@ -7,6 +7,7 @@ import { createApp } from '../../../app.js';
 import { Cart } from '../../cart/cart.model.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
 import { Order } from '../../orders/order.model.js';
+import { seedPaymentMethods } from '../../paymentMethods/index.js';
 import { seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
 import { ensureSuperAdmin } from '../../staff/index.js';
@@ -62,6 +63,7 @@ beforeEach(async () => {
   await Promise.all([Cart.init(), Order.init()]);
   app = createApp({ checks: { db: () => true, redis: async () => true } });
   await seedDefaultRoles();
+  await seedPaymentMethods();
   await ensureSuperAdmin({ name: 'Root Admin', email: 'root@shop.test', password: ADMIN_PW });
   rootToken = (
     await request(app)

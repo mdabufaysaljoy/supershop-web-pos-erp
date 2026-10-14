@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { LANGUAGES } from '../constants.js';
 import { V } from '../validators/messages.js';
-import { email, name, objectId, phone, plainText } from '../validators/fields.js';
+import { email, name, objectId, phone, plainText, slug } from '../validators/fields.js';
 import { normalizeDigits } from '../digits.js';
 
 /**
@@ -24,9 +24,9 @@ export const ORDER = Object.freeze({
     'exchanged',
   ]),
   /**
-   * Storefront payment methods. `card` is whatever the configured gateway hosts (Mada, cards,
-   * Apple Pay…) — one method here, many wallets there, because the gateway owns that choice.
-   * Admin-defined extra methods arrive with P4.2.
+   * The two methods every shop starts with (seeded as data in P4.2, where a shop can rename them,
+   * price them, switch them off or add its own). `card` is whatever the configured gateway hosts
+   * (Mada, cards, Apple Pay…) — one method here, many wallets there.
    */
   PAYMENT_METHODS: Object.freeze(['cod', 'card']),
   /** Methods that send the customer to a payment page before the order is paid. */
@@ -127,7 +127,11 @@ export function createCheckoutSchemas({ allowInternationalPhone = false } = {}) 
           .enum(ORDER.DELIVERY_METHODS, { error: V.INVALID_TYPE })
           .default('delivery'),
         address: shippingAddressSchema,
-        paymentMethod: z.enum(ORDER.PAYMENT_METHODS, { error: V.INVALID_TYPE }),
+        /**
+         * The KEY of a method the shop offers (P4.2) — the list is admin data, so the shape is
+         * checked here and the method itself is checked against the collection server-side.
+         */
+        paymentMethod: slug,
         note: plainText({ max: ORDER.NOTE_MAX }).optional(),
         /** Admin-defined checkout fields; validated against their definitions server-side. */
         customFields: z.record(z.string(), z.unknown()).optional(),
@@ -153,11 +157,13 @@ export function createCheckoutSchemas({ allowInternationalPhone = false } = {}) 
  * @param {{ subtotal: number, net: number, vat: number, total: number, itemCount: number }} items
  * @param {{ gross: number, net: number, vat: number }} delivery
  */
-export const orderTotals = (items, delivery) => ({
+export const orderTotals = (items, delivery, payment = { gross: 0, net: 0, vat: 0 }) => ({
   itemCount: items.itemCount,
   subtotal: items.subtotal,
   deliveryFee: delivery.gross,
-  net: items.net + delivery.net,
-  vat: items.vat + delivery.vat,
-  total: items.total + delivery.gross,
+  /** What the chosen payment method adds (P4.2); 0 for every method without a fee. */
+  paymentFee: payment.gross,
+  net: items.net + delivery.net + payment.net,
+  vat: items.vat + delivery.vat + payment.vat,
+  total: items.total + delivery.gross + payment.gross,
 });

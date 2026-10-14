@@ -7,6 +7,7 @@ import { closeRedis } from './core/redis.js';
 import { loadLanguages, startTranslationWorker } from './modules/i18n/index.js';
 import { startTransferWorkers } from './modules/productTransfer/index.js';
 import { ensureSearchIndex } from './modules/search/index.js';
+import { seedPaymentMethods } from './modules/paymentMethods/index.js';
 import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
 /**
@@ -20,6 +21,7 @@ async function main() {
   logger.info({ overrides: await loadSettings() }, 'settings loaded');
   await startSettingsSync();
   await loadLanguages();
+  await seedPaymentMethods(); // a shop always has its built-in methods (P4.2); no-op after the first start
   startTranslationWorker();
   await startTransferWorkers();
   await ensureSearchIndex(); // builds the index in the background on first start

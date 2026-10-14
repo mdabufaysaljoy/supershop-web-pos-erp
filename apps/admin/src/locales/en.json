@@ -196,14 +196,17 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {{page}} of {{pages}}",
-    "done": "Done"
+    "done": "Done",
+    "saving": "Saving…",
+    "loading": "Loading…"
   },
   "settings": {
     "title": "Settings",
     "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",
     "readOnly": "You can view these settings but not change them.",
     "tabs": {
-      "languages": "Languages"
+      "languages": "Languages",
+      "payments": "Payments"
     }
   },
   "languages": {
@@ -945,6 +948,60 @@
       "useDefaultHint": "Items without their own level use the store-wide default.",
       "level": "Alert when stock is at or below",
       "levelHint": "0 = only when out of stock."
+    }
+  },
+  "payments": {
+    "methods": {
+      "title": "Payment methods",
+      "description": "What customers can pay with, in the order they see. Changes are live at once.",
+      "empty": "No payment methods yet.",
+      "enabled": "Offer it",
+      "edit": "Edit",
+      "close": "Close",
+      "builtIn": "Built in",
+      "label": "Name customers see",
+      "labelHelp": "English only — Arabic is generated automatically.",
+      "arabicLabel": "Arabic (automatic)",
+      "instructions": "How to pay",
+      "instructionsHelp": "Shown under the method at checkout, e.g. the IBAN for a transfer.",
+      "feeFixed": "Fixed fee",
+      "feePercent": "Percentage fee",
+      "feePercentHelp": "Percent of the order, e.g. 2.5",
+      "feeExample": "On a {{basket}} SAR basket this adds {{fee}} SAR.",
+      "minTotal": "Smallest order",
+      "maxTotal": "Largest order",
+      "limitsHelp": "Leave empty for no limit.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "key": "Key",
+      "keyHelp": "Used in orders and reports; cannot be changed later.",
+      "addTitle": "Add your own method",
+      "addDescription": "For money you collect yourself: bank transfer, pay at the branch, a wallet you settle by hand.",
+      "add": "Add method",
+      "created": "Payment method added.",
+      "saved": "Payment method saved.",
+      "deleted": "Payment method deleted.",
+      "confirmDelete": "Delete “{{name}}”? Orders already placed keep their copy.",
+      "types": {
+        "gateway": "Online payment",
+        "cod": "Cash on delivery",
+        "offline": "Collected by you"
+      }
+    },
+    "gateway": {
+      "title": "Online payment gateway",
+      "description": "The service behind the card method. Keys are stored encrypted and never shown again.",
+      "provider": "Provider",
+      "providerHelp": "Switching provider needs new keys; the card method stays off until they work.",
+      "providers": {
+        "none": "None — no online payments",
+        "moyasar": "Moyasar"
+      },
+      "secretKey": "Secret key",
+      "webhookSecret": "Webhook secret",
+      "stored": "Stored: {{masked}}",
+      "notSet": "Not set yet.",
+      "enterNew": "Paste a new key"
     }
   }
 }

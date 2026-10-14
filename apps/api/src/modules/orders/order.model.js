@@ -49,6 +49,7 @@ const orderSchema = new mongoose.Schema(
       itemCount: { type: Number, required: true },
       subtotal: { type: Number, required: true },
       deliveryFee: { type: Number, required: true, default: 0 },
+      paymentFee: { type: Number, required: true, default: 0 },
       net: { type: Number, required: true },
       vat: { type: Number, required: true },
       total: { type: Number, required: true },
@@ -57,6 +58,12 @@ const orderSchema = new mongoose.Schema(
     pricesIncludeVat: { type: Boolean, required: true, default: true },
     payment: {
       method: { type: String, required: true },
+      /** What checkout must do with it: gateway | cod | offline (snapshot of the method, P4.2). */
+      methodType: { type: String, default: 'cod' },
+      /** The label the customer saw, in the order's language. */
+      label: { type: String, default: null },
+      /** What this method added to the total (already inside totals.paymentFee). */
+      fee: { type: Number, default: 0 },
       status: { type: String, required: true, default: 'pending' },
       /** The gateway's reference for this order's payment (P4.1); never a vendor-named field. */
       gatewayRef: { type: String, default: null },

@@ -668,6 +668,10 @@
       "src": "79790686ca8112ba",
       "out": "67edc15e135657e8"
     },
+    "checkout.methodFee": {
+      "src": "d5927f44731429f2",
+      "out": "d5927f44731429f2"
+    },
     "validation.required": {
       "src": "68cadcee19d24b1a",
       "out": "9813a0f0f0e01374"

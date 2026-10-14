@@ -4,6 +4,7 @@ import {
   EVENTS,
   ORDER,
   orderTotals,
+  paymentCharge,
   priceLines,
   vatRateFor,
 } from '@supershop/shared';
@@ -62,6 +63,27 @@ const outOfStock = (details) =>
  * @type {{ start: Function | null, sync: Function | null }}
  */
 const paymentHooks = { start: null, sync: null };
+
+/**
+ * Payment methods are data (P4.2): the composition root injects the lookup so orders never read
+ * the methods collection themselves. Without it (older tests), only the built-in keys are allowed.
+ * @type {null | ((key: string, ctx: { total: number }) => Promise<{ method: object, fee: number }>)}
+ */
+let resolveMethod = null;
+export const setPaymentMethodResolver = (fn) => {
+  resolveMethod = fn;
+};
+
+const resolveCheckoutMethod = async (key, ctx) =>
+  resolveMethod
+    ? resolveMethod(key, ctx)
+    : { method: { key, type: key === 'card' ? 'gateway' : 'cod', label: { en: key } }, fee: 0 };
+
+/** The label the customer saw, in the order's language, kept with the order. */
+const methodLabel = (method, lang) =>
+  typeof method.label === 'string'
+    ? method.label
+    : (method.label?.[lang] ?? method.label?.en ?? method.key);
 
 /** @param {{ start: Function, sync: Function }} hooks */
 export const setPaymentHooks = (hooks) => Object.assign(paymentHooks, hooks);
@@ -142,7 +164,13 @@ export const toOrderDto = (o, { token, redirectUrl } = {}) => ({
   totals: o.totals,
   currency: o.currency,
   pricesIncludeVat: o.pricesIncludeVat,
-  payment: { method: o.payment.method, status: o.payment.status },
+  payment: {
+    method: o.payment.method,
+    type: o.payment.methodType ?? 'cod',
+    label: o.payment.label ?? null,
+    fee: o.payment.fee ?? 0,
+    status: o.payment.status,
+  },
   customFields: o.customFields ?? {},
   note: o.note ?? '',
   ...(token && { confirmationToken: token }),
@@ -199,7 +227,7 @@ const ADDRESS_KEYS = [
 const cleanAddress = (a = {}) => Object.fromEntries(ADDRESS_KEYS.map((k) => [k, a?.[k] ?? null]));
 
 /** Snapshot lines + totals from the (already revalidated) cart view. */
-function buildOrderLines(items) {
+function buildOrderLines(items, methodFee = 0) {
   const tax = {
     vatRateBps: getSetting('tax.vatRateBps'),
     pricesIncludeVat: getSetting('tax.pricesIncludeVat'),
@@ -230,7 +258,13 @@ function buildOrderLines(items) {
     taxed: getSetting('checkout.taxDelivery'),
     ...tax,
   });
-  return { lines, totals: orderTotals(priced.totals, delivery), tax };
+  // The payment fee is charged on what the customer already owes (goods + delivery), P4.2.
+  const payment = paymentCharge({
+    fee: methodFee,
+    taxed: getSetting('checkout.taxDelivery'),
+    ...tax,
+  });
+  return { lines, totals: orderTotals(priced.totals, delivery, payment), tax };
 }
 
 /** Books the stock for an order across the online branches, inside the order's transaction. */
@@ -293,7 +327,11 @@ export async function placeOrder(ctx, input, { lang, idempotencyKey = null }) {
 
   const items = sellableLines(view);
   const customFields = await validateCustomValues('checkout', input.customFields ?? {});
-  const { lines, totals, tax } = buildOrderLines(items);
+  // The method the customer picked must still be on offer, and it decides the fee.
+  const { method, fee } = await resolveCheckoutMethod(input.paymentMethod, {
+    total: buildOrderLines(items).totals.total,
+  });
+  const { lines, totals, tax } = buildOrderLines(items, fee);
   const token = randomToken(24);
 
   let outcome;
@@ -329,7 +367,14 @@ export async function placeOrder(ctx, input, { lang, idempotencyKey = null }) {
             totals,
             currency: getSetting('store.currency'),
             pricesIncludeVat: tax.pricesIncludeVat,
-            payment: { method: input.paymentMethod, status: 'pending' },
+            payment: {
+              method: method.key,
+              // Snapshot: a method may be renamed or removed, receipts may not change (§2.5).
+              methodType: method.type,
+              label: methodLabel(method, lang),
+              fee,
+              status: 'pending',
+            },
             customFields,
             note: input.note ?? '',
             fulfillment: stock.map((r) => ({

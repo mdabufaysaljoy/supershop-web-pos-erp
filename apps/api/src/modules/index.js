@@ -22,8 +22,15 @@ import {
   createCheckoutRouter,
   registerOrderSubscribers,
   setPaymentHooks,
+  setPaymentMethodResolver,
 } from './orders/index.js';
-import { createPaymentRouter, startPaymentForOrder, syncOrderPayment } from './payments/index.js';
+import {
+  createPaymentRouter,
+  isGatewayReady,
+  startPaymentForOrder,
+  syncOrderPayment,
+} from './payments/index.js';
+import { createPaymentMethodRouter, resolveForCheckout } from './paymentMethods/index.js';
 import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
 import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
@@ -133,6 +140,10 @@ export function registerModules() {
   // Orders start and refresh payments through the payments module; payments apply the outcome
   // back onto the order. Injecting one direction here keeps the imports one-way.
   setPaymentHooks({ start: startPaymentForOrder, sync: syncOrderPayment });
+  // Checkout validates the chosen method against the shop's own list and gets its fee (P4.2).
+  setPaymentMethodResolver((key, { total }) =>
+    resolveForCheckout(key, { total, isGatewayReady: () => isGatewayReady() }),
+  );
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
   registerOrderSubscribers({
@@ -181,6 +192,10 @@ export function mountModuleRoutes(api) {
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
   api.use('/payments', createPaymentRouter());
+  api.use(
+    '/payment-methods',
+    createPaymentMethodRouter({ isGatewayReady: () => isGatewayReady() }),
+  );
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
 }

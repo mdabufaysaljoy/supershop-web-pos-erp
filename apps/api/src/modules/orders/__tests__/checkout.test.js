@@ -7,6 +7,7 @@ import { createApp } from '../../../app.js';
 import { eventBus } from '../../../core/events.js';
 import { Cart } from '../../cart/cart.model.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
+import { seedPaymentMethods } from '../../paymentMethods/index.js';
 import { seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
 import { ensureSuperAdmin } from '../../staff/index.js';
@@ -70,6 +71,7 @@ beforeEach(async () => {
   await Promise.all([Cart.init(), Order.init()]);
   app = createApp({ checks: { db: () => true, redis: async () => true } });
   await seedDefaultRoles();
+  await seedPaymentMethods();
   await ensureSuperAdmin({ name: 'Root Admin', email: 'root@shop.test', password: PW });
   rootToken = (
     await request(app)
@@ -150,6 +152,7 @@ describe('placing an order', () => {
     expect(order.totals).toEqual({
       itemCount: 3,
       subtotal: 26450,
+      paymentFee: 0,
       deliveryFee: 0,
       net: 23450,
       vat: 3000,
@@ -203,7 +206,6 @@ describe('placing an order', () => {
       ...FORM,
       contact: { name: 'A1', phone: '123', email: 'nope' },
       address: { city: 'R', line1: 'x' },
-      paymentMethod: 'bitcoin',
     });
     expect(bad.status).toBe(400);
     expect(bad.body.error.details.map((d) => d.path)).toEqual(
@@ -213,9 +215,13 @@ describe('placing an order', () => {
         'contact.email',
         'address.city',
         'address.line1',
-        'paymentMethod',
       ]),
     );
+
+    // The method list is admin data now (P4.2): an unknown key is refused by the shop's own list.
+    const unknownMethod = await s.place({ ...FORM, paymentMethod: 'bitcoin' });
+    expect(unknownMethod.status).toBe(400);
+    expect(unknownMethod.body.error.details.map((d) => d.path)).toEqual(['paymentMethod']);
 
     const def = await ok(
       await root.post('/api/v1/custom-fields', {

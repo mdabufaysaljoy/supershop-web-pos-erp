@@ -163,16 +163,8 @@ const DEFINITIONS = [
     public: true,
   },
   // ---------- payments (P4.1) ----------
-  // Which methods the storefront offers, and the gateway behind "card". Keys live here; the
-  // gateway itself is reached through an adapter, so switching provider is a settings change.
-  { key: 'payments.codEnabled', group: 'payments', schema: bool(), default: true, public: true },
-  {
-    key: 'payments.cardEnabled',
-    group: 'payments',
-    schema: bool(),
-    default: false,
-    public: true,
-  },
+  // WHICH methods a shop offers is admin data (the payment_methods collection, P4.2). What stays
+  // here is the gateway behind the "card" method and its keys, reached through an adapter.
   {
     key: 'payments.gateway',
     group: 'payments',

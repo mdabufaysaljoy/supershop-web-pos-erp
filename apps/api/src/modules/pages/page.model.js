@@ -43,6 +43,24 @@ const pageSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    /**
+     * What was published, newest first (P5.2). Kept short on purpose: it is an "undo the publish"
+     * for editors, not an archive — the blocks of a big page are not small.
+     */
+    versions: {
+      type: [
+        new mongoose.Schema(
+          {
+            at: { type: Date, default: Date.now },
+            by: { type: ObjectId, default: null },
+            label: { type: String, default: null },
+            content: { type: contentSchema, required: true },
+          },
+          { _id: true },
+        ),
+      ],
+      default: [],
+    },
     seo: { title: localizedField(), description: localizedField() },
     publishedAt: { type: Date, default: null },
     updatedBy: { type: ObjectId, default: null },

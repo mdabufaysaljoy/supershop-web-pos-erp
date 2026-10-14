@@ -23,6 +23,12 @@ export const publish = async (req, res) =>
 export const unpublish = async (req, res) =>
   sendData(res, await service.unpublishPage(req.valid.params.id, req.access));
 
+export const restore = async (req, res) =>
+  sendData(
+    res,
+    await service.restoreVersion(req.valid.params.id, req.valid.params.versionId, req.access),
+  );
+
 export const remove = async (req, res) => {
   await service.deletePage(req.valid.params.id, req.access);
   sendNoContent(res);

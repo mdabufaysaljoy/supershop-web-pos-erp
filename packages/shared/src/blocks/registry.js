@@ -13,6 +13,7 @@ import { httpUrl, objectId, plainText } from '../validators/fields.js';
  *     props: { html: plainText({ max: 5000 }) },   // zod shape
  *     translatable: ['html'],                      // auto-translated (§5.7)
  *     defaults: { html: '' },
+ *     editors: { html: { control: 'richText', label: 'Text' } },  // what the props panel draws
  *   })
  *
  * `version` lets a block change its props later without touching pages already saved: a page keeps
@@ -37,6 +38,9 @@ export function defineBlock({
   translatable = [],
   defaults = {},
   container = false,
+  editors = {},
+  label,
+  icon,
 }) {
   if (registry.has(type)) throw new Error(`Block "${type}" is already defined`);
   for (const path of translatable) {
@@ -45,11 +49,26 @@ export function defineBlock({
   }
   const definition = Object.freeze({
     type,
+    /** What the builder's palette calls it (English; the admin UI is English in v1, D-007). */
+    label: label ?? type,
+    icon: icon ?? 'square',
     version,
     schema: z.object(props).strict(),
     propNames: Object.freeze(Object.keys(props)),
     translatable: Object.freeze([...translatable]),
     defaults: Object.freeze({ ...defaults }),
+    /**
+     * How the props panel draws each prop: `{ control, label, help, options }`. Declared beside
+     * the schema so a new block type needs no panel code (P5.2).
+     */
+    editors: Object.freeze(
+      Object.fromEntries(
+        Object.keys(props).map((name) => [
+          name,
+          Object.freeze({ control: 'text', label: name, ...editors[name] }),
+        ]),
+      ),
+    ),
     /** A container block renders whatever blocks are nested inside it (columns, sections). */
     container,
   });
@@ -62,7 +81,21 @@ export const blockTypes = () => [...registry.keys()].sort();
 export const listBlocks = () => [...registry.values()];
 /** Tests and the admin's block palette both ask "what can I put on a page?". */
 export const blockPalette = () =>
-  listBlocks().map((b) => ({ type: b.type, version: b.version, defaults: b.defaults }));
+  listBlocks().map((b) => ({
+    type: b.type,
+    label: b.label,
+    icon: b.icon,
+    version: b.version,
+    defaults: b.defaults,
+  }));
+
+/** The props panel's instructions for one block type: `[{ name, control, label, options }]`. */
+export const blockEditors = (type) => {
+  const definition = getBlock(type);
+  return definition
+    ? definition.propNames.map((name) => ({ name, ...definition.editors[name] }))
+    : [];
+};
 
 // --------------------------------------------------------------------- core blocks
 // Only the few P5.1 needs to prove the pipeline end to end; P5.3 brings the real set
@@ -77,6 +110,13 @@ defineBlock({
   },
   translatable: ['text'],
   defaults: { text: 'Heading', level: 'h2', align: 'start' },
+  label: 'Heading',
+  icon: 'heading',
+  editors: {
+    text: { control: 'text', label: 'Text' },
+    level: { control: 'select', label: 'Size', options: ['h1', 'h2', 'h3'] },
+    align: { control: 'select', label: 'Alignment', options: ['start', 'center'] },
+  },
 });
 
 defineBlock({
@@ -89,7 +129,16 @@ defineBlock({
     html: z.string({ error: V.INVALID_TYPE }).max(20_000, { error: V.TOO_LONG }),
   },
   translatable: ['html'],
-  defaults: { html: '' },
+  defaults: { html: '<p></p>' },
+  label: 'Text',
+  icon: 'text',
+  editors: {
+    html: {
+      control: 'richText',
+      label: 'Text',
+      help: 'Basic formatting is kept; scripts are removed.',
+    },
+  },
 });
 
 defineBlock({
@@ -103,12 +152,23 @@ defineBlock({
   },
   translatable: ['alt'],
   defaults: { mediaId: null, alt: '', href: '', width: 'contained' },
+  label: 'Image',
+  icon: 'image',
+  editors: {
+    mediaId: { control: 'media', label: 'Image' },
+    alt: { control: 'text', label: 'Description for screen readers' },
+    href: { control: 'text', label: 'Links to' },
+    width: { control: 'select', label: 'Width', options: ['contained', 'full'] },
+  },
 });
 
 defineBlock({
   type: 'spacer',
   props: { size: z.enum(['sm', 'md', 'lg'], { error: V.INVALID_TYPE }) },
   defaults: { size: 'md' },
+  label: 'Space',
+  icon: 'space',
+  editors: { size: { control: 'select', label: 'Height', options: ['sm', 'md', 'lg'] } },
 });
 
 defineBlock({
@@ -120,4 +180,15 @@ defineBlock({
   },
   translatable: ['label'],
   defaults: { label: 'Shop now', href: '/search', variant: 'primary' },
+  label: 'Button',
+  icon: 'button',
+  editors: {
+    label: { control: 'text', label: 'Button text' },
+    href: {
+      control: 'text',
+      label: 'Goes to',
+      help: 'A path on your site (/search) or a full https:// address.',
+    },
+    variant: { control: 'select', label: 'Style', options: ['primary', 'outline'] },
+  },
 });

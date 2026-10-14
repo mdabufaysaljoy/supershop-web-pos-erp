@@ -65,6 +65,14 @@ export const toAdminDto = (p) => ({
   texts: p.texts ?? [],
   seo: p.seo ?? {},
   blockCount: countBlocks(p.draft),
+  /** Just enough to offer "go back to what we published then" — never the blocks themselves. */
+  versions: (p.versions ?? []).map((v) => ({
+    id: String(v._id),
+    at: v.at,
+    by: v.by ? String(v.by) : null,
+    label: v.label ?? null,
+    blockCount: countBlocks(v.content),
+  })),
   publishedAt: p.publishedAt ?? null,
   updatedAt: p.updatedAt,
 });
@@ -181,9 +189,23 @@ export async function updatePage(id, input, actor) {
   return toAdminDto(updated);
 }
 
+export const MAX_VERSIONS = 20;
+
 /** Publishing copies the draft blocks over; the text (and its translations) stays where it is. */
 export async function publishPage(id, actor) {
   const updated = await repo.update(id, (doc) => {
+    // Keep what WAS live before this publish, so an editor can go back to it.
+    if (doc.published?.blocks?.length) {
+      doc.versions = [
+        {
+          at: doc.publishedAt ?? new Date(),
+          by: doc.updatedBy ?? null,
+          content: structuredClone(doc.published?.toObject?.() ?? doc.published),
+        },
+        ...(doc.versions ?? []).map((v) => v.toObject?.() ?? v),
+      ].slice(0, MAX_VERSIONS);
+      doc.markModified('versions');
+    }
     // A DEEP copy: the draft's blocks are Mixed, so a shallow one would leave the published page
     // pointing at the very objects the builder goes on editing.
     doc.published = structuredClone(doc.draft?.toObject?.() ?? doc.draft ?? { blocks: [] });
@@ -206,6 +228,31 @@ export async function unpublishPage(id, actor) {
     doc.updatedBy = actor?.staffId ?? null;
   });
   if (!updated) throw new NotFoundError('Page not found');
+  emit(EVENTS.PAGE_UPDATED, updated, actor);
+  return toAdminDto(updated);
+}
+
+/**
+ * Puts an older published version back into the DRAFT, where the editor can look at it and
+ * publish it again — restoring straight onto the live site would skip that check.
+ */
+export async function restoreVersion(id, versionId, actor) {
+  let restored = null;
+  const updated = await repo.update(id, (doc) => {
+    const version = (doc.versions ?? []).find((v) => String(v._id) === String(versionId));
+    if (!version) return;
+    restored = structuredClone(version.content?.toObject?.() ?? version.content);
+    doc.draft = parseContent(restored);
+    doc.markModified('draft');
+    doc.texts = syncTexts(
+      doc.draft,
+      (doc.texts ?? []).map((t) => t.toObject?.() ?? t),
+    );
+    doc.markModified('texts');
+    doc.updatedBy = actor?.staffId ?? null;
+  });
+  if (!updated) throw new NotFoundError('Page not found');
+  if (!restored) throw new NotFoundError('That version is gone');
   emit(EVENTS.PAGE_UPDATED, updated, actor);
   return toAdminDto(updated);
 }

@@ -23,7 +23,14 @@ export {
   restocksOn,
   transitionByAction,
 } from './stateMachines/order.js';
-export { blockPalette, blockTypes, defineBlock, getBlock, listBlocks } from './blocks/registry.js';
+export {
+  blockEditors,
+  blockPalette,
+  blockTypes,
+  defineBlock,
+  getBlock,
+  listBlocks,
+} from './blocks/registry.js';
 export {
   collectTexts,
   countBlocks,

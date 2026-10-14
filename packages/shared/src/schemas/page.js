@@ -45,5 +45,6 @@ export function createPageSchemas() {
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
     }),
     slugParam: z.object({ slug }),
+    versionParams: z.object({ id: objectId, versionId: objectId }),
   };
 }

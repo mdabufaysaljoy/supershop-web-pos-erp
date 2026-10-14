@@ -232,6 +232,36 @@ describe('what a visitor sees', () => {
   });
 });
 
+describe('going back to what was published before', () => {
+  it('keeps the previous version on each publish and puts it back into the draft', async () => {
+    const page = await makePage();
+    await ok(await root.post(`${PAGES}/${page.id}/publish`)); // v1 live, nothing to keep yet
+    expect((await ok(await root.get(`${PAGES}/${page.id}`))).versions).toEqual([]);
+
+    await ok(
+      await root.patch(`${PAGES}/${page.id}`, { draft: blocks(heading('blk-1', 'Our history')) }),
+    );
+    const second = await ok(await root.post(`${PAGES}/${page.id}/publish`));
+    expect(second.versions).toHaveLength(1); // what was live before this publish
+    expect(second.published.blocks[0].props.text).toBe('Our history');
+
+    const restored = await ok(
+      await root.post(`${PAGES}/${page.id}/versions/${second.versions[0].id}/restore`),
+    );
+    // The old wording comes back as a DRAFT: an editor looks at it before it goes live again.
+    expect(restored.draft.blocks[0].props.text).toBe('Our story');
+    expect(restored.published.blocks[0].props.text).toBe('Our history');
+    expect(restored.texts[0].value.en).toBe('Our story');
+  });
+
+  it('refuses a version that is not there', async () => {
+    const page = await makePage();
+    expect(
+      (await root.post(`${PAGES}/${page.id}/versions/6ace0bc6096f3f7d66d774cc/restore`)).status,
+    ).toBe(404);
+  });
+});
+
 describe('who may do what', () => {
   it('keeps page editing to staff who may edit, and publishing to those who may publish', async () => {
     const page = await makePage();

@@ -14,6 +14,7 @@ import * as c from './page.controller.js';
  *  PATCH  /:id                page.manage — save the draft
  *  POST   /:id/publish        page.publish
  *  POST   /:id/unpublish      page.publish
+ *  POST   /:id/versions/:versionId/restore   page.manage — brings an older version into the draft
  *  DELETE /:id                page.manage — soft delete
  */
 export function createPageRouter({ schemas = createPageSchemas() } = {}) {
@@ -37,6 +38,12 @@ export function createPageRouter({ schemas = createPageSchemas() } = {}) {
   r.patch('/:id', manage, validate({ params: schemas.idParam, body: schemas.update }), c.update);
   r.post('/:id/publish', publish, id, c.publish);
   r.post('/:id/unpublish', publish, id, c.unpublish);
+  r.post(
+    '/:id/versions/:versionId/restore',
+    manage,
+    validate({ params: schemas.versionParams }),
+    c.restore,
+  );
   r.delete('/:id', manage, id, c.remove);
   return r;
 }

@@ -1199,6 +1199,44 @@
     "languages": {
       "en": "English",
       "ar": "العربية"
+    },
+    "versions": {
+      "title": "Published before",
+      "blocks_one": "{{count}} block",
+      "blocks_other": "{{count}} blocks",
+      "restore": "Bring this back as a draft"
+    },
+    "builder": {
+      "canvas": "Page",
+      "properties": "Block settings",
+      "addBlock": "Add a block",
+      "emptyCanvas": "Nothing on this page yet. Add a block to start.",
+      "selectToEdit": "Pick a block on the page to change it.",
+      "selectBlock": "Select the {{block}} block",
+      "dragBlock": "Move the {{block}} block",
+      "duplicateBlock": "Duplicate this block",
+      "removeBlock": "Remove this block",
+      "dndInstructions": "Press space to pick a block up, the arrow keys to move it, space to drop it.",
+      "history": "Undo and redo",
+      "undo": "Undo",
+      "redo": "Redo",
+      "width": "Screen size",
+      "widths": {
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Phone"
+      },
+      "arabic": "Arabic (automatic)",
+      "chooseImage": "Choose an image",
+      "changeImage": "Change the image",
+      "removeImage": "Remove the image",
+      "save": {
+        "idle": "All changes saved",
+        "unsaved": "Unsaved changes",
+        "saving": "Saving…",
+        "saved": "All changes saved",
+        "error": "Could not save — trying again on your next change"
+      }
     }
   }
 }

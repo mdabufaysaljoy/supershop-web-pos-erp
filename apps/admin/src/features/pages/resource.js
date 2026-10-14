@@ -15,7 +15,16 @@ export const usePage = (id) =>
     enabled: Boolean(id),
   });
 
-/** Publish / unpublish. The builder (P5.2) adds saving the draft itself. */
+/** Autosave: PATCHes the draft. Field errors stay in the response for the builder to show. */
+export function useSaveDraft(id) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body) => apiData(`${BASE}/${id}`, { method: 'PATCH', body }),
+    onSuccess: (page) => qc.setQueryData(['pages', 'detail', id], page),
+  });
+}
+
+/** Publish / unpublish / restore a version. */
 export function usePageAction(id) {
   const qc = useQueryClient();
   const { t } = useTranslation();

@@ -10,7 +10,7 @@ import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage
 import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
 import { OrderDetailPage } from '@/features/orders/pages/OrderDetailPage';
-import { PagePreviewPage } from '@/features/pages/pages/PagePreviewPage';
+import { PageBuilderPage } from '@/features/pages/pages/PageBuilderPage';
 import { PagesPage } from '@/features/pages/pages/PagesPage';
 import { OrdersPage } from '@/features/orders/pages/OrdersPage';
 import { ProductTransferPage } from '@/features/productTransfer/pages/ProductTransferPage';
@@ -47,7 +47,7 @@ const PAGES = {
 /** Sub-pages of a menu section: `{ path, permission, element }` (matched before `:id`). */
 const SUB_PAGES = {
   '/orders': [{ path: ':id', permission: P.ORDER_VIEW, element: <OrderDetailPage /> }],
-  '/pages': [{ path: ':id', permission: P.PAGE_VIEW, element: <PagePreviewPage /> }],
+  '/pages': [{ path: ':id', permission: P.PAGE_VIEW, element: <PageBuilderPage /> }],
   '/products': [
     { path: 'new', permission: P.PRODUCT_CREATE, element: <ProductEditorPage /> },
     {

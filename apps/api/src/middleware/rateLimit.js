@@ -70,4 +70,7 @@ export const LIMITS = Object.freeze({
   cart: { windowMs: MINUTE, limit: 120 }, // cart changes, per IP
   checkout: { windowMs: 10 * MINUTE, limit: 20 }, // orders placed, per IP
   orderLookup: { windowMs: MINUTE, limit: 30 }, // confirmation / tracking lookups, per IP
+  accountWrite: { windowMs: 15 * MINUTE, limit: 60 }, // profile/address edits, per IP
+  oauth: { windowMs: 15 * MINUTE, limit: 30 }, // sign-in redirects per IP (P3.5)
+  webhook: { windowMs: MINUTE, limit: 120 }, // gateway callbacks per IP (P4.1)
 });

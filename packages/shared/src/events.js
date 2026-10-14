@@ -24,6 +24,10 @@ export const EVENTS = Object.freeze({
   STAFF_DISABLED: 'staff.disabled',
   STAFF_DELETED: 'staff.deleted',
   CUSTOMER_REGISTERED: 'customer.registered',
+  /** The customer changed their own profile or address book (P3.5). */
+  CUSTOMER_UPDATED: 'customer.updated',
+  /** A customer signed in through an identity provider (Google, P3.5). */
+  CUSTOMER_OAUTH_LINKED: 'customer.oauthLinked',
 
   // access control (audited by the audit-log module, P0.6)
   ROLE_CREATED: 'role.created',
@@ -118,16 +122,26 @@ export const EVENTS = Object.freeze({
   ORDER_PAID: 'order.paid',
   ORDER_COD_CONFIRMED: 'order.codConfirmed',
   ORDER_STATUS_CHANGED: 'order.statusChanged',
+  /** A staff note was added to an order (P4.4). */
+  ORDER_NOTE_ADDED: 'order.noteAdded',
   ORDER_SHIPPED: 'order.shipped',
+  /** A parcel left the branch (carrier + tracking number recorded) — P4.3. */
+  SHIPMENT_CREATED: 'shipment.created',
   ORDER_DELIVERED: 'order.delivered',
   ORDER_COMPLETED: 'order.completed',
   ORDER_CANCELLED: 'order.cancelled',
   ORDER_REFUNDED: 'order.refunded',
 
   // payments
+  /** A payment page was created and the customer sent to it (P4.1). */
+  PAYMENT_STARTED: 'payment.started',
   PAYMENT_SUCCEEDED: 'payment.succeeded',
   PAYMENT_FAILED: 'payment.failed',
   PAYMENT_REFUNDED: 'payment.refunded',
+  /** The shop changed what it accepts (P4.2) — audited like any settings change. */
+  PAYMENT_METHOD_CREATED: 'paymentMethod.created',
+  PAYMENT_METHOD_UPDATED: 'paymentMethod.updated',
+  PAYMENT_METHOD_DELETED: 'paymentMethod.deleted',
 
   // POS / shifts / returns
   POS_SALE_COMPLETED: 'pos.saleCompleted',

@@ -596,3 +596,26 @@ export async function getOnlineStockByBranch(variantIds, { session } = {}) {
 
 /** Stock records in a branch (levels or operations) — such branches can't be deleted. */
 export const countStockRecordsInBranch = (branchId) => repo.countBranchRecords(oid(branchId));
+
+/**
+ * What a set of operations moved, grouped by branch and flipped to positive quantities — the
+ * shape `applyStockOperation` needs to put goods back (P4.3 cancellations, P6.6 returns).
+ * Reading the ledger (never the order) keeps one truth about what left the shelf.
+ * @param {string[]} operationIds
+ * @returns {Promise<{ branchId: string, lines: { variantId: string, qty: number }[] }[]>}
+ */
+export async function reversalLinesFor(operationIds, { session } = {}) {
+  const byBranch = new Map();
+  for (const id of operationIds) {
+    for (const m of await repo.movementsOf(id, session)) {
+      if (m.delta >= 0) continue; // only what left the branch can come back
+      const branchId = str(m.branchId);
+      const lines = byBranch.get(branchId) ?? [];
+      const existing = lines.find((l) => l.variantId === str(m.variantId));
+      if (existing) existing.qty += -m.delta;
+      else lines.push({ variantId: str(m.variantId), qty: -m.delta });
+      byBranch.set(branchId, lines);
+    }
+  }
+  return [...byBranch.entries()].map(([branchId, lines]) => ({ branchId, lines }));
+}

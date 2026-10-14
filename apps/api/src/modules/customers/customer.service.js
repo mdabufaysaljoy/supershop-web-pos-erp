@@ -1,6 +1,6 @@
 import { EVENTS, PRINCIPAL_TYPES, validators } from '@supershop/shared';
 import { withTransaction } from '../../core/db.js';
-import { ConflictError } from '../../core/errors.js';
+import { ConflictError, ForbiddenError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { issueSession, requestEmailVerification, setPassword } from '../auth/index.js';
 import * as repo from './customer.repo.js';
@@ -49,6 +49,57 @@ export async function registerCustomer({ password, ...data }, ctx = {}) {
   return { tokens, profile: toCustomerProfile(customer) };
 }
 
+/**
+ * Sign-in through an identity provider (P3.5). Called ONLY after the provider verified the email:
+ *  1. known identity (provider + stable `sub`) → that account;
+ *  2. an existing account with that email → link the identity to it (the provider vouched for the
+ *     address, which is the same proof the verification link gives);
+ *  3. otherwise a new, already-verified customer.
+ * Passwordless guest records (checkout) are claimed the same way — by proven email, never by name.
+ * @param {{ provider: string, sub: string, email: string, name?: string | null }} identity
+ */
+export async function findOrCreateCustomerFromOAuth({ provider, sub, email, name }, ctx = {}) {
+  const linked = await repo.findCustomerByIdentity(provider, sub);
+  const existing = linked ?? (await repo.findCustomerByEmail(email));
+  if (existing?.status === 'disabled') throw new ForbiddenError('This account is disabled');
+
+  if (existing) {
+    const id = String(existing._id);
+    if (!linked) {
+      await repo.addIdentity(id, provider, sub);
+      void eventBus.emit(EVENTS.CUSTOMER_OAUTH_LINKED, { customerId: id, provider }, ctx);
+    }
+    if (!existing.emailVerifiedAt) {
+      await repo.markEmailVerified(id);
+      emitEmailVerified(id, ctx);
+    }
+    return { principalId: id, profile: toCustomerProfile(existing), created: false };
+  }
+
+  const created = await repo.createCustomer({
+    name: name?.trim() || email.split('@')[0],
+    email,
+    emailVerifiedAt: new Date(),
+    identities: [{ provider, sub, linkedAt: new Date() }],
+  });
+  const id = String(created._id);
+  void eventBus.emit(EVENTS.CUSTOMER_REGISTERED, { customerId: id, provider }, ctx);
+  void eventBus.emit(EVENTS.CUSTOMER_OAUTH_LINKED, { customerId: id, provider }, ctx);
+  emitEmailVerified(id, ctx);
+  return { principalId: id, profile: toCustomerProfile(created), created: true };
+}
+
+/**
+ * The same event the verification link emits: other modules (order history, P3.5) treat it as
+ * "this email is proven" and need not know how it was proven.
+ */
+const emitEmailVerified = (customerId, ctx) =>
+  void eventBus.emit(
+    EVENTS.AUTH_EMAIL_VERIFIED,
+    { principalType: TYPE, principalId: customerId },
+    { requestId: ctx.requestId },
+  );
+
 /** @type {import('../auth/principals.js').PrincipalAdapter} */
 export const customerPrincipal = {
   async findByLoginIdentifier(identifier) {
@@ -66,4 +117,5 @@ export const customerPrincipal = {
   markEmailVerified: async (id) => {
     await repo.markEmailVerified(id);
   },
+  findOrCreateFromOAuth: findOrCreateCustomerFromOAuth,
 };

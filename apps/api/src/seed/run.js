@@ -6,6 +6,7 @@ import { randomToken } from '../core/crypto.js';
 import { connectDb, disconnectDb } from '../core/db.js';
 import { seedMainBranch } from '../modules/branches/index.js';
 import { seedGlossary, seedLanguages } from '../modules/i18n/index.js';
+import { seedPaymentMethods } from '../modules/paymentMethods/index.js';
 import { seedDefaultRoles } from '../modules/rbac/index.js';
 import { ensureSuperAdmin } from '../modules/staff/index.js';
 
@@ -51,6 +52,8 @@ async function main() {
     );
     const branch = await seedMainBranch();
     console.info(branch ? '✔ main branch created (code MAIN)' : '✔ branches already exist');
+    await seedPaymentMethods();
+    console.info('✔ payment methods ensured (cash on delivery, card)');
 
     const generated = SEED_ADMIN_PASSWORD ? null : `${randomToken(12)}-9a`;
     const result = await ensureSuperAdmin({

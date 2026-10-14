@@ -1,34 +1,26 @@
 'use client';
 
-import { createCheckoutSchemas, ORDER } from '@supershop/shared';
-import {
-  EmailInput,
-  FormField,
-  NameInput,
-  PhoneInput,
-  PlainTextArea,
-  PlainTextInput,
-} from '@supershop/ui';
+import { createCheckoutSchemas, ORDER, paymentFee } from '@supershop/shared';
+import { EmailInput, FormField, NameInput, PhoneInput, PlainTextArea } from '@supershop/ui';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { AddressFields, EMPTY_ADDRESS, toAddressForm } from '@/components/address/AddressFields';
+import { useAuth } from '@/components/account/AuthProvider';
 import { useCart } from '@/components/cart/CartProvider';
 import { localizePath } from '@/i18n/config';
 import { useLang, useT } from '@/i18n/I18nProvider';
+import { ACCOUNT_BASE } from '@/lib/accountApi';
 import { checkoutRequest, CONFIRMATION_PATH, detailsToErrors } from '@/lib/checkout';
 import { CustomFields } from './CustomFields';
-import { fieldError } from './fieldError';
+import { fieldError } from '@/lib/fieldError';
 
 const schemas = createCheckoutSchemas();
-const EMPTY_ADDRESS = {
-  city: '',
-  line1: '',
-  district: '',
-  buildingNumber: '',
-  postalCode: '',
-  additionalNumber: '',
-  shortAddress: '',
-  landmark: '',
-};
+
+/** "+ SAR 10.75" next to a method that charges for itself; nothing when it is free. */
+function feeLabel(method, cart, fmt, t) {
+  const amount = paymentFee(method.fee, cart?.totals.total ?? 0);
+  return amount > 0 ? t('checkout.methodFee', { amount: fmt.money(amount) }) : null;
+}
 /** Errors that mean "go back to the cart and look at it". */
 const CART_ERRORS = new Set(['CART_EMPTY', 'OUT_OF_STOCK', 'PRICE_CHANGED', 'CONFLICT']);
 
@@ -37,24 +29,50 @@ const CART_ERRORS = new Set(['CART_EMPTY', 'OUT_OF_STOCK', 'PRICE_CHANGED', 'CON
  * revalidates the cart, takes the stock and creates the order; the same `Idempotency-Key` is sent
  * for every retry of one filled-in form, so a double click or a flaky connection cannot order twice.
  */
-export function CheckoutForm({ fields }) {
+export function CheckoutForm({ fields, methods = [], method = null, onMethodChange }) {
   const t = useT();
   const lang = useLang();
   const router = useRouter();
-  const { cart, reload } = useCart();
+  const { cart, fmt, reload } = useCart();
+  const { isSignedIn, authed } = useAuth();
   const [form, setForm] = useState({
     name: '',
     phone: '',
     email: '',
     address: EMPTY_ADDRESS,
     note: '',
-    paymentMethod: ORDER.PAYMENT_METHODS[0],
+    paymentMethod: method?.key ?? methods[0]?.key ?? ORDER.PAYMENT_METHODS[0],
   });
   const [custom, setCustom] = useState({});
   const [errors, setErrors] = useState({});
   const [formError, setFormError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [key, setKey] = useState(() => crypto.randomUUID());
+
+  // A signed-in customer should not retype what the shop already knows. Filled in once, and only
+  // into fields still untouched — anything typed on this page wins.
+  const prefilled = useRef(false);
+  useEffect(() => {
+    if (!isSignedIn || prefilled.current) return;
+    prefilled.current = true;
+    let alive = true;
+    authed('GET', ACCOUNT_BASE)
+      .then((me) => {
+        if (!alive || !me) return;
+        const saved = me.addresses?.find((a) => a.isDefault) ?? me.addresses?.[0];
+        setForm((f) => ({
+          ...f,
+          name: f.name || me.name || '',
+          phone: f.phone || me.phone || '',
+          email: f.email || me.email || '',
+          address: saved && f.address === EMPTY_ADDRESS ? toAddressForm(saved.address) : f.address,
+        }));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [isSignedIn, authed]);
 
   // A new attempt after a rejected one must not reuse the previous key.
   useEffect(() => {
@@ -95,9 +113,13 @@ export function CheckoutForm({ fields }) {
         body: parsed.data,
         idempotencyKey: key,
       });
-      router.push(
-        `${localizePath(CONFIRMATION_PATH, lang)}?token=${encodeURIComponent(order.confirmationToken)}`,
-      );
+      const confirmation = `${localizePath(CONFIRMATION_PATH, lang)}?token=${encodeURIComponent(order.confirmationToken)}`;
+      if (order.payment?.redirectUrl) {
+        // Leaving our site for the gateway's page: a full navigation, not a router push.
+        window.location.assign(order.payment.redirectUrl);
+        return;
+      }
+      router.push(confirmation);
     } catch (error) {
       if (error.details?.length) setErrors(detailsToErrors(error.details));
       if (CART_ERRORS.has(error.code)) {
@@ -163,62 +185,11 @@ export function CheckoutForm({ fields }) {
         <h2 id="address-heading" className="text-lg font-semibold">
           {t('checkout.address')}
         </h2>
-        <FormField label={t('checkout.addressLine')} error={err('address.line1')} required>
-          <PlainTextInput
-            autoComplete="street-address"
-            maxLength={200}
-            placeholder={t('checkout.addressLinePlaceholder')}
-            value={form.address.line1}
-            onChange={(e) => setAddress({ line1: e.target.value })}
-          />
-        </FormField>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <FormField label={t('checkout.city')} error={err('address.city')} required>
-            <PlainTextInput
-              autoComplete="address-level2"
-              maxLength={60}
-              value={form.address.city}
-              onChange={(e) => setAddress({ city: e.target.value })}
-            />
-          </FormField>
-          <FormField label={t('checkout.district')} error={err('address.district')}>
-            <PlainTextInput
-              maxLength={80}
-              value={form.address.district}
-              onChange={(e) => setAddress({ district: e.target.value })}
-            />
-          </FormField>
-          <FormField label={t('checkout.postalCode')} error={err('address.postalCode')}>
-            <PlainTextInput
-              inputMode="numeric"
-              dir="ltr"
-              maxLength={5}
-              autoComplete="postal-code"
-              value={form.address.postalCode}
-              onChange={(e) => setAddress({ postalCode: e.target.value })}
-            />
-          </FormField>
-          <FormField
-            label={t('checkout.shortAddress')}
-            description={t('checkout.shortAddressHint')}
-            error={err('address.shortAddress')}
-          >
-            <PlainTextInput
-              dir="ltr"
-              maxLength={8}
-              value={form.address.shortAddress}
-              onChange={(e) => setAddress({ shortAddress: e.target.value })}
-            />
-          </FormField>
-        </div>
-        <FormField label={t('checkout.landmark')} error={err('address.landmark')}>
-          <PlainTextInput
-            maxLength={200}
-            placeholder={t('checkout.landmarkPlaceholder')}
-            value={form.address.landmark}
-            onChange={(e) => setAddress({ landmark: e.target.value })}
-          />
-        </FormField>
+        <AddressFields
+          value={form.address}
+          onChange={setAddress}
+          error={(field) => err(`address.${field}`)}
+        />
       </section>
 
       {fields.length > 0 && (
@@ -236,20 +207,28 @@ export function CheckoutForm({ fields }) {
         </h2>
         <fieldset className="grid gap-2">
           <legend className="sr-only">{t('checkout.payment')}</legend>
-          {ORDER.PAYMENT_METHODS.map((method) => (
-            <label key={method} className="flex items-start gap-3 rounded-lg border p-3 text-sm">
+          {methods.map((m) => (
+            <label key={m.key} className="flex items-start gap-3 rounded-lg border p-3 text-sm">
               <input
                 type="radio"
                 name="paymentMethod"
                 className="mt-0.5 size-4 accent-primary"
-                checked={form.paymentMethod === method}
-                onChange={() => set({ paymentMethod: method })}
+                checked={form.paymentMethod === m.key}
+                onChange={() => {
+                  set({ paymentMethod: m.key });
+                  onMethodChange?.(m);
+                }}
               />
               <span>
-                <span className="font-medium">{t(`checkout.methods.${method}`)}</span>
-                <span className="block text-muted-foreground">
-                  {t(`checkout.methodHints.${method}`)}
-                </span>
+                <span className="font-medium">{m.label}</span>
+                {feeLabel(m, cart, fmt, t) && (
+                  <span className="ms-2 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {feeLabel(m, cart, fmt, t)}
+                  </span>
+                )}
+                {m.instructions && (
+                  <span className="block text-muted-foreground">{m.instructions}</span>
+                )}
               </span>
             </label>
           ))}

@@ -1,5 +1,6 @@
 'use client';
 
+import { paymentFee } from '@supershop/shared';
 import Link from 'next/link';
 import { MediaImage } from '@/components/catalog/MediaImage';
 import { useCart } from '@/components/cart/CartProvider';
@@ -7,7 +8,7 @@ import { localizePath } from '@/i18n/config';
 import { useLang, useT } from '@/i18n/I18nProvider';
 
 /** What is being ordered, beside the form (collapsible on phones). */
-export function CheckoutSummary({ deliveryFee = 0, freeDeliveryOver = 0 }) {
+export function CheckoutSummary({ method = null, deliveryFee = 0, freeDeliveryOver = 0 }) {
   const t = useT();
   const lang = useLang();
   const { cart, fmt } = useCart();
@@ -17,6 +18,8 @@ export function CheckoutSummary({ deliveryFee = 0, freeDeliveryOver = 0 }) {
   const free = deliveryFee === 0 || (freeDeliveryOver > 0 && totals.total >= freeDeliveryOver);
   const delivery = free ? 0 : deliveryFee;
   const missing = freeDeliveryOver > 0 && !free ? freeDeliveryOver - totals.total : 0;
+  // The method's fee is charged on what the customer already owes (goods + delivery), as on the API.
+  const methodFee = paymentFee(method?.fee, totals.total + delivery);
 
   return (
     <div className="grid gap-4 rounded-xl border p-5">
@@ -71,9 +74,15 @@ export function CheckoutSummary({ deliveryFee = 0, freeDeliveryOver = 0 }) {
           </dt>
           <dd className="tabular-nums">{fmt.money(totals.vat)}</dd>
         </div>
+        {methodFee > 0 && (
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">{method.label}</dt>
+            <dd className="tabular-nums">{fmt.money(methodFee)}</dd>
+          </div>
+        )}
         <div className="flex justify-between gap-4 border-t pt-2 text-base font-semibold">
           <dt>{t('cart.total')}</dt>
-          <dd className="tabular-nums">{fmt.money(totals.total + delivery)}</dd>
+          <dd className="tabular-nums">{fmt.money(totals.total + delivery + methodFee)}</dd>
         </div>
       </dl>
       {missing > 0 && (

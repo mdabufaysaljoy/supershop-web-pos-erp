@@ -18,8 +18,12 @@ export function getCookie(res, name) {
   return { value: decodeURIComponent(pair.slice(name.length + 1)), attrs: attrs.join(';').trim() };
 }
 
-/** Resolves with the next emitted event of `name` (event handlers run asynchronously). */
-export function nextEvent(name, timeoutMs = 2_000) {
+/**
+ * Resolves with the next emitted event of `name` (event handlers run asynchronously). The wait is
+ * generous because every test file runs its own in-memory replica set in parallel: a slow machine
+ * must not turn "the event is emitted" into a failure.
+ */
+export function nextEvent(name, timeoutMs = 10_000) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       off();
@@ -34,7 +38,7 @@ export function nextEvent(name, timeoutMs = 2_000) {
 }
 
 /** Polls `fn` until it returns a truthy value (for async side effects like audit writes). */
-export async function waitFor(fn, { timeoutMs = 3_000, intervalMs = 20 } = {}) {
+export async function waitFor(fn, { timeoutMs = 10_000, intervalMs = 20 } = {}) {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const value = await fn();

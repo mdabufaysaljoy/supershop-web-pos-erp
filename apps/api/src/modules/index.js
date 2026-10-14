@@ -1,4 +1,9 @@
-import { createAuthSchemas, createRbacSchemas, PRINCIPAL_TYPES } from '@supershop/shared';
+import {
+  createAccountSchemas,
+  createAuthSchemas,
+  createRbacSchemas,
+  PRINCIPAL_TYPES,
+} from '@supershop/shared';
 import { setAccessResolver } from '../middleware/authorize.js';
 import { createAuditRouter, registerAuditSubscribers } from './audit/index.js';
 import {
@@ -8,10 +13,25 @@ import {
   registerAuthSubscribers,
   registerPrincipal,
   setAuthPolicyProvider,
+  setOAuthSettingsProvider,
 } from './auth/index.js';
-import { createCustomerRouter, customerPrincipal } from './customers/index.js';
+import { createAccountRouter, createCustomerRouter, customerPrincipal } from './customers/index.js';
 import { createCartRouter } from './cart/index.js';
-import { createCheckoutRouter } from './orders/index.js';
+import {
+  createAccountOrdersRouter,
+  createCheckoutRouter,
+  createOrderAdminRouter,
+  registerOrderSubscribers,
+  setPaymentHooks,
+  setPaymentMethodResolver,
+} from './orders/index.js';
+import {
+  createPaymentRouter,
+  isGatewayReady,
+  startPaymentForOrder,
+  syncOrderPayment,
+} from './payments/index.js';
+import { createPaymentMethodRouter, resolveForCheckout } from './paymentMethods/index.js';
 import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
 import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
@@ -38,7 +58,7 @@ import {
   setAvailabilityProvider,
 } from './products/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
-import { createSettingsRouter, getSetting } from './settings/index.js';
+import { createSettingsRouter, getSecretSetting, getSetting } from './settings/index.js';
 import { createSupplierRouter, setSupplierUsageCounter } from './suppliers/index.js';
 import {
   countStaffWithRole,
@@ -76,6 +96,16 @@ const schemaInputs = () => ({
 const SCHEMA_SETTING_KEYS = ['security.passwordPolicy', 'customers.allowInternationalPhone'];
 const getAuthSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () => createAuthSchemas(schemaInputs()));
 const getRbacSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () => createRbacSchemas(schemaInputs()));
+const getAccountSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () =>
+  createAccountSchemas(schemaInputs()),
+);
+
+/** Identity-provider credentials for the auth module (keeps auth → settings one-way, D-023). */
+const oauthSettings = (provider) => ({
+  enabled: getSetting(`auth.${provider}.enabled`),
+  clientId: getSetting(`auth.${provider}.clientId`),
+  clientSecret: getSecretSetting(`auth.${provider}.clientSecret`) ?? '',
+});
 
 /** Admin-editable parts of the auth policy (settings group `security`). */
 function authPolicyFromSettings(type) {
@@ -107,7 +137,19 @@ export function registerModules() {
   setAccessResolver(resolveStaffAccess);
   setRoleUsageCounter(countStaffWithRole);
   setBranchValidator(findUnknownBranches); // staff can only be assigned to existing branches
+  setOAuthSettingsProvider(oauthSettings);
+  // Orders start and refresh payments through the payments module; payments apply the outcome
+  // back onto the order. Injecting one direction here keeps the imports one-way.
+  setPaymentHooks({ start: startPaymentForOrder, sync: syncOrderPayment });
+  // Checkout validates the chosen method against the shop's own list and gets its fee (P4.2).
+  setPaymentMethodResolver((key, { total }) =>
+    resolveForCheckout(key, { total, isGatewayReady: () => isGatewayReady() }),
+  );
   registerAuthSubscribers();
+  // A proven email (verification link or identity provider) adopts that person's guest orders.
+  registerOrderSubscribers({
+    resolveCustomerEmail: async (id) => (await customerPrincipal.findById(id))?.email ?? null,
+  });
   registerAuditSubscribers();
   registerI18nSubscribers();
   registerSearchSubscribers();
@@ -131,6 +173,9 @@ export function mountModuleRoutes(api) {
     api.use(`${authPath}/${type}`, createAuthRouter(type, { getSchemas: getAuthSchemas }));
   }
   api.use('/customers', createCustomerRouter({ getSchemas: getAuthSchemas }));
+  // More specific first: `/account/orders` belongs to the orders module, the rest to customers.
+  api.use('/account/orders', createAccountOrdersRouter());
+  api.use('/account', createAccountRouter({ getSchemas: getAccountSchemas }));
   api.use('/roles', createRoleRouter());
   api.use('/staff', createStaffRouter({ getSchemas: getRbacSchemas }));
   api.use('/branches', createBranchRouter());
@@ -147,6 +192,12 @@ export function mountModuleRoutes(api) {
   api.use('/search', createSearchRouter());
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
+  api.use('/orders', createOrderAdminRouter());
+  api.use('/payments', createPaymentRouter());
+  api.use(
+    '/payment-methods',
+    createPaymentMethodRouter({ isGatewayReady: () => isGatewayReady() }),
+  );
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
 }

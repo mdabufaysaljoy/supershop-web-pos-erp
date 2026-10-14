@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '@/components/cart/CartProvider';
 import { localizePath } from '@/i18n/config';
 import { useLang, useT } from '@/i18n/I18nProvider';
+import { ORDER } from '@supershop/shared';
+import { apiRequest } from '@/lib/accountApi';
 import { checkoutRequest } from '@/lib/checkout';
 
 /**
@@ -67,6 +69,7 @@ export function OrderConfirmation({ token, fmtOptions }) {
 
   return (
     <div className="grid gap-8">
+      <PaymentState order={o} token={token} />
       <div className="grid justify-items-center gap-2 rounded-2xl bg-muted px-6 py-10 text-center">
         <span className="grid size-12 place-items-center rounded-full bg-emerald-600 text-primary-foreground">
           <svg
@@ -149,14 +152,80 @@ export function OrderConfirmation({ token, fmtOptions }) {
             {line(t('checkout.note'), o.note)}
           </dl>
           <p className="text-sm text-muted-foreground">{t('checkout.confirmation.next')}</p>
-          <Link
-            href={localizePath('/search', lang)}
-            className="mt-2 inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
-          >
-            {t('checkout.confirmation.keepShopping')}
-          </Link>
+          <div className="mt-2 flex flex-wrap gap-3">
+            <Link
+              href={localizePath('/search', lang)}
+              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
+            >
+              {t('checkout.confirmation.keepShopping')}
+            </Link>
+            {/* Only the order number travels in the link — the phone is typed on the page (§5.1). */}
+            <Link
+              href={`${localizePath('/track', lang)}?order=${encodeURIComponent(o.orderNo)}`}
+              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
+            >
+              {t('track.linkLabel')}
+            </Link>
+          </div>
         </section>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Where the money is (P4.1). A card payment can come back unfinished — the customer closed the
+ * gateway page, or it expired — so the order is kept and a new payment page is one click away.
+ */
+function PaymentState({ order, token }) {
+  const t = useT();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const needsPayment =
+    ORDER.GATEWAY_METHODS.includes(order.payment?.method) && order.payment?.status !== 'paid';
+
+  if (!needsPayment) return null;
+
+  const retry = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const { redirectUrl } = await apiRequest('POST', '/api/v1/payments/retry', {
+        body: { token },
+      });
+      if (redirectUrl) return window.location.assign(redirectUrl);
+      setError(t('checkout.confirmation.payment.retryFailed'));
+    } catch {
+      setError(t('checkout.confirmation.payment.retryFailed'));
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div
+      className="grid gap-3 rounded-xl border border-amber-500/40 bg-amber-500/5 p-5"
+      role="status"
+    >
+      <p className="font-medium">{t('checkout.confirmation.payment.unpaidTitle')}</p>
+      <p className="text-sm text-muted-foreground">
+        {t('checkout.confirmation.payment.unpaidBody')}
+      </p>
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={retry}
+        disabled={busy}
+        className="h-11 justify-self-start rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground disabled:opacity-60"
+      >
+        {busy
+          ? t('checkout.confirmation.payment.retrying')
+          : t('checkout.confirmation.payment.retry')}
+      </button>
     </div>
   );
 }

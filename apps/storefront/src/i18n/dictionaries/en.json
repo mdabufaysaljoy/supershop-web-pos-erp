@@ -19,7 +19,8 @@
   },
   "footer": {
     "rights": "© {{year}} {{store}}. All rights reserved.",
-    "vatIncluded": "Prices include VAT."
+    "vatIncluded": "Prices include VAT.",
+    "links": "Helpful links"
   },
   "notFound": {
     "title": "Page not found",
@@ -156,10 +157,12 @@
     "choose": "Choose…",
     "payment": "Payment",
     "methods": {
-      "cod": "Cash payment on delivery"
+      "cod": "Cash payment on delivery",
+      "card": "Card, Mada or Apple Pay"
     },
     "methodHints": {
-      "cod": "Pay the driver when your order is delivered."
+      "cod": "Pay the driver when your order is delivered.",
+      "card": "You will be taken to a secure payment page."
     },
     "note": "Note with your order (optional)",
     "notePlaceholder": "Anything we should know?",
@@ -186,8 +189,19 @@
       "next": "We will contact you to arrange delivery.",
       "keepShopping": "Continue shopping",
       "notFound": "We can't find that order. Check the link from your confirmation.",
-      "vat": "Value added tax"
-    }
+      "vat": "Value added tax",
+      "payment": {
+        "unpaidTitle": "Your payment is not finished",
+        "unpaidBody": "We are holding your order. You can pay now, or we will contact you.",
+        "retry": "Pay now",
+        "retrying": "Opening the payment page…",
+        "retryFailed": "We could not open the payment page. Please try again.",
+        "paid": "Paid"
+      }
+    },
+    "buildingNumber": "Building number",
+    "additionalNumber": "Additional number",
+    "methodFee": "+ {{amount}}"
   },
   "validation": {
     "required": "This field is required.",
@@ -218,6 +232,185 @@
     },
     "id": {
       "invalid": "Invalid identifier."
+    },
+    "tooMany": "Too many entries"
+  },
+  "account": {
+    "title": "My account",
+    "loading": "Loading…",
+    "name": "Full name",
+    "email": "Email address",
+    "phone": "Mobile number",
+    "password": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "submit": "Change password",
+      "changed": "Your password was changed.",
+      "label": "Password",
+      "show": "Show password",
+      "hide": "Hide password"
+    },
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Your details were saved.",
+    "cancel": "Cancel",
+    "signOut": "Sign out",
+    "or": "or",
+    "backToSignIn": "Back to sign in",
+    "nav": {
+      "account": "Account",
+      "profile": "Profile",
+      "orders": "Orders",
+      "addresses": "Addresses"
+    },
+    "signIn": {
+      "title": "Sign in",
+      "short": "Sign in",
+      "identifier": "Email or mobile number",
+      "identifierHint": "Use the email or mobile number you shop with.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "google": "Continue with Google",
+      "forgot": "Forgot your password?",
+      "noAccount": "New here?",
+      "registerLink": "Create an account"
+    },
+    "register": {
+      "title": "Create an account",
+      "submit": "Create account",
+      "submitting": "Creating your account…",
+      "google": "Sign up with Google",
+      "passwordHint": "At least 10 characters.",
+      "haveAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "description": "Enter your email address and we will send you a link to set a new password.",
+      "submit": "Send the link",
+      "submitting": "Sending…",
+      "sent": "If that email belongs to an account, a reset link is on its way."
+    },
+    "reset": {
+      "title": "Set a new password",
+      "description": "Choose a password you do not use anywhere else.",
+      "newPassword": "New password",
+      "submit": "Save the password",
+      "submitting": "Saving…",
+      "expired": "That link has expired or was already used.",
+      "askAgain": "Ask for a new link"
+    },
+    "profile": {
+      "title": "Your details",
+      "emailHint": "Contact us to change the email address on your account.",
+      "language": "Language for messages",
+      "languageHint": "Receipts and order updates are sent in this language.",
+      "languages": {
+        "en": "English",
+        "ar": "Arabic"
+      }
+    },
+    "addresses": {
+      "title": "Saved addresses",
+      "empty": "You have no saved addresses yet.",
+      "add": "Add an address",
+      "newTitle": "New address",
+      "editTitle": "Edit address",
+      "label": "Name this address",
+      "labelHint": "For example Home or Work.",
+      "untitled": "Address",
+      "default": "Default",
+      "makeDefault": "Use as default",
+      "useAsDefault": "Use this address by default",
+      "edit": "Edit",
+      "delete": "Delete",
+      "full": "You have reached the maximum number of saved addresses."
+    },
+    "orders": {
+      "title": "Your orders",
+      "detailTitle": "Order details",
+      "empty": "You have not placed an order yet.",
+      "startShopping": "Start shopping",
+      "itemCount": "Items: {{count}}",
+      "quantity": "Quantity: {{count}}",
+      "previous": "Previous",
+      "next": "Next",
+      "deliveryTo": "Delivery to",
+      "backToList": "Back to your orders",
+      "notFound": "We cannot find that order.",
+      "status": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "cod_confirmed": "Confirmed",
+        "processing": "Being prepared",
+        "shipped": "On its way",
+        "delivered": "Delivered",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "refunded": "Refunded",
+        "partially_returned": "Partly returned",
+        "exchanged": "Exchanged"
+      }
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "badCredentials": "That email, mobile number or password is not right.",
+      "locked": "Too many attempts. Please try again later.",
+      "disabled": "This account is not active. Please contact us.",
+      "exists": "An account with these details already exists.",
+      "phoneTaken": "That mobile number belongs to another account.",
+      "wrongPassword": "Your current password is not right.",
+      "tooMany": "Too many attempts. Please try again later.",
+      "signin": "We could not sign you in. Please try again."
+    }
+  },
+  "track": {
+    "title": "Track your order",
+    "description": "Enter your order number and the mobile number you ordered with.",
+    "orderNumber": "Order number",
+    "orderNumberHint": "It starts with {{prefix}} and is on your confirmation.",
+    "phone": "Mobile number",
+    "submit": "Find my order",
+    "searching": "Looking for your order…",
+    "placedOn": "Placed on {{date}}",
+    "currentStep": "Where your order is now",
+    "paymentLine": "Payment: {{method}} — {{status}}",
+    "notFound": "We cannot find an order with that number and mobile number. Check both and try again.",
+    "failed": "We could not check your order just now. Please try again.",
+    "tooMany": "Too many attempts. Please wait a moment and try again.",
+    "linkLabel": "Track your order",
+    "steps": {
+      "placed": "Order placed",
+      "processing": "Being prepared",
+      "shipped": "On its way",
+      "delivered": "Delivered"
+    },
+    "stepHints": {
+      "placed": "We have your order.",
+      "processing": "We are picking and packing it.",
+      "shipped": "It has left our branch.",
+      "delivered": "Handed over to you."
+    },
+    "paymentStatus": {
+      "pending": "due on delivery",
+      "authorized": "authorized",
+      "paid": "paid",
+      "failed": "not completed",
+      "refunded": "refunded"
+    },
+    "closed": {
+      "cancelled": "This order was cancelled.",
+      "refunded": "This order was refunded.",
+      "partially_returned": "Part of this order was returned.",
+      "exchanged": "This order was exchanged."
+    },
+    "progress": "Order progress",
+    "shipment": {
+      "title": "On its way",
+      "carrier": "Carrier: {{carrier}}",
+      "number": "Tracking number",
+      "follow": "Follow it with the carrier"
     }
   }
 }

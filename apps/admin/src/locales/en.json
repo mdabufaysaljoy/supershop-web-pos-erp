@@ -196,14 +196,17 @@
     "previous": "Previous",
     "next": "Next",
     "pageOf": "Page {{page}} of {{pages}}",
-    "done": "Done"
+    "done": "Done",
+    "saving": "Saving…",
+    "loading": "Loading…"
   },
   "settings": {
     "title": "Settings",
     "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",
     "readOnly": "You can view these settings but not change them.",
     "tabs": {
-      "languages": "Languages"
+      "languages": "Languages",
+      "payments": "Payments"
     }
   },
   "languages": {
@@ -945,6 +948,160 @@
       "useDefaultHint": "Items without their own level use the store-wide default.",
       "level": "Alert when stock is at or below",
       "levelHint": "0 = only when out of stock."
+    }
+  },
+  "payments": {
+    "methods": {
+      "title": "Payment methods",
+      "description": "What customers can pay with, in the order they see. Changes are live at once.",
+      "empty": "No payment methods yet.",
+      "enabled": "Offer it",
+      "edit": "Edit",
+      "close": "Close",
+      "builtIn": "Built in",
+      "label": "Name customers see",
+      "labelHelp": "English only — Arabic is generated automatically.",
+      "arabicLabel": "Arabic (automatic)",
+      "instructions": "How to pay",
+      "instructionsHelp": "Shown under the method at checkout, e.g. the IBAN for a transfer.",
+      "feeFixed": "Fixed fee",
+      "feePercent": "Percentage fee",
+      "feePercentHelp": "Percent of the order, e.g. 2.5",
+      "feeExample": "On a {{basket}} SAR basket this adds {{fee}} SAR.",
+      "minTotal": "Smallest order",
+      "maxTotal": "Largest order",
+      "limitsHelp": "Leave empty for no limit.",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "key": "Key",
+      "keyHelp": "Used in orders and reports; cannot be changed later.",
+      "addTitle": "Add your own method",
+      "addDescription": "For money you collect yourself: bank transfer, pay at the branch, a wallet you settle by hand.",
+      "add": "Add method",
+      "created": "Payment method added.",
+      "saved": "Payment method saved.",
+      "deleted": "Payment method deleted.",
+      "confirmDelete": "Delete “{{name}}”? Orders already placed keep their copy.",
+      "types": {
+        "gateway": "Online payment",
+        "cod": "Cash on delivery",
+        "offline": "Collected by you"
+      }
+    },
+    "gateway": {
+      "title": "Online payment gateway",
+      "description": "The service behind the card method. Keys are stored encrypted and never shown again.",
+      "provider": "Provider",
+      "providerHelp": "Switching provider needs new keys; the card method stays off until they work.",
+      "providers": {
+        "none": "None — no online payments",
+        "moyasar": "Moyasar"
+      },
+      "secretKey": "Secret key",
+      "webhookSecret": "Webhook secret",
+      "stored": "Stored: {{masked}}",
+      "notSet": "Not set yet.",
+      "enterNew": "Paste a new key"
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "description": "Everything the shop has sold online and at the till.",
+    "search": "Order number or phone",
+    "statusFilter": "Filter by status",
+    "channelFilter": "Filter by channel",
+    "allStatuses": "Any status",
+    "allChannels": "Any channel",
+    "empty": "No orders match this view.",
+    "number": "Order",
+    "placed": "Placed",
+    "customer": "Customer",
+    "statusLabel": "Status",
+    "payment": "Payment",
+    "total": "Total",
+    "shipped": "shipped",
+    "items_one": "{{count}} item",
+    "items_other": "{{count}} items",
+    "channels": {
+      "online": "Online",
+      "pos": "Point of sale"
+    },
+    "status": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "cod_confirmed": "Confirmed",
+      "processing": "Being prepared",
+      "shipped": "On its way",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "partially_returned": "Partly returned",
+      "exchanged": "Exchanged"
+    },
+    "paymentStatus": {
+      "pending": "Not paid yet",
+      "authorized": "Authorized",
+      "paid": "Paid",
+      "failed": "Failed",
+      "refunded": "Refunded"
+    },
+    "actions": {
+      "title": "What happens next",
+      "none": "Nothing left to do with this order.",
+      "markPaid": "Mark as paid",
+      "confirmCod": "Confirm the order",
+      "startProcessing": "Start preparing",
+      "ship": "Mark as shipped",
+      "markDelivered": "Mark as delivered",
+      "complete": "Complete the order",
+      "cancel": "Cancel order",
+      "cancelTitle": "Cancel this order?",
+      "cancelHelp": "The goods go back on the shelf straight away. This cannot be undone.",
+      "cancelReason": "Reason (kept with the order)",
+      "cancelConfirm": "Yes, cancel it"
+    },
+    "shipments": {
+      "title": "Shipments",
+      "none": "Nothing has left the branch yet.",
+      "carrier": "Carrier",
+      "trackingNumber": "Tracking number",
+      "trackingUrl": "Tracking link",
+      "add": "Record shipment"
+    },
+    "notes": {
+      "title": "Notes",
+      "description": "For the shop only — customers never see these.",
+      "fromCustomer": "From the customer",
+      "add": "Add note",
+      "placeholder": "What should the team know?",
+      "someone": "Someone"
+    },
+    "history": {
+      "title": "History",
+      "none": "Nothing has happened yet.",
+      "restocked": "goods returned to stock",
+      "by": {
+        "staff": "by staff",
+        "system": "automatic"
+      }
+    },
+    "invoice": {
+      "title": "Invoice",
+      "print": "Print invoice",
+      "vatNumber": "VAT number",
+      "billTo": "Billed to",
+      "deliverTo": "Delivered to",
+      "item": "Item",
+      "qty": "Qty",
+      "unitPrice": "Price",
+      "lineTotal": "Amount",
+      "subtotal": "Subtotal",
+      "delivery": "Delivery",
+      "paymentFee": "Payment fee",
+      "vat": "VAT",
+      "total": "Total",
+      "paidWith": "Paid with {{method}} — {{status}}"
     }
   }
 }

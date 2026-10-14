@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AccountButton } from '@/components/account/AccountButton';
 import { CartButton } from '@/components/cart/CartButton';
 import { SearchBox } from '@/components/search/SearchBox';
 import { languageOptions, localizePath } from '@/i18n/config';
@@ -22,6 +23,7 @@ export function SiteHeader({ lang, storeName, categories = [], t }) {
         </div>
         <div className="col-start-3 row-start-1 flex items-center justify-end gap-2 md:col-start-4">
           <LanguageSwitcher lang={lang} languages={languageOptions()} label={t('nav.language')} />
+          <AccountButton />
           <CartButton />
         </div>
       </div>

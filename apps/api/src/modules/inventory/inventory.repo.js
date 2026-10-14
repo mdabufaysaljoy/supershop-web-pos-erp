@@ -72,8 +72,8 @@ export async function listMovements(filter, { sort, skip, limit }) {
   ]);
   return { items, total };
 }
-export const movementsOf = (operationId) =>
-  StockMovement.find({ operationId }).sort({ _id: 1 }).lean();
+export const movementsOf = (operationId, session) =>
+  StockMovement.find({ operationId }, null, opts(session)).sort({ _id: 1 }).lean();
 
 export async function listOperations(filter, { sort, skip, limit }) {
   const [items, total] = await Promise.all([

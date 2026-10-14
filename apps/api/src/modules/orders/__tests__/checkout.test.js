@@ -7,6 +7,7 @@ import { createApp } from '../../../app.js';
 import { eventBus } from '../../../core/events.js';
 import { Cart } from '../../cart/cart.model.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
+import { seedPaymentMethods } from '../../paymentMethods/index.js';
 import { seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
 import { ensureSuperAdmin } from '../../staff/index.js';
@@ -70,6 +71,7 @@ beforeEach(async () => {
   await Promise.all([Cart.init(), Order.init()]);
   app = createApp({ checks: { db: () => true, redis: async () => true } });
   await seedDefaultRoles();
+  await seedPaymentMethods();
   await ensureSuperAdmin({ name: 'Root Admin', email: 'root@shop.test', password: PW });
   rootToken = (
     await request(app)
@@ -150,6 +152,7 @@ describe('placing an order', () => {
     expect(order.totals).toEqual({
       itemCount: 3,
       subtotal: 26450,
+      paymentFee: 0,
       deliveryFee: 0,
       net: 23450,
       vat: 3000,
@@ -203,7 +206,6 @@ describe('placing an order', () => {
       ...FORM,
       contact: { name: 'A1', phone: '123', email: 'nope' },
       address: { city: 'R', line1: 'x' },
-      paymentMethod: 'bitcoin',
     });
     expect(bad.status).toBe(400);
     expect(bad.body.error.details.map((d) => d.path)).toEqual(
@@ -213,9 +215,13 @@ describe('placing an order', () => {
         'contact.email',
         'address.city',
         'address.line1',
-        'paymentMethod',
       ]),
     );
+
+    // The method list is admin data now (P4.2): an unknown key is refused by the shop's own list.
+    const unknownMethod = await s.place({ ...FORM, paymentMethod: 'bitcoin' });
+    expect(unknownMethod.status).toBe(400);
+    expect(unknownMethod.body.error.details.map((d) => d.path)).toEqual(['paymentMethod']);
 
     const def = await ok(
       await root.post('/api/v1/custom-fields', {
@@ -374,10 +380,30 @@ describe('idempotency and reading the order back', () => {
       (await request(app).get(`${CHECKOUT}/confirmation?token=${'x'.repeat(32)}`)).status,
     ).toBe(404);
 
+    // Tracking (P3.6) tells the customer where the order is — not everything the order holds.
     const tracked = await ok(
       await request(app).get(`${CHECKOUT}/track?number=${order.orderNo}&phone=0512345678`),
     );
-    expect(tracked.orderNo).toBe(order.orderNo);
+    expect(tracked).toMatchObject({
+      orderNo: order.orderNo,
+      status: 'pending',
+      customerName: 'Sara Ali',
+      city: 'Riyadh',
+      totals: { itemCount: order.totals.itemCount, total: order.totals.total },
+      payment: { method: 'cod', status: 'pending' },
+    });
+    expect(tracked.items.map((i) => i.name)).toEqual(order.items.map((i) => i.name));
+    for (const field of ['address', 'customer', 'note', 'customFields', 'id'])
+      expect(tracked).not.toHaveProperty(field);
+    // An Arabic-Indic order number and a 05… phone find the same order (digits are normalized).
+    const arabicDigits = order.orderNo.replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[Number(d)]);
+    expect(
+      (
+        await request(app).get(
+          `${CHECKOUT}/track?number=${encodeURIComponent(arabicDigits)}&phone=%2B966512345678`,
+        )
+      ).status,
+    ).toBe(200);
     expect(
       (await request(app).get(`${CHECKOUT}/track?number=${order.orderNo}&phone=0599999999`)).status,
     ).toBe(404);

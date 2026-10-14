@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { deliveryCharge, orderTotals, priceLines, vatRateFor } from '../index.js';
+import {
+  deliveryCharge,
+  orderTotals,
+  paymentCharge,
+  paymentFee,
+  priceLines,
+  vatRateFor,
+} from '../index.js';
 
 const tax = { vatRateBps: 1500, pricesIncludeVat: true };
 
@@ -107,10 +114,63 @@ describe('orderTotals', () => {
       itemCount: 2,
       subtotal: 23000,
       deliveryFee: 2300,
+      paymentFee: 0,
       net: 22000,
       vat: 3300,
       total: 25300,
     });
     expect(t.net + t.vat).toBe(t.total);
+  });
+});
+
+describe('payment method fees (P4.2)', () => {
+  it('adds a fixed amount, a percentage, or both', () => {
+    expect(paymentFee(null, 23000)).toBe(0);
+    expect(paymentFee({}, 23000)).toBe(0);
+    expect(paymentFee({ fixed: 500 }, 23000)).toBe(500);
+    expect(paymentFee({ bps: 250 }, 23000)).toBe(575);
+    expect(paymentFee({ fixed: 500, bps: 250 }, 23000)).toBe(1075);
+  });
+
+  it('rounds the percentage once, half away from zero (D-017)', () => {
+    expect(paymentFee({ bps: 250 }, 999)).toBe(25); // 24.975 → 25
+    expect(paymentFee({ bps: 1 }, 50)).toBe(0); // 0.005 → 0
+    expect(paymentFee({ bps: 1 }, 5000)).toBe(1); // 0.5 → 1
+  });
+
+  it('carries VAT like delivery, in the store\u2019s price mode', () => {
+    expect(paymentCharge({ fee: 1150, vatRateBps: 1500, pricesIncludeVat: true })).toEqual({
+      gross: 1150,
+      net: 1000,
+      vat: 150,
+    });
+    expect(paymentCharge({ fee: 1000, vatRateBps: 1500, pricesIncludeVat: false })).toEqual({
+      gross: 1150,
+      net: 1000,
+      vat: 150,
+    });
+    expect(
+      paymentCharge({ fee: 1000, vatRateBps: 1500, pricesIncludeVat: true, taxed: false }),
+    ).toEqual({
+      gross: 1000,
+      net: 1000,
+      vat: 0,
+    });
+    expect(paymentCharge({ fee: 0, vatRateBps: 1500, pricesIncludeVat: true })).toEqual({
+      gross: 0,
+      net: 0,
+      vat: 0,
+    });
+  });
+
+  it('shows up in the order totals and keeps net + VAT = total', () => {
+    const items = { itemCount: 2, subtotal: 23000, net: 20000, vat: 3000, total: 23000 };
+    const delivery = { gross: 2300, net: 2000, vat: 300 };
+    const payment = paymentCharge({ fee: 1150, vatRateBps: 1500, pricesIncludeVat: true });
+    const totals = orderTotals(items, delivery, payment);
+    expect(totals).toMatchObject({ deliveryFee: 2300, paymentFee: 1150, total: 26450 });
+    expect(totals.net + totals.vat).toBe(totals.total);
+    // Omitting the payment keeps the old shape working (a method with no fee).
+    expect(orderTotals(items, delivery).paymentFee).toBe(0);
   });
 });

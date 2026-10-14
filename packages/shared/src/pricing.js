@@ -69,3 +69,21 @@ export function deliveryCharge({
   const vat = vatFromNet(fee, vatRateBps);
   return { gross: sumMinor(fee, vat), net: fee, vat, free: false };
 }
+
+/**
+ * What a payment method adds to the bill (P4.2). A payment fee is a service the shop charges for,
+ * so it carries VAT exactly like delivery: inclusive or exclusive per the store's price mode.
+ * @param {{ fee: number, vatRateBps: number, pricesIncludeVat: boolean, taxed?: boolean }} input
+ *   `fee` is already computed from the method (fixed + percentage) in minor units.
+ * @returns {{ gross: number, net: number, vat: number }}
+ */
+export function paymentCharge({ fee, vatRateBps, pricesIncludeVat, taxed = true }) {
+  if (fee <= 0) return { gross: 0, net: 0, vat: 0 };
+  if (!taxed) return { gross: fee, net: fee, vat: 0 };
+  if (pricesIncludeVat) {
+    const vat = vatFromGross(fee, vatRateBps);
+    return { gross: fee, net: fee - vat, vat };
+  }
+  const vat = vatFromNet(fee, vatRateBps);
+  return { gross: sumMinor(fee, vat), net: fee, vat };
+}

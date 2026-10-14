@@ -99,12 +99,14 @@ describe('brands', () => {
     // Turning it on later adds it; an existing glossary entry is never overwritten.
     await as('catalog').patch(`/api/v1/brands/${apple.id}`, { protectName: true });
     await waitFor(async () => (await glossaryTerms()).includes('Apple'));
-    const audit = await as('root').get('/api/v1/audit?action=glossary.updated');
-    await waitFor(async () => {
+    // Audit rows are written by subscribers after the response (D-030), so look for the two terms
+    // this test produced rather than counting every row in the collection.
+    const terms = await waitFor(async () => {
       const res = await as('root').get('/api/v1/audit?action=glossary.updated');
-      return res.body.data.length === 2;
+      const names = res.body.data.map((e) => e.after?.term);
+      return names.includes('Zentrix') && names.includes('Apple') ? names : null;
     });
-    expect(audit.status).toBe(200);
+    expect(terms).toEqual(expect.arrayContaining(['Zentrix', 'Apple']));
   });
 
   it('updates, clears website, lists with search/sort/pagination', async () => {

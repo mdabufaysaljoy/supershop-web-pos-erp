@@ -49,6 +49,7 @@ const orderSchema = new mongoose.Schema(
       itemCount: { type: Number, required: true },
       subtotal: { type: Number, required: true },
       deliveryFee: { type: Number, required: true, default: 0 },
+      paymentFee: { type: Number, required: true, default: 0 },
       net: { type: Number, required: true },
       vat: { type: Number, required: true },
       total: { type: Number, required: true },
@@ -57,7 +58,16 @@ const orderSchema = new mongoose.Schema(
     pricesIncludeVat: { type: Boolean, required: true, default: true },
     payment: {
       method: { type: String, required: true },
+      /** What checkout must do with it: gateway | cod | offline (snapshot of the method, P4.2). */
+      methodType: { type: String, default: 'cod' },
+      /** The label the customer saw, in the order's language. */
+      label: { type: String, default: null },
+      /** What this method added to the total (already inside totals.paymentFee). */
+      fee: { type: Number, default: 0 },
       status: { type: String, required: true, default: 'pending' },
+      /** The gateway's reference for this order's payment (P4.1); never a vendor-named field. */
+      gatewayRef: { type: String, default: null },
+      refundedAmount: { type: Number, default: 0 },
     },
     /** Values of admin-defined `checkout` custom fields. */
     customFields: { type: Mixed, default: () => ({}) },
@@ -69,6 +79,52 @@ const orderSchema = new mongoose.Schema(
     },
     /** Primary branch (most lines) — reports and pick lists start here. */
     branchId: { type: ObjectId, default: null },
+    /** Parcels on their way (P4.3). The first one moves the order to `shipped`. */
+    shipments: {
+      type: [
+        {
+          _id: false,
+          carrier: { type: String, required: true },
+          trackingNumber: { type: String, default: null },
+          trackingUrl: { type: String, default: null },
+          shippedAt: { type: Date, default: Date.now },
+          staffId: { type: ObjectId, default: null },
+        },
+      ],
+      default: [],
+    },
+    /** Every move through the lifecycle, oldest first — who, when, why. */
+    statusHistory: {
+      type: [
+        {
+          _id: false,
+          at: { type: Date, default: Date.now },
+          from: String,
+          to: String,
+          action: String,
+          by: String,
+          staffId: { type: ObjectId, default: null },
+          reason: { type: String, default: null },
+          restocked: { type: Boolean, default: false },
+        },
+      ],
+      default: [],
+    },
+    /** Staff notes (P4.4) — internal, never shown to the customer. */
+    notes: {
+      type: [
+        {
+          _id: false,
+          at: { type: Date, default: Date.now },
+          staffId: { type: ObjectId, default: null },
+          staffName: { type: String, default: null },
+          text: { type: String, required: true },
+        },
+      ],
+      default: [],
+    },
+    cancelledAt: { type: Date, default: null },
+    cancelReason: { type: String, default: null },
     /** SHA-256 of the link token that shows the confirmation page again. */
     confirmationTokenHash: { type: String, default: null },
     /** `<cart|customer>:<Idempotency-Key>` — a retried checkout returns the first order. */

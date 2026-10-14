@@ -11,7 +11,25 @@ export * from './permissions.js';
 export * from './events.js';
 export * from './trackingEvents.js';
 export * as validators from './validators/index.js';
+export { ACCOUNT, createAccountSchemas } from './schemas/account.js';
 export { createAuthSchemas } from './schemas/auth.js';
+export {
+  ACTORS,
+  allowedTransitions,
+  findTransition,
+  isTerminal,
+  ORDER_FLOW,
+  ORDER_STATES,
+  restocksOn,
+  transitionByAction,
+} from './stateMachines/order.js';
+export { createPaymentSchemas, PAYMENT } from './schemas/payment.js';
+export {
+  createPaymentMethodSchemas,
+  feeSchema,
+  PAYMENT_METHOD,
+  paymentFee,
+} from './schemas/paymentMethod.js';
 export { createRbacSchemas } from './schemas/rbac.js';
 export { SETTINGS, SETTING_GROUPS } from './settings/definitions.js';
 export { ApiError, buildApiUrl, createApiClient } from './api/client.js';
@@ -33,8 +51,15 @@ export {
   ORDER,
   orderTotals,
   shippingAddressSchema,
+  trackingTimeline,
 } from './schemas/order.js';
-export { deliveryCharge, priceLines, TAX_CATEGORIES, vatRateFor } from './pricing.js';
+export {
+  deliveryCharge,
+  paymentCharge,
+  priceLines,
+  TAX_CATEGORIES,
+  vatRateFor,
+} from './pricing.js';
 export { createInventorySchemas, STOCK } from './schemas/inventory.js';
 export {
   createPurchaseOrderSchemas,

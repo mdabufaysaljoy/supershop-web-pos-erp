@@ -1,10 +1,12 @@
 import express from 'express';
 import { createAuthSchemas, PRINCIPAL_TYPES } from '@supershop/shared';
+import { OAUTH_PROVIDERS } from '../../adapters/oauth/index.js';
 import { requireCsrfProtection } from '../../middleware/csrf.js';
 import { createRateLimiter, LIMITS } from '../../middleware/rateLimit.js';
 import { validate } from '../../middleware/validate.js';
 import * as c from './auth.controller.js';
 import { requireAuth } from './auth.middleware.js';
+import { createOAuthRouter } from './oauth.routes.js';
 
 /**
  * Routes for one principal type, mounted at `/api/v1/auth/<type>`.
@@ -23,12 +25,19 @@ import { requireAuth } from './auth.middleware.js';
  *  POST /email/resend        customer only, bearer
  *
  * @param {'staff' | 'customer'} type
- * @param {{ getSchemas?: () => ReturnType<typeof createAuthSchemas> }} [opts] returns schemas for the
- *   CURRENT settings (password policy, phone rules); called per request, memoized by the caller.
+ * @param {{
+ *   getSchemas?: () => ReturnType<typeof createAuthSchemas>,
+ *   oauthProviders?: string[],
+ *   deps?: { fetchImpl?: typeof fetch },
+ * }} [opts] `getSchemas` returns schemas for the CURRENT settings (password policy, phone rules),
+ *   called per request and memoized by the caller; `deps` lets tests inject a fake provider.
  */
 const defaultSchemas = createAuthSchemas();
 
-export function createAuthRouter(type, { getSchemas = () => defaultSchemas } = {}) {
+export function createAuthRouter(
+  type,
+  { getSchemas = () => defaultSchemas, oauthProviders = OAUTH_PROVIDERS, deps = {} } = {},
+) {
   const r = express.Router();
   const auth = requireAuth(type);
   const csrf = requireCsrfProtection();
@@ -65,6 +74,8 @@ export function createAuthRouter(type, { getSchemas = () => defaultSchemas } = {
   if (type === PRINCIPAL_TYPES.CUSTOMER) {
     r.post('/email/verify', sensitiveLimit, body('verifyEmail'), c.verifyEmail(type));
     r.post('/email/resend', auth, sensitiveLimit, c.resendVerification(type));
+    // Identity providers (P3.5). Disabled or unconfigured → 404 from the service.
+    for (const provider of oauthProviders) r.use(`/${provider}`, createOAuthRouter(provider, deps));
   }
   return r;
 }

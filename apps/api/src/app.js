@@ -65,7 +65,16 @@ export function createApp({
     }),
   );
 
-  app.use(express.json({ limit: config.JSON_BODY_LIMIT }));
+  app.use(
+    express.json({
+      limit: config.JSON_BODY_LIMIT,
+      // Payment gateways sign the exact bytes they sent (P4.1), so keep them for those routes
+      // only — holding every request body twice would be wasteful.
+      verify: (req, _res, buf) => {
+        if (req.url.includes('/payments/webhook/')) req.rawBody = buf;
+      },
+    }),
+  );
   app.use(cookieParser());
   app.use(rejectUnsafeKeys);
 

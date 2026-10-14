@@ -129,6 +129,8 @@ export const EVENTS = Object.freeze({
   ORDER_REFUNDED: 'order.refunded',
 
   // payments
+  /** A payment page was created and the customer sent to it (P4.1). */
+  PAYMENT_STARTED: 'payment.started',
   PAYMENT_SUCCEEDED: 'payment.succeeded',
   PAYMENT_FAILED: 'payment.failed',
   PAYMENT_REFUNDED: 'payment.refunded',

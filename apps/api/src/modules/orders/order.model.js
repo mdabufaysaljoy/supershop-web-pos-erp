@@ -58,6 +58,9 @@ const orderSchema = new mongoose.Schema(
     payment: {
       method: { type: String, required: true },
       status: { type: String, required: true, default: 'pending' },
+      /** The gateway's reference for this order's payment (P4.1); never a vendor-named field. */
+      gatewayRef: { type: String, default: null },
+      refundedAmount: { type: Number, default: 0 },
     },
     /** Values of admin-defined `checkout` custom fields. */
     customFields: { type: Mixed, default: () => ({}) },

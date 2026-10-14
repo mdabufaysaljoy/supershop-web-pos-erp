@@ -28,14 +28,29 @@ async function checkoutFields(lang) {
   }
 }
 
+/** Methods the shop can actually take money with right now (P4.1); cash is the safe fallback. */
+async function paymentMethods() {
+  try {
+    const methods = (await apiGet('/api/v1/payments/methods', { tags: ['settings'] })).data;
+    return methods?.length ? methods : ['cod'];
+  } catch {
+    return ['cod'];
+  }
+}
+
 export default async function CheckoutPage({ params }) {
   const { lang } = await params;
-  const [{ settings, t }, fields] = await Promise.all([getPageContext(lang), checkoutFields(lang)]);
+  const [{ settings, t }, fields, methods] = await Promise.all([
+    getPageContext(lang),
+    checkoutFields(lang),
+    paymentMethods(),
+  ]);
   return (
     <div className="grid gap-6">
       <h1 className="text-3xl font-semibold tracking-tight">{t('checkout.title')}</h1>
       <CheckoutView
         fields={fields}
+        methods={methods}
         deliveryFee={settings['checkout.deliveryFee']}
         freeDeliveryOver={settings['checkout.freeDeliveryOver']}
       />

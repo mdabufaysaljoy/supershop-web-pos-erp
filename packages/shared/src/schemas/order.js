@@ -23,8 +23,14 @@ export const ORDER = Object.freeze({
     'partially_returned',
     'exchanged',
   ]),
-  /** Storefront payment methods available before the gateway adapters land (P4.1). */
-  PAYMENT_METHODS: Object.freeze(['cod']),
+  /**
+   * Storefront payment methods. `card` is whatever the configured gateway hosts (Mada, cards,
+   * Apple Pay…) — one method here, many wallets there, because the gateway owns that choice.
+   * Admin-defined extra methods arrive with P4.2.
+   */
+  PAYMENT_METHODS: Object.freeze(['cod', 'card']),
+  /** Methods that send the customer to a payment page before the order is paid. */
+  GATEWAY_METHODS: Object.freeze(['card']),
   PAYMENT_STATUSES: Object.freeze(['pending', 'authorized', 'paid', 'failed', 'refunded']),
   DELIVERY_METHODS: Object.freeze(['delivery']),
   NOTE_MAX: 500,

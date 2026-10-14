@@ -21,7 +21,9 @@ import {
   createAccountOrdersRouter,
   createCheckoutRouter,
   registerOrderSubscribers,
+  setPaymentHooks,
 } from './orders/index.js';
+import { createPaymentRouter, startPaymentForOrder, syncOrderPayment } from './payments/index.js';
 import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
 import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
 import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
@@ -128,6 +130,9 @@ export function registerModules() {
   setRoleUsageCounter(countStaffWithRole);
   setBranchValidator(findUnknownBranches); // staff can only be assigned to existing branches
   setOAuthSettingsProvider(oauthSettings);
+  // Orders start and refresh payments through the payments module; payments apply the outcome
+  // back onto the order. Injecting one direction here keeps the imports one-way.
+  setPaymentHooks({ start: startPaymentForOrder, sync: syncOrderPayment });
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
   registerOrderSubscribers({
@@ -175,6 +180,7 @@ export function mountModuleRoutes(api) {
   api.use('/search', createSearchRouter());
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
+  api.use('/payments', createPaymentRouter());
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
 }

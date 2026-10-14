@@ -532,9 +532,17 @@
       "src": "aa448a1301e02eb5",
       "out": "d971f9169e166e58"
     },
+    "checkout.methods.card": {
+      "src": "f7a63682b216e6d2",
+      "out": "5b038a005215297b"
+    },
     "checkout.methodHints.cod": {
       "src": "d17bd89850bfca6e",
       "out": "30d1cf5f86b72c45"
+    },
+    "checkout.methodHints.card": {
+      "src": "0c21f483b521a090",
+      "out": "97f31739cdf9be38"
     },
     "checkout.note": {
       "src": "811fa1df3c8d329f",
@@ -627,6 +635,30 @@
     "checkout.confirmation.vat": {
       "src": "657102c192a8b56e",
       "out": "98dcf296111bc83a"
+    },
+    "checkout.confirmation.payment.unpaidTitle": {
+      "src": "de95eaa1c8eb126c",
+      "out": "e228cdf3b1d4463b"
+    },
+    "checkout.confirmation.payment.unpaidBody": {
+      "src": "89fa3d6b5cd64584",
+      "out": "32a3a48d8ee0b3c8"
+    },
+    "checkout.confirmation.payment.retry": {
+      "src": "a63deadb8b917f71",
+      "out": "1b0203e666d804d4"
+    },
+    "checkout.confirmation.payment.retrying": {
+      "src": "ff65a263a28004a7",
+      "out": "0b75f0c7281ee0f5"
+    },
+    "checkout.confirmation.payment.retryFailed": {
+      "src": "350bca21aedbebbb",
+      "out": "116340797ba3a229"
+    },
+    "checkout.confirmation.payment.paid": {
+      "src": "fb81b961af456e5e",
+      "out": "5e1b515f1b139534"
     },
     "checkout.buildingNumber": {
       "src": "c16322ce4420d5fa",

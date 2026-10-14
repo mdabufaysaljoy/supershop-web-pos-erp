@@ -157,10 +157,12 @@
     "choose": "Choose…",
     "payment": "Payment",
     "methods": {
-      "cod": "Cash payment on delivery"
+      "cod": "Cash payment on delivery",
+      "card": "Card, Mada or Apple Pay"
     },
     "methodHints": {
-      "cod": "Pay the driver when your order is delivered."
+      "cod": "Pay the driver when your order is delivered.",
+      "card": "You will be taken to a secure payment page."
     },
     "note": "Note with your order (optional)",
     "notePlaceholder": "Anything we should know?",
@@ -187,7 +189,15 @@
       "next": "We will contact you to arrange delivery.",
       "keepShopping": "Continue shopping",
       "notFound": "We can't find that order. Check the link from your confirmation.",
-      "vat": "Value added tax"
+      "vat": "Value added tax",
+      "payment": {
+        "unpaidTitle": "Your payment is not finished",
+        "unpaidBody": "We are holding your order. You can pay now, or we will contact you.",
+        "retry": "Pay now",
+        "retrying": "Opening the payment page…",
+        "retryFailed": "We could not open the payment page. Please try again.",
+        "paid": "Paid"
+      }
     },
     "buildingNumber": "Building number",
     "additionalNumber": "Additional number"

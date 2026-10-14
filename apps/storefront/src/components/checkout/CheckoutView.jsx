@@ -8,7 +8,7 @@ import { CheckoutForm } from './CheckoutForm';
 import { CheckoutSummary } from './CheckoutSummary';
 
 /** Checkout page body: the form plus the order summary (both client — the cart is personal). */
-export function CheckoutView({ fields, deliveryFee, freeDeliveryOver }) {
+export function CheckoutView({ fields, methods, deliveryFee, freeDeliveryOver }) {
   const t = useT();
   const lang = useLang();
   const { cart } = useCart();
@@ -36,7 +36,7 @@ export function CheckoutView({ fields, deliveryFee, freeDeliveryOver }) {
   }
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-start">
-      <CheckoutForm fields={fields} />
+      <CheckoutForm fields={fields} methods={methods} />
       <aside className="lg:sticky lg:top-6" aria-label={t('checkout.summary')}>
         <CheckoutSummary deliveryFee={deliveryFee} freeDeliveryOver={freeDeliveryOver} />
       </aside>

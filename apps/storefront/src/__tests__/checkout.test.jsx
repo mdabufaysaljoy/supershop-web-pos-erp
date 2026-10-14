@@ -90,7 +90,7 @@ const json = (status, body) =>
     new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }),
   );
 
-function setup(handler, { fields = [], cart = CART } = {}) {
+function setup(handler, { fields = [], cart = CART, methods = ['cod'] } = {}) {
   const fetchMock = vi.fn((url, init) => {
     const u = String(url);
     if (u.startsWith('/api/v1/cart')) return json(200, { data: cart });
@@ -104,7 +104,12 @@ function setup(handler, { fields = [], cart = CART } = {}) {
     <I18nProvider lang="en" dict={pickNamespaces(en)}>
       <CartProvider fmtOptions={FMT}>
         <AuthProvider>
-          <CheckoutView fields={fields} deliveryFee={2300} freeDeliveryOver={50000} />
+          <CheckoutView
+            fields={fields}
+            methods={methods}
+            deliveryFee={2300}
+            freeDeliveryOver={50000}
+          />
         </AuthProvider>
       </CartProvider>
     </I18nProvider>,
@@ -214,6 +219,54 @@ describe('checkout form', () => {
   });
 });
 
+describe('paying by card (P4.1)', () => {
+  /** jsdom has no navigation: capture where the browser would have gone. */
+  const captureNavigation = () => {
+    const assign = vi.fn();
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...window.location, assign },
+    });
+    return assign;
+  };
+
+  it('offers only the methods the shop can take, cash first', async () => {
+    setup(() => json(404, {}), { methods: ['cod'] });
+    await screen.findByText('Oxford Shirt');
+    expect(screen.getByLabelText(/Cash payment on delivery/)).toBeChecked();
+    expect(screen.queryByLabelText(/Card, Mada or Apple Pay/)).toBeNull();
+  });
+
+  it('sends the customer to the payment page instead of the confirmation', async () => {
+    const assign = captureNavigation();
+    const m = setup(
+      (u, init) =>
+        init?.method === 'POST'
+          ? json(201, {
+              data: {
+                ...ORDER,
+                confirmationToken: 'tok-123456789012345',
+                payment: {
+                  method: 'card',
+                  status: 'pending',
+                  redirectUrl: 'https://pay.test/inv_1',
+                },
+              },
+            })
+          : json(404, {}),
+      { methods: ['cod', 'card'] },
+    );
+    await screen.findByText('Oxford Shirt');
+    await userEvent.click(screen.getByLabelText(/Card, Mada or Apple Pay/));
+    await fill();
+    await userEvent.click(screen.getByRole('button', { name: 'Send my order' }));
+
+    await waitFor(() => expect(assign).toHaveBeenCalledWith('https://pay.test/inv_1'));
+    expect(push).not.toHaveBeenCalled();
+    expect(JSON.parse(posted(m)[0][1].body).paymentMethod).toBe('card');
+  });
+});
+
 describe('confirmation page', () => {
   const renderConfirmation = (token, handler) => {
     vi.stubGlobal('fetch', vi.fn(handler));
@@ -246,5 +299,48 @@ describe('confirmation page', () => {
         : json(200, { data: { ...CART, items: [] } }),
     );
     expect(await screen.findByText(/can't find that order/)).toBeInTheDocument();
+  });
+});
+
+describe('an unfinished card payment', () => {
+  const renderConfirmation = (token, handler) => {
+    vi.stubGlobal('fetch', vi.fn(handler));
+    render(
+      <I18nProvider lang="en" dict={pickNamespaces(en)}>
+        <CartProvider fmtOptions={FMT}>
+          <OrderConfirmation token={token} fmtOptions={FMT} />
+        </CartProvider>
+      </I18nProvider>,
+    );
+  };
+  const CARD_ORDER = { ...ORDER, payment: { method: 'card', status: 'pending' } };
+
+  it('keeps the order and offers a new payment page', async () => {
+    const assign = vi.fn();
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...window.location, assign },
+    });
+    renderConfirmation('tok-123456789012345', (url) => {
+      const u = String(url);
+      if (u.includes('/payments/retry'))
+        return json(200, { data: { redirectUrl: 'https://pay.test/inv_2' } });
+      if (u.includes('/confirmation')) return json(200, { data: CARD_ORDER });
+      return json(200, { data: { ...CART, items: [] } });
+    });
+
+    expect(await screen.findByText('Your payment is not finished')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Pay now' }));
+    await waitFor(() => expect(assign).toHaveBeenCalledWith('https://pay.test/inv_2'));
+  });
+
+  it('says nothing about payment when the order is paid', async () => {
+    renderConfirmation('tok-123456789012345', (url) =>
+      String(url).includes('/confirmation')
+        ? json(200, { data: { ...ORDER, payment: { method: 'card', status: 'paid' } } })
+        : json(200, { data: { ...CART, items: [] } }),
+    );
+    expect(await screen.findByText('ORD-000007')).toBeInTheDocument();
+    expect(screen.queryByText('Your payment is not finished')).toBeNull();
   });
 });

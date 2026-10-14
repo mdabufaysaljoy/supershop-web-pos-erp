@@ -23,7 +23,7 @@ const CART_ERRORS = new Set(['CART_EMPTY', 'OUT_OF_STOCK', 'PRICE_CHANGED', 'CON
  * revalidates the cart, takes the stock and creates the order; the same `Idempotency-Key` is sent
  * for every retry of one filled-in form, so a double click or a flaky connection cannot order twice.
  */
-export function CheckoutForm({ fields }) {
+export function CheckoutForm({ fields, methods = ORDER.PAYMENT_METHODS }) {
   const t = useT();
   const lang = useLang();
   const router = useRouter();
@@ -35,7 +35,7 @@ export function CheckoutForm({ fields }) {
     email: '',
     address: EMPTY_ADDRESS,
     note: '',
-    paymentMethod: ORDER.PAYMENT_METHODS[0],
+    paymentMethod: methods[0] ?? ORDER.PAYMENT_METHODS[0],
   });
   const [custom, setCustom] = useState({});
   const [errors, setErrors] = useState({});
@@ -107,9 +107,13 @@ export function CheckoutForm({ fields }) {
         body: parsed.data,
         idempotencyKey: key,
       });
-      router.push(
-        `${localizePath(CONFIRMATION_PATH, lang)}?token=${encodeURIComponent(order.confirmationToken)}`,
-      );
+      const confirmation = `${localizePath(CONFIRMATION_PATH, lang)}?token=${encodeURIComponent(order.confirmationToken)}`;
+      if (order.payment?.redirectUrl) {
+        // Leaving our site for the gateway's page: a full navigation, not a router push.
+        window.location.assign(order.payment.redirectUrl);
+        return;
+      }
+      router.push(confirmation);
     } catch (error) {
       if (error.details?.length) setErrors(detailsToErrors(error.details));
       if (CART_ERRORS.has(error.code)) {
@@ -197,7 +201,7 @@ export function CheckoutForm({ fields }) {
         </h2>
         <fieldset className="grid gap-2">
           <legend className="sr-only">{t('checkout.payment')}</legend>
-          {ORDER.PAYMENT_METHODS.map((method) => (
+          {methods.map((method) => (
             <label key={method} className="flex items-start gap-3 rounded-lg border p-3 text-sm">
               <input
                 type="radio"

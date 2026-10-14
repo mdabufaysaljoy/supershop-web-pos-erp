@@ -14,6 +14,7 @@ import { randomToken, sha256 } from '../../core/crypto.js';
 import { withTransaction } from '../../core/db.js';
 import { AppError, ConflictError, NotFoundError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
+import { logger } from '../../core/logger.js';
 import { isDuplicateKey } from '../../core/slug.js';
 import { emptyCartForOrder, getCheckoutCart } from '../cart/index.js';
 import { validateCustomValues } from '../customFields/index.js';
@@ -53,10 +54,72 @@ const outOfStock = (details) =>
     details,
   });
 
+// ---------------------------------------------------------------- payment hooks
+
+/**
+ * The payments module plugs itself in here (wired in modules/index.js), so orders never import
+ * payments while payments import orders — one direction, no cycle (as with the auth policy, D-023).
+ * @type {{ start: Function | null, sync: Function | null }}
+ */
+const paymentHooks = { start: null, sync: null };
+
+/** @param {{ start: Function, sync: Function }} hooks */
+export const setPaymentHooks = (hooks) => Object.assign(paymentHooks, hooks);
+
+/**
+ * A gateway (or the till) decided where the money is. Orders own their own status: `paid` moves a
+ * pending order forward, `refunded` closes it, and a failed attempt leaves the order pending so
+ * the customer can try again (cancellation + restock is the state machine's job, P4.3).
+ * @param {string} orderId
+ * @param {{ status: string, method: string, gatewayRef?: string | null, refundedAmount?: number }} outcome
+ */
+export async function applyPaymentOutcome(orderId, outcome) {
+  const order = await repo.findById(orderId);
+  if (!order) throw new NotFoundError('Order not found');
+
+  const nextOrderStatus =
+    outcome.status === 'paid'
+      ? order.status === 'pending'
+        ? 'paid'
+        : order.status
+      : outcome.status === 'refunded'
+        ? 'refunded'
+        : order.status;
+
+  const updated = await repo.updatePaymentState(orderId, {
+    'payment.status': outcome.status,
+    ...(outcome.gatewayRef !== undefined && { 'payment.gatewayRef': outcome.gatewayRef }),
+    ...(outcome.refundedAmount !== undefined && {
+      'payment.refundedAmount': outcome.refundedAmount,
+    }),
+    status: nextOrderStatus,
+  });
+
+  if (nextOrderStatus !== order.status) {
+    const event =
+      nextOrderStatus === 'paid'
+        ? EVENTS.ORDER_PAID
+        : nextOrderStatus === 'refunded'
+          ? EVENTS.ORDER_REFUNDED
+          : EVENTS.ORDER_STATUS_CHANGED;
+    void eventBus.emit(event, {
+      orderId: str(updated._id),
+      orderNo: updated.orderNo,
+      from: order.status,
+      to: nextOrderStatus,
+      total: updated.totals.total,
+      paymentMethod: updated.payment.method,
+      customerId: str(updated.customer.customerId),
+      lang: updated.lang,
+    });
+  }
+  return updated;
+}
+
 // ---------------------------------------------------------------- order view
 
 /** What the storefront shows after checkout (and on the confirmation page). */
-export const toOrderDto = (o, { token } = {}) => ({
+export const toOrderDto = (o, { token, redirectUrl } = {}) => ({
   id: str(o._id),
   orderNo: o.orderNo,
   status: o.status,
@@ -83,6 +146,10 @@ export const toOrderDto = (o, { token } = {}) => ({
   customFields: o.customFields ?? {},
   note: o.note ?? '',
   ...(token && { confirmationToken: token }),
+  /** Where to send the customer to pay, when the method needs a payment page (P4.1). */
+  ...(redirectUrl
+    ? { payment: { method: o.payment.method, status: o.payment.status, redirectUrl } }
+    : {}),
 });
 
 // ---------------------------------------------------------------- placing an order
@@ -312,17 +379,43 @@ export async function placeOrder(ctx, input, { lang, idempotencyKey = null }) {
     paymentMethod: outcome.order.payment.method,
     lang,
   });
-  return { order: toOrderDto(outcome.order, { token }), cookie, replayed: false };
+  // The payment follows the order: a record for cash, a hosted payment page for a card. Failing
+  // here must not lose the order — the customer can retry from the confirmation page.
+  let payment = null;
+  try {
+    payment = await paymentHooks.start?.(outcome.order, { token });
+  } catch (err) {
+    logger.error(
+      { err: { message: err.message }, orderNo: outcome.order.orderNo },
+      'starting the payment failed',
+    );
+  }
+
+  return {
+    order: toOrderDto(outcome.order, { token, redirectUrl: payment?.redirectUrl ?? null }),
+    cookie,
+    replayed: false,
+  };
 }
 
 // ---------------------------------------------------------------- reading an order
 
 /** Confirmation page: the unguessable link token issued at checkout. */
 export async function getOrderByToken(token) {
-  const order = token ? await repo.findByConfirmationToken(sha256(token)) : null;
-  if (!order) throw new NotFoundError('Order not found');
-  return toOrderDto(order);
+  const found = token ? await repo.findByConfirmationToken(sha256(token)) : null;
+  if (!found) throw new NotFoundError('Order not found');
+  // The customer may be arriving straight back from the payment page, before its webhook: ask
+  // the gateway, then re-read the order the answer may just have changed.
+  if (found.payment.status === 'pending' && paymentHooks.sync) {
+    await paymentHooks.sync(found);
+    return toOrderDto((await repo.findById(found._id)) ?? found);
+  }
+  return toOrderDto(found);
 }
+
+/** The raw order behind a confirmation link — for services that need more than the DTO. */
+export const findOrderByConfirmationToken = async (token) =>
+  token ? repo.findDocByConfirmationToken(sha256(token)) : null;
 
 /**
  * What the public tracking page shows (P3.6). Anyone holding an order number and the phone on it

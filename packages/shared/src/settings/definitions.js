@@ -162,6 +162,39 @@ const DEFINITIONS = [
     default: false,
     public: true,
   },
+  // ---------- payments (P4.1) ----------
+  // Which methods the storefront offers, and the gateway behind "card". Keys live here; the
+  // gateway itself is reached through an adapter, so switching provider is a settings change.
+  { key: 'payments.codEnabled', group: 'payments', schema: bool(), default: true, public: true },
+  {
+    key: 'payments.cardEnabled',
+    group: 'payments',
+    schema: bool(),
+    default: false,
+    public: true,
+  },
+  {
+    key: 'payments.gateway',
+    group: 'payments',
+    schema: z.enum(['none', 'moyasar'], { error: V.INVALID_TYPE }),
+    default: 'none',
+  },
+  {
+    key: 'payments.moyasar.secretKey',
+    group: 'payments',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
+  /** The token the gateway sends back with every webhook (set the same value in its dashboard). */
+  {
+    key: 'payments.moyasar.webhookSecret',
+    group: 'payments',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
+
   // ---------- customer sign-in with Google (P3.5) ----------
   // Credentials come from the Google Cloud console; the storefront only learns whether the button
   // should be shown. Turning this off takes the button away and refuses the routes.

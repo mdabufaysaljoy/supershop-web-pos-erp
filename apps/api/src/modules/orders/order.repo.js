@@ -41,3 +41,13 @@ export const linkGuestOrdersByEmail = async (email, customerId) =>
       { $set: { 'customer.customerId': customerId } },
     )
   ).modifiedCount;
+
+// ------------------------------------------------------------------- P4.1 payments
+
+/** The order behind a confirmation link (the raw document — services need more than the DTO). */
+export const findDocByConfirmationToken = (confirmationTokenHash) =>
+  Order.findOne({ confirmationTokenHash }).lean();
+
+/** Applies a payment result to the order itself; `expected` keeps a late event from going back. */
+export const updatePaymentState = (id, patch) =>
+  Order.findOneAndUpdate({ _id: id }, { $set: patch }, { returnDocument: 'after' }).lean();

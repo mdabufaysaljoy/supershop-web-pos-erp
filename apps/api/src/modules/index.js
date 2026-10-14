@@ -15,17 +15,24 @@ import {
   setAuthPolicyProvider,
   setOAuthSettingsProvider,
 } from './auth/index.js';
-import { createAccountRouter, createCustomerRouter, customerPrincipal } from './customers/index.js';
+import {
+  createAccountRouter,
+  createCustomerRouter,
+  customerPrincipal,
+  findCustomerByContact,
+} from './customers/index.js';
 import { createCartRouter } from './cart/index.js';
 import {
   createAccountOrdersRouter,
   createCheckoutRouter,
   createOrderAdminRouter,
+  createPosRouter,
   getBestSellingProductIds,
   getOrderById,
   registerOrderSubscribers,
   setPaymentHooks,
   setPaymentMethodResolver,
+  setPosCustomerLookup,
 } from './orders/index.js';
 import {
   createPaymentRouter,
@@ -165,6 +172,8 @@ export function registerModules() {
   setPaymentMethodResolver((key, { total }) =>
     resolveForCheckout(key, { total, isGatewayReady: () => isGatewayReady() }),
   );
+  // A sale at the counter can be attached to a customer the shop already knows (P6.1).
+  setPosCustomerLookup(findCustomerByContact);
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
   registerOrderSubscribers({
@@ -246,6 +255,7 @@ export function mountModuleRoutes(api) {
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
   api.use('/orders', createOrderAdminRouter());
+  api.use('/pos', createPosRouter());
   api.use('/payments', createPaymentRouter());
   api.use(
     '/payment-methods',

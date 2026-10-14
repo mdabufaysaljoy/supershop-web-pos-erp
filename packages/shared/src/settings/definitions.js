@@ -32,6 +32,7 @@ export const SETTING_GROUPS = Object.freeze({
   checkout: P.SETTINGS_CHECKOUT,
   payments: P.SETTINGS_PAYMENTS,
   notifications: P.SETTINGS_NOTIFICATIONS,
+  pos: P.SETTINGS_GENERAL,
   printing: P.SETTINGS_PRINTING,
   languages: P.SETTINGS_LANGUAGES,
   security: P.SETTINGS_SECURITY,
@@ -380,6 +381,15 @@ const DEFINITIONS = [
     },
     public: true, // registration forms need it for client-side validation
   },
+  // ---------- POS (P6.1) ----------
+  /** The most a cashier may take off with a percentage discount (basis points; 1000 = 10%). */
+  { key: 'pos.maxDiscountBps', group: 'pos', schema: int(0, 10_000), default: 2000 },
+  /**
+   * Whether the till may sell what the system says is not on the shelf. Off by default: a count
+   * that silently goes negative is how stock stops meaning anything.
+   */
+  { key: 'pos.allowOversell', group: 'pos', schema: bool(), default: false },
+
   { key: 'security.lockoutMaxAttempts', group: 'security', schema: int(3, 20), default: 5 },
   { key: 'security.lockoutMinutes', group: 'security', schema: int(1, 1440), default: 15 },
   { key: 'security.staffSessionIdleHours', group: 'security', schema: int(1, 168), default: 12 },

@@ -8,6 +8,7 @@ import { PERMISSIONS as P } from '@supershop/shared';
 import { ForbiddenError } from '../../core/errors.js';
 import * as history from './order.history.js';
 import * as states from './order.states.js';
+import * as pos from './pos.service.js';
 import * as service from './order.service.js';
 
 const ctxOf = (req) => ({ token: readCartToken(req), customerId: req.auth?.principalId ?? null });
@@ -94,4 +95,22 @@ export const ship = async (req, res) => {
 export const addNote = async (req, res) => {
   privately(res);
   sendData(res, await service.addOrderNote(req.valid.params.id, req.valid.body.text, req.access));
+};
+
+// ---------------------------------------------------------------- POS (P6.1)
+
+/** What the sale comes to as the cashier scans — no money moves. */
+export const posQuote = async (req, res) =>
+  sendData(res, await pos.quotePosSale(req.access, req.valid.body, { lang: req.valid.body.lang }));
+
+/** Rings the sale up: stock out, money in, order completed — once per `Idempotency-Key`. */
+export const posSale = async (req, res) => {
+  const { sale, replayed } = await pos.createPosSale(req.access, req.valid.body, {
+    idempotencyKey: parseIdempotencyKey(req.get('Idempotency-Key')),
+  });
+  if (replayed) {
+    res.set('Idempotent-Replayed', 'true');
+    return sendData(res, sale);
+  }
+  return sendCreated(res, sale);
 };

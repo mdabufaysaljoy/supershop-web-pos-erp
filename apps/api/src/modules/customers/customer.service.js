@@ -119,3 +119,17 @@ export const customerPrincipal = {
   },
   findOrCreateFromOAuth: findOrCreateCustomerFromOAuth,
 };
+
+/**
+ * The customer behind a phone number or an email, for attaching a sale at the counter (P6.1).
+ * It LOOKS UP; it never creates an account from the till — that is the customer's own decision.
+ * @returns {Promise<null | { id: string, name: string, phone: string, email: string | null }>}
+ */
+export async function findCustomerByContact({ phone, email }) {
+  const found =
+    (phone ? await repo.findCustomerByPhone(phone) : null) ??
+    (email ? await repo.findCustomerByEmail(email) : null);
+  return found
+    ? { id: String(found._id), name: found.name, phone: found.phone, email: found.email ?? null }
+    : null;
+}

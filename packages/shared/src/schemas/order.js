@@ -46,6 +46,8 @@ export const ORDER = Object.freeze({
   MAX_LINES: 100,
   /** `?order=…&phone=…` tracking (P3.6) — how the order number is shown. */
   NUMBER_PREFIX: 'ORD-',
+  /** Sales rung up at the counter are numbered apart, so staff can tell them at a glance (P6.1). */
+  POS_NUMBER_PREFIX: 'POS-',
   /**
    * The steps a customer sees while an order travels (P3.6). Several statuses share a step:
    * "paid" and "cod_confirmed" are both still "placed". The lifecycle itself becomes

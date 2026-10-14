@@ -15,10 +15,16 @@ export const PAYMENT_METHOD = Object.freeze({
    *  - `gateway`  send the customer to the configured gateway's payment page (P4.1)
    *  - `cod`      collect on delivery
    *  - `offline`  the customer pays another way and the shop confirms it (transfer, at the branch)
+   *  - `cash`     handed over at the counter (P6.1) — the only kind that can be overpaid
    */
-  TYPES: Object.freeze(['gateway', 'cod', 'offline']),
-  /** Keys the shop cannot delete: the two the checkout knows how to finish by itself. */
-  BUILT_IN: Object.freeze(['card', 'cod']),
+  TYPES: Object.freeze(['gateway', 'cod', 'offline', 'cash']),
+  /** What may be chosen where: a website cannot take cash, a counter cannot use a payment page. */
+  ONLINE_TYPES: Object.freeze(['gateway', 'cod', 'offline']),
+  POS_TYPES: Object.freeze(['cash', 'offline']),
+  /** Only cash can be overpaid, with the difference handed back as change. */
+  CHANGE_TYPES: Object.freeze(['cash']),
+  /** Keys the shop cannot delete: the ones checkout and the till know how to finish themselves. */
+  BUILT_IN: Object.freeze(['card', 'cod', 'cash']),
   LABEL_MAX: 60,
   INSTRUCTIONS_MAX: 500,
   /** A percentage fee, in basis points (250 = 2.5%), like every other rate (D-017). */

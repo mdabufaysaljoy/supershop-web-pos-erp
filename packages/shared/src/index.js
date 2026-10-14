@@ -13,6 +13,8 @@ export * from './trackingEvents.js';
 export * as validators from './validators/index.js';
 export { ACCOUNT, createAccountSchemas } from './schemas/account.js';
 export { createSiteSchemas, SITE } from './schemas/site.js';
+export { createPosSchemas } from './schemas/pos.js';
+export { discountAmount, POS, priceSale, tenderSummary } from './pos/sale.js';
 export { collectItemTexts, itemHref, MENU, resolveMenu, walkItems } from './site/menu.js';
 export { isHexColor, THEME, themeCssVars } from './site/theme.js';
 export {

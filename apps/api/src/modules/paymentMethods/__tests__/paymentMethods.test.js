@@ -52,18 +52,20 @@ beforeEach(async () => {
 });
 
 describe('the shop’s list', () => {
-  it('starts with cash on delivery live and the gateway method waiting for its keys', async () => {
+  it('starts with cash at the counter, cash on delivery, and the gateway awaiting its keys', async () => {
     expect(await methodsOf()).toMatchObject([
-      { key: 'cod', type: 'cod', enabled: true, builtIn: true, position: 0 },
-      { key: 'card', type: 'gateway', enabled: false, builtIn: true, position: 1 },
+      { key: 'cash', type: 'cash', enabled: true, builtIn: true, position: 0 },
+      { key: 'cod', type: 'cod', enabled: true, builtIn: true, position: 1 },
+      { key: 'card', type: 'gateway', enabled: false, builtIn: true, position: 2 },
     ]);
+    // Cash is for the counter (P6.1): a website cannot take it from a hand.
     expect((await publicList()).map((m) => m.key)).toEqual(['cod']);
   });
 
   it('seeds once, however often it runs', async () => {
     await seedPaymentMethods();
     await seedPaymentMethods();
-    expect(await methodsOf()).toHaveLength(2);
+    expect(await methodsOf()).toHaveLength(3);
   });
 
   it('shows the customer the label and instructions in their language', async () => {
@@ -135,19 +137,23 @@ describe('ordering', () => {
       await root.post(BASE, { key: 'at-branch', label: 'Pay at the branch' }),
       201,
     );
-    const [cod, card] = await methodsOf();
+    const [cash, cod, card] = await methodsOf();
     const reordered = await ok(
-      await root.post(`${BASE}/reorder`, { ids: [extra.id, card.id, cod.id] }),
+      await root.post(`${BASE}/reorder`, { ids: [extra.id, card.id, cod.id, cash.id] }),
     );
-    expect(reordered.map((m) => m.key)).toEqual(['at-branch', 'card', 'cod']);
+    expect(reordered.map((m) => m.key)).toEqual(['at-branch', 'card', 'cod', 'cash']);
     expect((await publicList()).map((m) => m.key)).toEqual(['at-branch', 'cod']);
   });
 
   it('refuses a partial or unknown list', async () => {
-    const [cod] = await methodsOf();
+    const [cash, cod] = await methodsOf();
     expect((await root.post(`${BASE}/reorder`, { ids: [cod.id] })).status).toBe(400);
     expect(
-      (await root.post(`${BASE}/reorder`, { ids: [cod.id, '6ace0bc6096f3f7d66d774cc'] })).status,
+      (
+        await root.post(`${BASE}/reorder`, {
+          ids: [cash.id, cod.id, '6ace0bc6096f3f7d66d774cc'],
+        })
+      ).status,
     ).toBe(404);
   });
 });

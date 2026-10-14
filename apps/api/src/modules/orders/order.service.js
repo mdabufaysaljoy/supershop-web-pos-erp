@@ -160,6 +160,8 @@ export const toOrderDto = (o, { token, redirectUrl } = {}) => ({
     image: i.imageUrl ?? null,
     unitPrice: i.unitPrice,
     qty: i.qty,
+    /** What was taken off this line, if anything (P6.1) — receipts show it. */
+    discountTotal: i.discountTotal ?? 0,
     lineTotal: i.lineTotal,
   })),
   totals: o.totals,

@@ -152,6 +152,7 @@ describe('placing an order', () => {
     expect(order.totals).toEqual({
       itemCount: 3,
       subtotal: 26450,
+      discountTotal: 0,
       paymentFee: 0,
       deliveryFee: 0,
       net: 23450,

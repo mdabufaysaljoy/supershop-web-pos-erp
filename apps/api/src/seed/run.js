@@ -15,6 +15,7 @@ import { ensureSuperAdmin } from '../modules/staff/index.js';
  * `npm run seed` — idempotent. Safe to run on every deploy:
  * - inserts missing default roles (never overwrites admin edits)
  * - inserts missing languages (en source, ar) and do-not-translate glossary terms
+ * - inserts any missing built-in payment method (cash, cash on delivery, card)
  * - creates a "Main store" branch (code MAIN) only if no branch exists
  * - creates the starting home page (hero → categories → best sellers → …) only if none exists
  * - creates the first super-admin only if none exists
@@ -54,8 +55,12 @@ async function main() {
     );
     const branch = await seedMainBranch();
     console.info(branch ? '✔ main branch created (code MAIN)' : '✔ branches already exist');
-    await seedPaymentMethods();
-    console.info('✔ payment methods ensured (cash on delivery, card)');
+    const methods = await seedPaymentMethods();
+    console.info(
+      methods.length
+        ? `✔ payment methods created (${methods.join(', ')})`
+        : '✔ payment methods already present (unchanged)',
+    );
     const home = await seedHomePage();
     console.info(
       home

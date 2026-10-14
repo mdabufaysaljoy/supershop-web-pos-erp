@@ -1,7 +1,16 @@
 import { z } from 'zod';
 import { LANGUAGES } from '../constants.js';
 import { V } from '../validators/messages.js';
-import { email, name, objectId, phone, plainText, slug } from '../validators/fields.js';
+import {
+  email,
+  httpUrl,
+  name,
+  objectId,
+  paginationQuery,
+  phone,
+  plainText,
+  slug,
+} from '../validators/fields.js';
 import { normalizeDigits } from '../digits.js';
 
 /**
@@ -148,6 +157,31 @@ export function createCheckoutSchemas({ allowInternationalPhone = false } = {}) 
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
     }),
     idParam: z.object({ id: objectId }),
+
+    // ---- admin lifecycle (P4.3) ----
+    /** Admin list: by status, channel, customer phone, order number or date. */
+    listQuery: paginationQuery({ sortable: ['placedAt', 'createdAt'], defaultSort: '-placedAt' })
+      .extend({
+        status: z.enum(ORDER.STATUSES, { error: V.INVALID_TYPE }).optional(),
+        channel: z.enum(ORDER.CHANNELS, { error: V.INVALID_TYPE }).optional(),
+        q: plainText({ max: 60 }).optional(),
+      })
+      .strict(),
+    /** POST /orders/:id/transitions — where to, and why (a cancellation wants a reason). */
+    transition: z
+      .object({
+        to: z.enum(ORDER.STATUSES, { error: V.INVALID_TYPE }),
+        reason: plainText({ max: 200 }).optional(),
+      })
+      .strict(),
+    shipment: z
+      .object({
+        carrier: plainText({ min: 2, max: 60 }),
+        trackingNumber: plainText({ max: 80 }).optional(),
+        trackingUrl: httpUrl.optional(),
+        shippedAt: z.iso.datetime({ offset: true, error: V.INVALID_TYPE }).optional(),
+      })
+      .strict(),
   };
 }
 

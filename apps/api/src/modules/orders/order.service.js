@@ -1,7 +1,10 @@
 import {
+  ACTORS,
   deliveryCharge,
   ERROR_CODES,
   EVENTS,
+  findTransition,
+  normalizeDigits,
   ORDER,
   orderTotals,
   paymentCharge,
@@ -26,6 +29,7 @@ import {
 } from '../inventory/index.js';
 import { getSetting } from '../settings/index.js';
 import * as repo from './order.repo.js';
+import { moveOrder, nextActions } from './order.states.js';
 import { allocateStock } from './stockAllocation.js';
 
 /**
@@ -41,6 +45,24 @@ import { allocateStock } from './stockAllocation.js';
 
 const oid = (id) => new mongoose.Types.ObjectId(String(id));
 const str = (id) => (id == null ? null : String(id));
+/** The newest parcel, as the customer may see it. */
+const latestShipment = (o) => {
+  const shipment = (o.shipments ?? []).at(-1);
+  return shipment
+    ? {
+        carrier: shipment.carrier,
+        trackingNumber: shipment.trackingNumber ?? null,
+        trackingUrl: shipment.trackingUrl ?? null,
+        shippedAt: shipment.shippedAt,
+      }
+    : null;
+};
+const escapeRegExp = (v) => String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** The last 9 digits of what was typed, or null when it is not phone-like. */
+const phoneTail = (q) => {
+  const digits = normalizeDigits(String(q)).replace(/\D/g, '');
+  return digits.length >= 4 ? digits.slice(-9) : null;
+};
 const ATTEMPTS = 3;
 
 const cartEmpty = () => new AppError(ERROR_CODES.CART_EMPTY, 'Your cart is empty', { status: 409 });
@@ -99,43 +121,21 @@ export async function applyPaymentOutcome(orderId, outcome) {
   const order = await repo.findById(orderId);
   if (!order) throw new NotFoundError('Order not found');
 
-  const nextOrderStatus =
-    outcome.status === 'paid'
-      ? order.status === 'pending'
-        ? 'paid'
-        : order.status
-      : outcome.status === 'refunded'
-        ? 'refunded'
-        : order.status;
-
   const updated = await repo.updatePaymentState(orderId, {
     'payment.status': outcome.status,
     ...(outcome.gatewayRef !== undefined && { 'payment.gatewayRef': outcome.gatewayRef }),
     ...(outcome.refundedAmount !== undefined && {
       'payment.refundedAmount': outcome.refundedAmount,
     }),
-    status: nextOrderStatus,
   });
 
-  if (nextOrderStatus !== order.status) {
-    const event =
-      nextOrderStatus === 'paid'
-        ? EVENTS.ORDER_PAID
-        : nextOrderStatus === 'refunded'
-          ? EVENTS.ORDER_REFUNDED
-          : EVENTS.ORDER_STATUS_CHANGED;
-    void eventBus.emit(event, {
-      orderId: str(updated._id),
-      orderNo: updated.orderNo,
-      from: order.status,
-      to: nextOrderStatus,
-      total: updated.totals.total,
-      paymentMethod: updated.payment.method,
-      customerId: str(updated.customer.customerId),
-      lang: updated.lang,
-    });
-  }
-  return updated;
+  // Where the money is and where the ORDER is are two different things: the lifecycle decides the
+  // second, through its own config and guards (P4.3). A failed attempt leaves the order alone so
+  // the customer can try again.
+  const to = outcome.status === 'paid' ? 'paid' : outcome.status === 'refunded' ? 'refunded' : null;
+  if (!to || !findTransition(updated.status, to)) return updated;
+  const { order: moved } = await moveOrder(orderId, to, { by: ACTORS.SYSTEM });
+  return moved;
 }
 
 // ---------------------------------------------------------------- order view
@@ -171,6 +171,8 @@ export const toOrderDto = (o, { token, redirectUrl } = {}) => ({
     fee: o.payment.fee ?? 0,
     status: o.payment.status,
   },
+  /** The parcel on its way, if there is one (P4.3) — carrier and tracking, nothing internal. */
+  shipment: latestShipment(o),
   customFields: o.customFields ?? {},
   note: o.note ?? '',
   ...(token && { confirmationToken: token }),
@@ -485,7 +487,9 @@ export const toTrackingDto = (o) => ({
   })),
   totals: { itemCount: o.totals.itemCount, total: o.totals.total },
   currency: o.currency,
-  payment: { method: o.payment.method, status: o.payment.status },
+  payment: { method: o.payment.method, label: o.payment.label ?? null, status: o.payment.status },
+  /** The parcel, once there is one (P4.3): carrier and tracking, nothing internal. */
+  shipment: latestShipment(o),
 });
 
 /** Tracking (P3.6): order number + the phone on the order. */
@@ -500,3 +504,77 @@ export const getOrderById = async (id) => {
   const order = await repo.findById(id);
   return order ? toOrderDto(order) : null;
 };
+
+// ------------------------------------------------------- P4.3 the shop's own view of an order
+
+/** Everything the shop needs on one order, including what it may do with it next. */
+export const toStaffOrderDto = (o) => ({
+  ...toOrderDto(o),
+  channel: o.channel,
+  branchId: str(o.branchId),
+  placedAt: o.placedAt,
+  updatedAt: o.updatedAt,
+  cancelledAt: o.cancelledAt ?? null,
+  cancelReason: o.cancelReason ?? null,
+  shipments: (o.shipments ?? []).map((sh) => ({
+    carrier: sh.carrier,
+    trackingNumber: sh.trackingNumber ?? null,
+    trackingUrl: sh.trackingUrl ?? null,
+    shippedAt: sh.shippedAt,
+  })),
+  statusHistory: (o.statusHistory ?? []).map((h) => ({
+    at: h.at,
+    from: h.from,
+    to: h.to,
+    action: h.action,
+    by: h.by,
+    staffId: str(h.staffId),
+    reason: h.reason ?? null,
+    restocked: Boolean(h.restocked),
+  })),
+  /** What the admin may offer right now, and why an action is blocked (P4.4 renders these). */
+  nextActions: nextActions(o),
+});
+
+/** List row: enough for the orders screen without shipping every snapshot. */
+const toStaffRow = (o) => ({
+  id: str(o._id),
+  orderNo: o.orderNo,
+  status: o.status,
+  channel: o.channel,
+  placedAt: o.placedAt,
+  customer: { name: o.customer.name, phone: o.customer.phone },
+  itemCount: o.totals.itemCount,
+  total: o.totals.total,
+  currency: o.currency,
+  payment: { method: o.payment.method, status: o.payment.status },
+  shipped: Boolean(o.shipments?.length),
+});
+
+/** @param {{ page: number, limit: number, sort: object, status?: string, channel?: string, q?: string }} query */
+export async function listOrdersForStaff({ page, limit, sort, status, channel, q }) {
+  const filter = {
+    ...(status && { status }),
+    ...(channel && { channel }),
+    ...(q && {
+      $or: [
+        { orderNo: new RegExp(`^${escapeRegExp(normalizeDigits(q).toUpperCase())}`) },
+        // Phones are stored normalized (+9665…), so match on the last digits the staff typed —
+        // "0512345678", "512345678" and "+966512345678" all find the same customer.
+        ...(phoneTail(q) ? [{ 'customer.phone': new RegExp(`${phoneTail(q)}$`) }] : []),
+      ],
+    }),
+  };
+  const { items, total } = await repo.listOrders(filter, {
+    sort: { [sort.field]: sort.direction },
+    skip: (page - 1) * limit,
+    limit,
+  });
+  return { data: items.map(toStaffRow), meta: { page, limit, total } };
+}
+
+export async function getOrderForStaff(id) {
+  const order = await repo.findById(id);
+  if (!order) throw new NotFoundError('Order not found');
+  return toStaffOrderDto(order);
+}

@@ -13,6 +13,16 @@ export * from './trackingEvents.js';
 export * as validators from './validators/index.js';
 export { ACCOUNT, createAccountSchemas } from './schemas/account.js';
 export { createAuthSchemas } from './schemas/auth.js';
+export {
+  ACTORS,
+  allowedTransitions,
+  findTransition,
+  isTerminal,
+  ORDER_FLOW,
+  ORDER_STATES,
+  restocksOn,
+  transitionByAction,
+} from './stateMachines/order.js';
 export { createPaymentSchemas, PAYMENT } from './schemas/payment.js';
 export {
   createPaymentMethodSchemas,

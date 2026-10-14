@@ -120,6 +120,30 @@ describe('tracking an order', () => {
     expect(await screen.findByText('ORD-000007')).toBeInTheDocument();
   });
 
+  it('shows the parcel once it is on its way', async () => {
+    setup(() =>
+      json(200, {
+        data: {
+          ...ORDER,
+          shipment: {
+            carrier: 'Aramex',
+            trackingNumber: 'ARX-123456',
+            trackingUrl: 'https://carrier.test/ARX-123456',
+            shippedAt: '2026-10-14T06:00:00.000Z',
+          },
+        },
+      }),
+    );
+    await submit('ORD-000007', '0512345678');
+    expect(await screen.findByText('On its way', { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText('Carrier: Aramex', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('ARX-123456')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Follow it with the carrier' })).toHaveAttribute(
+      'href',
+      'https://carrier.test/ARX-123456',
+    );
+  });
+
   it('replaces the steps with one clear line for an order that stopped', async () => {
     setup(() => json(200, { data: { ...ORDER, status: 'cancelled' } }));
     await submit('ORD-000007', '0512345678');

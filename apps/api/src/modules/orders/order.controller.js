@@ -4,7 +4,10 @@ import { readCartToken } from '../cart/index.js';
 import { publicDefinitions } from '../customFields/index.js';
 import { applyCartCookie } from '../cart/cart.cookies.js';
 import { requestLanguage } from '../i18n/index.js';
+import { PERMISSIONS as P } from '@supershop/shared';
+import { ForbiddenError } from '../../core/errors.js';
 import * as history from './order.history.js';
+import * as states from './order.states.js';
 import * as service from './order.service.js';
 
 const ctxOf = (req) => ({ token: readCartToken(req), customerId: req.auth?.principalId ?? null });
@@ -52,4 +55,38 @@ export const myOrders = async (req, res) => {
 
 export const myOrder = async (req, res) => {
   sendData(res, await history.getCustomerOrder(req.auth.principalId, req.valid.params.id));
+};
+
+// ------------------------------------------------------------- P4.3 the shop's own orders
+
+export const adminList = async (req, res) => {
+  const { data, meta } = await service.listOrdersForStaff(req.valid.query);
+  privately(res);
+  sendData(res, data, { meta });
+};
+
+export const adminGet = async (req, res) => {
+  privately(res);
+  sendData(res, await service.getOrderForStaff(req.valid.params.id));
+};
+
+export const transition = async (req, res) => {
+  const { to, reason } = req.valid.body;
+  // Calling an order off is its own permission: it moves money and stock, not just a label.
+  if (to === 'cancelled' && !req.access?.can(P.ORDER_CANCEL))
+    throw new ForbiddenError('You may not cancel orders');
+  const { order } = await states.moveOrder(req.valid.params.id, to, {
+    actor: req.access,
+    reason,
+  });
+  privately(res);
+  sendData(res, service.toStaffOrderDto(order));
+};
+
+export const ship = async (req, res) => {
+  const order = await states.addShipment(req.valid.params.id, req.valid.body, {
+    actor: req.access,
+  });
+  privately(res);
+  sendData(res, service.toStaffOrderDto(order));
 };

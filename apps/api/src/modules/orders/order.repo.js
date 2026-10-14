@@ -4,7 +4,8 @@ import { Order } from './order.model.js';
 
 export const insertOrder = (data, session) =>
   Order.create([data], { session }).then(([d]) => d.toObject());
-export const findById = (id) => Order.findById(id).lean();
+export const findById = (id, session) =>
+  Order.findById(id, null, session ? { session } : {}).lean();
 export const findByNumber = (orderNo) => Order.findOne({ orderNo }).lean();
 export const findByIdempotencyKey = (idempotencyKey) => Order.findOne({ idempotencyKey }).lean();
 export const findByConfirmationToken = (confirmationTokenHash) =>
@@ -51,3 +52,32 @@ export const findDocByConfirmationToken = (confirmationTokenHash) =>
 /** Applies a payment result to the order itself; `expected` keeps a late event from going back. */
 export const updatePaymentState = (id, patch) =>
   Order.findOneAndUpdate({ _id: id }, { $set: patch }, { returnDocument: 'after' }).lean();
+
+// --------------------------------------------------------------- P4.3 lifecycle
+
+/**
+ * Moves an order on, but ONLY from the status it was read in: two staff acting at once cannot
+ * both apply their move (the second finds nothing to update).
+ */
+export const applyTransition = (id, expectedStatus, patch, historyEntry, session) =>
+  Order.findOneAndUpdate(
+    { _id: id, status: expectedStatus },
+    { $set: patch, $push: { statusHistory: historyEntry } },
+    { returnDocument: 'after', session },
+  ).lean();
+
+export const addShipment = (id, shipment) =>
+  Order.findOneAndUpdate(
+    { _id: id },
+    { $push: { shipments: shipment } },
+    { returnDocument: 'after' },
+  ).lean();
+
+/** Admin list (P4.4 builds the screen on it). */
+export async function listOrders(filter, { sort, skip, limit }) {
+  const [items, total] = await Promise.all([
+    Order.find(filter).sort(sort).skip(skip).limit(limit).lean(),
+    Order.countDocuments(filter),
+  ]);
+  return { items, total };
+}

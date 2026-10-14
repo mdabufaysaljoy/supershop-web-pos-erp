@@ -123,6 +123,8 @@ export const EVENTS = Object.freeze({
   ORDER_COD_CONFIRMED: 'order.codConfirmed',
   ORDER_STATUS_CHANGED: 'order.statusChanged',
   ORDER_SHIPPED: 'order.shipped',
+  /** A parcel left the branch (carrier + tracking number recorded) — P4.3. */
+  SHIPMENT_CREATED: 'shipment.created',
   ORDER_DELIVERED: 'order.delivered',
   ORDER_COMPLETED: 'order.completed',
   ORDER_CANCELLED: 'order.cancelled',

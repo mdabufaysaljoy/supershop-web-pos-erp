@@ -20,6 +20,7 @@ import { createCartRouter } from './cart/index.js';
 import {
   createAccountOrdersRouter,
   createCheckoutRouter,
+  createOrderAdminRouter,
   registerOrderSubscribers,
   setPaymentHooks,
   setPaymentMethodResolver,
@@ -191,6 +192,7 @@ export function mountModuleRoutes(api) {
   api.use('/search', createSearchRouter());
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
+  api.use('/orders', createOrderAdminRouter());
   api.use('/payments', createPaymentRouter());
   api.use(
     '/payment-methods',

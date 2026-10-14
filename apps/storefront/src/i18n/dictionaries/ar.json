@@ -401,6 +401,12 @@
       "partially_returned": "وقد أعيد جزء من هذا الأمر.",
       "exchanged": "تم تبادل هذا الأمر."
     },
-    "progress": "التقدم المحرز"
+    "progress": "التقدم المحرز",
+    "shipment": {
+      "title": "في الطريق",
+      "carrier": "الناقل: {{carrier}}",
+      "number": "رقم التتبع",
+      "follow": "اتبعه مع الناقل"
+    }
   }
 }

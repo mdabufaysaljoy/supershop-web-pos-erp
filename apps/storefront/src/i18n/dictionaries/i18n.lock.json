@@ -1279,6 +1279,22 @@
     "track.progress": {
       "src": "a1d7e48cfbf6e359",
       "out": "7fd563de5735ecbc"
+    },
+    "track.shipment.title": {
+      "src": "c5d0f5f4b8b8dced",
+      "out": "3a7baec449ce958a"
+    },
+    "track.shipment.carrier": {
+      "src": "b10e8c44ed88e8cf",
+      "out": "753cda18fbcf815e"
+    },
+    "track.shipment.number": {
+      "src": "d56dcd96cae61231",
+      "out": "a7603f975ee2cd65"
+    },
+    "track.shipment.follow": {
+      "src": "d37aa0517718390d",
+      "out": "3c9295a6e9cc09f1"
     }
   }
 }

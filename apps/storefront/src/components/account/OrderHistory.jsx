@@ -203,6 +203,21 @@ export function OrderDetail({ id }) {
         </li>
       </ul>
 
+      {order.shipment && (
+        <div className="grid gap-1 rounded-xl border p-5 text-sm">
+          <p className="font-medium">{t('track.shipment.title')}</p>
+          <p className="text-muted-foreground">
+            {t('track.shipment.carrier', { carrier: order.shipment.carrier })}
+            {order.shipment.shippedAt ? ` · ${fmt.date(order.shipment.shippedAt)}` : ''}
+          </p>
+          {order.shipment.trackingNumber && (
+            <p className="text-muted-foreground">
+              {t('track.shipment.number')}: <span dir="ltr">{order.shipment.trackingNumber}</span>
+            </p>
+          )}
+        </div>
+      )}
+
       <div className="grid gap-4 rounded-xl border p-5 sm:grid-cols-2">
         <div className="grid gap-2">
           <h3 className="font-medium">{t('account.orders.deliveryTo')}</h3>

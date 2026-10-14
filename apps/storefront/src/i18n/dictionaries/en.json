@@ -405,6 +405,12 @@
       "partially_returned": "Part of this order was returned.",
       "exchanged": "This order was exchanged."
     },
-    "progress": "Order progress"
+    "progress": "Order progress",
+    "shipment": {
+      "title": "On its way",
+      "carrier": "Carrier: {{carrier}}",
+      "number": "Tracking number",
+      "follow": "Follow it with the carrier"
+    }
   }
 }

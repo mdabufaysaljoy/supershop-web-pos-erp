@@ -79,6 +79,39 @@ const orderSchema = new mongoose.Schema(
     },
     /** Primary branch (most lines) — reports and pick lists start here. */
     branchId: { type: ObjectId, default: null },
+    /** Parcels on their way (P4.3). The first one moves the order to `shipped`. */
+    shipments: {
+      type: [
+        {
+          _id: false,
+          carrier: { type: String, required: true },
+          trackingNumber: { type: String, default: null },
+          trackingUrl: { type: String, default: null },
+          shippedAt: { type: Date, default: Date.now },
+          staffId: { type: ObjectId, default: null },
+        },
+      ],
+      default: [],
+    },
+    /** Every move through the lifecycle, oldest first — who, when, why. */
+    statusHistory: {
+      type: [
+        {
+          _id: false,
+          at: { type: Date, default: Date.now },
+          from: String,
+          to: String,
+          action: String,
+          by: String,
+          staffId: { type: ObjectId, default: null },
+          reason: { type: String, default: null },
+          restocked: { type: Boolean, default: false },
+        },
+      ],
+      default: [],
+    },
+    cancelledAt: { type: Date, default: null },
+    cancelReason: { type: String, default: null },
     /** SHA-256 of the link token that shows the confirmation page again. */
     confirmationTokenHash: { type: String, default: null },
     /** `<cart|customer>:<Idempotency-Key>` — a retried checkout returns the first order. */

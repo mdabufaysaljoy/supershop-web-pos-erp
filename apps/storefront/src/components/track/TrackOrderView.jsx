@@ -149,6 +149,8 @@ function TrackedOrder({ order, fmt }) {
 
       <OrderTimeline timeline={timeline} updatedAt={order.updatedAt} fmt={fmt} />
 
+      {order.shipment && <ShipmentCard shipment={order.shipment} fmt={fmt} />}
+
       <ul className="grid gap-3 rounded-xl border p-5">
         {order.items.map((item) => (
           <li
@@ -182,5 +184,34 @@ function TrackedOrder({ order, fmt }) {
         })}
       </p>
     </section>
+  );
+}
+
+/** Where the parcel is, in the courier's own words. */
+function ShipmentCard({ shipment, fmt }) {
+  const t = useT();
+  return (
+    <div className="grid gap-1 rounded-xl border p-5 text-sm">
+      <p className="font-medium">{t('track.shipment.title')}</p>
+      <p className="text-muted-foreground">
+        {t('track.shipment.carrier', { carrier: shipment.carrier })}
+        {shipment.shippedAt ? ` · ${fmt.date(shipment.shippedAt)}` : ''}
+      </p>
+      {shipment.trackingNumber && (
+        <p className="text-muted-foreground">
+          {t('track.shipment.number')}: <span dir="ltr">{shipment.trackingNumber}</span>
+        </p>
+      )}
+      {shipment.trackingUrl && (
+        <a
+          href={shipment.trackingUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="justify-self-start underline underline-offset-4"
+        >
+          {t('track.shipment.follow')}
+        </a>
+      )}
+    </div>
   );
 }

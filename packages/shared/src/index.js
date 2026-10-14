@@ -16,6 +16,7 @@ export { createAuthSchemas } from './schemas/auth.js';
 export {
   ACTORS,
   allowedTransitions,
+  countsAsSold,
   findTransition,
   isTerminal,
   ORDER_FLOW,
@@ -24,6 +25,7 @@ export {
   transitionByAction,
 } from './stateMachines/order.js';
 export {
+  FEATURE_ICONS,
   blockEditors,
   blockPalette,
   blockTypes,

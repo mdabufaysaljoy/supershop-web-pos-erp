@@ -11,6 +11,7 @@ export {
   getIndexSources,
   getProduct,
   getVariantCosts,
+  getProductIdsByTag,
   getPublicCards,
   getVariantSummaries,
   iterateProducts,

@@ -16,6 +16,7 @@ import { sanitizeHtml } from '../../core/sanitizeHtml.js';
 import { uniqueSlug } from '../../core/slug.js';
 import { resolveDoc } from '../i18n/index.js';
 import { getMediaByIds, publicImage } from '../media/index.js';
+import { blockDataFor, rendererImage } from './page.blockData.js';
 import * as repo from './page.repo.js';
 
 /**
@@ -88,16 +89,8 @@ async function mediaFor(blocks) {
   return Object.fromEntries(
     items.map((m) => {
       const image = publicImage(m);
-      return [
-        image.id,
-        {
-          url: image.url,
-          // Every stored size, so the renderer can let the browser pick (§5.4, D-094).
-          srcSet: image.sources.map((s) => `${s.url} ${s.width}w`).join(', '),
-          width: image.width,
-          height: image.height,
-        },
-      ];
+      // Every stored size, so the renderer can let the browser pick (§5.4, D-094).
+      return [image.id, rendererImage(image)];
     }),
   );
 }
@@ -269,8 +262,13 @@ export async function getPublicPage({ slug, home = false }, lang) {
   if (!page || page.status !== 'published' || !page.published)
     throw new NotFoundError('Page not found');
   const dto = toPublicDto(page, lang);
-  // Images are referenced by id; the storefront should not have to look them up itself.
-  return { ...dto, media: await mediaFor(dto.content.blocks) };
+  // Blocks name what they want (an image id, a category, "best selling"); the page resolves it so
+  // the storefront renders in one pass and no renderer has to query anything (P5.3).
+  const [media, data] = await Promise.all([
+    mediaFor(dto.content.blocks),
+    blockDataFor(dto.content.blocks, lang),
+  ]);
+  return { ...dto, media, data };
 }
 
 const emit = (name, page, actor) =>

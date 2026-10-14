@@ -412,5 +412,15 @@
       "number": "Tracking number",
       "follow": "Follow it with the carrier"
     }
+  },
+  "blocks": {
+    "previousSlide": "Previous slide",
+    "nextSlide": "Next slide",
+    "slide": "Slide",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "emailAddress": "Email address"
   }
 }

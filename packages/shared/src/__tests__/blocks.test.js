@@ -145,6 +145,108 @@ describe('rendering in a language', () => {
   });
 });
 
+describe('the shop\u2019s catalogue (P5.3)', () => {
+  it('offers the sections a shop actually builds pages from', () => {
+    for (const type of [
+      'heroCarousel',
+      'categoryGrid',
+      'productRail',
+      'banner',
+      'video',
+      'faq',
+      'features',
+      'testimonials',
+      'countdown',
+      'brandStrip',
+      'newsletter',
+      'customHtml',
+      'columns',
+    ])
+      expect(getBlock(type)).toBeTruthy();
+  });
+
+  it('declares an editor for every prop, so the builder needs no block-specific code', () => {
+    for (const block of blockPalette()) {
+      const definition = getBlock(block.type);
+      for (const prop of definition.propNames)
+        expect(definition.editors[prop].control).toBeTruthy();
+    }
+  });
+
+  it('collects the text inside a list, one key per item', () => {
+    const content = page({
+      id: 'blk-faq',
+      type: 'faq',
+      props: {
+        heading: 'Questions',
+        items: [
+          { question: 'Do you deliver?', answer: 'Yes, across the Kingdom.' },
+          { question: 'Returns?', answer: 'Within 14 days.' },
+        ],
+      },
+    });
+    // One key per item and field; the order follows the block's declaration, not the list.
+    expect(
+      collectTexts(content)
+        .map((t) => t.key)
+        .sort(),
+    ).toEqual([
+      'blk-faq.heading',
+      'blk-faq.items.0.answer',
+      'blk-faq.items.0.question',
+      'blk-faq.items.1.answer',
+      'blk-faq.items.1.question',
+    ]);
+  });
+
+  it('translates inside a list without disturbing its other fields', () => {
+    const content = page({
+      id: 'blk-faq',
+      type: 'faq',
+      props: { heading: 'Questions', items: [{ question: 'Do you deliver?', answer: 'Yes.' }] },
+    });
+    const texts = [
+      { key: 'blk-faq.items.0.question', value: { en: 'Do you deliver?', ar: 'هل توصلون؟' } },
+    ];
+    const [faq] = localizeBlocks(content.blocks, texts, 'ar');
+    expect(faq.props.items[0]).toEqual({ question: 'هل توصلون؟', answer: 'Yes.' });
+    expect(content.blocks[0].props.items[0].question).toBe('Do you deliver?'); // untouched
+  });
+
+  it('refuses a block whose list item is wrong, naming the item', () => {
+    const result = pageContentSchema.safeParse({
+      blocks: [
+        {
+          id: 'blk-faq',
+          type: 'faq',
+          props: {
+            heading: 'Q',
+            items: [
+              { question: 'ok', answer: 'ok' },
+              { question: 'x'.repeat(300), answer: '' },
+            ],
+          },
+        },
+      ],
+    });
+    expect(result.success).toBe(false);
+    expect(result.error.issues[0].path).toEqual(['blocks', 0, 'props', 'items', 1, 'question']);
+  });
+
+  it('keeps a container block\u2019s children and refuses them on a plain block', () => {
+    const nested = page({
+      id: 'blk-cols',
+      type: 'columns',
+      props: { gap: 'md' },
+      blocks: [heading('blk-a', 'Left'), heading('blk-b', 'Right')],
+    });
+    expect(nested.blocks[0].blocks).toHaveLength(2);
+    expect(countBlocks(nested)).toBe(3);
+    expect(collectTexts(nested).map((t) => t.key)).toEqual(['blk-a.text', 'blk-b.text']);
+    expect(() => page({ ...heading('blk-1', 'x'), blocks: [heading('blk-2', 'y')] })).toThrow();
+  });
+});
+
 describe('schema versions', () => {
   it('stamps the current version and leaves a current page alone', () => {
     const current = page(heading('blk-1', 'a'));

@@ -142,6 +142,8 @@ orderSchema.index({ confirmationTokenHash: 1 });
 orderSchema.index({ 'customer.phone': 1, createdAt: -1 });
 orderSchema.index({ 'customer.customerId': 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
+// Best-sellers over a window (P5.3) and date-ranged sales reports.
+orderSchema.index({ status: 1, placedAt: -1 });
 orderSchema.index({ branchId: 1, createdAt: -1 });
 
 export const Order = mongoose.models.Order ?? mongoose.model('Order', orderSchema);

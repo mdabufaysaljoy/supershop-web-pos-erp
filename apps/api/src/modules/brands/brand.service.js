@@ -172,6 +172,13 @@ export async function getBrandsByIds(ids) {
   return brands.map((b) => toBrandDto(b, media));
 }
 
+/** Brands that have a logo, for the brand strip on a page (P5.3). */
+export async function getBrandsWithLogo(limit = 20) {
+  const brands = await repo.listActiveWithLogo(limit);
+  const media = await mediaMap(brands);
+  return brands.map((b) => toBrandDto(b, media));
+}
+
 /** `[{ id, name, slug }]` of all brands (imports resolve brand names/slugs). */
 export const listAllBrands = async () =>
   (await repo.listAllActive()).map((b) => ({ id: String(b._id), name: b.name, slug: b.slug }));

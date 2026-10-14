@@ -607,3 +607,12 @@ export async function addOrderNote(id, text, actor) {
   });
   return toStaffOrderDto(updated);
 }
+
+/**
+ * The products that sold most in the last `days` days, best first. Pages use this for the
+ * "best selling" rail; it returns ids only, so the catalogue stays the one place that shapes cards.
+ */
+export function getBestSellingProductIds({ limit = 8, days = 30 } = {}) {
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  return repo.topSellingProductIds({ limit, since });
+}

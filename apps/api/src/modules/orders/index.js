@@ -7,6 +7,7 @@ export { addShipment, moveOrder, nextActions, runAction } from './order.states.j
 export {
   applyPaymentOutcome,
   findOrderByConfirmationToken,
+  getBestSellingProductIds,
   getOrderById,
   setPaymentHooks,
   setPaymentMethodResolver,

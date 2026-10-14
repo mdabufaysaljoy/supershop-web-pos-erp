@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { getBlock, localizeBlocks } from '@supershop/shared';
-import { BlockRenderer, CORE_BLOCK_COMPONENTS } from '@supershop/ui';
+import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import { Copy, GripVertical, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -112,7 +112,7 @@ function CanvasBlock({ block, rendered, selected, onSelect, onRemove, onDuplicat
       <div className="pointer-events-none relative z-10">
         <BlockRenderer
           blocks={[rendered]}
-          components={CORE_BLOCK_COMPONENTS}
+          components={ALL_BLOCK_COMPONENTS}
           context={{ media: {} }}
         />
       </div>

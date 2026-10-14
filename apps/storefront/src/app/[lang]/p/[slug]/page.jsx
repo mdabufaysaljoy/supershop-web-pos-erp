@@ -1,4 +1,4 @@
-import { BlockRenderer, CORE_BLOCK_COMPONENTS } from '@supershop/ui';
+import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import { notFound } from 'next/navigation';
 import { localizePath } from '@/i18n/config';
 import { apiGet } from '@/lib/api';
@@ -39,17 +39,32 @@ export async function generateMetadata({ params }) {
 
 export default async function CmsPage({ params }) {
   const { lang, slug } = await params;
-  const page = await fetchPage(slug, lang);
+  const [{ t, fmt }, page] = await Promise.all([getPageContext(lang), fetchPage(slug, lang)]);
   if (!page) notFound();
 
   return (
-    <article className="mx-auto grid w-full max-w-5xl gap-6">
+    <article className="mx-auto grid w-full max-w-5xl gap-10">
       <BlockRenderer
         blocks={page.content.blocks}
-        components={CORE_BLOCK_COMPONENTS}
+        components={ALL_BLOCK_COMPONENTS}
         context={{
           lang,
           media: page.media ?? {},
+          /** Products, categories and brands the API resolved for the data-backed blocks (P5.3). */
+          data: page.data ?? {},
+          formatMoney: fmt.money,
+          formatNumber: fmt.number,
+          /** The few strings a block renders itself; the package holds no translations. */
+          labels: {
+            previous: t('blocks.previousSlide'),
+            next: t('blocks.nextSlide'),
+            slide: t('blocks.slide'),
+            days: t('blocks.days'),
+            hours: t('blocks.hours'),
+            minutes: t('blocks.minutes'),
+            seconds: t('blocks.seconds'),
+          },
+          emailLabel: t('blocks.emailAddress'),
           /** Internal links keep the visitor in their language; external ones are left alone. */
           localizeHref: (href) => (href?.startsWith('/') ? localizePath(href, lang) : href),
         }}

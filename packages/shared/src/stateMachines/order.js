@@ -20,6 +20,20 @@ export const ORDER_FLOW = Object.freeze({
    * "terminal" means "no staff action left", not "nothing can ever happen".
    */
   terminal: Object.freeze(['completed', 'cancelled', 'refunded']),
+  /**
+   * States where the goods count as sold. Reports and the "best selling" product rail (P5.3) ask
+   * this instead of comparing statuses themselves; a flow change stays an edit to this file.
+   */
+  sold: Object.freeze([
+    'paid',
+    'cod_confirmed',
+    'processing',
+    'shipped',
+    'delivered',
+    'completed',
+    'partially_returned',
+    'exchanged',
+  ]),
   transitions: Object.freeze([
     {
       from: 'pending',
@@ -136,6 +150,9 @@ export function allowedTransitions(from, { by } = {}) {
 }
 
 export const isTerminal = (status) => ORDER_FLOW.terminal.includes(status);
+
+/** Whether an order in this state counts as a sale (best-sellers, reports). */
+export const countsAsSold = (status) => ORDER_FLOW.sold.includes(status);
 
 /** Does moving this way put the goods back on the shelf? */
 export const restocksOn = (from, to) => Boolean(findTransition(from, to)?.restock);

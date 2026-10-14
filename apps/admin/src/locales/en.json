@@ -198,7 +198,9 @@
     "pageOf": "Page {{page}} of {{pages}}",
     "done": "Done",
     "saving": "Saving…",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "moveUp": "Move up",
+    "remove": "Remove"
   },
   "settings": {
     "title": "Settings",
@@ -1236,6 +1238,40 @@
         "saving": "Saving…",
         "saved": "All changes saved",
         "error": "Could not save — trying again on your next change"
+      },
+      "addItem": "Add a {{item}}",
+      "noCategory": "All categories",
+      "brands": "Brands",
+      "searchProducts": "Search products by name",
+      "productLoading": "Loading…",
+      "options": {
+        "newest": "Newest first",
+        "bestSelling": "Best selling",
+        "category": "From one category",
+        "manual": "Hand-picked",
+        "light": "Light",
+        "dark": "Dark",
+        "sm": "Small",
+        "md": "Medium",
+        "lg": "Large",
+        "truck": "Delivery",
+        "shield": "Warranty",
+        "refresh": "Returns",
+        "headset": "Support",
+        "tag": "With a tag",
+        "offers": "Offers",
+        "h1": "Page title",
+        "h2": "Section title",
+        "h3": "Small title",
+        "start": "Start",
+        "center": "Centred",
+        "contained": "Within the page",
+        "full": "Full width",
+        "primary": "Filled",
+        "secondary": "Outlined",
+        "2": "Two",
+        "3": "Three",
+        "4": "Four"
       }
     }
   }

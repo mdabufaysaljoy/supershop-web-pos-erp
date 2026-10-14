@@ -1295,6 +1295,38 @@
     "track.shipment.follow": {
       "src": "d37aa0517718390d",
       "out": "3c9295a6e9cc09f1"
+    },
+    "blocks.previousSlide": {
+      "src": "bfb549220c60fc91",
+      "out": "8fbc602c41f452df"
+    },
+    "blocks.nextSlide": {
+      "src": "cdc93d1c8fe9a2af",
+      "out": "075f87a4e8d4de9e"
+    },
+    "blocks.slide": {
+      "src": "6bb4c1177681ec4e",
+      "out": "62547006e2493e2f"
+    },
+    "blocks.days": {
+      "src": "e08c0aa8f558f39f",
+      "out": "78cb02e51031dbb5"
+    },
+    "blocks.hours": {
+      "src": "21e8492938abc179",
+      "out": "823145b1a9872853"
+    },
+    "blocks.minutes": {
+      "src": "4f846a84e7fc9ef6",
+      "out": "3d4f892f8c133e86"
+    },
+    "blocks.seconds": {
+      "src": "381a8e9699052f3a",
+      "out": "147284e6419fa1b1"
+    },
+    "blocks.emailAddress": {
+      "src": "f2488fd4ef4adbc6",
+      "out": "8a0b55ab8c62713f"
     }
   }
 }

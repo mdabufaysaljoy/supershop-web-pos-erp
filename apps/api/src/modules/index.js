@@ -21,6 +21,7 @@ import {
   createAccountOrdersRouter,
   createCheckoutRouter,
   createOrderAdminRouter,
+  getBestSellingProductIds,
   getOrderById,
   registerOrderSubscribers,
   setPaymentHooks,
@@ -34,8 +35,18 @@ import {
 } from './payments/index.js';
 import { createPaymentMethodRouter, resolveForCheckout } from './paymentMethods/index.js';
 import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
-import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
-import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
+import {
+  createBrandRouter,
+  getBrandsByIds,
+  getBrandsWithLogo,
+  setBrandUsageCounter,
+} from './brands/index.js';
+import {
+  createCategoryRouter,
+  getCategoriesByIds,
+  listCategories,
+  setCategoryUsageCounter,
+} from './categories/index.js';
 import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
 import {
@@ -48,19 +59,21 @@ import {
   createNotificationRouter,
   registerNotificationSubscribers,
 } from './notifications/index.js';
-import { createPageRouter } from './pages/index.js';
+import { createPageRouter, setBlockDataProviders } from './pages/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countPurchaseOrdersInBranch,
   countPurchaseOrdersOfSupplier,
   createPurchaseOrderRouter,
 } from './purchasing/index.js';
-import { createSearchRouter, registerSearchSubscribers } from './search/index.js';
+import { createSearchRouter, registerSearchSubscribers, searchProducts } from './search/index.js';
 import {
   countProductsInCategory,
   countProductsOfBrand,
   countProductsOfSupplier,
   createProductRouter,
+  getProductIdsByTag,
+  getPublicCards,
   setAvailabilityProvider,
 } from './products/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
@@ -177,6 +190,17 @@ export function registerModules() {
   registerBranchUsage(countStockRecordsInBranch);
   registerBranchUsage(countPurchaseOrdersInBranch);
   setAvailabilityProvider(getOnlineInStock); // storefront in/out of stock
+  // A page's blocks say what they want; these lookups fill them in (P5.3). Pages import no module.
+  setBlockDataProviders({
+    searchProducts,
+    getProductCards: getPublicCards,
+    getProductIdsByTag,
+    getBestSellingProductIds,
+    listCategories,
+    getCategoriesByIds,
+    getBrandsByIds,
+    getBrandsWithLogo,
+  });
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */

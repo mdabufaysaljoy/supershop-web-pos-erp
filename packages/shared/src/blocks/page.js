@@ -92,6 +92,42 @@ export const countBlocks = (content) => [...walkBlocks(content?.blocks ?? [])].l
 export const textKey = (blockId, prop) => `${blockId}.${prop}`;
 
 /**
+ * Concrete prop paths for a translatable pattern. `*` walks an array, so a block whose text lives
+ * inside a list ('items.*.question') gets one key per item ('items.0.question').
+ */
+export function expandPropPath(props, pattern) {
+  let paths = [''];
+  for (const part of pattern.split('.')) {
+    if (part === '*') {
+      paths = paths.flatMap((path) => {
+        const value = readProp(props, path);
+        return Array.isArray(value) ? value.map((_, i) => (path ? `${path}.${i}` : String(i))) : [];
+      });
+    } else {
+      paths = paths.map((path) => (path ? `${path}.${part}` : part));
+    }
+  }
+  return paths;
+}
+
+const readProp = (props, path) =>
+  path === '' ? props : path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), props);
+
+/** Writes `value` at a dotted path, copying every container on the way (never mutates). */
+function writeProp(props, path, value) {
+  const parts = path.split('.');
+  const out = Array.isArray(props) ? [...props] : { ...props };
+  let target = out;
+  for (const key of parts.slice(0, -1)) {
+    const next = target[key];
+    target[key] = Array.isArray(next) ? [...next] : { ...next };
+    target = target[key];
+  }
+  target[parts.at(-1)] = value;
+  return out;
+}
+
+/**
  * The customer-facing strings of a page, in registry order.
  * @returns {{ key: string, text: string }[]}
  */
@@ -99,9 +135,12 @@ export function collectTexts(content) {
   const out = [];
   for (const block of walkBlocks(content?.blocks ?? [])) {
     const definition = getBlock(block.type);
-    for (const prop of definition?.translatable ?? []) {
-      const text = block.props?.[prop];
-      if (typeof text === 'string' && text.trim()) out.push({ key: textKey(block.id, prop), text });
+    for (const pattern of definition?.translatable ?? []) {
+      for (const path of expandPropPath(block.props ?? {}, pattern)) {
+        const text = readProp(block.props, path);
+        if (typeof text === 'string' && text.trim())
+          out.push({ key: textKey(block.id, path), text });
+      }
     }
   }
   return out;
@@ -140,12 +179,15 @@ export function localizeBlocks(blocks = [], texts = [], lang) {
   const localize = (list) =>
     list.map((block) => {
       const definition = getBlock(block.type);
-      const props = { ...block.props };
-      for (const prop of definition?.translatable ?? []) {
-        const value = byKey.get(textKey(block.id, prop));
-        const sameSource = value && (value.en ?? '') === (block.props?.[prop] ?? '');
-        const translated = sameSource ? resolveLocalized(value, lang) : '';
-        if (translated) props[prop] = translated;
+      let props = { ...block.props };
+      for (const pattern of definition?.translatable ?? []) {
+        for (const path of expandPropPath(block.props ?? {}, pattern)) {
+          const value = byKey.get(textKey(block.id, path));
+          const source = readProp(block.props, path) ?? '';
+          const translated =
+            value && (value.en ?? '') === source ? resolveLocalized(value, lang) : '';
+          if (translated) props = writeProp(props, path, translated);
+        }
       }
       return {
         ...block,

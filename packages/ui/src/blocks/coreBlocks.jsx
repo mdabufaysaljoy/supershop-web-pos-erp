@@ -1,4 +1,5 @@
 import { cn } from '../lib/cn.js';
+import { SHOP_BLOCK_COMPONENTS } from './shopBlocks.jsx';
 
 /**
  * Renderers for the blocks the registry defines in P5.1. They are plain, themeable and work in
@@ -83,4 +84,10 @@ export const CORE_BLOCK_COMPONENTS = Object.freeze({
   image: ImageBlock,
   spacer: SpacerBlock,
   buttonLink: ButtonLinkBlock,
+});
+
+/** Every block the registry knows, for the storefront and the admin preview alike. */
+export const ALL_BLOCK_COMPONENTS = Object.freeze({
+  ...CORE_BLOCK_COMPONENTS,
+  ...SHOP_BLOCK_COMPONENTS,
 });

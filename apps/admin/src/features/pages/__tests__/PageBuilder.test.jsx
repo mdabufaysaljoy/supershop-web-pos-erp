@@ -221,3 +221,135 @@ describe('permissions', () => {
     expect(screen.queryByRole('button', { name: 'Save' })).toBeNull();
   });
 });
+
+/** P5.3 — the shop's own sections: repeated items and catalogue pickers, all generated. */
+const FAQ_PAGE = {
+  ...PAGE,
+  draft: {
+    schemaVersion: 1,
+    blocks: [
+      {
+        id: 'blk-faq',
+        type: 'faq',
+        version: 1,
+        props: {
+          heading: 'Questions',
+          items: [{ question: 'Do you deliver?', answer: 'Across the Kingdom.' }],
+        },
+      },
+    ],
+  },
+  texts: [
+    { key: 'blk-faq.heading', value: { en: 'Questions', ar: 'أسئلة' } },
+    { key: 'blk-faq.items.0.question', value: { en: 'Do you deliver?', ar: 'هل توصلون؟' } },
+  ],
+  blockCount: 1,
+};
+
+const RAIL_PAGE = {
+  ...PAGE,
+  draft: {
+    schemaVersion: 1,
+    blocks: [
+      {
+        id: 'blk-rail',
+        type: 'productRail',
+        version: 1,
+        props: {
+          heading: 'Picked for you',
+          source: 'newest',
+          categoryId: null,
+          tag: '',
+          productIds: [],
+          limit: 8,
+        },
+      },
+    ],
+  },
+  texts: [{ key: 'blk-rail.heading', value: { en: 'Picked for you', ar: 'مختارة لك' } }],
+  blockCount: 1,
+};
+
+describe('the shop’s sections', () => {
+  it('edits a repeated item and adds another, saving the whole list', async () => {
+    const user = userEvent.setup();
+    const m = setup({ page: FAQ_PAGE });
+    await openBuilder();
+    await user.click(
+      canvas().getByRole('button', { name: 'Select the Questions & answers block' }),
+    );
+
+    const first = within(panel().getByRole('group', { name: /Question 1/ }));
+    await user.clear(first.getByLabelText('Question'));
+    await user.type(first.getByLabelText('Question'), 'Do you deliver to Jeddah?');
+    await user.click(panel().getByRole('button', { name: 'Add a Question' }));
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/pages/pg1')).toBeGreaterThan(0), {
+      timeout: 4000,
+    });
+    const items = bodyOf(m, 'PATCH /api/v1/pages/pg1').draft.blocks[0].props.items;
+    expect(items).toHaveLength(2);
+    expect(items[0]).toMatchObject({
+      question: 'Do you deliver to Jeddah?',
+      answer: 'Across the Kingdom.',
+    });
+    expect(items[1]).toEqual({ question: '', answer: '' });
+  });
+
+  it('shows the generated Arabic of a repeated item’s text', async () => {
+    const user = userEvent.setup();
+    setup({ page: FAQ_PAGE });
+    await openBuilder();
+    await user.click(
+      canvas().getByRole('button', { name: 'Select the Questions & answers block' }),
+    );
+    expect(panel().getByText('هل توصلون؟')).toHaveAttribute('dir', 'rtl');
+  });
+
+  it('removes a repeated item', async () => {
+    const user = userEvent.setup();
+    const m = setup({ page: FAQ_PAGE });
+    await openBuilder();
+    await user.click(
+      canvas().getByRole('button', { name: 'Select the Questions & answers block' }),
+    );
+    await user.click(
+      within(panel().getByRole('group', { name: /Question 1/ })).getByRole('button', {
+        name: 'Remove',
+      }),
+    );
+    await waitFor(() => expect(m.count('PATCH /api/v1/pages/pg1')).toBeGreaterThan(0), {
+      timeout: 4000,
+    });
+    expect(bodyOf(m, 'PATCH /api/v1/pages/pg1').draft.blocks[0].props.items).toEqual([]);
+  });
+
+  it('offers where a rail gets its products in plain words, and the shop’s categories', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      page: RAIL_PAGE,
+      routes: {
+        'GET /api/v1/categories': json(200, {
+          data: [
+            { id: 'c1', name: { en: 'Home' }, slug: 'home', parentId: null, depth: 0, position: 0 },
+          ],
+        }),
+      },
+    });
+    await openBuilder();
+    await user.click(canvas().getByRole('button', { name: 'Select the Product row block' }));
+
+    expect(panel().getByRole('option', { name: 'Best selling' })).toBeInTheDocument();
+    await user.selectOptions(panel().getByLabelText(/^Which products/), 'category');
+    await waitFor(() => expect(panel().getByRole('option', { name: 'Home' })).toBeInTheDocument());
+    await user.selectOptions(panel().getByLabelText(/^Category/), 'c1');
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/pages/pg1')).toBeGreaterThan(0), {
+      timeout: 4000,
+    });
+    expect(bodyOf(m, 'PATCH /api/v1/pages/pg1').draft.blocks[0].props).toMatchObject({
+      source: 'category',
+      categoryId: 'c1',
+    });
+  });
+});

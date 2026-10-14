@@ -211,6 +211,21 @@ describe('what a visitor sees', () => {
     expect(english.content.blocks[0].props.text).toBe('Our story');
   });
 
+  it('arrives with the images and catalogue data its blocks need (P5.3)', async () => {
+    const page = await makePage({
+      draft: blocks(heading('blk-1', 'Our story'), {
+        id: 'blk-rail',
+        type: 'productRail',
+        props: { heading: 'Picked for you', source: 'newest', limit: 4 },
+      }),
+    });
+    await publish(page);
+    const live = await ok(await request(app).get(`${PAGES}/public/about-us?lang=en`));
+    // The catalogue is empty in this test, but the block was resolved — not left for the browser.
+    expect(live.data['blk-rail']).toEqual({ products: [] });
+    expect(live.media).toEqual({});
+  });
+
   it('can be taken down again without losing the work', async () => {
     const page = await makePage();
     await publish(page);

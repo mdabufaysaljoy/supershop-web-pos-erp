@@ -23,6 +23,7 @@ export {
   restocksOn,
   transitionByAction,
 } from './stateMachines/order.js';
+export { createNotificationSchemas, NOTIFICATION } from './schemas/notification.js';
 export { createPaymentSchemas, PAYMENT } from './schemas/payment.js';
 export {
   createPaymentMethodSchemas,

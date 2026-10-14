@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { DEFAULTS } from '../constants.js';
 import { PERMISSIONS as P } from '../permissions.js';
 import { V } from '../validators/messages.js';
-import { plainText } from '../validators/fields.js';
+import { email, plainText } from '../validators/fields.js';
 
 /**
  * Settings registry (CLAUDE.md §2.4): every admin-editable behavior is a typed key with a zod
@@ -162,6 +162,71 @@ const DEFINITIONS = [
     default: false,
     public: true,
   },
+  // ---------- notifications (P4.5) ----------
+  // What the shop may send, and through what. Providers are adapters: switching one is a setting.
+  { key: 'notifications.email', group: 'notifications', schema: bool(), default: true },
+  { key: 'notifications.sms', group: 'notifications', schema: bool(), default: false },
+  {
+    key: 'notifications.emailProvider',
+    group: 'notifications',
+    schema: z.enum(['log', 'smtp'], { error: V.INVALID_TYPE }),
+    /** `log` writes the message to the application log: a new shop never silently drops mail. */
+    default: 'log',
+  },
+  {
+    key: 'notifications.emailFrom',
+    group: 'notifications',
+    schema: z.union([z.literal(''), email]),
+    default: '',
+  },
+  {
+    key: 'notifications.emailFromName',
+    group: 'notifications',
+    schema: plainText({ max: 60 }),
+    default: '',
+  },
+  {
+    key: 'notifications.smtpHost',
+    group: 'notifications',
+    schema: plainText({ max: 120 }),
+    default: '',
+  },
+  { key: 'notifications.smtpPort', group: 'notifications', schema: int(1, 65535), default: 587 },
+  { key: 'notifications.smtpSecure', group: 'notifications', schema: bool(), default: false },
+  {
+    key: 'notifications.smtpUser',
+    group: 'notifications',
+    schema: plainText({ max: 120 }),
+    default: '',
+  },
+  {
+    key: 'notifications.smtpPassword',
+    group: 'notifications',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
+  {
+    key: 'notifications.smsProvider',
+    group: 'notifications',
+    schema: z.enum(['log', 'unifonic', 'taqnyat'], { error: V.INVALID_TYPE }),
+    default: 'log',
+  },
+  /** The name or short code the message comes from (the provider registers it). */
+  {
+    key: 'notifications.smsSender',
+    group: 'notifications',
+    schema: plainText({ max: 11 }),
+    default: '',
+  },
+  {
+    key: 'notifications.smsApiKey',
+    group: 'notifications',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
+
   // ---------- payments (P4.1) ----------
   // WHICH methods a shop offers is admin data (the payment_methods collection, P4.2). What stays
   // here is the gateway behind the "card" method and its keys, reached through an adapter.

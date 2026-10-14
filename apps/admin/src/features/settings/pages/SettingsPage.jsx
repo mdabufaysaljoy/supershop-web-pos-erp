@@ -2,6 +2,7 @@ import { PERMISSIONS } from '@supershop/shared';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router';
 import { PageHeader } from '@/pages/PageHeader';
+import { NotificationsTab } from '@/features/notifications/pages/NotificationsTab';
 import { PaymentsTab } from '@/features/paymentMethods/pages/PaymentsTab';
 import { LanguagesTab } from './LanguagesTab';
 
@@ -15,6 +16,12 @@ const TABS = [
     label: 'settings.tabs.payments',
     perm: PERMISSIONS.SETTINGS_VIEW,
     Component: PaymentsTab,
+  },
+  {
+    id: 'notifications',
+    label: 'settings.tabs.notifications',
+    perm: PERMISSIONS.SETTINGS_VIEW,
+    Component: NotificationsTab,
   },
   {
     id: 'languages',

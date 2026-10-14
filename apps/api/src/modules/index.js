@@ -21,6 +21,7 @@ import {
   createAccountOrdersRouter,
   createCheckoutRouter,
   createOrderAdminRouter,
+  getOrderById,
   registerOrderSubscribers,
   setPaymentHooks,
   setPaymentMethodResolver,
@@ -43,6 +44,10 @@ import {
   getOnlineInStock,
 } from './inventory/index.js';
 import { createMediaRouter } from './media/index.js';
+import {
+  createNotificationRouter,
+  registerNotificationSubscribers,
+} from './notifications/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countPurchaseOrdersInBranch,
@@ -150,6 +155,14 @@ export function registerModules() {
   registerOrderSubscribers({
     resolveCustomerEmail: async (id) => (await customerPrincipal.findById(id))?.email ?? null,
   });
+  // What the shop tells its customers (P4.5). Notifications never import orders or customers.
+  registerNotificationSubscribers({
+    getOrder: (id) => getOrderById(id),
+    getRecipient: async (type, id) =>
+      type === PRINCIPAL_TYPES.STAFF
+        ? ((await staffPrincipal.getProfile(id)) ?? null)
+        : ((await customerPrincipal.getProfile(id)) ?? null),
+  });
   registerAuditSubscribers();
   registerI18nSubscribers();
   registerSearchSubscribers();
@@ -198,6 +211,7 @@ export function mountModuleRoutes(api) {
     '/payment-methods',
     createPaymentMethodRouter({ isGatewayReady: () => isGatewayReady() }),
   );
+  api.use('/notifications', createNotificationRouter());
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
 }

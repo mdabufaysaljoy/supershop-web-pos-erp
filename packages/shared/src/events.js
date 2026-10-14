@@ -132,6 +132,9 @@ export const EVENTS = Object.freeze({
   ORDER_CANCELLED: 'order.cancelled',
   ORDER_REFUNDED: 'order.refunded',
 
+  /** A transactional message actually went out (P4.5). */
+  NOTIFICATION_SENT: 'notification.sent',
+
   // payments
   /** A payment page was created and the customer sent to it (P4.1). */
   PAYMENT_STARTED: 'payment.started',

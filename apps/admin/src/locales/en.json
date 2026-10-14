@@ -206,7 +206,8 @@
     "readOnly": "You can view these settings but not change them.",
     "tabs": {
       "languages": "Languages",
-      "payments": "Payments"
+      "payments": "Payments",
+      "notifications": "Notifications"
     }
   },
   "languages": {
@@ -1102,6 +1103,79 @@
       "vat": "VAT",
       "total": "Total",
       "paidWith": "Paid with {{method}} — {{status}}"
+    }
+  },
+  "notifications": {
+    "templates": {
+      "title": "Messages",
+      "description": "What the shop sends when something happens. Write English — Arabic is generated.",
+      "enabled": "Send it",
+      "subject": "Subject",
+      "body": "Message",
+      "bodyHelp": "Use {{order.number}}, {{customer.name}}, {{store.name}}, {{order.total}}, {{order.trackUrl}}, {{shipment.carrier}}, {{shipment.trackingNumber}}, {{link}}.",
+      "arabicSubject": "Arabic subject (automatic)",
+      "arabicBody": "Arabic message (automatic)"
+    },
+    "channels": {
+      "email": "Email",
+      "sms": "SMS"
+    },
+    "events": {
+      "order.placed": "Order placed",
+      "order.paid": "Payment received",
+      "order.shipped": "Order shipped",
+      "order.delivered": "Order delivered",
+      "order.cancelled": "Order cancelled",
+      "order.refunded": "Order refunded",
+      "auth.verifyEmail": "Confirm email address",
+      "auth.resetPassword": "Reset password",
+      "test": "Test message"
+    },
+    "providers": {
+      "log": "Write to the log (nothing is sent)",
+      "smtp": "SMTP server",
+      "unifonic": "Unifonic",
+      "taqnyat": "Taqnyat"
+    },
+    "settings": {
+      "title": "How messages are sent",
+      "description": "Switch a channel off and nothing goes out on it, whatever the templates say.",
+      "emailEnabled": "Send emails",
+      "emailHelp": "Order updates and account mail.",
+      "smsEnabled": "Send SMS",
+      "smsHelp": "Short order updates to the mobile number on the order.",
+      "provider": "Service",
+      "emailFrom": "From address",
+      "emailFromName": "From name",
+      "smtpHost": "SMTP host",
+      "smtpPort": "SMTP port",
+      "smtpUser": "SMTP user",
+      "smtpPassword": "SMTP password",
+      "smsApiKey": "SMS API key",
+      "smsSender": "SMS sender name",
+      "stored": "Stored: {{masked}}",
+      "notSet": "Not set yet.",
+      "enterNew": "Paste a new value",
+      "test": {
+        "email": "Send a test email to",
+        "sms": "Send a test SMS to"
+      }
+    },
+    "test": {
+      "send": "Send test",
+      "sent": "Test message sent.",
+      "failed": "The service refused it — see the log below.",
+      "skipped": "Nothing was sent: that channel or service is not configured."
+    },
+    "log": {
+      "title": "Recently sent",
+      "description": "The last ten messages, with what the service said.",
+      "empty": "Nothing has been sent yet.",
+      "status": {
+        "sent": "Sent",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      }
     }
   }
 }

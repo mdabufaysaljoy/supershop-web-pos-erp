@@ -6,6 +6,7 @@ import { randomToken } from '../core/crypto.js';
 import { connectDb, disconnectDb } from '../core/db.js';
 import { seedMainBranch } from '../modules/branches/index.js';
 import { seedGlossary, seedLanguages } from '../modules/i18n/index.js';
+import { seedHomePage } from '../modules/pages/index.js';
 import { seedPaymentMethods } from '../modules/paymentMethods/index.js';
 import { seedDefaultRoles } from '../modules/rbac/index.js';
 import { ensureSuperAdmin } from '../modules/staff/index.js';
@@ -15,6 +16,7 @@ import { ensureSuperAdmin } from '../modules/staff/index.js';
  * - inserts missing default roles (never overwrites admin edits)
  * - inserts missing languages (en source, ar) and do-not-translate glossary terms
  * - creates a "Main store" branch (code MAIN) only if no branch exists
+ * - creates the starting home page (hero → categories → best sellers → …) only if none exists
  * - creates the first super-admin only if none exists
  *
  * Env: SEED_ADMIN_EMAIL (required), SEED_ADMIN_NAME, SEED_ADMIN_PASSWORD.
@@ -54,6 +56,12 @@ async function main() {
     console.info(branch ? '✔ main branch created (code MAIN)' : '✔ branches already exist');
     await seedPaymentMethods();
     console.info('✔ payment methods ensured (cash on delivery, card)');
+    const home = await seedHomePage();
+    console.info(
+      home
+        ? `✔ home page created and published (/${home.slug}, ${home.blocks} sections — edit it in Pages)`
+        : '✔ home page already exists (unchanged)',
+    );
 
     const generated = SEED_ADMIN_PASSWORD ? null : `${randomToken(12)}-9a`;
     const result = await ensureSuperAdmin({

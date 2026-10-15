@@ -1,4 +1,4 @@
-import { EVENTS, paymentFee, SOURCE_LANGUAGE } from '@supershop/shared';
+import { EVENTS, PAYMENT_METHOD, paymentFee, SOURCE_LANGUAGE } from '@supershop/shared';
 import { ConflictError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { resolveDoc } from '../i18n/index.js';
@@ -6,20 +6,32 @@ import * as repo from './paymentMethod.repo.js';
 
 /**
  * Payment methods (P4.2). The checkout list is DATA: a shop enables, renames, reorders, prices or
- * adds methods without a deploy. Only `type` carries behaviour, and only three exist (gateway,
- * cash on delivery, offline) — anything else a shop invents is an offline method with its own
- * instructions.
+ * adds methods without a deploy. Only `type` carries behaviour, and there are four (gateway, cash
+ * on delivery, offline, and cash at the counter — P6.1); anything else a shop invents is an
+ * offline method with its own instructions.
+ *
+ * Type also decides WHERE a method may be used: a website cannot take cash from a hand, and a
+ * till cannot send a customer to a payment page.
  */
 const LOCALIZED = ['label', 'instructions'];
 
 /** Seeded once, so a fresh shop has something to sell with. Labels are English source (§5.7). */
 const BUILT_INS = [
   {
+    key: 'cash',
+    type: 'cash',
+    label: 'Cash',
+    instructions: '',
+    position: 0,
+    builtIn: true,
+    enabled: true,
+  },
+  {
     key: 'cod',
     type: 'cod',
     label: 'Cash payment on delivery',
     instructions: 'Pay the courier when your order arrives.',
-    position: 0,
+    position: 1,
     builtIn: true,
     enabled: true,
   },
@@ -28,23 +40,32 @@ const BUILT_INS = [
     type: 'gateway',
     label: 'Card, Mada or Apple Pay',
     instructions: 'You will be taken to a secure payment page.',
-    position: 1,
+    position: 2,
     builtIn: true,
     // A gateway method stays off until its keys are in Settings → Payments (P4.1).
     enabled: false,
   },
 ];
 
-/** Creates the built-in methods the first time the shop starts. Safe to call repeatedly. */
+/**
+ * Ensures every built-in method exists. Safe to call repeatedly, and on a shop that is already
+ * running: a method added to this list later (cash at the counter, P6.1) appears on the next
+ * seed, while the shop's own edits — labels, order, fees, what is switched on — are untouched.
+ * @returns {Promise<string[]>} the keys it had to create
+ */
 export async function seedPaymentMethods() {
-  if (await repo.countAll()) return;
-  for (const method of BUILT_INS) {
+  const existing = new Set((await repo.listAll()).map((m) => m.key));
+  const missing = BUILT_INS.filter((m) => !existing.has(m.key));
+  for (const method of missing) {
     await repo.insert({
       ...method,
+      // Added to a shop that already has a list: after what is there, not in front of it.
+      position: existing.size ? existing.size + missing.indexOf(method) : method.position,
       label: { [SOURCE_LANGUAGE]: method.label },
       instructions: { [SOURCE_LANGUAGE]: method.instructions },
     });
   }
+  return missing.map((m) => m.key);
 }
 
 export const toAdminDto = (m) => ({
@@ -83,9 +104,16 @@ export const listMethods = async () => (await repo.listAll()).map(toAdminDto);
  * settings itself.
  * @param {{ total?: number, isGatewayReady?: () => boolean, lang?: string }} [opts]
  */
-export async function availableMethods({ total = null, isGatewayReady = () => false, lang } = {}) {
+export async function availableMethods({
+  total = null,
+  isGatewayReady = () => false,
+  lang,
+  channel = 'online',
+} = {}) {
   const methods = await repo.listEnabled();
+  const allowed = channel === 'pos' ? PAYMENT_METHOD.POS_TYPES : PAYMENT_METHOD.ONLINE_TYPES;
   return methods
+    .filter((m) => allowed.includes(m.type))
     .filter((m) => (m.type === 'gateway' ? isGatewayReady() : true))
     .filter((m) => total == null || m.minTotal == null || total >= m.minTotal)
     .filter((m) => total == null || m.maxTotal == null || total <= m.maxTotal)
@@ -98,10 +126,15 @@ export async function availableMethods({ total = null, isGatewayReady = () => fa
  * @param {string} key
  * @param {{ total: number, isGatewayReady?: () => boolean }} ctx
  */
-export async function resolveForCheckout(key, { total, isGatewayReady = () => false }) {
+export async function resolveForCheckout(
+  key,
+  { total, isGatewayReady = () => false, channel = 'online' },
+) {
   const method = await repo.findByKey(key);
+  const allowed = channel === 'pos' ? PAYMENT_METHOD.POS_TYPES : PAYMENT_METHOD.ONLINE_TYPES;
   const usable =
     method?.enabled &&
+    allowed.includes(method.type) &&
     (method.type !== 'gateway' || isGatewayReady()) &&
     (method.minTotal == null || total >= method.minTotal) &&
     (method.maxTotal == null || total <= method.maxTotal);

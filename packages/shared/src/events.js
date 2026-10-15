@@ -39,7 +39,13 @@ export const EVENTS = Object.freeze({
   // settings / content
   /** Payload: { changes: [{ key, before, after }] (secrets masked), actorId } */
   SETTINGS_UPDATED: 'settings.updated',
+  PAGE_CREATED: 'page.created',
+  PAGE_UPDATED: 'page.updated',
   PAGE_PUBLISHED: 'page.published',
+  PAGE_DELETED: 'page.deleted',
+  MENU_UPDATED: 'menu.updated',
+  PRINTER_PROFILE_UPDATED: 'printerProfile.updated',
+  SITE_LAYOUT_UPDATED: 'siteLayout.updated',
   TRANSLATION_REQUESTED: 'translation.requested',
   TRANSLATION_COMPLETED: 'translation.completed',
   TRANSLATION_FAILED: 'translation.failed',
@@ -131,6 +137,9 @@ export const EVENTS = Object.freeze({
   ORDER_COMPLETED: 'order.completed',
   ORDER_CANCELLED: 'order.cancelled',
   ORDER_REFUNDED: 'order.refunded',
+
+  /** A transactional message actually went out (P4.5). */
+  NOTIFICATION_SENT: 'notification.sent',
 
   // payments
   /** A payment page was created and the customer sent to it (P4.1). */

@@ -25,3 +25,31 @@ export { BarcodeInput } from './scanner/BarcodeInput.jsx';
 export { charFromKeyEvent } from './scanner/keys.js';
 export { createWedgeDetector } from './scanner/wedge.js';
 export { useBarcodeScanner } from './scanner/useBarcodeScanner.js';
+export { BlockRenderer } from './blocks/BlockRenderer.jsx';
+export { hrefIn, money, number } from './blocks/context.js';
+export { PagePreview } from './blocks/PagePreview.jsx';
+export {
+  ALL_BLOCK_COMPONENTS,
+  ButtonLinkBlock,
+  CORE_BLOCK_COMPONENTS,
+  HeadingBlock,
+  ImageBlock,
+  RichTextBlock,
+  SpacerBlock,
+} from './blocks/coreBlocks.jsx';
+export {
+  BannerBlock,
+  BrandStripBlock,
+  CategoryGridBlock,
+  ColumnsBlock,
+  CustomHtmlBlock,
+  FaqBlock,
+  FeaturesBlock,
+  NewsletterBlock,
+  ProductRailBlock,
+  SHOP_BLOCK_COMPONENTS,
+  TestimonialsBlock,
+  VideoBlock,
+} from './blocks/shopBlocks.jsx';
+export { CountdownBlock } from './blocks/CountdownBlock.jsx';
+export { HeroCarouselBlock } from './blocks/HeroCarouselBlock.jsx';

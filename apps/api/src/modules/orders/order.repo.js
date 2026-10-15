@@ -1,3 +1,4 @@
+import { ORDER_FLOW } from '@supershop/shared';
 import { Order } from './order.model.js';
 
 /** The ONLY place touching the order model. */
@@ -87,4 +88,19 @@ export async function listOrders(filter, { sort, skip, limit }) {
     Order.countDocuments(filter),
   ]);
   return { items, total };
+}
+
+/**
+ * Product ids ordered by how many units sold, newest window first — what the "best selling"
+ * product rail asks for (P5.3). Only states the flow counts as sold are included.
+ */
+export async function topSellingProductIds({ limit, since }) {
+  const rows = await Order.aggregate([
+    { $match: { status: { $in: [...ORDER_FLOW.sold] }, placedAt: { $gte: since } } },
+    { $unwind: '$items' },
+    { $group: { _id: '$items.productId', units: { $sum: '$items.qty' } } },
+    { $sort: { units: -1, _id: 1 } },
+    { $limit: limit },
+  ]);
+  return rows.map((r) => String(r._id));
 }

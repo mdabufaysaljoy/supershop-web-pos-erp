@@ -15,15 +15,25 @@ import {
   setAuthPolicyProvider,
   setOAuthSettingsProvider,
 } from './auth/index.js';
-import { createAccountRouter, createCustomerRouter, customerPrincipal } from './customers/index.js';
+import {
+  createAccountRouter,
+  createCustomerRouter,
+  customerPrincipal,
+  findCustomerByContact,
+} from './customers/index.js';
 import { createCartRouter } from './cart/index.js';
 import {
   createAccountOrdersRouter,
   createCheckoutRouter,
   createOrderAdminRouter,
+  createPosRouter,
+  getBestSellingProductIds,
+  getOrderById,
+  getOrderForStaff,
   registerOrderSubscribers,
   setPaymentHooks,
   setPaymentMethodResolver,
+  setPosCustomerLookup,
 } from './orders/index.js';
 import {
   createPaymentRouter,
@@ -33,8 +43,18 @@ import {
 } from './payments/index.js';
 import { createPaymentMethodRouter, resolveForCheckout } from './paymentMethods/index.js';
 import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
-import { createBrandRouter, setBrandUsageCounter } from './brands/index.js';
-import { createCategoryRouter, setCategoryUsageCounter } from './categories/index.js';
+import {
+  createBrandRouter,
+  getBrandsByIds,
+  getBrandsWithLogo,
+  setBrandUsageCounter,
+} from './brands/index.js';
+import {
+  createCategoryRouter,
+  getCategoriesByIds,
+  listCategories,
+  setCategoryUsageCounter,
+} from './categories/index.js';
 import { createCustomFieldRouter } from './customFields/index.js';
 import { createI18nAdminRouter, registerI18nSubscribers } from './i18n/index.js';
 import {
@@ -43,18 +63,27 @@ import {
   getOnlineInStock,
 } from './inventory/index.js';
 import { createMediaRouter } from './media/index.js';
+import {
+  createNotificationRouter,
+  registerNotificationSubscribers,
+} from './notifications/index.js';
+import { createPrintingRouter, setPrintingProviders } from './printing/index.js';
+import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from './pages/index.js';
+import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countPurchaseOrdersInBranch,
   countPurchaseOrdersOfSupplier,
   createPurchaseOrderRouter,
 } from './purchasing/index.js';
-import { createSearchRouter, registerSearchSubscribers } from './search/index.js';
+import { createSearchRouter, registerSearchSubscribers, searchProducts } from './search/index.js';
 import {
   countProductsInCategory,
   countProductsOfBrand,
   countProductsOfSupplier,
   createProductRouter,
+  getProductIdsByTag,
+  getPublicCards,
   setAvailabilityProvider,
 } from './products/index.js';
 import { createRoleRouter, setRoleUsageCounter } from './rbac/index.js';
@@ -145,10 +174,33 @@ export function registerModules() {
   setPaymentMethodResolver((key, { total }) =>
     resolveForCheckout(key, { total, isGatewayReady: () => isGatewayReady() }),
   );
+  // A sale at the counter can be attached to a customer the shop already knows (P6.1).
+  setPosCustomerLookup(findCustomerByContact);
+  // What a receipt prints: the order itself, and how the shop names itself on paper (P6.3).
+  setPrintingProviders({
+    getOrder: (id) => getOrderForStaff(id).catch(() => null),
+    getShop: async (lang) => {
+      const chrome = await getSiteChrome(lang);
+      return {
+        name: getSetting('store.name'),
+        address: chrome.contact.address,
+        phone: chrome.contact.phone,
+        vatNumber: getSetting('tax.vatNumber'),
+      };
+    },
+  });
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
   registerOrderSubscribers({
     resolveCustomerEmail: async (id) => (await customerPrincipal.findById(id))?.email ?? null,
+  });
+  // What the shop tells its customers (P4.5). Notifications never import orders or customers.
+  registerNotificationSubscribers({
+    getOrder: (id) => getOrderById(id),
+    getRecipient: async (type, id) =>
+      type === PRINCIPAL_TYPES.STAFF
+        ? ((await staffPrincipal.getProfile(id)) ?? null)
+        : ((await customerPrincipal.getProfile(id)) ?? null),
   });
   registerAuditSubscribers();
   registerI18nSubscribers();
@@ -163,6 +215,29 @@ export function registerModules() {
   registerBranchUsage(countStockRecordsInBranch);
   registerBranchUsage(countPurchaseOrdersInBranch);
   setAvailabilityProvider(getOnlineInStock); // storefront in/out of stock
+  // A page's blocks say what they want; these lookups fill them in (P5.3). Pages import no module.
+  // A menu item points at a page, category or brand; these say whether it is still there (P5.4).
+  setMenuRefProviders({
+    page: getPublishedPageSlugs,
+    category: async (ids) =>
+      Object.fromEntries(
+        (await getCategoriesByIds(ids)).filter((c) => c.isActive).map((c) => [c.id, c.slug]),
+      ),
+    brand: async (ids) =>
+      Object.fromEntries(
+        (await getBrandsByIds(ids)).filter((b) => b.isActive).map((b) => [b.id, b.slug]),
+      ),
+  });
+  setBlockDataProviders({
+    searchProducts,
+    getProductCards: getPublicCards,
+    getProductIdsByTag,
+    getBestSellingProductIds,
+    listCategories,
+    getCategoriesByIds,
+    getBrandsByIds,
+    getBrandsWithLogo,
+  });
 }
 
 /** @param {import('express').Router} api router mounted at /api/v1 */
@@ -183,6 +258,8 @@ export function mountModuleRoutes(api) {
   api.use('/audit', createAuditRouter());
   api.use('/i18n', createI18nAdminRouter());
   api.use('/media', createMediaRouter());
+  api.use('/pages', createPageRouter());
+  api.use('/site', createSiteRouter());
   api.use('/categories', createCategoryRouter());
   api.use('/brands', createBrandRouter());
   api.use('/suppliers', createSupplierRouter());
@@ -193,11 +270,14 @@ export function mountModuleRoutes(api) {
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
   api.use('/orders', createOrderAdminRouter());
+  api.use('/pos', createPosRouter());
+  api.use('/printing', createPrintingRouter());
   api.use('/payments', createPaymentRouter());
   api.use(
     '/payment-methods',
     createPaymentMethodRouter({ isGatewayReady: () => isGatewayReady() }),
   );
+  api.use('/notifications', createNotificationRouter());
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
 }

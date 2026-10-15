@@ -21,6 +21,10 @@ const itemSchema = new mongoose.Schema(
     qty: { type: Number, required: true },
     taxCategory: { type: String, default: 'standard' },
     vatRateBps: { type: Number, required: true },
+    /** What was taken off this line (its own discount plus its share of a basket discount, P6.1). */
+    discountTotal: { type: Number, default: 0 },
+    /** The discount as the cashier entered it, for the receipt and for a return. */
+    discount: { type: Mixed, default: null },
     /** What the customer sees for the line (gross when prices include VAT). */
     lineTotal: { type: Number, required: true },
     net: { type: Number, required: true },
@@ -39,7 +43,14 @@ const orderSchema = new mongoose.Schema(
     customer: {
       customerId: { type: ObjectId, default: null },
       name: { type: String, required: true },
-      phone: { type: String, required: true },
+      /** Required online (it is how an order is tracked); a walk-in at the till has none. */
+      phone: {
+        type: String,
+        default: '',
+        required: function phoneRequired() {
+          return this.channel !== 'pos';
+        },
+      },
       email: { type: String, default: null },
     },
     deliveryMethod: { type: String, required: true, default: 'delivery' },
@@ -53,6 +64,8 @@ const orderSchema = new mongoose.Schema(
       net: { type: Number, required: true },
       vat: { type: Number, required: true },
       total: { type: Number, required: true },
+      /** Everything taken off the goods (P6.1); `subtotal` is what they cost before it. */
+      discountTotal: { type: Number, default: 0 },
     },
     currency: { type: String, required: true, default: 'SAR' },
     pricesIncludeVat: { type: Boolean, required: true, default: true },
@@ -69,6 +82,29 @@ const orderSchema = new mongoose.Schema(
       gatewayRef: { type: String, default: null },
       refundedAmount: { type: Number, default: 0 },
     },
+    /**
+     * What was actually tendered (P6.1). Online orders have one payment and use `payment` above;
+     * a sale at the counter may be split across cash, a card and the shop's own methods, so each
+     * one is recorded here and `payment` summarises them.
+     */
+    payments: {
+      type: [
+        {
+          _id: false,
+          method: { type: String, required: true },
+          methodType: { type: String, default: 'offline' },
+          label: { type: String, default: null },
+          amount: { type: Number, required: true },
+          reference: { type: String, default: null },
+          at: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+    /** Handed back at the counter when the customer paid more than the total. */
+    changeGiven: { type: Number, default: 0 },
+    /** The cashier who rang the sale up (POS only). */
+    staffId: { type: ObjectId, default: null },
     /** Values of admin-defined `checkout` custom fields. */
     customFields: { type: Mixed, default: () => ({}) },
     note: { type: String, default: '' },
@@ -142,6 +178,8 @@ orderSchema.index({ confirmationTokenHash: 1 });
 orderSchema.index({ 'customer.phone': 1, createdAt: -1 });
 orderSchema.index({ 'customer.customerId': 1, createdAt: -1 });
 orderSchema.index({ status: 1, createdAt: -1 });
+// Best-sellers over a window (P5.3) and date-ranged sales reports.
+orderSchema.index({ status: 1, placedAt: -1 });
 orderSchema.index({ branchId: 1, createdAt: -1 });
 
 export const Order = mongoose.models.Order ?? mongoose.model('Order', orderSchema);

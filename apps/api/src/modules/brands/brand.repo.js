@@ -51,3 +51,10 @@ export const softDelete = (id) =>
 /** Every active brand (id/name/slug only) — lookups for imports. */
 export const listAllActive = () =>
   Brand.find(ACTIVE, { name: 1, slug: 1, nameKey: 1 }).sort({ nameKey: 1 }).lean();
+
+/** Active brands with their logos, alphabetical — the storefront brand strip (P5.3). */
+export const listActiveWithLogo = (limit) =>
+  Brand.find({ ...ACTIVE, logoId: { $ne: null } })
+    .sort({ nameKey: 1 })
+    .limit(limit)
+    .lean();

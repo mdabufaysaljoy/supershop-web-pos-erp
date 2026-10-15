@@ -937,3 +937,9 @@ export const countProductsInCategory = (categoryId, { session } = {}) =>
   repo.countActiveProducts({ categoryIds: categoryId }, session);
 export const countProductsOfBrand = (brandId) => repo.countActiveProducts({ brandId });
 export const countProductsOfSupplier = (supplierId) => repo.countActiveProducts({ supplierId });
+
+/** Ids of active products with this tag, newest first (product rails, P5.3). */
+export async function getProductIdsByTag(tag, limit = 8) {
+  const rows = await repo.findIdsByTag(tag, limit);
+  return rows.map((r) => String(r._id));
+}

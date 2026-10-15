@@ -60,6 +60,50 @@
       "src": "2791cc22a0f57c0e",
       "out": "ccb646bff9a77a7d"
     },
+    "footer.contact": {
+      "src": "47aaf31b83d6bfd7",
+      "out": "285a4700edd4eaab"
+    },
+    "footer.whatsapp": {
+      "src": "4094ce516d09008e",
+      "out": "04afdde8715b7aa2"
+    },
+    "footer.social": {
+      "src": "f74afb214a5fa0a4",
+      "out": "54fe42f5d073a722"
+    },
+    "footer.platforms.instagram": {
+      "src": "bad57ef7837c8e6b",
+      "status": "failed"
+    },
+    "footer.platforms.tiktok": {
+      "src": "1bb6fcfbf1368a7b",
+      "status": "failed"
+    },
+    "footer.platforms.snapchat": {
+      "src": "4eb2ce09b54c069a",
+      "status": "failed"
+    },
+    "footer.platforms.x": {
+      "src": "4b68ab3847feda7d",
+      "status": "failed"
+    },
+    "footer.platforms.facebook": {
+      "src": "d41f5b4977ee05c6",
+      "out": "501a1db055e9cfe0"
+    },
+    "footer.platforms.youtube": {
+      "src": "fb7accfff8c6f8ea",
+      "out": "b6348ddd35622359"
+    },
+    "footer.platforms.whatsapp": {
+      "src": "6a40edf1fc87a29f",
+      "out": "6a40edf1fc87a29f"
+    },
+    "footer.platforms.linkedin": {
+      "src": "dd84425b72da12c6",
+      "out": "490a4c57bf7ab538"
+    },
     "notFound.title": {
       "src": "a469ab4ca4e55bf5",
       "out": "4f137908a13f49d0"
@@ -1295,6 +1339,38 @@
     "track.shipment.follow": {
       "src": "d37aa0517718390d",
       "out": "3c9295a6e9cc09f1"
+    },
+    "blocks.previousSlide": {
+      "src": "bfb549220c60fc91",
+      "out": "8fbc602c41f452df"
+    },
+    "blocks.nextSlide": {
+      "src": "cdc93d1c8fe9a2af",
+      "out": "075f87a4e8d4de9e"
+    },
+    "blocks.slide": {
+      "src": "6bb4c1177681ec4e",
+      "out": "62547006e2493e2f"
+    },
+    "blocks.days": {
+      "src": "e08c0aa8f558f39f",
+      "out": "78cb02e51031dbb5"
+    },
+    "blocks.hours": {
+      "src": "21e8492938abc179",
+      "out": "823145b1a9872853"
+    },
+    "blocks.minutes": {
+      "src": "4f846a84e7fc9ef6",
+      "out": "3d4f892f8c133e86"
+    },
+    "blocks.seconds": {
+      "src": "381a8e9699052f3a",
+      "out": "147284e6419fa1b1"
+    },
+    "blocks.emailAddress": {
+      "src": "f2488fd4ef4adbc6",
+      "out": "8a0b55ab8c62713f"
     }
   }
 }

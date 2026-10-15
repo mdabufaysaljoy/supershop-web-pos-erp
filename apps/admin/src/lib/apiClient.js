@@ -96,7 +96,8 @@ function buildUrl(path, query) {
  * @param {string} path  e.g. '/api/v1/staff'
  * @param {{ method?: string, body?: unknown | FormData, query?: Record<string, unknown>, signal?: AbortSignal,
  *   auth?: boolean, headers?: Record<string, string>, responseType?: 'json' | 'blob' }} [opts]
- *   `auth: false` for login & public calls; `responseType: 'blob'` → `{ blob, fileName }`
+ *   `auth: false` for login & public calls; `responseType: 'blob'` → `{ blob, fileName }`,
+ *   `'text'` → the body as a string (the QZ certificate, P6.3)
  * @returns {Promise<{ data: any, meta?: any } | null>}  null for 204
  */
 export async function api(
@@ -132,6 +133,7 @@ export async function api(
   }
   if (!res.ok) throw await toApiError(res);
   if (res.status === 204) return null;
+  if (responseType === 'text') return res.text();
   if (responseType === 'blob') {
     const disposition = res.headers.get('Content-Disposition') ?? '';
     return {

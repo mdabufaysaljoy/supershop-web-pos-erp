@@ -45,7 +45,8 @@
     "brands": "Brands",
     "suppliers": "Suppliers",
     "branches": "Branches",
-    "purchaseOrders": "Purchase orders"
+    "purchaseOrders": "Purchase orders",
+    "appearance": "Appearance"
   },
   "pages": {
     "dashboard": {
@@ -198,7 +199,9 @@
     "pageOf": "Page {{page}} of {{pages}}",
     "done": "Done",
     "saving": "Saving…",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "moveUp": "Move up",
+    "remove": "Remove"
   },
   "settings": {
     "title": "Settings",
@@ -206,7 +209,8 @@
     "readOnly": "You can view these settings but not change them.",
     "tabs": {
       "languages": "Languages",
-      "payments": "Payments"
+      "payments": "Payments",
+      "notifications": "Notifications"
     }
   },
   "languages": {
@@ -1103,5 +1107,403 @@
       "total": "Total",
       "paidWith": "Paid with {{method}} — {{status}}"
     }
+  },
+  "notifications": {
+    "templates": {
+      "title": "Messages",
+      "description": "What the shop sends when something happens. Write English — Arabic is generated.",
+      "enabled": "Send it",
+      "subject": "Subject",
+      "body": "Message",
+      "bodyHelp": "Use {{order.number}}, {{customer.name}}, {{store.name}}, {{order.total}}, {{order.trackUrl}}, {{shipment.carrier}}, {{shipment.trackingNumber}}, {{link}}.",
+      "arabicSubject": "Arabic subject (automatic)",
+      "arabicBody": "Arabic message (automatic)"
+    },
+    "channels": {
+      "email": "Email",
+      "sms": "SMS"
+    },
+    "events": {
+      "order.placed": "Order placed",
+      "order.paid": "Payment received",
+      "order.shipped": "Order shipped",
+      "order.delivered": "Order delivered",
+      "order.cancelled": "Order cancelled",
+      "order.refunded": "Order refunded",
+      "auth.verifyEmail": "Confirm email address",
+      "auth.resetPassword": "Reset password",
+      "test": "Test message"
+    },
+    "providers": {
+      "log": "Write to the log (nothing is sent)",
+      "smtp": "SMTP server",
+      "unifonic": "Unifonic",
+      "taqnyat": "Taqnyat"
+    },
+    "settings": {
+      "title": "How messages are sent",
+      "description": "Switch a channel off and nothing goes out on it, whatever the templates say.",
+      "emailEnabled": "Send emails",
+      "emailHelp": "Order updates and account mail.",
+      "smsEnabled": "Send SMS",
+      "smsHelp": "Short order updates to the mobile number on the order.",
+      "provider": "Service",
+      "emailFrom": "From address",
+      "emailFromName": "From name",
+      "smtpHost": "SMTP host",
+      "smtpPort": "SMTP port",
+      "smtpUser": "SMTP user",
+      "smtpPassword": "SMTP password",
+      "smsApiKey": "SMS API key",
+      "smsSender": "SMS sender name",
+      "stored": "Stored: {{masked}}",
+      "notSet": "Not set yet.",
+      "enterNew": "Paste a new value",
+      "test": {
+        "email": "Send a test email to",
+        "sms": "Send a test SMS to"
+      }
+    },
+    "test": {
+      "send": "Send test",
+      "sent": "Test message sent.",
+      "failed": "The service refused it — see the log below.",
+      "skipped": "Nothing was sent: that channel or service is not configured."
+    },
+    "log": {
+      "title": "Recently sent",
+      "description": "The last ten messages, with what the service said.",
+      "empty": "Nothing has been sent yet.",
+      "status": {
+        "sent": "Sent",
+        "failed": "Failed",
+        "skipped": "Skipped"
+      }
+    }
+  },
+  "cms": {
+    "title": "Pages",
+    "description": "The pages of your site. Build them with blocks; publish when they read well.",
+    "empty": "No pages yet.",
+    "pageTitle": "Page",
+    "address": "Address",
+    "statusLabel": "Status",
+    "blocks": "Blocks",
+    "updated": "Updated",
+    "home": "Home page",
+    "status": {
+      "draft": "Draft",
+      "published": "Published"
+    },
+    "publish": "Publish",
+    "unpublish": "Take it down",
+    "preview": "Preview",
+    "noBlocks": "This page has no blocks yet.",
+    "languages": {
+      "en": "English",
+      "ar": "العربية"
+    },
+    "versions": {
+      "title": "Published before",
+      "blocks_one": "{{count}} block",
+      "blocks_other": "{{count}} blocks",
+      "restore": "Bring this back as a draft"
+    },
+    "builder": {
+      "canvas": "Page",
+      "properties": "Block settings",
+      "addBlock": "Add a block",
+      "emptyCanvas": "Nothing on this page yet. Add a block to start.",
+      "selectToEdit": "Pick a block on the page to change it.",
+      "selectBlock": "Select the {{block}} block",
+      "dragBlock": "Move the {{block}} block",
+      "duplicateBlock": "Duplicate this block",
+      "removeBlock": "Remove this block",
+      "dndInstructions": "Press space to pick a block up, the arrow keys to move it, space to drop it.",
+      "history": "Undo and redo",
+      "undo": "Undo",
+      "redo": "Redo",
+      "width": "Screen size",
+      "widths": {
+        "desktop": "Desktop",
+        "tablet": "Tablet",
+        "mobile": "Phone"
+      },
+      "arabic": "Arabic (automatic)",
+      "chooseImage": "Choose an image",
+      "changeImage": "Change the image",
+      "removeImage": "Remove the image",
+      "save": {
+        "idle": "All changes saved",
+        "unsaved": "Unsaved changes",
+        "saving": "Saving…",
+        "saved": "All changes saved",
+        "error": "Could not save — trying again on your next change"
+      },
+      "addItem": "Add a {{item}}",
+      "noCategory": "All categories",
+      "brands": "Brands",
+      "searchProducts": "Search products by name",
+      "productLoading": "Loading…",
+      "options": {
+        "newest": "Newest first",
+        "bestSelling": "Best selling",
+        "category": "From one category",
+        "manual": "Hand-picked",
+        "light": "Light",
+        "dark": "Dark",
+        "sm": "Small",
+        "md": "Medium",
+        "lg": "Large",
+        "truck": "Delivery",
+        "shield": "Warranty",
+        "refresh": "Returns",
+        "headset": "Support",
+        "tag": "With a tag",
+        "offers": "Offers",
+        "h1": "Page title",
+        "h2": "Section title",
+        "h3": "Small title",
+        "start": "Start",
+        "center": "Centred",
+        "contained": "Within the page",
+        "full": "Full width",
+        "primary": "Filled",
+        "secondary": "Outlined",
+        "2": "Two",
+        "3": "Three",
+        "4": "Four"
+      }
+    },
+    "newPage": {
+      "open": "New page",
+      "title": "Start a page",
+      "description": "Give it a name; you can arrange its blocks next.",
+      "name": "Page name",
+      "create": "Create and open"
+    },
+    "settings": {
+      "open": "Page settings",
+      "title": "Page settings",
+      "description": "The name, the address, and what search engines show.",
+      "name": "Page name",
+      "address": "Address",
+      "addressHelp": "Visitors reach the page at /p/<address>.",
+      "addressWarning": "This page is live: changing the address leaves the old one a dead link.",
+      "seoTitle": "Title in search results",
+      "seoDescription": "Description in search results",
+      "isHome": "Use as the home page",
+      "isHomeHelp": "The shop can have one home page; choosing this one releases the other.",
+      "delete": "Delete this page"
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "The strip above the header, the menus around your pages, your colours, and what search engines are told.",
+    "announcement": {
+      "title": "Announcement bar",
+      "description": "One line above the header — delivery news, opening hours, an offer.",
+      "show": "Show it",
+      "text": "What it says",
+      "href": "Link it to",
+      "hrefHelp": "A path on your site such as /search, or leave it empty for no link.",
+      "tone": "Colour"
+    },
+    "tones": {
+      "primary": "Your brand colour",
+      "dark": "Dark",
+      "light": "Light"
+    },
+    "menus": {
+      "title": "Menus",
+      "description": "Groups of links you place in the header or the footer.",
+      "empty": "No menus yet — your categories are shown in the header until you make one.",
+      "itemCount_one": "{{count}} link",
+      "itemCount_other": "{{count}} links",
+      "newTitle": "Menu name",
+      "location": "Where it goes",
+      "add": "Add menu"
+    },
+    "locations": {
+      "header": "Header",
+      "footer": "Footer"
+    },
+    "chrome": {
+      "title": "Header and footer",
+      "description": "Which menu goes where.",
+      "headerMenu": "Header menu",
+      "headerMenuHelp": "Without one, the header shows your top-level categories.",
+      "noHeaderMenu": "My categories",
+      "showCategoryRow": "Show the category row",
+      "showCategoryRowHelp": "Only used when there is no header menu.",
+      "footerMenus": "Footer menus",
+      "footerNote": "Footer note"
+    },
+    "item": {
+      "label": "Label",
+      "target": "Points at",
+      "choose": "Choose one…",
+      "href": "Address",
+      "hrefHelp": "A path such as /track, or a full https:// address.",
+      "addChild": "Add a link under this",
+      "add": "Add a link",
+      "empty": "This menu has no links yet.",
+      "ref": {
+        "page": "Which page",
+        "category": "Which category",
+        "brand": "Which brand"
+      }
+    },
+    "targets": {
+      "page": "A page",
+      "category": "A category",
+      "brand": "A brand",
+      "products": "All products",
+      "url": "An address"
+    },
+    "theme": {
+      "title": "Colours and shapes",
+      "description": "Used across your site: buttons, links and highlights.",
+      "primary": "Brand colour",
+      "primaryForeground": "Text on the brand colour",
+      "radius": "Corners",
+      "font": "Font",
+      "preview": "Preview",
+      "previewButton": "Add to cart"
+    },
+    "radii": {
+      "none": "Square",
+      "sm": "Slightly rounded",
+      "md": "Rounded",
+      "lg": "Very rounded",
+      "full": "Pill"
+    },
+    "fonts": {
+      "bundled": "The one that ships with your site",
+      "system": "The visitor’s own system font"
+    },
+    "tabs": {
+      "chrome": "Header, footer and colours",
+      "site": "Your shop’s details",
+      "redirects": "Moved addresses"
+    },
+    "brand": {
+      "title": "Logo and pictures",
+      "description": "Your logo in the header, the icon in the browser tab, and the picture used when a page is shared.",
+      "logoId": "Logo",
+      "faviconId": "Browser icon",
+      "ogImageId": "Sharing picture",
+      "set": "Chosen",
+      "unset": "Not set — your shop name is shown instead"
+    },
+    "contact": {
+      "title": "Contact and social",
+      "description": "Shown in the footer. Your address is translated; numbers and links are not.",
+      "phone": "Phone",
+      "whatsapp": "WhatsApp number",
+      "whatsappHelp": "Adds a \"message us\" link to the footer.",
+      "email": "Email",
+      "address": "Address",
+      "nationalAddress": "National Address",
+      "nationalAddressHelp": "The Saudi short code, printed on invoices when you have one.",
+      "mapUrl": "Map link",
+      "social": "Social profiles",
+      "platform": "Platform",
+      "profileUrl": "Profile address"
+    },
+    "platforms": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "snapchat": "Snapchat",
+      "x": "X",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "whatsapp": "WhatsApp",
+      "linkedin": "LinkedIn"
+    },
+    "seo": {
+      "title": "Search engines",
+      "description": "What is shown when your pages appear in search results.",
+      "titleSuffix": "Title ending",
+      "titleSuffixHelp": "Added after every page title, e.g. \"Blue shirt · Supershop\".",
+      "defaultDescription": "Description",
+      "indexable": "Let search engines list this site",
+      "indexableHelp": "Switch off for a site that is not open yet — crawlers are shut out entirely.",
+      "robotsExtra": "Extra robots.txt lines",
+      "robotsExtraHelp": "One directive per line; they are added to the file as written."
+    },
+    "redirects": {
+      "title": "Moved addresses",
+      "description": "Send an old address to its new home — one rule covers both languages.",
+      "empty": "No redirects yet.",
+      "from": "Old address",
+      "fromHelp": "A path on your site, such as /old-offer.",
+      "to": "New address",
+      "toHelp": "A path such as /search, or a full https:// address.",
+      "statusLabel": "What should happen",
+      "status": {
+        "301": "Moved for good",
+        "302": "Moved for now",
+        "410": "Gone"
+      },
+      "note": "Note",
+      "add": "Add redirect"
+    }
+  },
+  "pos": {
+    "title": "Till",
+    "description": "Scan or search, take the money, hand over the goods.",
+    "branch": "Branch",
+    "chooseBranch": "Choose a branch…",
+    "chooseBranchFirst": "Choose the branch you are selling from to start.",
+    "clear": "Clear the basket",
+    "offline": "No connection. The basket is kept and can be held, but a sale cannot be rung up until it is back.",
+    "pricingFailed": "Prices could not be checked just now — the totals shown may be out of date.",
+    "done": "Sold: {{orderNo}} · {{total}} · change {{change}}",
+    "search": {
+      "label": "Scan or search",
+      "placeholder": "Barcode, SKU or product name",
+      "nothing": "Nothing matches that.",
+      "unknownCode": "No product with the barcode {{code}}.",
+      "onHand_one": "{{count}} on the shelf",
+      "onHand_other": "{{count}} on the shelf"
+    },
+    "lines": {
+      "empty": "Nothing in the basket yet. Scan something.",
+      "qty": "Quantity of {{name}}",
+      "discount": "Off",
+      "discountFor": "Discount on {{name}}",
+      "orderDiscount": "Off the whole basket",
+      "remove": "Remove {{name}}"
+    },
+    "customer": {
+      "title": "Customer",
+      "walkin": "Walk-in",
+      "attach": "Add a customer",
+      "makeWalkin": "Make it a walk-in",
+      "name": "Name",
+      "phone": "Phone"
+    },
+    "payment": {
+      "total": "To pay",
+      "method": "Paying with",
+      "amount": "Amount",
+      "add": "Add",
+      "exact": "Exact amount ({{amount}})",
+      "paid": "Tendered",
+      "due": "Still to pay",
+      "change": "Change",
+      "complete": "Complete sale"
+    },
+    "held": {
+      "title": "Held sales",
+      "hold": "Hold this sale",
+      "resume": "Resume",
+      "defaultLabel": "Held sale",
+      "entry_one": "{{count}} item · {{time}}",
+      "entry_other": "{{count}} items · {{time}}"
+    },
+    "printReceipt": "Print the receipt again",
+    "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}"
   }
 }

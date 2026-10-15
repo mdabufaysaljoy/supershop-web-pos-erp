@@ -61,14 +61,27 @@ export function getQueue(name) {
 }
 
 /**
- * Adds a job. Pass `opts.jobId` to make the enqueue idempotent (same id = enqueued once).
+ * BullMQ reserves ':' in job ids (it builds Redis keys from them) and rejects the whole enqueue.
+ * Callers build ids from domain values (an order number, an email), so sanitize here instead of
+ * asking every caller to remember.
+ * @param {string} id
+ */
+export const safeJobId = (id) =>
+  String(id)
+    .replace(/[^\w.@+-]+/g, '-')
+    .slice(0, 120);
+
+/**
+ * Adds a job. Pass `opts.jobId` to make the enqueue idempotent (same id = enqueued once);
+ * it is sanitized for you.
  * @param {string} queueName
  * @param {string} jobName
  * @param {object} data
  * @param {import('bullmq').JobsOptions} [opts]
  */
 export function enqueue(queueName, jobName, data, opts) {
-  return getQueue(queueName).add(jobName, data, opts);
+  const options = opts?.jobId ? { ...opts, jobId: safeJobId(opts.jobId) } : opts;
+  return getQueue(queueName).add(jobName, data, options);
 }
 
 /**

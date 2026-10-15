@@ -1,7 +1,9 @@
+import { matchRedirect } from '@supershop/shared';
 import { NextResponse } from 'next/server';
-import { LOCALES, resolveLocaleRoute } from './i18n/config.js';
+import { DEFAULT_LOCALE, LOCALES, resolveLocaleRoute } from './i18n/config.js';
 import { LANG_COOKIE, LANG_COOKIE_MAX_AGE, negotiateLanguage } from './i18n/negotiate.js';
 import { getProxySettings } from './i18n/publicSettings.js';
+import { getRedirectRules } from './lib/redirects.js';
 
 /**
  * Locale routing at the edge of the app (Next.js 16 "proxy", formerly middleware).
@@ -10,10 +12,24 @@ import { getProxySettings } from './i18n/publicSettings.js';
  * - `/ar/...` passes through;
  * - English document navigations may be redirected to the visitor's chosen/preferred language
  *   (see i18n/negotiate.js). Those redirects are private + uncacheable.
+ * It also applies the shop's own redirects (P5.5) BEFORE locale routing: a moved address answers
+ * once, in the visitor's language, instead of rendering and redirecting later.
  * Kept free of request-header reads in pages so routes stay statically renderable (ISR).
  */
 export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
+
+  const moved = matchRedirect(await getRedirectRules(), `${pathname}${search}`, {
+    locales: LOCALES,
+    defaultLocale: DEFAULT_LOCALE,
+  });
+  if (moved) {
+    // 410: the shop says the page is gone for good — answered here, not rendered as a 404.
+    if (!moved.to) return new NextResponse(null, { status: 410 });
+    const target = moved.to.startsWith('/') ? new URL(moved.to, request.nextUrl) : moved.to;
+    return NextResponse.redirect(target, moved.status);
+  }
+
   const route = resolveLocaleRoute(pathname);
 
   if (route.type === 'redirect') {

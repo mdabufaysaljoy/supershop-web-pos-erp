@@ -160,6 +160,8 @@ export const toOrderDto = (o, { token, redirectUrl } = {}) => ({
     image: i.imageUrl ?? null,
     unitPrice: i.unitPrice,
     qty: i.qty,
+    /** What was taken off this line, if anything (P6.1) — receipts show it. */
+    discountTotal: i.discountTotal ?? 0,
     lineTotal: i.lineTotal,
   })),
   totals: o.totals,
@@ -513,6 +515,16 @@ export const toStaffOrderDto = (o) => ({
   ...toOrderDto(o),
   channel: o.channel,
   branchId: str(o.branchId),
+  staffId: str(o.staffId),
+  /** How it was actually paid (one tender online, possibly several at the counter — P6.1). */
+  payments: (o.payments ?? []).map((p) => ({
+    method: p.method,
+    label: p.label ?? p.method,
+    amount: p.amount,
+    reference: p.reference ?? null,
+    at: p.at,
+  })),
+  changeGiven: o.changeGiven ?? 0,
   placedAt: o.placedAt,
   updatedAt: o.updatedAt,
   cancelledAt: o.cancelledAt ?? null,
@@ -606,4 +618,13 @@ export async function addOrderNote(id, text, actor) {
     staffId: str(actor?.staffId),
   });
   return toStaffOrderDto(updated);
+}
+
+/**
+ * The products that sold most in the last `days` days, best first. Pages use this for the
+ * "best selling" rail; it returns ids only, so the catalogue stays the one place that shapes cards.
+ */
+export function getBestSellingProductIds({ limit = 8, days = 30 } = {}) {
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  return repo.topSellingProductIds({ limit, since });
 }

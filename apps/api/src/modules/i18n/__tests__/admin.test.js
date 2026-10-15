@@ -79,15 +79,15 @@ describe('permissions', () => {
 });
 
 describe('overview & provider test', () => {
-  it('reports provider, usage, languages and content status; queue unknown when Redis is down', async () => {
+  it('reports provider, usage, languages and content status, and the queue when it answers', async () => {
     await Thing.create({ name: { en: 'Blue shirt' } });
     const res = await as('root').get('/api/v1/i18n/overview');
     expect(res.status).toBe(200);
-    expect(res.body.data).toMatchObject({
-      provider: 'noop',
-      usage: { chars: 0, budget: 0 },
-      queue: null,
-    });
+    expect(res.body.data).toMatchObject({ provider: 'noop', usage: { chars: 0, budget: 0 } });
+    // The queue is reported when Redis answers (CI has one) and `null` when it does not — the
+    // admin shows "unavailable" for null. Both are correct; which one depends on the environment.
+    const { queue } = res.body.data;
+    expect(queue === null || typeof queue.counts.waiting === 'number').toBe(true);
     expect(res.body.data.content.find((c) => c.model === 'AdminTestThing')).toMatchObject({
       pending: 1,
       failed: 0,

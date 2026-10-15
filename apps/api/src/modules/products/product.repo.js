@@ -120,6 +120,13 @@ export const findVariantByCode = async (code) =>
   (await Variant.findOne({ barcode: code, ...ACTIVE }).lean()) ??
   (await Variant.findOne({ sku: code, ...ACTIVE }).lean());
 
+/** Active products carrying a tag, newest first — the "by tag" product rail (P5.3). */
+export const findIdsByTag = (tag, limit) =>
+  Product.find({ ...ACTIVE, status: 'active', tags: tag }, { _id: 1 })
+    .sort({ createdAt: -1, _id: 1 })
+    .limit(limit)
+    .lean();
+
 /** Sitemap: active products' slugs and last change, in stable order. */
 export const listPublicSlugs = (skip, limit) =>
   Product.find({ ...ACTIVE, status: 'active' }, { slug: 1, updatedAt: 1 })

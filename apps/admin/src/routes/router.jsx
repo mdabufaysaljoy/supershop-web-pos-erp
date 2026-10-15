@@ -15,6 +15,7 @@ import { MenuEditorPage } from '@/features/site/pages/MenuEditorPage';
 import { PageBuilderPage } from '@/features/pages/pages/PageBuilderPage';
 import { PagesPage } from '@/features/pages/pages/PagesPage';
 import { OrdersPage } from '@/features/orders/pages/OrdersPage';
+import { PosPage } from '@/features/pos/pages/PosPage';
 import { ProductTransferPage } from '@/features/productTransfer/pages/ProductTransferPage';
 import { ProductEditorPage } from '@/features/products/pages/ProductEditorPage';
 import { ProductsPage } from '@/features/products/pages/ProductsPage';
@@ -34,6 +35,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
  */
 const PAGES = {
   '/orders': <OrdersPage />,
+  '/pos': <PosPage />,
   '/pages': <PagesPage />,
   '/appearance': <AppearancePage />,
   '/products': <ProductsPage />,

@@ -231,6 +231,37 @@ describe('ringing a sale up', () => {
   });
 });
 
+describe('finding something to sell', () => {
+  it('finds it by SKU, priced, with what is on this shelf', async () => {
+    const found = await ok(
+      await request(app)
+        .get(`${POS}/search?q=OX-RED&branchId=${ids.shop}`)
+        .set('Authorization', `Bearer ${rootToken}`),
+    );
+    expect(found).toEqual([
+      expect.objectContaining({ variantId: ids.red, sku: 'OX-RED', price: 11_500, onHand: 5 }),
+    ]);
+  });
+
+  it('leaves out what is not for sale', async () => {
+    const draft = await ok(
+      await root.post('/api/v1/products', {
+        name: 'Hidden',
+        status: 'draft',
+        variants: [{ sku: 'HID-1', price: 100 }],
+      }),
+      201,
+    );
+    const found = await ok(
+      await request(app)
+        .get(`${POS}/search?q=HID-1&branchId=${ids.shop}`)
+        .set('Authorization', `Bearer ${rootToken}`),
+    );
+    expect(found).toEqual([]);
+    expect(draft.variants[0].id).toBeTruthy();
+  });
+});
+
 describe('discounts', () => {
   it('takes a percentage off a line and the rest off the basket', async () => {
     const sale = await ok(

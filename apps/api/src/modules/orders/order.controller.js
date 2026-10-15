@@ -97,7 +97,18 @@ export const addNote = async (req, res) => {
   sendData(res, await service.addOrderNote(req.valid.params.id, req.valid.body.text, req.access));
 };
 
-// ---------------------------------------------------------------- POS (P6.1)
+// ---------------------------------------------------------------- POS (P6.1/P6.2)
+
+/** Scan or type at the till: what can be rung up, priced, with what is on this shelf. */
+export const posSearch = async (req, res) =>
+  sendData(
+    res,
+    await pos.searchForTill(
+      req.access,
+      req.valid.query,
+      requestLanguage(req, req.valid.query.lang),
+    ),
+  );
 
 /** What the sale comes to as the cashier scans — no money moves. */
 export const posQuote = async (req, res) =>

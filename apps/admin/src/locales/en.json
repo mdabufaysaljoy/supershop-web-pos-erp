@@ -1449,5 +1449,59 @@
       "note": "Note",
       "add": "Add redirect"
     }
+  },
+  "pos": {
+    "title": "Till",
+    "description": "Scan or search, take the money, hand over the goods.",
+    "branch": "Branch",
+    "chooseBranch": "Choose a branch…",
+    "chooseBranchFirst": "Choose the branch you are selling from to start.",
+    "clear": "Clear the basket",
+    "offline": "No connection. The basket is kept and can be held, but a sale cannot be rung up until it is back.",
+    "pricingFailed": "Prices could not be checked just now — the totals shown may be out of date.",
+    "done": "Sold: {{orderNo}} · {{total}} · change {{change}}",
+    "search": {
+      "label": "Scan or search",
+      "placeholder": "Barcode, SKU or product name",
+      "nothing": "Nothing matches that.",
+      "unknownCode": "No product with the barcode {{code}}.",
+      "onHand_one": "{{count}} on the shelf",
+      "onHand_other": "{{count}} on the shelf"
+    },
+    "lines": {
+      "empty": "Nothing in the basket yet. Scan something.",
+      "qty": "Quantity of {{name}}",
+      "discount": "Off",
+      "discountFor": "Discount on {{name}}",
+      "orderDiscount": "Off the whole basket",
+      "remove": "Remove {{name}}"
+    },
+    "customer": {
+      "title": "Customer",
+      "walkin": "Walk-in",
+      "attach": "Add a customer",
+      "makeWalkin": "Make it a walk-in",
+      "name": "Name",
+      "phone": "Phone"
+    },
+    "payment": {
+      "total": "To pay",
+      "method": "Paying with",
+      "amount": "Amount",
+      "add": "Add",
+      "exact": "Exact amount ({{amount}})",
+      "paid": "Tendered",
+      "due": "Still to pay",
+      "change": "Change",
+      "complete": "Complete sale"
+    },
+    "held": {
+      "title": "Held sales",
+      "hold": "Hold this sale",
+      "resume": "Resume",
+      "defaultLabel": "Held sale",
+      "entry_one": "{{count}} item · {{time}}",
+      "entry_other": "{{count}} items · {{time}}"
+    }
   }
 }

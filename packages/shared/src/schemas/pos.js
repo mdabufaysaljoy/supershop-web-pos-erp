@@ -86,6 +86,18 @@ export function createPosSchemas({
     .strict();
 
   return {
+    /** Scan or type at the till (P6.2). */
+    search: z.object({
+      q: plainText({ min: 1, max: 60 }),
+      branchId: objectId,
+      limit: z.coerce
+        .number({ error: V.INVALID_TYPE })
+        .int({ error: V.INVALID_TYPE })
+        .min(1, { error: V.INVALID_TYPE })
+        .max(25, { error: V.TOO_LONG })
+        .default(10),
+      lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
+    }),
     sale,
     /** Same sale without the money: what it would come to, before anyone pays. */
     quote: sale

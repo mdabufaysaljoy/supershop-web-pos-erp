@@ -19,7 +19,7 @@ import { eventBus } from '../../core/events.js';
 import { isDuplicateKey } from '../../core/slug.js';
 import { applyStockOperation, getOnHand, publishStockResult } from '../inventory/index.js';
 import { availableMethods, resolveForCheckout } from '../paymentMethods/index.js';
-import { getCartVariants } from '../products/index.js';
+import { getCartVariants, matchVariantIds } from '../products/index.js';
 import { getSetting } from '../settings/index.js';
 import * as repo from './order.repo.js';
 import { toStaffOrderDto } from './order.service.js';
@@ -213,6 +213,34 @@ async function attachCustomer(customer) {
     phone: customer.phone ?? found?.phone ?? '',
     email: customer.email ?? found?.email ?? null,
   };
+}
+
+/**
+ * Scan or type at the till: a barcode, a SKU, or part of a name → what can be rung up, priced,
+ * with what is on this branch's shelf. One request, and it needs only `pos.sell` — a cashier is
+ * not given the run of the catalogue to be able to sell.
+ */
+export async function searchForTill(actor, { q, branchId, limit = 10 }, lang = SOURCE_LANGUAGE) {
+  actor.assertBranch(branchId);
+  const ids = await matchVariantIds(q, limit);
+  if (!ids.length) return [];
+  const [variants, onHand] = await Promise.all([
+    getCartVariants(ids.map(String), lang),
+    getOnHand(branchId, ids.map(String)),
+  ]);
+  return ids
+    .map((id) => variants.get(String(id)))
+    .filter((v) => v?.sellable)
+    .map((v) => ({
+      variantId: v.variantId,
+      productId: v.productId,
+      name: v.name,
+      options: v.options,
+      sku: v.sku,
+      price: v.price,
+      image: v.image ? { url: v.image.thumbUrl ?? v.image.url } : null,
+      onHand: onHand.get(String(v.variantId)) ?? 0,
+    }));
 }
 
 /** What the sale comes to, before anyone pays — the till asks for this as the cashier scans. */

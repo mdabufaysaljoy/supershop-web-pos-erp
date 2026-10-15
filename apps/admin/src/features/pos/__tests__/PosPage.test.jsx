@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
@@ -38,6 +38,9 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
   });
   const m = mockFetch({
     'GET /api/v1/inventory/branches': json(200, { data: [BRANCH] }),
+    'GET /api/v1/printing/status': json(200, {
+      data: { enabled: false, autoPrintReceipt: true, configured: false },
+    }),
     'GET /api/v1/pos/search': json(200, { data: [SHIRT] }),
     'POST /api/v1/pos/quote': ({ init }) => {
       const body = JSON.parse(init.body);
@@ -79,7 +82,10 @@ const goOffline = () => setOnline(false);
 beforeEach(() => {
   vi.useRealTimers();
   localStorage.clear();
-  setOnline(true); // every till starts connected, whatever the test before it did
+  // Every till starts connected, whatever the test before it did. The query client keeps its own
+  // idea of this (it pauses requests while it believes the browser is offline), so both are reset.
+  setOnline(true);
+  onlineManager.setOnline(true);
 });
 afterEach(() => vi.unstubAllGlobals());
 
@@ -238,11 +244,80 @@ describe('when the connection drops', () => {
     await toPay('SAR 115.00');
 
     goOffline();
+    onlineManager.setOnline(false);
     window.dispatchEvent(new Event('offline'));
 
     expect(await screen.findByText(/No connection/)).toBeInTheDocument();
     expect(screen.getByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
     expect(screen.getByRole('button', { name: 'Complete sale' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Hold this sale' })).toBeEnabled();
+  });
+});
+
+/** P6.3 — the receipt prints itself, and can be asked for again. */
+describe('printing the receipt', () => {
+  const SOLD = {
+    id: 'o1',
+    orderNo: 'POS-000001',
+    totals: { total: 11_500 },
+    changeGiven: 0,
+    payments: [{ method: 'cash', amount: 11_500 }],
+  };
+  const printingOn = {
+    'GET /api/v1/printing/status': json(200, {
+      data: { enabled: true, autoPrintReceipt: true, configured: true },
+    }),
+    'POST /api/v1/pos/sales': json(201, { data: SOLD }),
+    'GET /api/v1/printing/receipt/o1': json(200, {
+      data: { printer: 'EPSON TM-T20', profileId: 'pr1', widthMm: 80, data: 'G0A=' },
+    }),
+  };
+
+  const sell = async (user) => {
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: /Exact amount/ }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+  };
+
+  it('fetches the receipt by itself when the shop prints', async () => {
+    const user = userEvent.setup();
+    const m = setup({ routes: printingOn });
+    await sell(user);
+    await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(1));
+  });
+
+  it('prints nothing when the shop has not set printing up', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        ...printingOn,
+        'GET /api/v1/printing/status': json(200, {
+          data: { enabled: false, autoPrintReceipt: true, configured: false },
+        }),
+      },
+    });
+    await sell(user);
+    await screen.findByText(/POS-000001/);
+    expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(0);
+    expect(screen.queryByRole('button', { name: 'Print the receipt again' })).toBeNull();
+  });
+
+  it('offers the receipt again, and says so when the printer cannot be reached', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        ...printingOn,
+        'GET /api/v1/printing/receipt/o1': json(503, {
+          error: { code: 'SERVICE_UNAVAILABLE', message: 'Printing is not set up' },
+        }),
+      },
+    });
+    await sell(user);
+    await screen.findByText(/POS-000001/);
+    expect(await screen.findByText(/could not be printed/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Print the receipt again' }));
+    await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(2));
   });
 });

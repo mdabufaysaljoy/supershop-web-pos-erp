@@ -515,6 +515,16 @@ export const toStaffOrderDto = (o) => ({
   ...toOrderDto(o),
   channel: o.channel,
   branchId: str(o.branchId),
+  staffId: str(o.staffId),
+  /** How it was actually paid (one tender online, possibly several at the counter — P6.1). */
+  payments: (o.payments ?? []).map((p) => ({
+    method: p.method,
+    label: p.label ?? p.method,
+    amount: p.amount,
+    reference: p.reference ?? null,
+    at: p.at,
+  })),
+  changeGiven: o.changeGiven ?? 0,
   placedAt: o.placedAt,
   updatedAt: o.updatedAt,
   cancelledAt: o.cancelledAt ?? null,

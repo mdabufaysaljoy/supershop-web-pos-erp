@@ -7,6 +7,7 @@ import { Select } from '@/features/settings/components/controls';
 import { useInventoryBranches } from '@/features/inventory/resource';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
+import { usePrintingStatus, usePrintReceipt } from '@/features/printing/resource';
 import { CustomerBar } from '../components/CustomerBar';
 import { PaymentPanel } from '../components/PaymentPanel';
 import { SaleLines } from '../components/SaleLines';
@@ -32,6 +33,8 @@ export function PosPage() {
   const [done, setDone] = useState(null);
   const [online, setOnline] = useState(true);
   const sell = useSell();
+  const printing = usePrintingStatus();
+  const printReceipt = usePrintReceipt();
   // A till stands in one shop: the branch is remembered, and chosen for a cashier who has one.
   const options = branches.data ?? [];
   const branchId = chosenBranch || (options.length === 1 ? options[0].id : '');
@@ -74,6 +77,9 @@ export function PosPage() {
     setPayments([]);
     sale.clear();
     setSaleKey(crypto.randomUUID());
+    // The receipt prints itself: at a counter nobody should have to ask for one (P6.3).
+    if (printing.data?.enabled && printing.data?.autoPrintReceipt)
+      printReceipt.mutate({ orderId: result.id });
   };
 
   if (branches.isPending) return <Skeleton className="h-96" />;
@@ -107,12 +113,30 @@ export function PosPage() {
       {online && sale.stale && <Alert>{t('pos.pricingFailed')}</Alert>}
       {sell.isError && <Alert variant="destructive">{errorMessage(t, sell.error)}</Alert>}
       {done && (
-        <Alert>
-          {t('pos.done', {
-            orderNo: done.orderNo,
-            total: fmt.money(done.totals.total),
-            change: fmt.money(done.changeGiven),
-          })}
+        <Alert className="flex flex-wrap items-center gap-3">
+          <span className="flex-1">
+            {t('pos.done', {
+              orderNo: done.orderNo,
+              total: fmt.money(done.totals.total),
+              change: fmt.money(done.changeGiven),
+            })}
+          </span>
+          {printing.data?.enabled && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={printReceipt.isPending}
+              onClick={() => printReceipt.mutate({ orderId: done.id })}
+            >
+              {t('pos.printReceipt')}
+            </Button>
+          )}
+        </Alert>
+      )}
+      {printReceipt.isError && (
+        <Alert variant="destructive">
+          {t('pos.printFailed', { reason: printReceipt.error?.message ?? '' })}
         </Alert>
       )}
 

@@ -11,6 +11,7 @@ export {
   findOrderByConfirmationToken,
   getBestSellingProductIds,
   getOrderById,
+  getOrderForStaff,
   setPaymentHooks,
   setPaymentMethodResolver,
 } from './order.service.js';

@@ -72,5 +72,6 @@ export const LIMITS = Object.freeze({
   orderLookup: { windowMs: MINUTE, limit: 30 }, // confirmation / tracking lookups, per IP
   accountWrite: { windowMs: 15 * MINUTE, limit: 60 }, // profile/address edits, per IP
   oauth: { windowMs: 15 * MINUTE, limit: 30 }, // sign-in redirects per IP (P3.5)
+  print: { windowMs: MINUTE, limit: 120 }, // QZ call signatures per staff member (P6.3)
   webhook: { windowMs: MINUTE, limit: 120 }, // gateway callbacks per IP (P4.1)
 });

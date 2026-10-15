@@ -14,6 +14,26 @@ export * as validators from './validators/index.js';
 export { ACCOUNT, createAccountSchemas } from './schemas/account.js';
 export { createSiteSchemas, SITE } from './schemas/site.js';
 export { createPosSchemas } from './schemas/pos.js';
+export { createPrintingSchemas, PRINTING } from './schemas/printing.js';
+export {
+  ALIGN,
+  charsForWidth,
+  columns,
+  encodeText,
+  PAPER,
+  previewLines,
+  renderEscPos,
+  toBase64,
+  wrap,
+} from './printing/escpos.js';
+export {
+  DEFAULT_LABEL_TEMPLATE,
+  DEFAULT_RECEIPT_TEMPLATE,
+  expand,
+  fill,
+  receiptData,
+  renderTemplate,
+} from './printing/template.js';
 export { discountAmount, POS, priceSale, tenderSummary } from './pos/sale.js';
 export { collectItemTexts, itemHref, MENU, resolveMenu, walkItems } from './site/menu.js';
 export { isHexColor, THEME, themeCssVars } from './site/theme.js';

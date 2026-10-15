@@ -1502,6 +1502,8 @@
       "defaultLabel": "Held sale",
       "entry_one": "{{count}} item · {{time}}",
       "entry_other": "{{count}} items · {{time}}"
-    }
+    },
+    "printReceipt": "Print the receipt again",
+    "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}"
   }
 }

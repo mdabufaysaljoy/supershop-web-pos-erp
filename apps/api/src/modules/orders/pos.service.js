@@ -401,18 +401,7 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
   return { sale: toPosSaleDto(order), replayed: false };
 }
 
-/** What the till shows after a sale: the receipt's own numbers, plus the change to hand back. */
-export function toPosSaleDto(order) {
-  return {
-    ...toStaffOrderDto(order),
-    payments: (order.payments ?? []).map((p) => ({
-      method: p.method,
-      label: p.label,
-      amount: p.amount,
-      reference: p.reference ?? null,
-    })),
-    changeGiven: order.changeGiven ?? 0,
-  };
-}
+/** What the till shows after a sale — the staff view already carries the tenders and the change. */
+export const toPosSaleDto = (order) => toStaffOrderDto(order);
 
 export { POS };

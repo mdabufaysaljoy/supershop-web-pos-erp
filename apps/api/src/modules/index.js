@@ -29,6 +29,7 @@ import {
   createPosRouter,
   getBestSellingProductIds,
   getOrderById,
+  getOrderForStaff,
   registerOrderSubscribers,
   setPaymentHooks,
   setPaymentMethodResolver,
@@ -66,8 +67,9 @@ import {
   createNotificationRouter,
   registerNotificationSubscribers,
 } from './notifications/index.js';
+import { createPrintingRouter, setPrintingProviders } from './printing/index.js';
 import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from './pages/index.js';
-import { createSiteRouter, setMenuRefProviders } from './site/index.js';
+import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import {
   countPurchaseOrdersInBranch,
@@ -174,6 +176,19 @@ export function registerModules() {
   );
   // A sale at the counter can be attached to a customer the shop already knows (P6.1).
   setPosCustomerLookup(findCustomerByContact);
+  // What a receipt prints: the order itself, and how the shop names itself on paper (P6.3).
+  setPrintingProviders({
+    getOrder: (id) => getOrderForStaff(id).catch(() => null),
+    getShop: async (lang) => {
+      const chrome = await getSiteChrome(lang);
+      return {
+        name: getSetting('store.name'),
+        address: chrome.contact.address,
+        phone: chrome.contact.phone,
+        vatNumber: getSetting('tax.vatNumber'),
+      };
+    },
+  });
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
   registerOrderSubscribers({
@@ -256,6 +271,7 @@ export function mountModuleRoutes(api) {
   api.use('/checkout', createCheckoutRouter());
   api.use('/orders', createOrderAdminRouter());
   api.use('/pos', createPosRouter());
+  api.use('/printing', createPrintingRouter());
   api.use('/payments', createPaymentRouter());
   api.use(
     '/payment-methods',

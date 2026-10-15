@@ -381,6 +381,29 @@ const DEFINITIONS = [
     },
     public: true, // registration forms need it for client-side validation
   },
+  // ---------- printing (P6.3) ----------
+  /** Printing runs in the admin through QZ Tray; off until the shop has set its keys up. */
+  { key: 'printing.enabled', group: 'printing', schema: bool(), default: false },
+  /** Print the receipt as soon as a sale is rung up, with no second click at the counter. */
+  { key: 'printing.autoPrintReceipt', group: 'printing', schema: bool(), default: true },
+  /**
+   * The certificate QZ Tray shows the browser, and the private key the SERVER signs calls with.
+   * The key never leaves the API (encrypted at rest, §5.1); the certificate is public by design.
+   */
+  {
+    key: 'printing.qzCertificate',
+    group: 'printing',
+    schema: z.string({ error: V.INVALID_TYPE }).max(8000),
+    default: '',
+  },
+  {
+    key: 'printing.qzPrivateKey',
+    group: 'printing',
+    schema: z.string({ error: V.INVALID_TYPE }).max(8000),
+    default: '',
+    secret: true,
+  },
+
   // ---------- POS (P6.1) ----------
   /** The most a cashier may take off with a percentage discount (basis points; 1000 = 10%). */
   { key: 'pos.maxDiscountBps', group: 'pos', schema: int(0, 10_000), default: 2000 },

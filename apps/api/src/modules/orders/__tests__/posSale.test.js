@@ -148,7 +148,7 @@ describe('ringing a sale up', () => {
       total: 23_000,
     });
     expect(sale.payments).toEqual([
-      { method: 'cash', label: 'Cash', amount: 23_000, reference: null },
+      { method: 'cash', label: 'Cash', amount: 23_000, reference: null, at: expect.any(String) },
     ]);
     expect(await onHand(ids.red)).toBe(before - 2);
   });

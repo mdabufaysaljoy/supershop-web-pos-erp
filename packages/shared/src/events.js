@@ -44,6 +44,7 @@ export const EVENTS = Object.freeze({
   PAGE_PUBLISHED: 'page.published',
   PAGE_DELETED: 'page.deleted',
   MENU_UPDATED: 'menu.updated',
+  PRINTER_PROFILE_UPDATED: 'printerProfile.updated',
   SITE_LAYOUT_UPDATED: 'siteLayout.updated',
   TRANSLATION_REQUESTED: 'translation.requested',
   TRANSLATION_COMPLETED: 'translation.completed',

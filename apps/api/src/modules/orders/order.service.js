@@ -669,3 +669,39 @@ export async function findOrderForReturn(idOrOrderNo, session = null) {
 /** Updates an order's status and refunded amount inside a return/exchange transaction (P6.6). */
 export const applyOrderReturnOutcome = (id, expectedStatus, outcome, session) =>
   repo.applyReturnOutcome(id, expectedStatus, outcome, session);
+
+/**
+ * Returns customer order statistics (spend, count, last purchase) and recent orders for customer admin (P7.2).
+ */
+export async function getCustomerOrdersSummary(customerId) {
+  const [soldOrders, recentOrders] = await Promise.all([
+    repo.findSoldOrdersForCustomer(customerId),
+    repo.findRecentOrdersForCustomer(customerId, 10),
+  ]);
+
+  const orderCount = soldOrders.length;
+  const lifetimeSpend = soldOrders.reduce((sum, o) => sum + (o.totals?.total ?? 0), 0);
+  let lastOrderAt = null;
+  for (const o of soldOrders) {
+    const d = o.placedAt ?? o.createdAt;
+    if (d && (!lastOrderAt || new Date(d) > new Date(lastOrderAt))) {
+      lastOrderAt = d;
+    }
+  }
+
+  return {
+    orderCount,
+    lifetimeSpend,
+    lastOrderAt,
+    recentOrders: recentOrders.map((o) => ({
+      id: str(o._id),
+      orderNo: o.orderNo,
+      channel: o.channel,
+      status: o.status,
+      itemCount: o.totals?.itemCount ?? 0,
+      total: o.totals?.total ?? 0,
+      deliveryMethod: o.deliveryMethod,
+      placedAt: o.placedAt ?? o.createdAt,
+    })),
+  };
+}

@@ -40,6 +40,13 @@ export const AUDIT_MAPPINGS = {
     data: { expiresAt: p.expiresAt },
   }),
   [EVENTS.AUTH_EMAIL_VERIFIED]: (p) => principal(p),
+  [EVENTS.CUSTOMER_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'customer',
+    entityId: p.customerId,
+    before: p.before,
+    after: p.after,
+  }),
 
   // staff & roles
   [EVENTS.STAFF_CREATED]: (p) => ({

@@ -1,8 +1,10 @@
-import { EVENTS, PRINCIPAL_TYPES, validators } from '@supershop/shared';
+import { deriveCustomerSegment, EVENTS, PRINCIPAL_TYPES, validators } from '@supershop/shared';
 import { withTransaction } from '../../core/db.js';
-import { ConflictError, ForbiddenError } from '../../core/errors.js';
+import { ConflictError, ForbiddenError, NotFoundError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { issueSession, requestEmailVerification, setPassword } from '../auth/index.js';
+import { getCustomerLoyaltySummary, listCustomerLedger } from '../loyalty/index.js';
+import { getCustomerOrdersSummary } from '../orders/index.js';
 import * as repo from './customer.repo.js';
 
 const TYPE = PRINCIPAL_TYPES.CUSTOMER;
@@ -132,4 +134,98 @@ export async function findCustomerByContact({ phone, email }) {
   return found
     ? { id: String(found._id), name: found.name, phone: found.phone, email: found.email ?? null }
     : null;
+}
+
+// ------------------------------------------------------------------ P7.2 admin service
+
+export async function listCustomersForAdmin(query) {
+  return repo.listCustomersWithMetrics(query);
+}
+
+export async function getCustomerSegmentsSummary(query) {
+  return repo.getSegmentsSummary(query);
+}
+
+export async function getCustomerDetailForAdmin(customerId) {
+  const customer = await repo.findCustomerById(customerId);
+  if (!customer) throw new NotFoundError('Customer not found');
+
+  const ordersSummary = await getCustomerOrdersSummary(customerId);
+
+  let loyaltySummary = {
+    pointsBalance: 0,
+    lifetimeEarned: 0,
+    lifetimeRedeemed: 0,
+    tier: 'bronze',
+    status: 'active',
+  };
+  let recentLedger = [];
+
+  try {
+    const acc = await getCustomerLoyaltySummary(customerId);
+    if (acc) loyaltySummary = acc;
+    const ledger = await listCustomerLedger(customerId, { limit: 10 });
+    recentLedger = ledger?.items ?? [];
+  } catch {
+    // Loyalty account may not exist yet
+  }
+
+  const segment = deriveCustomerSegment({
+    orderCount: ordersSummary.orderCount,
+    lifetimeSpendHalalas: ordersSummary.lifetimeSpend,
+    lastOrderAt: ordersSummary.lastOrderAt,
+    createdAt: customer.createdAt,
+    tier: loyaltySummary.tier,
+  });
+
+  const averageOrderValue =
+    ordersSummary.orderCount > 0
+      ? Math.round(ordersSummary.lifetimeSpend / ordersSummary.orderCount)
+      : 0;
+
+  return {
+    id: String(customer._id),
+    name: customer.name,
+    email: customer.email,
+    emailVerified: Boolean(customer.emailVerifiedAt),
+    phone: customer.phone,
+    status: customer.status,
+    lang: customer.lang,
+    addresses: customer.addresses ?? [],
+    createdAt: customer.createdAt,
+    updatedAt: customer.updatedAt,
+    stats: {
+      orderCount: ordersSummary.orderCount,
+      lifetimeSpend: ordersSummary.lifetimeSpend,
+      averageOrderValue,
+      lastOrderAt: ordersSummary.lastOrderAt,
+      segment,
+    },
+    loyalty: {
+      account: loyaltySummary,
+      recentLedger,
+    },
+    recentOrders: ordersSummary.recentOrders,
+  };
+}
+
+export async function updateCustomerByAdmin(actor, customerId, patch) {
+  const customer = await repo.findCustomerById(customerId);
+  if (!customer) throw new NotFoundError('Customer not found');
+
+  if (patch.phone && patch.phone !== customer.phone) {
+    const clash = await repo.findOtherCustomerByPhone(customerId, patch.phone);
+    if (clash) throw new ConflictError('Phone number already in use by another customer');
+  }
+
+  const updated = await repo.updateCustomer(customerId, patch);
+
+  void eventBus.emit(EVENTS.CUSTOMER_UPDATED, {
+    customerId: String(customer._id),
+    actorId: actor?.staffId ? String(actor.staffId) : null,
+    before: toCustomerProfile(customer),
+    after: toCustomerProfile(updated),
+  });
+
+  return getCustomerDetailForAdmin(customerId);
 }

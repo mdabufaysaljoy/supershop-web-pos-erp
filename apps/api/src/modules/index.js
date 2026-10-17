@@ -1,6 +1,7 @@
 import {
   createAccountSchemas,
   createAuthSchemas,
+  createCustomerAdminSchemas,
   createRbacSchemas,
   PRINCIPAL_TYPES,
 } from '@supershop/shared';
@@ -154,6 +155,9 @@ const getRbacSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () => createRbacSchem
 const getAccountSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () =>
   createAccountSchemas(schemaInputs()),
 );
+const getCustomerAdminSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () =>
+  createCustomerAdminSchemas(schemaInputs()),
+);
 
 /** Identity-provider credentials for the auth module (keeps auth → settings one-way, D-023). */
 const oauthSettings = (provider) => ({
@@ -291,7 +295,10 @@ export function mountModuleRoutes(api) {
   for (const type of [PRINCIPAL_TYPES.STAFF, PRINCIPAL_TYPES.CUSTOMER]) {
     api.use(`${authPath}/${type}`, createAuthRouter(type, { getSchemas: getAuthSchemas }));
   }
-  api.use('/customers', createCustomerRouter({ getSchemas: getAuthSchemas }));
+  api.use(
+    '/customers',
+    createCustomerRouter({ getSchemas: getAuthSchemas, getAdminSchemas: getCustomerAdminSchemas }),
+  );
   // More specific first: `/account/orders` and `/account/loyalty` belong to orders/loyalty, the rest to customers.
   api.use('/account/orders', createAccountOrdersRouter());
   api.use('/account/loyalty', createAccountLoyaltyRouter());

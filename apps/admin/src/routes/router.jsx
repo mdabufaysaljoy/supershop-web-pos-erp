@@ -6,6 +6,8 @@ import { RequireAuth } from '@/features/auth/components/RequireAuth';
 import { BranchesPage } from '@/features/branches/pages/BranchesPage';
 import { BrandsPage } from '@/features/brands/pages/BrandsPage';
 import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
+import { CustomerDetailPage } from '@/features/customers/pages/CustomerDetailPage';
+import { CustomersPage } from '@/features/customers/pages/CustomersPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
 import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
@@ -37,6 +39,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
  */
 const PAGES = {
   '/orders': <OrdersPage />,
+  '/customers': <CustomersPage />,
   '/pos': <PosPage />,
   '/shifts': <ShiftsPage />,
   '/returns': <ReturnsPage />,
@@ -56,6 +59,7 @@ const PAGES = {
 /** Sub-pages of a menu section: `{ path, permission, element }` (matched before `:id`). */
 const SUB_PAGES = {
   '/orders': [{ path: ':id', permission: P.ORDER_VIEW, element: <OrderDetailPage /> }],
+  '/customers': [{ path: ':id', permission: P.CUSTOMER_VIEW, element: <CustomerDetailPage /> }],
   '/pages': [{ path: ':id', permission: P.PAGE_VIEW, element: <PageBuilderPage /> }],
   '/appearance': [
     { path: ':id', permission: [P.PAGE_VIEW, P.MENU_MANAGE], element: <MenuEditorPage /> },

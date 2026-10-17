@@ -130,3 +130,15 @@ export const applyReturnOutcome = (
     },
     { returnDocument: 'after', session },
   ).lean();
+
+export const findSoldOrdersForCustomer = (customerId) =>
+  Order.find({
+    'customer.customerId': customerId,
+    status: { $in: [...ORDER_FLOW.sold] },
+  }).lean();
+
+export const findRecentOrdersForCustomer = (customerId, limit = 10) =>
+  Order.find({ 'customer.customerId': customerId })
+    .sort({ placedAt: -1, createdAt: -1 })
+    .limit(limit)
+    .lean();

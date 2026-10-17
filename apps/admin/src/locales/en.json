@@ -1121,6 +1121,94 @@
       "paidWith": "Paid with {{method}} — {{status}}"
     }
   },
+  "customers": {
+    "title": "Customers",
+    "description": "Customer profiles, lifetime spend, loyalty points, and activity segments.",
+    "search": "Search name, email, or phone",
+    "statusFilter": "Filter by status",
+    "allStatuses": "Any status",
+    "name": "Customer",
+    "contact": "Contact",
+    "segment": "Segment",
+    "ordersCount": "Orders",
+    "lifetimeSpend": "Lifetime spend",
+    "lastPurchase": "Last purchase",
+    "neverPurchased": "Never",
+    "points": "Points & Tier",
+    "statusLabel": "Status",
+    "empty": "No customers match this view.",
+    "segments": {
+      "all": "All",
+      "vip": "VIP",
+      "loyal": "Loyal",
+      "active": "Active",
+      "new": "New",
+      "slipping": "Slipping",
+      "churn_risk": "Churn Risk",
+      "idle": "Idle"
+    },
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "tiers": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "platinum": "Platinum"
+    },
+    "detail": {
+      "title": "Customer profile",
+      "back": "Customers",
+      "edit": "Edit customer",
+      "registered": "Customer since",
+      "language": "Preferred language",
+      "stats": {
+        "lifetimeSpend": "Lifetime spend",
+        "totalOrders": "Total orders",
+        "averageOrder": "Average order value",
+        "pointsBalance": "Points balance"
+      },
+      "addresses": {
+        "title": "Saved addresses",
+        "empty": "No saved addresses.",
+        "default": "Default"
+      },
+      "orders": {
+        "title": "Order history",
+        "empty": "No orders placed yet.",
+        "number": "Order",
+        "date": "Date",
+        "status": "Status",
+        "items": "Items",
+        "total": "Total"
+      },
+      "loyalty": {
+        "title": "Loyalty activity",
+        "empty": "No points history.",
+        "date": "Date",
+        "type": "Type",
+        "points": "Points",
+        "balance": "Balance",
+        "reason": "Reason / Source",
+        "types": {
+          "earn": "Earned",
+          "redeem": "Redeemed",
+          "reverse": "Reversed",
+          "adjust": "Adjusted",
+          "expire": "Expired"
+        }
+      },
+      "editDialog": {
+        "title": "Edit customer details",
+        "name": "Full name",
+        "phone": "Phone number",
+        "status": "Account status",
+        "save": "Save changes",
+        "cancel": "Cancel"
+      }
+    }
+  },
   "notifications": {
     "templates": {
       "title": "Messages",

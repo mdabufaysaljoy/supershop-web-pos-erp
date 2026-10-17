@@ -19,6 +19,7 @@ export {
   findOrderByConfirmationToken,
   findOrderForReturn,
   getBestSellingProductIds,
+  getCustomerOrdersSummary,
   getOrderById,
   getOrderForStaff,
   setOrderShopProvider,

@@ -17,6 +17,8 @@ export { createPosSchemas } from './schemas/pos.js';
 export { createShiftSchemas } from './schemas/shift.js';
 export { createReturnExchangeSchemas } from './schemas/returnExchange.js';
 export { createLoyaltySchemas, LOYALTY } from './schemas/loyalty.js';
+export { createCustomerAdminSchemas } from './schemas/customer.js';
+export { CUSTOMER_SEGMENTS, deriveCustomerSegment } from './customers/segments.js';
 export {
   calculateEarnedPoints,
   calculatePointsForDiscount,

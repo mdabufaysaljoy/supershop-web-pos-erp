@@ -110,3 +110,23 @@ export const listByShift = (shiftId, session) =>
   Order.find({ channel: 'pos', shiftId }, null, session ? { session } : {})
     .sort({ placedAt: 1, _id: 1 })
     .lean();
+
+/** Updates order status and refunded amount inside a return/exchange transaction (P6.6). */
+export const applyReturnOutcome = (
+  id,
+  expectedStatus,
+  { status, refundDelta = 0, markPaymentRefunded = false, historyEntry },
+  session,
+) =>
+  Order.findOneAndUpdate(
+    { _id: id, status: expectedStatus },
+    {
+      $set: {
+        status,
+        ...(markPaymentRefunded ? { 'payment.status': 'refunded' } : {}),
+      },
+      ...(refundDelta > 0 ? { $inc: { 'payment.refundedAmount': refundDelta } } : {}),
+      $push: { statusHistory: historyEntry },
+    },
+    { returnDocument: 'after', session },
+  ).lean();

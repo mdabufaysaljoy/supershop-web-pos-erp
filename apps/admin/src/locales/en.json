@@ -30,6 +30,7 @@
     "dashboard": "Dashboard",
     "pos": "Point of sale",
     "shifts": "Shifts",
+    "returns": "Returns & exchanges",
     "orders": "Orders",
     "customers": "Customers",
     "products": "Products",
@@ -116,7 +117,10 @@
     "SHIFT_CLOSED": "This shift is already closed.",
     "SHIFT_CLOSE_FORBIDDEN": "Only a manager with shift view access can close another staff member's shift.",
     "SHIFT_DISCREPANCY_TOO_LARGE": "The cash discrepancy exceeds your limit — ask a manager to close this shift.",
-    "SHIFT_MOVEMENT_LIMIT": "Maximum number of cash movements reached for this shift."
+    "SHIFT_MOVEMENT_LIMIT": "Maximum number of cash movements reached for this shift.",
+    "EXCHANGE_VALUE_TOO_LOW": "Replacement items must be equal to or greater than the returned credit.",
+    "RETURN_QTY_EXCEEDED": "Return quantity exceeds the remaining returnable quantity on the order.",
+    "ORDER_NOT_RETURNABLE": "This order cannot be returned or exchanged in its current status."
   },
   "validation": {
     "required": "This field is required.",
@@ -1720,6 +1724,101 @@
       "salesSection": "Sales summary",
       "drawerSection": "Cash drawer reconciliation",
       "tendersSection": "By payment method",
+      "thermalPreview": "Thermal receipt preview"
+    }
+  },
+  "returns": {
+    "title": "Returns & exchanges",
+    "description": "Process customer returns to shelf or damaged write-offs, issue refunds, or exchange for equal or higher value items.",
+    "returnCreatedToast": "Return {{number}} completed",
+    "exchangeCreatedToast": "Exchange {{number}} completed",
+    "printedToast": "Receipt sent to thermal printer",
+    "printFailed": "Could not print receipt ({{reason}})",
+    "submitReturn": "Complete return",
+    "submitExchange": "Complete exchange",
+    "type": {
+      "return": "Return",
+      "exchange": "Exchange"
+    },
+    "mode": {
+      "label": "Transaction mode",
+      "return": "Return for refund",
+      "exchange": "Exchange items"
+    },
+    "disposition": {
+      "restock": "Restock to shelf",
+      "damaged": "Damaged write-off"
+    },
+    "refundMethod": {
+      "cash": "Cash",
+      "card": "Card",
+      "original": "Original payment method",
+      "store_credit": "Store credit"
+    },
+    "lookup": {
+      "title": "New return or exchange",
+      "orderLabel": "Receipt / order number",
+      "orderPlaceholder": "e.g. POS-000001 or ORD-000001",
+      "findButton": "Find order",
+      "orderTotal": "Order total"
+    },
+    "lines": {
+      "heading": "Select items to return",
+      "item": "Item",
+      "unitPrice": "Unit price",
+      "soldQty": "Sold",
+      "returnableQty": "Returnable",
+      "returnQty": "Return qty",
+      "returnQtyFor": "Return qty for {{name}}",
+      "disposition": "Disposition",
+      "dispositionFor": "Disposition for {{name}}"
+    },
+    "exchange": {
+      "heading": "Replacement items (exchange)",
+      "searchLabel": "Search replacement product",
+      "searchPlaceholder": "Scan barcode, SKU, or type product name…",
+      "addItem": "Add",
+      "qty": "Qty",
+      "qtyFor": "Replacement qty for {{name}}",
+      "lineTotal": "Total",
+      "paymentMethod": "Difference payment method",
+      "amountTendered": "Amount tendered (SAR)",
+      "shortfallWarning": "Replacement items ({{replacement}}) must be equal to or greater than the returned credit ({{credit}}). Add {{shortfall}} more."
+    },
+    "fields": {
+      "returnNo": "Document #",
+      "type": "Type",
+      "orderNo": "Original order",
+      "returnCredit": "Return credit",
+      "vatReversed": "VAT reversed",
+      "exchangeTotal": "New items total",
+      "differenceDue": "Difference due",
+      "changeGiven": "Change given",
+      "refundAmount": "Total refund",
+      "refundMethod": "Refund method",
+      "reason": "Reason (optional)",
+      "reasonPlaceholder": "e.g. Wrong size or damaged packaging",
+      "settlement": "Settlement",
+      "createdAt": "Date"
+    },
+    "history": {
+      "title": "Recent returns & exchanges",
+      "branchFilter": "Filter by branch",
+      "allBranches": "All branches",
+      "typeFilter": "Filter by type",
+      "allTypes": "All types",
+      "empty": "No returns or exchanges recorded yet.",
+      "actions": "Actions",
+      "viewReceipt": "View receipt"
+    },
+    "receipt": {
+      "returnTitle": "Return credit note · {{number}}",
+      "exchangeTitle": "Exchange receipt · {{number}}",
+      "description": "Original order {{orderNo}}",
+      "print": "Print receipt",
+      "returnedItems": "Returned items",
+      "exchangeItems": "Replacement items",
+      "settlementSection": "Settlement",
       "thermalPreview": "Thermal receipt preview"
     }
   }

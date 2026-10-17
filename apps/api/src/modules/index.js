@@ -81,6 +81,7 @@ import {
   createPrintingRouter,
   setPrintingProviders,
 } from './printing/index.js';
+import { countReturnsInBranch, createReturnRouter, setReturnProviders } from './returns/index.js';
 import {
   countShiftsInBranch,
   createShiftRouter,
@@ -221,6 +222,9 @@ export function registerModules() {
     buildShiftReportJob,
     buildDrawerKickJob,
   });
+  setReturnProviders({
+    findOpenShift: resolveOpenShiftForSale,
+  });
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
   registerOrderSubscribers({
@@ -243,10 +247,11 @@ export function registerModules() {
   setSupplierUsageCounter(
     async (id) => (await countProductsOfSupplier(id)) + (await countPurchaseOrdersOfSupplier(id)),
   );
-  // Branches with stock, purchasing or shift history stay.
+  // Branches with stock, purchasing, shift, or return history stay.
   registerBranchUsage(countStockRecordsInBranch);
   registerBranchUsage(countPurchaseOrdersInBranch);
   registerBranchUsage(countShiftsInBranch);
+  registerBranchUsage(countReturnsInBranch);
   setAvailabilityProvider(getOnlineInStock); // storefront in/out of stock
   // A page's blocks say what they want; these lookups fill them in (P5.3). Pages import no module.
   // A menu item points at a page, category or brand; these say whether it is still there (P5.4).
@@ -304,6 +309,7 @@ export function mountModuleRoutes(api) {
   api.use('/checkout', createCheckoutRouter());
   api.use('/orders', createOrderAdminRouter());
   api.use('/pos', createPosRouter());
+  api.use('/returns', createReturnRouter());
   api.use('/shifts', createShiftRouter());
   api.use('/printing', createPrintingRouter());
   api.use('/payments', createPaymentRouter());

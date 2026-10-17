@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {
   buildLabelTemplate,
   buildReceiptTemplate,
+  buildReturnReceiptTemplate,
   buildShiftReportTemplate,
   charsForWidth,
   DEFAULT_LABEL_CONFIG,
@@ -12,6 +13,7 @@ import {
   receiptData,
   renderEscPos,
   renderTemplate,
+  returnReceiptData,
   shiftReportData,
   toBase64,
   zatcaQr,
@@ -478,6 +480,55 @@ export async function buildDrawerKickJob({ branchId, profileId } = {}) {
     printer: profile.printer,
     profileId: str(profile._id),
     widthMm: profile.widthMm,
+    data: toBase64(bytes),
+  };
+}
+
+/**
+ * Builds a thermal ESC/POS print job for a return credit note or exchange receipt (P6.6).
+ */
+export async function buildReturnReceiptJob(
+  record,
+  { profileId, branchId = record.branchId } = {},
+) {
+  const profile = await profileFor('receipt', { profileId, branchId });
+  const shop = await resolveShop('en');
+  const qr = zatcaQr({
+    sellerName: shop.name,
+    vatNumber: shop.vatNumber,
+    timestamp: record.createdAt,
+    total:
+      record.type === 'exchange' ? (record.differenceDue ?? 0) : (record.returnTotals?.total ?? 0),
+    vat:
+      record.type === 'exchange'
+        ? Math.max(0, (record.exchangeTotals?.vat ?? 0) - (record.returnTotals?.vat ?? 0))
+        : (record.returnTotals?.vat ?? 0),
+  });
+  const data = returnReceiptData(
+    { ...record, zatcaQr: qr },
+    {
+      shop,
+      branch: record.branchName ?? null,
+      cashier: record.staffName ?? null,
+      currency: getSetting('store.currency'),
+      lang: 'en',
+      timeZone: getSetting('store.timeZone'),
+    },
+  );
+  const openDrawer =
+    profile.openDrawer &&
+    (record.refundMethod === 'cash' ||
+      (record.payments ?? []).some((p) => p.method === 'cash' || p.methodType === 'cash'));
+  const compiled = buildReturnReceiptTemplate({
+    cut: profile.cut,
+    openDrawer,
+  });
+  const bytes = renderTemplate(compiled, data, { widthMm: profile.widthMm });
+  return {
+    printer: profile.printer,
+    profileId: str(profile._id),
+    widthMm: profile.widthMm,
+    lines: previewLines(bytes),
     data: toBase64(bytes),
   };
 }

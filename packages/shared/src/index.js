@@ -15,6 +15,7 @@ export { ACCOUNT, createAccountSchemas } from './schemas/account.js';
 export { createSiteSchemas, SITE } from './schemas/site.js';
 export { createPosSchemas } from './schemas/pos.js';
 export { createShiftSchemas } from './schemas/shift.js';
+export { createReturnExchangeSchemas } from './schemas/returnExchange.js';
 export { createPrintingSchemas, PRINTING } from './schemas/printing.js';
 export {
   ALIGN,
@@ -51,6 +52,14 @@ export {
   shiftReportData,
   summarizeShift,
 } from './pos/shift.js';
+export {
+  buildReturnReceiptTemplate,
+  priceExchangeSettlement,
+  priceReturnedLines,
+  renderReturnReceipt,
+  RETURN_EXCHANGE,
+  returnReceiptData,
+} from './pos/returnExchange.js';
 export { collectItemTexts, itemHref, MENU, resolveMenu, walkItems } from './site/menu.js';
 export { isHexColor, THEME, themeCssVars } from './site/theme.js';
 export {

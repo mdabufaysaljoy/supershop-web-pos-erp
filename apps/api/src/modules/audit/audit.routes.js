@@ -42,6 +42,7 @@ const listQuery = validators.paginationQuery({ sortable: ['at'], defaultSort: '-
       'receiptTemplate',
       'labelTemplate',
       'shift',
+      'returnExchange',
     ])
     .optional(),
   entityId: z

@@ -21,6 +21,7 @@ import { ProductEditorPage } from '@/features/products/pages/ProductEditorPage';
 import { ProductsPage } from '@/features/products/pages/ProductsPage';
 import { PurchaseOrderEditorPage } from '@/features/purchaseOrders/pages/PurchaseOrderEditorPage';
 import { PurchaseOrdersPage } from '@/features/purchaseOrders/pages/PurchaseOrdersPage';
+import { ReturnsPage } from '@/features/returns/pages/ReturnsPage';
 import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
 import { ShiftsPage } from '@/features/shifts/pages/ShiftsPage';
@@ -38,6 +39,7 @@ const PAGES = {
   '/orders': <OrdersPage />,
   '/pos': <PosPage />,
   '/shifts': <ShiftsPage />,
+  '/returns': <ReturnsPage />,
   '/pages': <PagesPage />,
   '/appearance': <AppearancePage />,
   '/products': <ProductsPage />,

@@ -407,6 +407,49 @@ export const AUDIT_MAPPINGS = {
       discrepancy: p.discrepancy,
     },
   }),
+
+  // returns & exchanges (P6.6)
+  [EVENTS.RETURN_COMPLETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'returnExchange',
+    entityId: p.returnId,
+    after: {
+      returnNo: p.returnNo,
+      type: p.type,
+      orderId: p.orderId,
+      orderNo: p.orderNo,
+      branchId: p.branchId,
+      returnTotal: p.returnTotal,
+      refundAmount: p.refundAmount,
+      refundMethod: p.refundMethod,
+    },
+  }),
+  [EVENTS.EXCHANGE_COMPLETED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'returnExchange',
+    entityId: p.returnId,
+    after: {
+      returnNo: p.returnNo,
+      type: p.type,
+      orderId: p.orderId,
+      orderNo: p.orderNo,
+      branchId: p.branchId,
+      returnTotal: p.returnTotal,
+      differenceDue: p.differenceDue,
+    },
+  }),
+  [EVENTS.LOYALTY_REVERSED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'returnExchange',
+    entityId: p.returnId,
+    data: {
+      returnNo: p.returnNo,
+      orderId: p.orderId,
+      orderNo: p.orderNo,
+      customerId: p.customerId,
+      amount: p.amount,
+    },
+  }),
 };
 
 /** Last line of defense: strip secret-looking fields anywhere in before/after/data. */

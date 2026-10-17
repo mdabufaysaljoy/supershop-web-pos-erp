@@ -14,8 +14,10 @@ export {
 export { registerOrderSubscribers } from './order.events.js';
 export { addShipment, moveOrder, nextActions, runAction } from './order.states.js';
 export {
+  applyOrderReturnOutcome,
   applyPaymentOutcome,
   findOrderByConfirmationToken,
+  findOrderForReturn,
   getBestSellingProductIds,
   getOrderById,
   getOrderForStaff,

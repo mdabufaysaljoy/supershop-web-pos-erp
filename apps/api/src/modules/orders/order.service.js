@@ -654,3 +654,18 @@ export function getBestSellingProductIds({ limit = 8, days = 30 } = {}) {
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
   return repo.topSellingProductIds({ limit, since });
 }
+
+/** Finds an order by id or orderNo for returns/exchanges (P6.6). */
+export async function findOrderForReturn(idOrOrderNo, session = null) {
+  const raw = String(idOrOrderNo ?? '').trim();
+  if (!raw) return null;
+  if (mongoose.isValidObjectId(raw)) {
+    const byId = await repo.findById(raw, session);
+    if (byId) return byId;
+  }
+  return repo.findByNumber(normalizeDigits(raw).toUpperCase());
+}
+
+/** Updates an order's status and refunded amount inside a return/exchange transaction (P6.6). */
+export const applyOrderReturnOutcome = (id, expectedStatus, outcome, session) =>
+  repo.applyReturnOutcome(id, expectedStatus, outcome, session);

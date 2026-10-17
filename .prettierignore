@@ -5,6 +5,7 @@ dist
 build
 .next
 out
+.claude
 # Specs are hand-formatted; keep diffs minimal
 CLAUDE.md
 PROGRESS.md

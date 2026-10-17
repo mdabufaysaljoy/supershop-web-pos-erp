@@ -85,6 +85,7 @@ export default [
       '**/coverage/**',
       '**/.next/**',
       '**/out/**',
+      '**/.claude/**',
     ],
   },
 

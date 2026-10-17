@@ -13,7 +13,8 @@
     "npm": ">=10"
   },
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail -n api,admin,web -c blue,magenta,green \"npm:dev:api\" \"npm:dev:admin\" \"npm:dev:web\"",
+    "predev": "bash tools/dev/local-infra.sh",
+    "dev": "concurrently --kill-others-on-fail -n api,admin,web -c blue,magenta,green \"npm:dev:api\" \"bash tools/dev/local-infra.sh --wait-api && npm run dev:admin\" \"bash tools/dev/local-infra.sh --wait-api && npm run dev:web\"",
     "dev:api": "npm run dev -w apps/api",
     "start:api": "npm run start -w apps/api",
     "lint": "eslint . --max-warnings=0",

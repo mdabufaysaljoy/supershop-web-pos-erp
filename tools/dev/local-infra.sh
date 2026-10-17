@@ -23,6 +23,15 @@ fail() {
 listening() { lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1; }
 need() { command -v "$1" >/dev/null 2>&1 || fail "$1 not found in PATH"; }
 
+if [ "${1:-}" = "--wait-api" ]; then
+  API_PORT="${API_PORT:-4000}"
+  for _ in $(seq 1 60); do
+    listening "$API_PORT" && exit 0
+    sleep 0.5
+  done
+  fail "api did not start on $API_PORT"
+fi
+
 [ "$(uname -s)" = "Darwin" ] || fail "macOS/Homebrew script. On other systems run: docker compose up -d --wait"
 need mongosh
 

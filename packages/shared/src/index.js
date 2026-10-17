@@ -19,6 +19,8 @@ export { createReturnExchangeSchemas } from './schemas/returnExchange.js';
 export { createLoyaltySchemas, LOYALTY } from './schemas/loyalty.js';
 export { createCustomerAdminSchemas } from './schemas/customer.js';
 export { CUSTOMER_SEGMENTS, deriveCustomerSegment } from './customers/segments.js';
+export { CAMPAIGN, interpolateCampaignTemplate } from './campaigns/campaigns.js';
+export { createCampaignSchemas } from './schemas/campaign.js';
 export {
   calculateEarnedPoints,
   calculatePointsForDiscount,

@@ -11,6 +11,7 @@ import {
   seedNotificationTemplates,
   startNotificationWorkers,
 } from './modules/notifications/index.js';
+import { startCampaignWorkers } from './modules/campaigns/index.js';
 import { seedPaymentMethods } from './modules/paymentMethods/index.js';
 import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
@@ -28,6 +29,7 @@ async function main() {
   await seedPaymentMethods(); // a shop always has its built-in methods (P4.2); no-op after the first start
   await seedNotificationTemplates(); // and its built-in messages (P4.5)
   startNotificationWorkers();
+  startCampaignWorkers();
   startTranslationWorker();
   await startTransferWorkers();
   await ensureSearchIndex(); // builds the index in the background on first start

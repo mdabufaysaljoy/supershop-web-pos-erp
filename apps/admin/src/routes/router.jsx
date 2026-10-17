@@ -8,6 +8,8 @@ import { BrandsPage } from '@/features/brands/pages/BrandsPage';
 import { CategoriesPage } from '@/features/categories/pages/CategoriesPage';
 import { CustomerDetailPage } from '@/features/customers/pages/CustomerDetailPage';
 import { CustomersPage } from '@/features/customers/pages/CustomersPage';
+import { CampaignsPage } from '@/features/campaigns/pages/CampaignsPage';
+import { CampaignEditorPage } from '@/features/campaigns/pages/CampaignEditorPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
 import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
@@ -53,11 +55,16 @@ const PAGES = {
   '/purchase-orders': <PurchaseOrdersPage />,
   '/categories': <CategoriesPage />,
   '/media': <MediaLibraryPage />,
+  '/campaigns': <CampaignsPage />,
   '/settings': <SettingsPage />,
 };
 
 /** Sub-pages of a menu section: `{ path, permission, element }` (matched before `:id`). */
 const SUB_PAGES = {
+  '/campaigns': [
+    { path: 'new', permission: P.CAMPAIGN_MANAGE, element: <CampaignEditorPage /> },
+    { path: ':id', permission: P.CAMPAIGN_VIEW, element: <CampaignEditorPage /> },
+  ],
   '/orders': [{ path: ':id', permission: P.ORDER_VIEW, element: <OrderDetailPage /> }],
   '/customers': [{ path: ':id', permission: P.CUSTOMER_VIEW, element: <CustomerDetailPage /> }],
   '/pages': [{ path: ':id', permission: P.PAGE_VIEW, element: <PageBuilderPage /> }],

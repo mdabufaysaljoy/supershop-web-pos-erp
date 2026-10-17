@@ -5,6 +5,7 @@ export { startNotificationWorkers } from './notification.jobs.js';
 export {
   listLogs,
   listTemplates,
+  providers as getNotificationProviders,
   render,
   renderTemplate,
   resetProviderCache,

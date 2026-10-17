@@ -19,6 +19,7 @@ export const QUEUE_NAMES = Object.freeze({
   EXPORTS: 'exports',
   IMPORTS: 'imports',
   TRANSLATION: 'translation',
+  CAMPAIGNS: 'campaigns',
 });
 
 const KNOWN_QUEUES = new Set(Object.values(QUEUE_NAMES));

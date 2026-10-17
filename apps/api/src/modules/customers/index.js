@@ -12,4 +12,11 @@ export {
   toCustomerProfile,
   updateCustomerByAdmin,
 } from './customer.service.js';
-export { findCustomerByEmail, findCustomerById, findCustomerByPhone } from './customer.repo.js';
+export {
+  countAudienceForCampaign,
+  findAudienceForCampaign,
+  findCustomerByEmail,
+  findCustomerById,
+  findCustomerByPhone,
+  setCustomerMarketingOptOut,
+} from './customer.repo.js';

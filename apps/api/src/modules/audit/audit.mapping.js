@@ -506,6 +506,38 @@ export const AUDIT_MAPPINGS = {
       balanceAfter: p.balanceAfter,
     },
   }),
+  [EVENTS.CAMPAIGN_CREATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'campaign',
+    entityId: p.campaignId,
+    data: { channel: p.channel, segment: p.segment },
+  }),
+  [EVENTS.CAMPAIGN_SCHEDULED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'campaign',
+    entityId: p.campaignId,
+    data: { channel: p.channel, scheduledAt: p.scheduledAt },
+  }),
+  [EVENTS.CAMPAIGN_CANCELLED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'campaign',
+    entityId: p.campaignId,
+    data: { channel: p.channel },
+  }),
+  [EVENTS.CAMPAIGN_SENT]: (p) => ({
+    actorType: 'system',
+    actorId: null,
+    entityType: 'campaign',
+    entityId: p.campaignId,
+    data: { channel: p.channel, stats: p.stats },
+  }),
+  [EVENTS.CAMPAIGN_OPT_OUT]: (p) => ({
+    actorType: 'customer',
+    actorId: p.customerId ?? null,
+    entityType: 'customer',
+    entityId: p.customerId ?? null,
+    data: { channel: p.channel },
+  }),
 };
 
 /** Last line of defense: strip secret-looking fields anywhere in before/after/data. */

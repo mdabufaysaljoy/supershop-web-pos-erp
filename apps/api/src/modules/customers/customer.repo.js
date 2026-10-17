@@ -297,3 +297,86 @@ export async function getSegmentsSummary({ q, status, now = new Date() } = {}) {
 
   return counts;
 }
+
+/**
+ * Returns audience pipeline match condition based on channel and opt-out status (P7.3).
+ */
+function channelAudienceMatch(channel) {
+  const match = { status: 'active', deletedAt: null };
+  if (channel === 'email') {
+    match.email = { $ne: null, $type: 'string' };
+    match['marketingOptOut.email'] = { $ne: true };
+  } else if (channel === 'sms') {
+    match.phone = { $ne: null, $type: 'string' };
+    match['marketingOptOut.sms'] = { $ne: true };
+  }
+  return match;
+}
+
+/**
+ * Find audience members for a campaign matching segment and channel (P7.3).
+ */
+export async function findAudienceForCampaign({ segment, channel, now = new Date() } = {}) {
+  const channelMatch = channelAudienceMatch(channel);
+  const pipeline = [{ $match: channelMatch }, ...buildCustomerMetricsPipeline({ now })];
+
+  if (segment && segment !== CUSTOMER_SEGMENTS.ALL) {
+    pipeline.push({ $match: { segment } });
+  }
+
+  pipeline.push({
+    $project: {
+      _id: 1,
+      name: 1,
+      email: 1,
+      phone: 1,
+      lang: 1,
+      segment: 1,
+    },
+  });
+
+  return Customer.aggregate(pipeline);
+}
+
+/**
+ * Count audience members for a campaign matching segment and channel (P7.3).
+ */
+export async function countAudienceForCampaign({ segment, channel, now = new Date() } = {}) {
+  const channelMatch = channelAudienceMatch(channel);
+  const pipeline = [{ $match: channelMatch }, ...buildCustomerMetricsPipeline({ now })];
+
+  if (segment && segment !== CUSTOMER_SEGMENTS.ALL) {
+    pipeline.push({ $match: { segment } });
+  }
+
+  pipeline.push({ $count: 'total' });
+  const [res] = await Customer.aggregate(pipeline);
+  return res?.total ?? 0;
+}
+
+/**
+ * Update marketing opt-out preferences for a customer (P7.3).
+ */
+export async function setCustomerMarketingOptOut({
+  customerId,
+  email,
+  phone,
+  channel = 'all',
+  optOut = true,
+}) {
+  const query = {};
+  if (customerId) query._id = customerId;
+  else if (email) query.email = String(email).trim().toLowerCase();
+  else if (phone) query.phone = phone;
+  else return null;
+
+  const update = {};
+  if (channel === 'email' || channel === 'all') {
+    update['marketingOptOut.email'] = optOut;
+  }
+  if (channel === 'sms' || channel === 'all') {
+    update['marketingOptOut.sms'] = optOut;
+  }
+
+  return Customer.findOneAndUpdate(query, { $set: update }, { returnDocument: 'after' });
+}

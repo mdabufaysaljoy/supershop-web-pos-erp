@@ -30,6 +30,10 @@ const customerSchema = new Schema(
     phone: { type: String, default: null }, // normalized E.164
     status: { type: String, enum: ['active', 'disabled'], default: 'active' },
     lang: { type: String, enum: Object.values(LANGUAGES), default: LANGUAGES.EN },
+    marketingOptOut: {
+      email: { type: Boolean, default: false },
+      sms: { type: Boolean, default: false },
+    },
     /** Saved shipping addresses, newest last; at most one `isDefault`. */
     addresses: { type: [addressSchema], default: [] },
     /** Identity providers linked to this account: `{ provider: 'google', sub, linkedAt }`. */

@@ -168,7 +168,11 @@ export const EVENTS = Object.freeze({
   LOYALTY_REVERSED: 'loyalty.reversed',
   LOYALTY_ADJUSTED: 'loyalty.adjusted',
   LOYALTY_EXPIRED: 'loyalty.expired',
+  CAMPAIGN_CREATED: 'campaign.created',
+  CAMPAIGN_SCHEDULED: 'campaign.scheduled',
   CAMPAIGN_SENT: 'campaign.sent',
+  CAMPAIGN_CANCELLED: 'campaign.cancelled',
+  CAMPAIGN_OPT_OUT: 'campaign.optOut',
 });
 
 const KNOWN = new Set(Object.values(EVENTS));

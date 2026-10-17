@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import {
   buildLabelTemplate,
   buildReceiptTemplate,
+  buildShiftReportTemplate,
   charsForWidth,
   DEFAULT_LABEL_CONFIG,
   DEFAULT_RECEIPT_CONFIG,
@@ -9,7 +10,9 @@ import {
   labelData,
   previewLines,
   receiptData,
+  renderEscPos,
   renderTemplate,
+  shiftReportData,
   toBase64,
   zatcaQr,
 } from '@supershop/shared';
@@ -431,6 +434,50 @@ export async function buildLabelJob(_actor, input) {
     heightMm: saved.heightMm,
     copies,
     lines: previewLines(renderTemplate(compiled, data, { widthMm: profile.widthMm })),
+    data: toBase64(bytes),
+  };
+}
+
+/**
+ * Builds a thermal ESC/POS print job for a shift X-Report or Z-Report (P6.5).
+ */
+export async function buildShiftReportJob(
+  shift,
+  { kind = 'x', profileId, branchId = shift.branchId } = {},
+) {
+  const profile = await profileFor('receipt', { profileId, branchId });
+  const shop = await resolveShop('en');
+  const data = shiftReportData(shift, {
+    kind,
+    shop,
+    currency: getSetting('store.currency'),
+    lang: 'en',
+    timeZone: getSetting('store.timeZone'),
+  });
+  const compiled = buildShiftReportTemplate({ kind }).filter(
+    (block) => block.type !== 'cut' || profile.cut,
+  );
+  const bytes = renderTemplate(compiled, data, { widthMm: profile.widthMm });
+  return {
+    printer: profile.printer,
+    profileId: str(profile._id),
+    widthMm: profile.widthMm,
+    kind,
+    lines: previewLines(bytes),
+    data: toBase64(bytes),
+  };
+}
+
+/**
+ * Builds an ESC/POS cash-drawer kick print job (`ESC p`, P6.5).
+ */
+export async function buildDrawerKickJob({ branchId, profileId } = {}) {
+  const profile = await profileFor('receipt', { profileId, branchId });
+  const bytes = renderEscPos([{ type: 'drawer' }], { widthMm: profile.widthMm });
+  return {
+    printer: profile.printer,
+    profileId: str(profile._id),
+    widthMm: profile.widthMm,
     data: toBase64(bytes),
   };
 }

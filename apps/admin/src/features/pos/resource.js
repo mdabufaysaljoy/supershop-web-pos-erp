@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, apiData } from '@/lib/apiClient';
 
 /**
@@ -21,15 +21,20 @@ export const useQuote = () =>
   useMutation({ mutationFn: (body) => apiData(`${BASE}/quote`, { method: 'POST', body }) });
 
 /** Rings the sale up. The key makes a retry return the first sale instead of selling twice. */
-export const useSell = () =>
-  useMutation({
+export const useSell = () => {
+  const qc = useQueryClient();
+  return useMutation({
     mutationFn: ({ body, idempotencyKey }) =>
       apiData(`${BASE}/sales`, {
         method: 'POST',
         body,
         headers: { 'Idempotency-Key': idempotencyKey },
       }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['shifts'] });
+    },
   });
+};
 
 /** One variant by its exact barcode — what a scanner sends. */
 export const lookupBarcode = (code) => api('/api/v1/products/lookup', { query: { code } });

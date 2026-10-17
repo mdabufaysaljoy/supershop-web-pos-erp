@@ -2,6 +2,7 @@ import { PERMISSIONS as P } from '@supershop/shared';
 import {
   BarChart3,
   ClipboardList,
+  Clock,
   Boxes,
   Factory,
   FileText,
@@ -38,6 +39,12 @@ export const NAV = [
     section: 'nav.sections.sales',
     items: [
       { path: '/pos', label: 'nav.pos', icon: ShoppingCart, permission: P.POS_SELL },
+      {
+        path: '/shifts',
+        label: 'nav.shifts',
+        icon: Clock,
+        permission: [P.SHIFT_VIEW, P.SHIFT_OPEN, P.SHIFT_CLOSE],
+      },
       { path: '/orders', label: 'nav.orders', icon: Receipt, permission: P.ORDER_VIEW },
       { path: '/customers', label: 'nav.customers', icon: Users, permission: P.CUSTOMER_VIEW },
     ],

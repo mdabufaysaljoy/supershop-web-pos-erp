@@ -367,6 +367,46 @@ export const AUDIT_MAPPINGS = {
     entityId: 'default',
     data: { widthMm: p.widthMm, heightMm: p.heightMm },
   }),
+
+  // shifts (P6.5)
+  [EVENTS.SHIFT_OPENED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'shift',
+    entityId: p.shiftId,
+    after: {
+      shiftNo: p.shiftNo,
+      branchId: p.branchId,
+      openingCash: p.openingCash,
+    },
+  }),
+  [EVENTS.SHIFT_CASH_MOVED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'shift',
+    entityId: p.shiftId,
+    data: {
+      shiftNo: p.shiftNo,
+      branchId: p.branchId,
+      type: p.type,
+      amount: p.amount,
+      reason: p.reason,
+      expectedCash: p.expectedCash,
+    },
+  }),
+  [EVENTS.SHIFT_CLOSED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'shift',
+    entityId: p.shiftId,
+    after: {
+      shiftNo: p.shiftNo,
+      zReportId: p.zReportId,
+      zReportNo: p.zReportNo,
+      branchId: p.branchId,
+      openingCash: p.openingCash,
+      closingCash: p.closingCash,
+      expectedCash: p.expectedCash,
+      discrepancy: p.discrepancy,
+    },
+  }),
 };
 
 /** Last line of defense: strip secret-looking fields anywhere in before/after/data. */

@@ -157,6 +157,7 @@ export const EVENTS = Object.freeze({
   // POS / shifts / returns
   POS_SALE_COMPLETED: 'pos.saleCompleted',
   SHIFT_OPENED: 'shift.opened',
+  SHIFT_CASH_MOVED: 'shift.cashMoved',
   SHIFT_CLOSED: 'shift.closed',
   RETURN_COMPLETED: 'return.completed',
   EXCHANGE_COMPLETED: 'exchange.completed',

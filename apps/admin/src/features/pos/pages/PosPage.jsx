@@ -11,6 +11,7 @@ import { usePrintingStatus, usePrintReceipt } from '@/features/printing/resource
 import { CustomerBar } from '../components/CustomerBar';
 import { PaymentPanel } from '../components/PaymentPanel';
 import { SaleLines } from '../components/SaleLines';
+import { ShiftBar } from '../components/ShiftBar';
 import { TillSearch } from '../components/TillSearch';
 import { useSell } from '../resource';
 import { useSale } from '../useSale';
@@ -145,87 +146,90 @@ export function PosPage() {
           {t('pos.chooseBranchFirst')}
         </p>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[1fr_24rem] lg:items-start">
-          <div className="grid gap-4">
-            <TillSearch branchId={branchId} onAdd={sale.addItem} disabled={!online} />
-            <SaleLines
-              sale={sale.sale}
-              priced={sale.priced}
-              onQty={sale.setQty}
-              onDiscount={sale.setLineDiscount}
-              onOrderDiscount={(discount) => sale.patch({ orderDiscount: discount })}
-            />
-          </div>
-
-          <aside className="grid gap-4">
-            <CustomerBar
-              customer={sale.sale.customer}
-              onChange={(customer) => sale.patch({ customer })}
-            />
-            <PaymentPanel
-              total={total}
-              methods={methods}
-              payments={payments}
-              busy={sell.isPending}
-              blocked={unsure || !sale.sale.lines.length}
-              onChange={setPayments}
-              onComplete={complete}
-            />
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={!sale.sale.lines.length}
-                onClick={() => sale.hold(t('pos.held.defaultLabel'))}
-              >
-                {t('pos.held.hold')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={!sale.sale.lines.length}
-                onClick={() => {
-                  sale.clear();
-                  setPayments([]);
-                }}
-              >
-                {t('pos.clear')}
-              </Button>
+        <>
+          <ShiftBar branchId={branchId} />
+          <div className="grid gap-4 lg:grid-cols-[1fr_24rem] lg:items-start">
+            <div className="grid gap-4">
+              <TillSearch branchId={branchId} onAdd={sale.addItem} disabled={!online} />
+              <SaleLines
+                sale={sale.sale}
+                priced={sale.priced}
+                onQty={sale.setQty}
+                onDiscount={sale.setLineDiscount}
+                onOrderDiscount={(discount) => sale.patch({ orderDiscount: discount })}
+              />
             </div>
 
-            {sale.held.length > 0 && (
-              <section className="grid gap-2 rounded-xl border p-3">
-                <h2 className="text-sm font-medium">{t('pos.held.title')}</h2>
-                <ul className="grid gap-1">
-                  {sale.held.map((entry) => (
-                    <li key={entry.id} className="flex items-center gap-2 text-sm">
-                      <span className="flex-1">
-                        {t('pos.held.entry', {
-                          count: entry.sale.lines.length,
-                          time: fmt.dateTime(entry.at, { timeStyle: 'short' }),
-                        })}
-                      </span>
-                      <button
-                        type="button"
-                        className="text-xs underline"
-                        onClick={() => sale.resume(entry.id)}
-                      >
-                        {t('pos.held.resume')}
-                      </button>
-                      <button
-                        type="button"
-                        className="text-xs underline"
-                        onClick={() => sale.drop(entry.id)}
-                      >
-                        {t('common.remove')}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-          </aside>
-        </div>
+            <aside className="grid gap-4">
+              <CustomerBar
+                customer={sale.sale.customer}
+                onChange={(customer) => sale.patch({ customer })}
+              />
+              <PaymentPanel
+                total={total}
+                methods={methods}
+                payments={payments}
+                busy={sell.isPending}
+                blocked={unsure || !sale.sale.lines.length}
+                onChange={setPayments}
+                onComplete={complete}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!sale.sale.lines.length}
+                  onClick={() => sale.hold(t('pos.held.defaultLabel'))}
+                >
+                  {t('pos.held.hold')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!sale.sale.lines.length}
+                  onClick={() => {
+                    sale.clear();
+                    setPayments([]);
+                  }}
+                >
+                  {t('pos.clear')}
+                </Button>
+              </div>
+
+              {sale.held.length > 0 && (
+                <section className="grid gap-2 rounded-xl border p-3">
+                  <h2 className="text-sm font-medium">{t('pos.held.title')}</h2>
+                  <ul className="grid gap-1">
+                    {sale.held.map((entry) => (
+                      <li key={entry.id} className="flex items-center gap-2 text-sm">
+                        <span className="flex-1">
+                          {t('pos.held.entry', {
+                            count: entry.sale.lines.length,
+                            time: fmt.dateTime(entry.at, { timeStyle: 'short' }),
+                          })}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-xs underline"
+                          onClick={() => sale.resume(entry.id)}
+                        >
+                          {t('pos.held.resume')}
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs underline"
+                          onClick={() => sale.drop(entry.id)}
+                        >
+                          {t('common.remove')}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </aside>
+          </div>
+        </>
       )}
     </div>
   );

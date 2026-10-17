@@ -30,11 +30,13 @@ import {
   getBestSellingProductIds,
   getOrderById,
   getOrderForStaff,
+  listOrdersForShift,
   registerOrderSubscribers,
   setOrderShopProvider,
   setPaymentHooks,
   setPaymentMethodResolver,
   setPosCustomerLookup,
+  setPosShiftResolver,
 } from './orders/index.js';
 import {
   createPaymentRouter,
@@ -43,7 +45,12 @@ import {
   syncOrderPayment,
 } from './payments/index.js';
 import { createPaymentMethodRouter, resolveForCheckout } from './paymentMethods/index.js';
-import { createBranchRouter, findUnknownBranches, registerBranchUsage } from './branches/index.js';
+import {
+  createBranchRouter,
+  findUnknownBranches,
+  getBranchSummaries,
+  registerBranchUsage,
+} from './branches/index.js';
 import {
   createBrandRouter,
   getBrandsByIds,
@@ -68,7 +75,18 @@ import {
   createNotificationRouter,
   registerNotificationSubscribers,
 } from './notifications/index.js';
-import { createPrintingRouter, setPrintingProviders } from './printing/index.js';
+import {
+  buildDrawerKickJob,
+  buildShiftReportJob,
+  createPrintingRouter,
+  setPrintingProviders,
+} from './printing/index.js';
+import {
+  countShiftsInBranch,
+  createShiftRouter,
+  resolveOpenShiftForSale,
+  setShiftProviders,
+} from './shifts/index.js';
 import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from './pages/index.js';
 import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
@@ -93,6 +111,7 @@ import { createSupplierRouter, setSupplierUsageCounter } from './suppliers/index
 import {
   countStaffWithRole,
   createStaffRouter,
+  getStaffNames,
   resolveStaffAccess,
   setBranchValidator,
   staffPrincipal,
@@ -177,6 +196,7 @@ export function registerModules() {
   );
   // A sale at the counter can be attached to a customer the shop already knows (P6.1).
   setPosCustomerLookup(findCustomerByContact);
+  setPosShiftResolver(resolveOpenShiftForSale);
   const getShop = async (lang) => {
     const chrome = await getSiteChrome(lang);
     return {
@@ -192,6 +212,14 @@ export function registerModules() {
     getOrder: (id) => getOrderForStaff(id).catch(() => null),
     getShop,
     getMediaByIds,
+  });
+  setShiftProviders({
+    getStaffNames,
+    getBranchSummaries,
+    listOrdersForShift,
+    getShop,
+    buildShiftReportJob,
+    buildDrawerKickJob,
   });
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.
@@ -215,9 +243,10 @@ export function registerModules() {
   setSupplierUsageCounter(
     async (id) => (await countProductsOfSupplier(id)) + (await countPurchaseOrdersOfSupplier(id)),
   );
-  // Branches with stock or purchasing history stay.
+  // Branches with stock, purchasing or shift history stay.
   registerBranchUsage(countStockRecordsInBranch);
   registerBranchUsage(countPurchaseOrdersInBranch);
+  registerBranchUsage(countShiftsInBranch);
   setAvailabilityProvider(getOnlineInStock); // storefront in/out of stock
   // A page's blocks say what they want; these lookups fill them in (P5.3). Pages import no module.
   // A menu item points at a page, category or brand; these say whether it is still there (P5.4).
@@ -275,6 +304,7 @@ export function mountModuleRoutes(api) {
   api.use('/checkout', createCheckoutRouter());
   api.use('/orders', createOrderAdminRouter());
   api.use('/pos', createPosRouter());
+  api.use('/shifts', createShiftRouter());
   api.use('/printing', createPrintingRouter());
   api.use('/payments', createPaymentRouter());
   api.use(

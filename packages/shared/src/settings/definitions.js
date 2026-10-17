@@ -404,7 +404,7 @@ const DEFINITIONS = [
     secret: true,
   },
 
-  // ---------- POS (P6.1) ----------
+  // ---------- POS (P6.1 / P6.5) ----------
   /** The most a cashier may take off with a percentage discount (basis points; 1000 = 10%). */
   { key: 'pos.maxDiscountBps', group: 'pos', schema: int(0, 10_000), default: 2000 },
   /**
@@ -412,6 +412,16 @@ const DEFINITIONS = [
    * that silently goes negative is how stock stops meaning anything.
    */
   { key: 'pos.allowOversell', group: 'pos', schema: bool(), default: false },
+  /**
+   * Whether ringing up a counter sale requires an open shift in that branch (P6.5).
+   * Off by default so quick counter setups work out of the box; turn on for strict till control.
+   */
+  { key: 'pos.requireOpenShift', group: 'pos', schema: bool(), default: false },
+  /**
+   * Maximum cash discrepancy (in halalas) a cashier without `shift.cashMovement` may close on their
+   * own; 0 = no limit (any discrepancy allowed with a closing note).
+   */
+  { key: 'pos.shiftMaxDiscrepancy', group: 'pos', schema: int(0, 100_000_000), default: 0 },
 
   { key: 'security.lockoutMaxAttempts', group: 'security', schema: int(3, 20), default: 5 },
   { key: 'security.lockoutMinutes', group: 'security', schema: int(1, 1440), default: 15 },

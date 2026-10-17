@@ -43,6 +43,14 @@ export function setPosCustomerLookup(fn) {
   findCustomerByContact = fn;
 }
 
+/** Active shift lookup for a counter sale (P6.5) — injected at the composition root. */
+let findOpenShiftForSale = async () => null;
+export function setPosShiftResolver(fn) {
+  findOpenShiftForSale = fn;
+}
+
+export const listOrdersForShift = (shiftId, session) => repo.listByShift(shiftId, session);
+
 const refuse = (code, message, details) => new AppError(code, message, { status: 409, details });
 
 const outOfStock = (details) =>
@@ -294,6 +302,12 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
     ]);
 
   const customer = await attachCustomer(input.customer ?? { mode: 'walkin' });
+  const openShift = await findOpenShiftForSale({
+    branchId: input.branchId,
+    staffId: actor.staffId,
+  });
+  if (!openShift && getSetting('pos.requireOpenShift'))
+    throw refuse(ERROR_CODES.SHIFT_NOT_OPEN, 'Open a shift before ringing up a sale');
   const at = new Date();
 
   let outcome;
@@ -350,6 +364,7 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
           payments,
           changeGiven: tender.change,
           staffId: actor.staffId ? oid(actor.staffId) : null,
+          shiftId: openShift ? oid(openShift.id) : null,
           note: input.note ?? '',
           fulfillment: [
             {
@@ -387,6 +402,7 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
     channel: 'pos',
     branchId: str(order.branchId),
     staffId: str(order.staffId),
+    shiftId: str(order.shiftId),
     customerId: str(order.customer.customerId),
     total: order.totals.total,
     itemCount: order.totals.itemCount,

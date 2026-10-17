@@ -23,6 +23,7 @@ import { PurchaseOrderEditorPage } from '@/features/purchaseOrders/pages/Purchas
 import { PurchaseOrdersPage } from '@/features/purchaseOrders/pages/PurchaseOrdersPage';
 import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
+import { ShiftsPage } from '@/features/shifts/pages/ShiftsPage';
 import { RequirePermission } from '@/features/auth/components/RequirePermission';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ComingSoonPage } from '@/pages/ComingSoonPage';
@@ -36,6 +37,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 const PAGES = {
   '/orders': <OrdersPage />,
   '/pos': <PosPage />,
+  '/shifts': <ShiftsPage />,
   '/pages': <PagesPage />,
   '/appearance': <AppearancePage />,
   '/products': <ProductsPage />,

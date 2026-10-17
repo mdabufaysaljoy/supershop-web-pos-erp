@@ -104,3 +104,9 @@ export async function topSellingProductIds({ limit, since }) {
   ]);
   return rows.map((r) => String(r._id));
 }
+
+/** Counter sales belonging to a shift (P6.5). */
+export const listByShift = (shiftId, session) =>
+  Order.find({ channel: 'pos', shiftId }, null, session ? { session } : {})
+    .sort({ placedAt: 1, _id: 1 })
+    .lean();

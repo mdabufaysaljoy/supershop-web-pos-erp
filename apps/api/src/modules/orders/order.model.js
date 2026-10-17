@@ -105,6 +105,8 @@ const orderSchema = new mongoose.Schema(
     changeGiven: { type: Number, default: 0 },
     /** The cashier who rang the sale up (POS only). */
     staffId: { type: ObjectId, default: null },
+    /** The open shift this counter sale was rung up in (P6.5). */
+    shiftId: { type: ObjectId, default: null },
     /** Values of admin-defined `checkout` custom fields. */
     customFields: { type: Mixed, default: () => ({}) },
     note: { type: String, default: '' },
@@ -181,5 +183,6 @@ orderSchema.index({ status: 1, createdAt: -1 });
 // Best-sellers over a window (P5.3) and date-ranged sales reports.
 orderSchema.index({ status: 1, placedAt: -1 });
 orderSchema.index({ branchId: 1, createdAt: -1 });
+orderSchema.index({ shiftId: 1, placedAt: 1 });
 
 export const Order = mongoose.models.Order ?? mongoose.model('Order', orderSchema);

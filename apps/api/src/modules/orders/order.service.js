@@ -537,6 +537,7 @@ export const toStaffOrderDto = (o, shop = defaultShop()) => {
     channel: o.channel,
     branchId: str(o.branchId),
     staffId: str(o.staffId),
+    shiftId: str(o.shiftId),
     /** How it was actually paid (one tender online, possibly several at the counter — P6.1). */
     payments: (o.payments ?? []).map((p) => ({
       method: p.method,

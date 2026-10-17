@@ -29,6 +29,7 @@
     },
     "dashboard": "Dashboard",
     "pos": "Point of sale",
+    "shifts": "Shifts",
     "orders": "Orders",
     "customers": "Customers",
     "products": "Products",
@@ -109,7 +110,13 @@
     "CANNOT_MODIFY_SELF": "You can't change your own access.",
     "INSUFFICIENT_STOCK": "Not enough stock for one or more items.",
     "INVALID_STATE_TRANSITION": "That isn't possible in the order's current status.",
-    "IDEMPOTENCY_CONFLICT": "This request was already used for something else. Reload and try again."
+    "IDEMPOTENCY_CONFLICT": "This request was already used for something else. Reload and try again.",
+    "SHIFT_ALREADY_OPEN": "You already have an open shift. Close it before opening another.",
+    "SHIFT_NOT_OPEN": "Open a shift in this branch before ringing up a sale.",
+    "SHIFT_CLOSED": "This shift is already closed.",
+    "SHIFT_CLOSE_FORBIDDEN": "Only a manager with shift view access can close another staff member's shift.",
+    "SHIFT_DISCREPANCY_TOO_LARGE": "The cash discrepancy exceeds your limit — ask a manager to close this shift.",
+    "SHIFT_MOVEMENT_LIMIT": "Maximum number of cash movements reached for this shift."
   },
   "validation": {
     "required": "This field is required.",
@@ -1611,6 +1618,109 @@
       "saveButton": "Save label template",
       "testPrint": "Print test label",
       "previewTitle": "Live label preview"
+    }
+  },
+  "shifts": {
+    "title": "Shifts",
+    "description": "Open and close till drawers, record cash in and out, and print X and Z reports.",
+    "branch": "Branch",
+    "allBranches": "All branches",
+    "statusFilter": "Status",
+    "allStatuses": "All statuses",
+    "historyTitle": "Shift history",
+    "empty": "No shifts recorded yet.",
+    "openedToast": "Shift opened.",
+    "movementSaved": "Cash movement recorded.",
+    "closedToast": "Shift closed and Z-report generated.",
+    "printedToast": "Report sent to the printer.",
+    "drawerOpened": "Cash drawer opened.",
+    "printFailed": "Could not print or kick the drawer. Check that QZ Tray is running. {{reason}}",
+    "status": {
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "bar": {
+      "expected": "Expected drawer: {{amount}}"
+    },
+    "active": {
+      "heading": "Active shift · {{number}}",
+      "openedSince": "{{branch}} · Opened {{time}}",
+      "noneTitle": "No shift open",
+      "noneDescription": "Count the starting float and open a shift for this till.",
+      "chooseBranchPrompt": "Choose a branch above to open a shift.",
+      "ordersCount_one": "{{count}} sale",
+      "ordersCount_other": "{{count}} sales"
+    },
+    "actions": {
+      "openShift": "Open shift",
+      "closeShift": "Close shift",
+      "cashMovement": "Cash in / out",
+      "xReport": "X-report",
+      "zReport": "Z-report",
+      "openDrawer": "Open drawer"
+    },
+    "columns": {
+      "shift": "Shift",
+      "branch": "Branch",
+      "openedAt": "Opened",
+      "closedAt": "Closed",
+      "reports": "Reports"
+    },
+    "fields": {
+      "openingCash": "Opening float",
+      "cashSales": "Cash sales (net)",
+      "cashIn": "Cash paid in",
+      "cashOut": "Cash paid out",
+      "expectedCash": "Expected drawer",
+      "closingCash": "Counted cash",
+      "discrepancy": "Discrepancy",
+      "ordersCount": "Orders",
+      "itemsCount": "Items sold",
+      "subtotal": "Subtotal",
+      "discounts": "Discounts",
+      "vat": "VAT (15%)",
+      "totalSales": "Total sales"
+    },
+    "open": {
+      "title": "Open shift",
+      "description": "Count the cash float in the drawer before ringing up sales.",
+      "openingCash": "Opening cash float (SAR)",
+      "note": "Note (optional)",
+      "notePlaceholder": "e.g. Morning counter float",
+      "submit": "Open shift"
+    },
+    "movement": {
+      "title": "Cash in / out",
+      "description": "Record non-sale cash added to or removed from the drawer.",
+      "type": "Movement type",
+      "types": {
+        "in": "Cash in (paid in)",
+        "out": "Cash out (paid out / drop)"
+      },
+      "amount": "Amount (SAR)",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g. Petty cash for supplies or safe drop",
+      "recentTitle": "Cash movements in this shift",
+      "submit": "Record movement"
+    },
+    "close": {
+      "title": "Close shift",
+      "description": "Count the cash in the drawer. Closing issues an immutable Z-report.",
+      "closingCash": "Counted cash in drawer (SAR)",
+      "note": "Closing note (optional)",
+      "notePlaceholder": "e.g. Balanced with safe drop",
+      "submit": "Close shift & issue Z-report"
+    },
+    "report": {
+      "xTitle": "X-report · {{number}}",
+      "xDescription": "Live mid-shift reading. Does not close the drawer.",
+      "zTitle": "Z-report · {{number}}",
+      "zDescription": "Immutable end-of-shift closing report.",
+      "print": "Print on thermal printer",
+      "salesSection": "Sales summary",
+      "drawerSection": "Cash drawer reconciliation",
+      "tendersSection": "By payment method",
+      "thermalPreview": "Thermal receipt preview"
     }
   }
 }

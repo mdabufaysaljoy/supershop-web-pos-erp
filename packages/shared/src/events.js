@@ -166,6 +166,8 @@ export const EVENTS = Object.freeze({
   LOYALTY_EARNED: 'loyalty.earned',
   LOYALTY_REDEEMED: 'loyalty.redeemed',
   LOYALTY_REVERSED: 'loyalty.reversed',
+  LOYALTY_ADJUSTED: 'loyalty.adjusted',
+  LOYALTY_EXPIRED: 'loyalty.expired',
   CAMPAIGN_SENT: 'campaign.sent',
 });
 

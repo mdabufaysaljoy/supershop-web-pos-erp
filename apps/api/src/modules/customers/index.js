@@ -8,3 +8,4 @@ export {
   registerCustomer,
   toCustomerProfile,
 } from './customer.service.js';
+export { findCustomerByEmail, findCustomerById, findCustomerByPhone } from './customer.repo.js';

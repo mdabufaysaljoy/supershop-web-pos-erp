@@ -7,6 +7,11 @@ import { useAuthStore } from '@/features/auth/store';
 import { json, mockFetch } from '@/test/fetchMock';
 import { PosPage } from '../pages/PosPage';
 
+const printRawMock = vi.fn().mockResolvedValue(undefined);
+vi.mock('@/lib/qz', () => ({
+  printRaw: (...args) => printRawMock(...args),
+}));
+
 /** P6.2 — the till: scan, basket, money, change, held sales. */
 const BRANCH = { id: 'b1', code: 'SHOP', name: { en: 'Shop' } };
 const SHIRT = {

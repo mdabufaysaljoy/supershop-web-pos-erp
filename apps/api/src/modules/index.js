@@ -88,6 +88,11 @@ import {
   resolveOpenShiftForSale,
   setShiftProviders,
 } from './shifts/index.js';
+import {
+  createAccountLoyaltyRouter,
+  createLoyaltyRouter,
+  registerLoyaltySubscribers,
+} from './loyalty/index.js';
 import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from './pages/index.js';
 import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
@@ -241,6 +246,7 @@ export function registerModules() {
   registerAuditSubscribers();
   registerI18nSubscribers();
   registerSearchSubscribers();
+  registerLoyaltySubscribers();
   // Catalog items can't be deleted while products reference them.
   setCategoryUsageCounter(countProductsInCategory);
   setBrandUsageCounter(countProductsOfBrand);
@@ -286,8 +292,9 @@ export function mountModuleRoutes(api) {
     api.use(`${authPath}/${type}`, createAuthRouter(type, { getSchemas: getAuthSchemas }));
   }
   api.use('/customers', createCustomerRouter({ getSchemas: getAuthSchemas }));
-  // More specific first: `/account/orders` belongs to the orders module, the rest to customers.
+  // More specific first: `/account/orders` and `/account/loyalty` belong to orders/loyalty, the rest to customers.
   api.use('/account/orders', createAccountOrdersRouter());
+  api.use('/account/loyalty', createAccountLoyaltyRouter());
   api.use('/account', createAccountRouter({ getSchemas: getAccountSchemas }));
   api.use('/roles', createRoleRouter());
   api.use('/staff', createStaffRouter({ getSchemas: getRbacSchemas }));
@@ -310,6 +317,7 @@ export function mountModuleRoutes(api) {
   api.use('/orders', createOrderAdminRouter());
   api.use('/pos', createPosRouter());
   api.use('/returns', createReturnRouter());
+  api.use('/loyalty', createLoyaltyRouter());
   api.use('/shifts', createShiftRouter());
   api.use('/printing', createPrintingRouter());
   api.use('/payments', createPaymentRouter());

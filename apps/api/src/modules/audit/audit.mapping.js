@@ -438,6 +438,33 @@ export const AUDIT_MAPPINGS = {
       differenceDue: p.differenceDue,
     },
   }),
+  [EVENTS.LOYALTY_EARNED]: (p) => ({
+    actorType: 'system',
+    actorId: null,
+    entityType: 'customer',
+    entityId: p.customerId,
+    data: {
+      orderId: p.orderId,
+      orderNo: p.orderNo,
+      points: p.points,
+      balanceAfter: p.balanceAfter,
+      tier: p.tier,
+      channel: p.channel,
+    },
+  }),
+  [EVENTS.LOYALTY_REDEEMED]: (p) => ({
+    actorType: p.actorId ? 'staff' : 'customer',
+    actorId: p.actorId ?? p.customerId,
+    entityType: 'customer',
+    entityId: p.customerId,
+    data: {
+      orderId: p.orderId,
+      orderNo: p.orderNo,
+      points: p.points,
+      discountHalalas: p.discountHalalas,
+      balanceAfter: p.balanceAfter,
+    },
+  }),
   [EVENTS.LOYALTY_REVERSED]: (p) => ({
     ...staffActor(p),
     entityType: 'returnExchange',
@@ -448,6 +475,28 @@ export const AUDIT_MAPPINGS = {
       orderNo: p.orderNo,
       customerId: p.customerId,
       amount: p.amount,
+      pointsReversed: p.pointsReversed,
+      balanceAfter: p.balanceAfter,
+    },
+  }),
+  [EVENTS.LOYALTY_ADJUSTED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'customer',
+    entityId: p.customerId,
+    data: {
+      delta: p.delta,
+      balanceAfter: p.balanceAfter,
+      reason: p.reason,
+    },
+  }),
+  [EVENTS.LOYALTY_EXPIRED]: (p) => ({
+    actorType: 'system',
+    actorId: null,
+    entityType: 'customer',
+    entityId: p.customerId,
+    data: {
+      points: p.points,
+      balanceAfter: p.balanceAfter,
     },
   }),
 };

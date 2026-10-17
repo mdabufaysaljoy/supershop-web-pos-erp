@@ -163,6 +163,42 @@ const DEFINITIONS = [
     default: false,
     public: true,
   },
+  // ---------- loyalty (P7.1) ----------
+  {
+    key: 'loyalty.earnSpendRate',
+    group: 'customers',
+    schema: int(100, 10_000_000),
+    default: 10_000,
+    public: true,
+  },
+  {
+    key: 'loyalty.pointRedemptionValue',
+    group: 'customers',
+    schema: int(1, 100_000),
+    default: 100,
+    public: true,
+  },
+  {
+    key: 'loyalty.minRedeemPoints',
+    group: 'customers',
+    schema: int(0, 1_000_000),
+    default: 10,
+    public: true,
+  },
+  {
+    key: 'loyalty.maxRedeemPointsPerOrder',
+    group: 'customers',
+    schema: int(0, 1_000_000),
+    default: 0,
+    public: true,
+  },
+  {
+    key: 'loyalty.expiryDays',
+    group: 'customers',
+    schema: int(0, 3650),
+    default: 365,
+    public: true,
+  },
   // ---------- notifications (P4.5) ----------
   // What the shop may send, and through what. Providers are adapters: switching one is a setting.
   { key: 'notifications.email', group: 'notifications', schema: bool(), default: true },

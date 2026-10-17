@@ -16,6 +16,15 @@ export { createSiteSchemas, SITE } from './schemas/site.js';
 export { createPosSchemas } from './schemas/pos.js';
 export { createShiftSchemas } from './schemas/shift.js';
 export { createReturnExchangeSchemas } from './schemas/returnExchange.js';
+export { createLoyaltySchemas, LOYALTY } from './schemas/loyalty.js';
+export {
+  calculateEarnedPoints,
+  calculatePointsForDiscount,
+  calculateRedemptionDiscount,
+  calculateReversedPoints,
+  computeTier,
+  isRedemptionAllowed,
+} from './loyalty/loyalty.js';
 export { createPrintingSchemas, PRINTING } from './schemas/printing.js';
 export {
   ALIGN,

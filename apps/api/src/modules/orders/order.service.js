@@ -10,6 +10,7 @@ import {
   paymentCharge,
   priceLines,
   vatRateFor,
+  zatcaQr,
 } from '@supershop/shared';
 import { V } from '@supershop/shared/validators';
 import mongoose from 'mongoose';
@@ -510,51 +511,74 @@ export const getOrderById = async (id) => {
 
 // ------------------------------------------------------- P4.3 the shop's own view of an order
 
-/** Everything the shop needs on one order, including what it may do with it next. */
-export const toStaffOrderDto = (o) => ({
-  ...toOrderDto(o),
-  channel: o.channel,
-  branchId: str(o.branchId),
-  staffId: str(o.staffId),
-  /** How it was actually paid (one tender online, possibly several at the counter — P6.1). */
-  payments: (o.payments ?? []).map((p) => ({
-    method: p.method,
-    label: p.label ?? p.method,
-    amount: p.amount,
-    reference: p.reference ?? null,
-    at: p.at,
-  })),
-  changeGiven: o.changeGiven ?? 0,
-  placedAt: o.placedAt,
-  updatedAt: o.updatedAt,
-  cancelledAt: o.cancelledAt ?? null,
-  cancelReason: o.cancelReason ?? null,
-  shipments: (o.shipments ?? []).map((sh) => ({
-    carrier: sh.carrier,
-    trackingNumber: sh.trackingNumber ?? null,
-    trackingUrl: sh.trackingUrl ?? null,
-    shippedAt: sh.shippedAt,
-  })),
-  statusHistory: (o.statusHistory ?? []).map((h) => ({
-    at: h.at,
-    from: h.from,
-    to: h.to,
-    action: h.action,
-    by: h.by,
-    staffId: str(h.staffId),
-    reason: h.reason ?? null,
-    restocked: Boolean(h.restocked),
-  })),
-  /** Staff notes, oldest first — internal only (P4.4). */
-  notes: (o.notes ?? []).map((n) => ({
-    at: n.at,
-    staffId: str(n.staffId),
-    staffName: n.staffName ?? null,
-    text: n.text,
-  })),
-  /** What the admin may offer right now, and why an action is blocked (P4.4 renders these). */
-  nextActions: nextActions(o),
+let resolveShop = null;
+export const setOrderShopProvider = (fn) => {
+  resolveShop = fn;
+};
+
+const defaultShop = () => ({
+  name: getSetting('store.name'),
+  address: null,
+  phone: null,
+  vatNumber: getSetting('tax.vatNumber'),
 });
+
+/** Everything the shop needs on one order, including what it may do with it next. */
+export const toStaffOrderDto = (o, shop = defaultShop()) => {
+  const qr = zatcaQr({
+    sellerName: shop?.name,
+    vatNumber: shop?.vatNumber,
+    timestamp: o.placedAt ?? o.createdAt,
+    total: o.totals?.total ?? 0,
+    vat: o.totals?.vat ?? 0,
+  });
+  return {
+    ...toOrderDto(o),
+    channel: o.channel,
+    branchId: str(o.branchId),
+    staffId: str(o.staffId),
+    /** How it was actually paid (one tender online, possibly several at the counter — P6.1). */
+    payments: (o.payments ?? []).map((p) => ({
+      method: p.method,
+      label: p.label ?? p.method,
+      amount: p.amount,
+      reference: p.reference ?? null,
+      at: p.at,
+    })),
+    changeGiven: o.changeGiven ?? 0,
+    placedAt: o.placedAt,
+    updatedAt: o.updatedAt,
+    cancelledAt: o.cancelledAt ?? null,
+    cancelReason: o.cancelReason ?? null,
+    shipments: (o.shipments ?? []).map((sh) => ({
+      carrier: sh.carrier,
+      trackingNumber: sh.trackingNumber ?? null,
+      trackingUrl: sh.trackingUrl ?? null,
+      shippedAt: sh.shippedAt,
+    })),
+    statusHistory: (o.statusHistory ?? []).map((h) => ({
+      at: h.at,
+      from: h.from,
+      to: h.to,
+      action: h.action,
+      by: h.by,
+      staffId: str(h.staffId),
+      reason: h.reason ?? null,
+      restocked: Boolean(h.restocked),
+    })),
+    /** Staff notes, oldest first — internal only (P4.4). */
+    notes: (o.notes ?? []).map((n) => ({
+      at: n.at,
+      staffId: str(n.staffId),
+      staffName: n.staffName ?? null,
+      text: n.text,
+    })),
+    /** What the admin may offer right now, and why an action is blocked (P4.4 renders these). */
+    nextActions: nextActions(o),
+    shop,
+    zatcaQr: qr || null,
+  };
+};
 
 /** List row: enough for the orders screen without shipping every snapshot. */
 const toStaffRow = (o) => ({
@@ -593,10 +617,11 @@ export async function listOrdersForStaff({ page, limit, sort, status, channel, q
   return { data: items.map(toStaffRow), meta: { page, limit, total } };
 }
 
-export async function getOrderForStaff(id) {
+export async function getOrderForStaff(id, { lang = 'en' } = {}) {
   const order = await repo.findById(id);
   if (!order) throw new NotFoundError('Order not found');
-  return toStaffOrderDto(order);
+  const shop = resolveShop ? await resolveShop(lang) : defaultShop();
+  return toStaffOrderDto(order, shop);
 }
 
 /** A note the shop leaves itself on an order (never shown to the customer). */

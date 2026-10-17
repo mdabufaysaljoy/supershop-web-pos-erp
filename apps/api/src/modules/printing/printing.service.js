@@ -1,10 +1,17 @@
 import crypto from 'node:crypto';
 import {
-  DEFAULT_RECEIPT_TEMPLATE,
+  buildLabelTemplate,
+  buildReceiptTemplate,
+  charsForWidth,
+  DEFAULT_LABEL_CONFIG,
+  DEFAULT_RECEIPT_CONFIG,
   EVENTS,
+  labelData,
+  previewLines,
   receiptData,
   renderTemplate,
   toBase64,
+  zatcaQr,
 } from '@supershop/shared';
 import { ConflictError, NotFoundError, ServiceUnavailableError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
@@ -12,9 +19,9 @@ import { getSecretSetting, getSetting } from '../settings/index.js';
 import * as repo from './printing.repo.js';
 
 /**
- * Printing (P6.3). The printers themselves are on the cashier's machine, reached through QZ Tray
- * in the browser; this module owns the three things a browser must not: the private key that
- * signs QZ's calls, which printers the shop has, and what a receipt actually says.
+ * Printing (P6.3, P6.4). The printers themselves are on the cashier's machine, reached through QZ
+ * Tray in the browser; this module owns the things a browser must not: the private key that signs
+ * QZ's calls, which printers the shop has, and what a receipt or barcode label actually says.
  *
  * The key never leaves the server — the browser sends the message QZ wants signed and gets back a
  * signature, so a page with no session (or no permission) cannot drive the shop's printers.
@@ -22,12 +29,23 @@ import * as repo from './printing.repo.js';
 const str = (id) => (id == null ? null : String(id));
 
 /**
- * What printing needs from elsewhere: the order to print, and how the shop names itself on paper.
- * Injected at the composition root, so this module imports no other module.
+ * What printing needs from elsewhere: the order to print, how the shop names itself on paper,
+ * media URLs for the receipt logo, and variant lookup for barcode labels. Injected at the
+ * composition root, so this module imports no other module.
  */
-let providers = { getOrder: null, getShop: null };
+let providers = { getOrder: null, getShop: null, getMediaByIds: null, getVariant: null };
 export function setPrintingProviders(next) {
   providers = { ...providers, ...next };
+}
+
+async function resolveShop(lang = 'en') {
+  const resolved = (await providers.getShop?.(lang)) ?? {};
+  return {
+    name: resolved.name || getSetting('store.name'),
+    address: resolved.address ?? '',
+    phone: resolved.phone ?? '',
+    vatNumber: resolved.vatNumber ?? getSetting('tax.vatNumber') ?? '',
+  };
 }
 
 export const toProfileDto = (p) => ({
@@ -120,6 +138,198 @@ const emit = (profile, actor) =>
     actorId: actor?.staffId ?? null,
   });
 
+// ---------------------------------------------------------------- templates (P6.4)
+
+const SAMPLE_SALE = Object.freeze({
+  orderNo: 'POS-000042',
+  placedAt: '2026-10-14T14:30:00.000Z',
+  cashierName: 'Sarah',
+  branchName: 'Main store',
+  totals: {
+    itemCount: 2,
+    subtotal: 23_000,
+    discountTotal: 1500,
+    net: 18_696,
+    vat: 2804,
+    total: 21_500,
+  },
+  items: [
+    {
+      name: 'Oxford Shirt',
+      sku: 'OX-RED-L',
+      qty: 2,
+      unitPrice: 11_500,
+      discountTotal: 1500,
+      lineTotal: 21_500,
+    },
+  ],
+  payments: [{ label: 'Cash', amount: 25_000 }],
+  changeGiven: 3500,
+  customer: { customerId: 'sample', name: 'walk-in' },
+});
+
+const SAMPLE_LABEL = Object.freeze({
+  name: 'Oxford Shirt',
+  variant: 'Red / L',
+  sku: 'OX-RED-L',
+  barcode: '6281000000014',
+  price: 11_500,
+});
+
+const toEn = (v) => (typeof v === 'string' ? v : (v?.en ?? ''));
+const applyLocalized = (current, next) => ({
+  ...(current?.toObject?.() ?? current ?? {}),
+  en: toEn(next),
+});
+
+async function resolveLogo(logoMediaId) {
+  if (!logoMediaId || !providers.getMediaByIds) return null;
+  const map = await providers.getMediaByIds([String(logoMediaId)]);
+  const media = map instanceof Map ? map.get(String(logoMediaId)) : map?.[String(logoMediaId)];
+  return media ? { id: String(logoMediaId), url: media.url, alt: media.alt ?? '' } : null;
+}
+
+async function toReceiptTemplateDto(doc) {
+  const lang = doc.lang ?? DEFAULT_RECEIPT_CONFIG.lang;
+  const widthMm = doc.widthMm ?? DEFAULT_RECEIPT_CONFIG.widthMm;
+  const fields = { ...DEFAULT_RECEIPT_CONFIG.fields, ...doc.fields };
+  const labels = Object.fromEntries(
+    Object.keys(DEFAULT_RECEIPT_CONFIG.labels).map((k) => [
+      k,
+      doc.labels?.[k] ?? DEFAULT_RECEIPT_CONFIG.labels[k],
+    ]),
+  );
+  const shop = await resolveShop(lang === 'ar' ? 'ar' : 'en');
+  const previewShop = {
+    ...shop,
+    address: shop.address || 'Riyadh',
+    phone: shop.phone || '+966500000000',
+    vatNumber: shop.vatNumber || '300000000000003',
+  };
+  const qr = fields.showQr
+    ? zatcaQr({
+        sellerName: previewShop.name,
+        vatNumber: previewShop.vatNumber,
+        timestamp: SAMPLE_SALE.placedAt,
+        total: SAMPLE_SALE.totals.total,
+        vat: SAMPLE_SALE.totals.vat,
+      })
+    : '';
+  const data = receiptData(
+    { ...SAMPLE_SALE, zatcaQr: qr },
+    {
+      shop: previewShop,
+      currency: getSetting('store.currency'),
+      lang: lang === 'ar' ? 'ar' : 'en',
+      timeZone: getSetting('store.timeZone'),
+    },
+  );
+  const compiled = buildReceiptTemplate({ ...doc, lang, widthMm, fields, labels }, { lang });
+  const bytes = renderTemplate(compiled, data, { widthMm });
+  const logo = await resolveLogo(doc.logoMediaId);
+
+  return {
+    lang,
+    widthMm,
+    logoMediaId: str(doc.logoMediaId),
+    logo,
+    headerText: doc.headerText ?? DEFAULT_RECEIPT_CONFIG.headerText,
+    footerText: doc.footerText ?? DEFAULT_RECEIPT_CONFIG.footerText,
+    fields,
+    labels,
+    updatedAt: doc.updatedAt,
+    preview: {
+      widthMm,
+      charsPerLine: charsForWidth(widthMm),
+      lines: previewLines(bytes),
+      qr,
+      hasShopVatNumber: Boolean(shop.vatNumber),
+    },
+  };
+}
+
+async function toLabelTemplateDto(doc) {
+  const widthMm = doc.widthMm ?? DEFAULT_LABEL_CONFIG.widthMm;
+  const heightMm = doc.heightMm ?? DEFAULT_LABEL_CONFIG.heightMm;
+  const barcodeHeight = doc.barcodeHeight ?? DEFAULT_LABEL_CONFIG.barcodeHeight;
+  const fields = { ...DEFAULT_LABEL_CONFIG.fields, ...doc.fields };
+  const shop = await resolveShop('en');
+  const sample = labelData(SAMPLE_LABEL, {
+    shop,
+    currency: getSetting('store.currency'),
+  });
+  const compiled = buildLabelTemplate({ widthMm, heightMm, barcodeHeight, fields });
+  const bytes = renderTemplate(compiled, sample, { widthMm });
+
+  return {
+    widthMm,
+    heightMm,
+    barcodeHeight,
+    fields,
+    updatedAt: doc.updatedAt,
+    preview: {
+      widthMm,
+      heightMm,
+      lines: previewLines(bytes),
+      sample,
+    },
+  };
+}
+
+export async function getTemplates() {
+  const [receipt, label] = await Promise.all([repo.getReceiptTemplate(), repo.getLabelTemplate()]);
+  const [receiptDto, labelDto] = await Promise.all([
+    toReceiptTemplateDto(receipt),
+    toLabelTemplateDto(label),
+  ]);
+  return { receipt: receiptDto, label: labelDto };
+}
+
+export async function updateReceiptTemplate(actor, patch) {
+  const updated = await repo.updateReceiptTemplate((doc) => {
+    if (patch.lang !== undefined) doc.lang = patch.lang;
+    if (patch.widthMm !== undefined) doc.widthMm = patch.widthMm;
+    if (patch.logoMediaId !== undefined) doc.logoMediaId = patch.logoMediaId;
+    if (patch.headerText !== undefined) {
+      doc.headerText = applyLocalized(doc.headerText, patch.headerText);
+    }
+    if (patch.footerText !== undefined) {
+      doc.footerText = applyLocalized(doc.footerText, patch.footerText);
+    }
+    for (const [k, v] of Object.entries(patch.fields ?? {})) {
+      doc.fields[k] = v;
+    }
+    for (const [k, v] of Object.entries(patch.labels ?? {})) {
+      doc.labels[k] = applyLocalized(doc.labels?.[k], v);
+    }
+    doc.updatedBy = actor?.staffId ?? null;
+  });
+  void eventBus.emit(EVENTS.RECEIPT_TEMPLATE_UPDATED, {
+    actorId: actor?.staffId ?? null,
+    lang: updated.lang,
+    widthMm: updated.widthMm,
+  });
+  return toReceiptTemplateDto(updated);
+}
+
+export async function updateLabelTemplate(actor, patch) {
+  const updated = await repo.updateLabelTemplate((doc) => {
+    if (patch.widthMm !== undefined) doc.widthMm = patch.widthMm;
+    if (patch.heightMm !== undefined) doc.heightMm = patch.heightMm;
+    if (patch.barcodeHeight !== undefined) doc.barcodeHeight = patch.barcodeHeight;
+    for (const [k, v] of Object.entries(patch.fields ?? {})) {
+      doc.fields[k] = v;
+    }
+    doc.updatedBy = actor?.staffId ?? null;
+  });
+  void eventBus.emit(EVENTS.LABEL_TEMPLATE_UPDATED, {
+    actorId: actor?.staffId ?? null,
+    widthMm: updated.widthMm,
+    heightMm: updated.heightMm,
+  });
+  return toLabelTemplateDto(updated);
+}
+
 // ---------------------------------------------------------------- jobs
 
 /** Where an order should print: what the till asked for, else the branch's default. */
@@ -138,22 +348,44 @@ async function profileFor(kind, { profileId, branchId }) {
  * @param {object} order  the order/sale DTO
  * @param {{ profileId?: string, shop: object, lang?: string }} ctx
  */
-export async function buildReceiptJob(order, { profileId, shop, lang = 'en' } = {}) {
-  const profile = await profileFor('receipt', { profileId, branchId: order.branchId });
-  const data = receiptData(order, {
-    shop,
-    currency: getSetting('store.currency'),
-    lang,
-    timeZone: getSetting('store.timeZone'),
-  });
+export async function buildReceiptJob(order, { profileId, shop = {}, lang = 'en' } = {}) {
+  const [profile, saved] = await Promise.all([
+    profileFor('receipt', { profileId, branchId: order.branchId }),
+    repo.getReceiptTemplate(),
+  ]);
+  const tplLang = saved.lang ?? lang;
+  const fields = { ...DEFAULT_RECEIPT_CONFIG.fields, ...saved.fields };
+  const qr =
+    order.zatcaQr ||
+    (fields.showQr
+      ? zatcaQr({
+          sellerName: shop.name,
+          vatNumber: shop.vatNumber,
+          timestamp: order.placedAt ?? order.createdAt,
+          total: order.totals?.total,
+          vat: order.totals?.vat,
+        })
+      : '');
+  const data = receiptData(
+    { ...order, zatcaQr: qr },
+    {
+      shop,
+      currency: getSetting('store.currency'),
+      lang: tplLang === 'ar' ? 'ar' : 'en',
+      timeZone: getSetting('store.timeZone'),
+    },
+  );
+  const compiled = buildReceiptTemplate(saved, { lang: tplLang });
   const template = [
-    ...DEFAULT_RECEIPT_TEMPLATE.filter((block) => block.type !== 'cut' || profile.cut),
+    ...compiled.filter((block) => block.type !== 'cut' || profile.cut),
     ...(profile.openDrawer ? [{ type: 'drawer' }] : []),
   ];
   return {
     printer: profile.printer,
     profileId: str(profile._id),
     widthMm: profile.widthMm,
+    lang: tplLang,
+    qr: qr || null,
     /** QZ Tray takes raw bytes as base64 (`{ type: 'raw', format: 'base64' }`). */
     data: toBase64(renderTemplate(template, data, { widthMm: profile.widthMm })),
   };
@@ -163,10 +395,42 @@ export async function buildReceiptJob(order, { profileId, shop, lang = 'en' } = 
  * The receipt for an order the shop already has: looked up, checked against the staff member's
  * branches, and rendered for the printer it belongs on.
  */
-export async function receiptJobForOrder(actor, orderId, { profileId, lang = 'en' } = {}) {
+export async function receiptJobForOrder(actor, orderId, { profileId } = {}) {
   const order = await providers.getOrder?.(orderId);
   if (!order) throw new NotFoundError('Order not found');
   if (order.branchId) actor.assertBranch(order.branchId);
-  const shop = (await providers.getShop?.(lang)) ?? {};
-  return buildReceiptJob(order, { profileId, shop, lang });
+  const saved = await repo.getReceiptTemplate();
+  const shop = await resolveShop(saved.lang === 'ar' ? 'ar' : 'en');
+  return buildReceiptJob(order, { profileId, shop, lang: saved.lang });
+}
+
+/**
+ * Builds a barcode label print job for a product variant or explicit label fields.
+ */
+export async function buildLabelJob(_actor, input) {
+  const [profile, saved] = await Promise.all([
+    profileFor('label', { profileId: input.profileId, branchId: null }),
+    repo.getLabelTemplate(),
+  ]);
+  let item = input;
+  if (input.variantId) {
+    const resolved = await providers.getVariant?.(input.variantId);
+    if (!resolved) throw new NotFoundError('Variant not found');
+    item = resolved;
+  }
+  const shop = await resolveShop('en');
+  const data = labelData(item, { shop, currency: getSetting('store.currency') });
+  const compiled = buildLabelTemplate(saved).filter((block) => block.type !== 'cut' || profile.cut);
+  const copies = input.copies ?? 1;
+  const repeated = Array.from({ length: copies }, () => compiled).flat();
+  const bytes = renderTemplate(repeated, data, { widthMm: profile.widthMm });
+  return {
+    printer: profile.printer,
+    profileId: str(profile._id),
+    widthMm: saved.widthMm,
+    heightMm: saved.heightMm,
+    copies,
+    lines: previewLines(renderTemplate(compiled, data, { widthMm: profile.widthMm })),
+    data: toBase64(bytes),
+  };
 }

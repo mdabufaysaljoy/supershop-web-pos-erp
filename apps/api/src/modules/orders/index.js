@@ -12,6 +12,7 @@ export {
   getBestSellingProductIds,
   getOrderById,
   getOrderForStaff,
+  setOrderShopProvider,
   setPaymentHooks,
   setPaymentMethodResolver,
 } from './order.service.js';

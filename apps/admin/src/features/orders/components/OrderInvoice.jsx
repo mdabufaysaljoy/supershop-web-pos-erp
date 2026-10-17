@@ -1,14 +1,28 @@
+import { zatcaQr } from '@supershop/shared';
+import { QrCode } from '@supershop/ui';
 import { useTranslation } from 'react-i18next';
 import { fmt } from '@/lib/format';
 
 /**
  * The printable document. It lives in the page (hidden on screen, shown when printing) so the
  * browser's own print dialog does the work — no PDF service, no second fetch, and what staff see
- * on screen is what comes out of the printer. ZATCA's tax-invoice QR lands here with P6.4.
+ * on screen is what comes out of the printer. Includes the ZATCA Simplified Tax Invoice QR (P6.4)
+ * whenever the shop has configured its 15-digit Saudi VAT number.
  */
 export function OrderInvoice({ order, store }) {
   const { t } = useTranslation();
+  const shop = { ...order.shop, ...store };
   const address = order.address ?? {};
+  const qr =
+    order.zatcaQr ||
+    zatcaQr({
+      sellerName: shop.name,
+      vatNumber: shop.vatNumber,
+      timestamp: order.placedAt,
+      total: order.totals?.total ?? 0,
+      vat: order.totals?.vat ?? 0,
+    });
+
   const line = (label, value) =>
     value ? (
       <div className="flex justify-between gap-6">
@@ -25,13 +39,18 @@ export function OrderInvoice({ order, store }) {
     >
       <header className="mb-6 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-xl font-semibold">{store?.name ?? ''}</h1>
-          {store?.vatNumber && (
+          <h1 className="text-xl font-semibold">{shop?.name ?? ''}</h1>
+          {shop?.vatNumber && (
             <p className="text-sm">
-              {t('orders.invoice.vatNumber')}: <span dir="ltr">{store.vatNumber}</span>
+              {t('orders.invoice.vatNumber')}: <span dir="ltr">{shop.vatNumber}</span>
             </p>
           )}
-          {store?.address && <p className="text-sm">{store.address}</p>}
+          {shop?.address && <p className="text-sm">{shop.address}</p>}
+          {shop?.phone && (
+            <p className="text-sm" dir="ltr">
+              {shop.phone}
+            </p>
+          )}
         </div>
         <div className="text-end">
           <h2 className="text-lg font-semibold">{t('orders.invoice.title')}</h2>
@@ -98,12 +117,19 @@ export function OrderInvoice({ order, store }) {
         </div>
       </dl>
 
-      <p className="mt-6 text-xs">
-        {t('orders.invoice.paidWith', {
-          method: order.payment.label ?? order.payment.method,
-          status: t(`orders.paymentStatus.${order.payment.status}`),
-        })}
-      </p>
+      <div className="mt-6 flex items-end justify-between gap-6">
+        <p className="text-xs">
+          {t('orders.invoice.paidWith', {
+            method: order.payment.label ?? order.payment.method,
+            status: t(`orders.paymentStatus.${order.payment.status}`),
+          })}
+        </p>
+        {qr && (
+          <div data-testid="zatca-qr">
+            <QrCode value={qr} size={112} title={t('orders.invoice.zatcaQr')} />
+          </div>
+        )}
+      </div>
     </section>
   );
 }

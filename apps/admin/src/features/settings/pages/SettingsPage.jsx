@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router';
 import { PageHeader } from '@/pages/PageHeader';
 import { NotificationsTab } from '@/features/notifications/pages/NotificationsTab';
 import { PaymentsTab } from '@/features/paymentMethods/pages/PaymentsTab';
+import { PrintingTab } from '@/features/printing/pages/PrintingTab';
 import { LanguagesTab } from './LanguagesTab';
 
 /**
@@ -16,6 +17,12 @@ const TABS = [
     label: 'settings.tabs.payments',
     perm: PERMISSIONS.SETTINGS_VIEW,
     Component: PaymentsTab,
+  },
+  {
+    id: 'printing',
+    label: 'settings.tabs.printing',
+    perm: PERMISSIONS.SETTINGS_VIEW,
+    Component: PrintingTab,
   },
   {
     id: 'notifications',

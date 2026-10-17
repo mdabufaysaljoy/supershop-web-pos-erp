@@ -44,7 +44,7 @@ function useAction(mutationFn, { invalidate = [], success } = {}) {
 
 export const useSaveSettings = () =>
   useAction(api.saveSettings, {
-    invalidate: [KEYS.settings('languages'), KEYS.overview],
+    invalidate: [['settings'], KEYS.overview, ['printing', 'status'], ['printing', 'templates']],
     success: 'common.saved',
   });
 export const useTestProvider = () => useAction(api.testProvider);

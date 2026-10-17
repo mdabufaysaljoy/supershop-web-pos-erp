@@ -26,8 +26,13 @@ export function OrderDetailPage() {
   if (isError) return <Alert variant="destructive">{errorMessage(t, error)}</Alert>;
   if (isPending) return <Skeleton className="h-96" />;
 
-  // The shop's VAT number and address (and the ZATCA QR) join the invoice with P6.4.
-  const store = { name: settings.data?.find((s) => s.key === 'store.name')?.value };
+  const settingName = settings.data?.find((s) => s.key === 'store.name')?.value;
+  const settingVat = settings.data?.find((s) => s.key === 'tax.vatNumber')?.value;
+  const store = {
+    ...order.shop,
+    ...(settingName && { name: settingName }),
+    ...(settingVat && { vatNumber: settingVat }),
+  };
   const address = order.address ?? {};
 
   return (

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { previewLines } from '@supershop/shared';
+import { decodeZatcaQr, previewLines } from '@supershop/shared';
 import request from 'supertest';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { useMemoryMongo } from '../../../../test/mongo.js';
@@ -9,9 +9,9 @@ import { seedPaymentMethods } from '../../paymentMethods/index.js';
 import { seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
 import { ensureSuperAdmin } from '../../staff/index.js';
-import { PrinterProfile } from '../printer.model.js';
+import { LabelTemplate, PrinterProfile, ReceiptTemplate } from '../printer.model.js';
 
-/** P6.3 — the printers a shop has, and the key that lets its tills use them. */
+/** P6.3 & P6.4 — the printers a shop has, its templates, and the key that lets its tills use them. */
 useMemoryMongo({ beforeAll, afterAll, afterEach });
 
 const PW = 'staff-pass-123';
@@ -59,7 +59,7 @@ const makePrinter = (over = {}) =>
 beforeEach(async () => {
   setTranslationScheduler(async () => {});
   await loadSettings();
-  await PrinterProfile.init();
+  await Promise.all([PrinterProfile.init(), ReceiptTemplate.init(), LabelTemplate.init()]);
   app = createApp({ checks: { db: () => true, redis: async () => true } });
   await seedDefaultRoles();
   await seedPaymentMethods();
@@ -276,5 +276,106 @@ describe('a receipt for a sale', () => {
       .get(`${PRINTING}/receipt/${sale.id}`)
       .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(403);
+  });
+
+  it('embeds a ZATCA TLV QR on receipts and staff invoices when tax.vatNumber is set', async () => {
+    await makePrinter({ isDefault: true });
+    await ok(
+      await root.patch('/api/v1/settings', {
+        changes: [{ key: 'tax.vatNumber', value: '300000000000003' }],
+      }),
+    );
+    const sale = await sell();
+    const job = await ok(await root.get(`${PRINTING}/receipt/${sale.id}`));
+    expect(job.qr).toEqual(expect.any(String));
+    const decoded = decodeZatcaQr(job.qr);
+    expect(decoded).toMatchObject({
+      sellerName: 'Supershop',
+      vatNumber: '300000000000003',
+      total: '230.00',
+    });
+
+    const staffOrder = await ok(await root.get(`/api/v1/orders/${sale.id}`));
+    expect(staffOrder.shop).toMatchObject({ name: 'Supershop', vatNumber: '300000000000003' });
+    expect(staffOrder.zatcaQr).toBe(job.qr);
+  });
+});
+
+describe('receipt & label templates (P6.4)', () => {
+  it('returns default templates with live preview and saves receipt customizations', async () => {
+    const initial = await ok(await root.get(`${PRINTING}/templates`));
+    expect(initial.receipt).toMatchObject({
+      lang: 'en',
+      widthMm: 80,
+      fields: expect.objectContaining({ showQr: true, showVatBreakdown: true }),
+      preview: expect.objectContaining({ widthMm: 80, charsPerLine: 48 }),
+    });
+    expect(initial.label).toMatchObject({
+      widthMm: 58,
+      heightMm: 30,
+      barcodeHeight: 64,
+    });
+
+    const updated = await ok(
+      await root.patch(`${PRINTING}/templates/receipt`, {
+        lang: 'bilingual',
+        widthMm: 58,
+        headerText: 'Welcome to Supershop',
+        footerText: 'No refunds without receipt',
+        fields: { showSku: true, showCustomer: false },
+      }),
+    );
+    expect(updated).toMatchObject({
+      lang: 'bilingual',
+      widthMm: 58,
+      fields: expect.objectContaining({ showSku: true, showCustomer: false }),
+    });
+    expect(updated.preview.lines.some((l) => l.includes('Welcome to Supershop'))).toBe(true);
+    expect(updated.preview.lines.some((l) => l.includes('No refunds without receipt'))).toBe(true);
+    expect(updated.preview.lines.some((l) => l.includes('OX-RED-L'))).toBe(true);
+  });
+
+  it('saves label template dimensions and renders a barcode label print job', async () => {
+    const labelPrinter = await makePrinter({
+      name: 'Label printer',
+      printer: 'Zebra ZD220',
+      kind: 'label',
+      widthMm: 58,
+      isDefault: true,
+    });
+    const tpl = await ok(
+      await root.patch(`${PRINTING}/templates/label`, {
+        widthMm: 40,
+        heightMm: 25,
+        barcodeHeight: 50,
+        fields: { showShopName: true, showSku: true },
+      }),
+    );
+    expect(tpl).toMatchObject({
+      widthMm: 40,
+      heightMm: 25,
+      barcodeHeight: 50,
+      fields: expect.objectContaining({ showShopName: true, showSku: true }),
+    });
+
+    const job = await ok(
+      await root.post(`${PRINTING}/label`, {
+        name: 'Oxford Shirt',
+        variant: 'Red / L',
+        sku: 'OX-RED-L',
+        barcode: '6281000000014',
+        price: 11_500,
+        copies: 2,
+      }),
+    );
+    expect(job).toMatchObject({
+      printer: 'Zebra ZD220',
+      profileId: labelPrinter.id,
+      widthMm: 40,
+      heightMm: 25,
+      copies: 2,
+    });
+    expect(job.lines.some((l) => l.includes('Supershop'))).toBe(true);
+    expect(job.lines.some((l) => l.includes('Oxford Shirt'))).toBe(true);
   });
 });

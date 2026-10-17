@@ -191,3 +191,229 @@ export const DEFAULT_LABEL_TEMPLATE = Object.freeze([
   { type: 'feed', lines: 1 },
   { type: 'cut' },
 ]);
+
+// ---------------------------------------------------------------- configurable templates (P6.4)
+
+export const RECEIPT_LANGUAGES = Object.freeze(['en', 'ar', 'bilingual']);
+
+/**
+ * Editable receipt configuration (P6.4). All source strings are English; `ar` is filled by the
+ * translation pipeline (`localized()` plugin) or manual override, never hand-written in code.
+ */
+export const DEFAULT_RECEIPT_CONFIG = Object.freeze({
+  lang: 'en',
+  widthMm: 80,
+  logoMediaId: null,
+  headerText: Object.freeze({ en: '' }),
+  footerText: Object.freeze({ en: 'Thank you' }),
+  fields: Object.freeze({
+    showAddress: true,
+    showPhone: true,
+    showVatNumber: true,
+    showBranch: false,
+    showCashier: true,
+    showCustomer: true,
+    showSku: true,
+    showVatBreakdown: true,
+    showQr: true,
+  }),
+  labels: Object.freeze({
+    receipt: Object.freeze({ en: 'Receipt' }),
+    date: Object.freeze({ en: 'Date' }),
+    branch: Object.freeze({ en: 'Branch' }),
+    cashier: Object.freeze({ en: 'Served by' }),
+    subtotal: Object.freeze({ en: 'Subtotal' }),
+    discount: Object.freeze({ en: 'Discount' }),
+    vat: Object.freeze({ en: 'VAT' }),
+    total: Object.freeze({ en: 'Total' }),
+    change: Object.freeze({ en: 'Change' }),
+    customer: Object.freeze({ en: 'Customer' }),
+  }),
+});
+
+export const DEFAULT_LABEL_CONFIG = Object.freeze({
+  widthMm: 58,
+  heightMm: 30,
+  barcodeHeight: 64,
+  fields: Object.freeze({
+    showShopName: false,
+    showName: true,
+    showVariant: true,
+    showPrice: true,
+    showSku: false,
+    showBarcodeText: true,
+  }),
+});
+
+function pickPair(val, fallbackEn = '') {
+  if (typeof val === 'string') return { en: val, ar: '' };
+  const en = typeof val?.en === 'string' ? val.en : fallbackEn;
+  const ar = typeof val?.ar === 'string' ? val.ar.trim() : '';
+  return { en, ar };
+}
+
+/** Resolves a row label (`Receipt`, `Total`…) for `en`, `ar`, or `bilingual` (`en / ar`). */
+export function resolveReceiptLabel(val, fallbackEn, lang = 'en') {
+  const { en, ar } = pickPair(val, fallbackEn);
+  if (lang === 'ar') return ar || en;
+  if (lang === 'bilingual') return ar && ar !== en ? `${en} / ${ar}` : en;
+  return en;
+}
+
+/** Resolves centered header/footer text into 0, 1, or 2 (bilingual) text blocks. */
+function centeredTextBlocks(val, fallbackEn, lang = 'en') {
+  const { en, ar } = pickPair(val, fallbackEn);
+  if (lang === 'ar') {
+    const text = (ar || en).trim();
+    return text ? [{ type: 'text', value: text, align: 'center' }] : [];
+  }
+  if (lang === 'bilingual') {
+    const out = [];
+    if (en.trim()) out.push({ type: 'text', value: en.trim(), align: 'center' });
+    if (ar && ar !== en.trim()) out.push({ type: 'text', value: ar, align: 'center' });
+    return out;
+  }
+  return en.trim() ? [{ type: 'text', value: en.trim(), align: 'center' }] : [];
+}
+
+/**
+ * Compiles the shop's saved receipt configuration into the instruction list `renderTemplate` uses.
+ * With default settings in English, it emits `DEFAULT_RECEIPT_TEMPLATE`.
+ *
+ * @param {object} [config]
+ * @param {{ lang?: 'en' | 'ar' | 'bilingual' }} [opts]
+ */
+export function buildReceiptTemplate(config = {}, opts = {}) {
+  const lang = opts.lang ?? config?.lang ?? DEFAULT_RECEIPT_CONFIG.lang;
+  const fields = { ...DEFAULT_RECEIPT_CONFIG.fields, ...config?.fields };
+  const labels = { ...DEFAULT_RECEIPT_CONFIG.labels, ...config?.labels };
+  const lbl = (key) =>
+    resolveReceiptLabel(labels[key], DEFAULT_RECEIPT_CONFIG.labels[key].en, lang);
+
+  const blocks = [
+    { type: 'text', value: '{{shop.name}}', align: 'center', bold: true, double: true },
+  ];
+  if (fields.showAddress) blocks.push({ type: 'text', value: '{{shop.address}}', align: 'center' });
+  if (fields.showPhone) blocks.push({ type: 'text', value: '{{shop.phone}}', align: 'center' });
+  if (fields.showVatNumber) {
+    blocks.push({
+      type: 'text',
+      value: `${lbl('vat')} {{shop.vatNumber}}`,
+      align: 'center',
+      showIf: 'shop.vatNumber',
+    });
+  }
+  blocks.push(...centeredTextBlocks(config?.headerText, '', lang));
+  blocks.push({ type: 'feed', lines: 1 });
+  blocks.push({ type: 'row', left: lbl('receipt'), right: '{{order.number}}' });
+  blocks.push({ type: 'row', left: lbl('date'), right: '{{order.at}}' });
+  if (fields.showBranch) {
+    blocks.push({
+      type: 'row',
+      left: lbl('branch'),
+      right: '{{order.branch}}',
+      showIf: 'order.branch',
+    });
+  }
+  if (fields.showCashier) {
+    blocks.push({ type: 'row', left: lbl('cashier'), right: '{{order.cashier}}' });
+  }
+  blocks.push({ type: 'line' });
+  blocks.push({
+    type: 'items',
+    line: { type: 'row', left: '{{qty}} x {{name}}', right: '{{lineTotal}}' },
+    ...(fields.showSku ? { sub: { type: 'text', value: '   {{sku}} @ {{unitPrice}}' } } : {}),
+  });
+  blocks.push({ type: 'line' });
+  blocks.push({ type: 'row', left: lbl('subtotal'), right: '{{totals.subtotal}}' });
+  blocks.push({
+    type: 'row',
+    left: lbl('discount'),
+    right: '-{{totals.discount}}',
+    showIf: 'raw.discount',
+  });
+  if (fields.showVatBreakdown) {
+    blocks.push({ type: 'row', left: lbl('vat'), right: '{{totals.vat}}' });
+  }
+  blocks.push({ type: 'row', left: lbl('total'), right: '{{totals.total}}', bold: true });
+  blocks.push({ type: 'payments', line: { type: 'row', left: '{{label}}', right: '{{amount}}' } });
+  blocks.push({
+    type: 'row',
+    left: lbl('change'),
+    right: '{{totals.change}}',
+    showIf: 'raw.change',
+  });
+  if (fields.showCustomer) {
+    blocks.push({
+      type: 'row',
+      left: lbl('customer'),
+      right: '{{customer.name}}',
+      showIf: 'raw.customer',
+    });
+  }
+  blocks.push({ type: 'feed', lines: 1 });
+  if (fields.showQr) blocks.push({ type: 'qr', value: '{{qr}}' });
+  blocks.push(
+    ...centeredTextBlocks(
+      config?.footerText ?? DEFAULT_RECEIPT_CONFIG.footerText,
+      DEFAULT_RECEIPT_CONFIG.footerText.en,
+      lang,
+    ),
+  );
+  blocks.push({ type: 'feed', lines: 2 });
+  blocks.push({ type: 'cut' });
+  return blocks;
+}
+
+/**
+ * Compiles a barcode label configuration into ESC/POS instructions.
+ * @param {object} [config]
+ */
+export function buildLabelTemplate(config = {}) {
+  const fields = { ...DEFAULT_LABEL_CONFIG.fields, ...config?.fields };
+  const barcodeHeight = config?.barcodeHeight ?? DEFAULT_LABEL_CONFIG.barcodeHeight;
+  const blocks = [];
+  if (fields.showShopName) {
+    blocks.push({ type: 'text', value: '{{shopName}}', align: 'center' });
+  }
+  if (fields.showName) {
+    blocks.push({ type: 'text', value: '{{name}}', align: 'center', bold: true });
+  }
+  if (fields.showVariant) {
+    blocks.push({ type: 'text', value: '{{variant}}', align: 'center' });
+  }
+  if (fields.showPrice) {
+    blocks.push({ type: 'text', value: '{{price}}', align: 'center', double: true });
+  }
+  blocks.push({
+    type: 'barcode',
+    value: '{{barcode}}',
+    height: barcodeHeight,
+    hri: Boolean(fields.showBarcodeText),
+  });
+  if (fields.showSku) {
+    blocks.push({ type: 'text', value: 'SKU: {{sku}}', align: 'center' });
+  }
+  blocks.push({ type: 'feed', lines: 1 });
+  blocks.push({ type: 'cut' });
+  return blocks;
+}
+
+/**
+ * Formats a product variant for `buildLabelTemplate`.
+ * @param {{ name?: string, variant?: string, sku?: string, barcode?: string, price?: number }} item
+ * @param {{ shop?: { name?: string }, currency?: string, lang?: string }} [ctx]
+ */
+export function labelData(item = {}, { shop = {}, currency = 'SAR', lang = 'en' } = {}) {
+  return {
+    shopName: shop.name ?? '',
+    name: item.name ?? '',
+    variant: item.variant ?? '',
+    sku: item.sku ?? '',
+    barcode: item.barcode || item.sku || '',
+    price:
+      typeof item.price === 'string'
+        ? item.price
+        : formatMoney(item.price ?? 0, { currency, lang }),
+  };
+}

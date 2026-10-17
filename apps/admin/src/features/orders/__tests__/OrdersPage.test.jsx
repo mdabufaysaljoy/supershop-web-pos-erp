@@ -283,4 +283,18 @@ describe('one order', () => {
     await user.click(screen.getByRole('button', { name: 'Print invoice' }));
     expect(print).toHaveBeenCalled();
   });
+
+  it('renders the VAT number and ZATCA QR on the invoice when the shop has a VAT number', async () => {
+    setup(<OrderDetailPage />, {
+      path: '/orders/o1',
+      detail: {
+        ...DETAIL,
+        shop: { name: 'Supershop', vatNumber: '300000000000003', address: 'Riyadh' },
+      },
+    });
+    await screen.findByRole('heading', { name: /ORD-000007/ });
+    const invoice = within(screen.getByTestId('order-invoice'));
+    expect(invoice.getByText('300000000000003')).toBeInTheDocument();
+    expect(invoice.getByTestId('zatca-qr').querySelector('svg')).not.toBeNull();
+  });
 });

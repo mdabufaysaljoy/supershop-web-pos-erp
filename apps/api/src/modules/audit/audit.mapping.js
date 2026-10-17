@@ -347,6 +347,26 @@ export const AUDIT_MAPPINGS = {
       before: c.before,
       after: c.after,
     })),
+
+  // printing & templates
+  [EVENTS.PRINTER_PROFILE_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'printerProfile',
+    entityId: p.profileId,
+    data: { action: p.action, name: p.name },
+  }),
+  [EVENTS.RECEIPT_TEMPLATE_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'receiptTemplate',
+    entityId: 'default',
+    data: { lang: p.lang, widthMm: p.widthMm },
+  }),
+  [EVENTS.LABEL_TEMPLATE_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'labelTemplate',
+    entityId: 'default',
+    data: { widthMm: p.widthMm, heightMm: p.heightMm },
+  }),
 };
 
 /** Last line of defense: strip secret-looking fields anywhere in before/after/data. */

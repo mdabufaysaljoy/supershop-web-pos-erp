@@ -1,19 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildLabelTemplate,
+  buildReceiptTemplate,
   charsForWidth,
   columns,
   createPrintingSchemas,
+  decodeZatcaQr,
   DEFAULT_LABEL_TEMPLATE,
   DEFAULT_RECEIPT_TEMPLATE,
   encodeText,
   expand,
   fill,
-  receiptData,
+  labelData,
   previewLines,
+  qrSvg,
+  receiptData,
   renderEscPos,
   renderTemplate,
   toBase64,
   wrap,
+  zatcaQr,
 } from '../index.js';
 
 /** P6.3 — what comes out of a receipt printer, decided here so it can be read without paper. */
@@ -249,5 +255,109 @@ describe('what the admin may send', () => {
     expect(schemas.sign.safeParse({ data: '' }).success).toBe(false);
     expect(schemas.sign.safeParse({ data: 'x'.repeat(5000) }).success).toBe(false);
     expect(schemas.sign.safeParse({ data: '{"call":"printers.find"}' }).success).toBe(true);
+  });
+
+  it('validates receipt and barcode label template edits', () => {
+    expect(
+      schemas.receiptTemplate.safeParse({
+        lang: 'bilingual',
+        widthMm: 80,
+        fields: { showBranch: true, showCashier: false },
+        footerText: 'See you soon',
+      }).success,
+    ).toBe(true);
+    expect(schemas.receiptTemplate.safeParse({ lang: 'fr' }).success).toBe(false);
+    expect(
+      schemas.labelTemplate.safeParse({
+        widthMm: 50,
+        heightMm: 30,
+        barcodeHeight: 72,
+        fields: { showShopName: true, showSku: true },
+      }).success,
+    ).toBe(true);
+    expect(schemas.labelTemplate.safeParse({ widthMm: 5 }).success).toBe(false);
+  });
+});
+
+describe('ZATCA simplified tax invoice QR (P6.4)', () => {
+  it('encodes all 5 TLV fields in Base64 and decodes them back', () => {
+    const qr = zatcaQr({
+      sellerName: 'Supershop',
+      vatNumber: '300000000000003',
+      timestamp: '2026-10-14T20:00:00.000Z',
+      total: 25_450,
+      vat: 3320,
+    });
+    expect(qr).toBeTruthy();
+    expect(decodeZatcaQr(qr)).toEqual({
+      sellerName: 'Supershop',
+      vatNumber: '300000000000003',
+      timestamp: '2026-10-14T20:00:00.000Z',
+      total: '254.50',
+      vat: '33.20',
+    });
+    const svg = qrSvg(qr);
+    expect(svg).toContain('<svg');
+    expect(svg).toContain('<path d="M');
+  });
+
+  it('returns empty string when the shop has no VAT number', () => {
+    expect(
+      zatcaQr({
+        sellerName: 'Supershop',
+        vatNumber: null,
+        timestamp: '2026-10-14T20:00:00.000Z',
+        total: 11_500,
+        vat: 1500,
+      }),
+    ).toBe('');
+    expect(qrSvg('')).toBe('');
+  });
+});
+
+describe('configurable receipt and label templates (P6.4)', () => {
+  const sampleAr = '\u0641\u0627\u062a\u0648\u0631\u0629';
+
+  it('builds the default receipt when given no overrides', () => {
+    expect(buildReceiptTemplate()).toEqual(DEFAULT_RECEIPT_TEMPLATE);
+  });
+
+  it('toggles fields and formats bilingual or Arabic labels cleanly', () => {
+    const tpl = buildReceiptTemplate({
+      lang: 'bilingual',
+      headerText: { en: 'Welcome', ar: sampleAr },
+      footerText: { en: 'Thank you', ar: sampleAr },
+      fields: { showCashier: false, showBranch: true, showSku: false },
+      labels: { total: { en: 'Total', ar: sampleAr } },
+    });
+    const data = receiptData({ ...SALE, branchName: 'Main' }, { shop: SHOP });
+    const lines = textOf(renderTemplate(tpl, data, { widthMm: 80 }));
+    expect(lines).toContain('Welcome');
+    expect(lines).toContain(sampleAr);
+    expect(lines.some((l) => l.includes('Branch'))).toBe(true);
+    expect(lines.some((l) => l.includes('Served by'))).toBe(false);
+    expect(lines.some((l) => l.includes('OX-RED'))).toBe(false);
+    expect(lines.some((l) => l.includes(`Total / ${sampleAr}`))).toBe(true);
+  });
+
+  it('builds a configurable barcode label', () => {
+    const tpl = buildLabelTemplate({
+      barcodeHeight: 70,
+      fields: { showShopName: true, showVariant: true, showSku: true, showBarcodeText: false },
+    });
+    const data = labelData(
+      {
+        name: 'Oxford Shirt',
+        variant: 'Red / L',
+        sku: 'OX-RED',
+        barcode: '6281000000017',
+        price: 11_500,
+      },
+      { shop: SHOP },
+    );
+    const lines = textOf(renderTemplate(tpl, data, { widthMm: 58 }));
+    expect(lines).toEqual(
+      expect.arrayContaining(['Supershop', 'Oxford Shirt', 'Red / L', 'SAR 115.00', 'SKU: OX-RED']),
+    );
   });
 });

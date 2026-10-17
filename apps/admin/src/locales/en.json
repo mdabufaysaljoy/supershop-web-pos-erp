@@ -210,6 +210,7 @@
     "tabs": {
       "languages": "Languages",
       "payments": "Payments",
+      "printing": "Printing",
       "notifications": "Notifications"
     }
   },
@@ -1094,6 +1095,7 @@
       "title": "Invoice",
       "print": "Print invoice",
       "vatNumber": "VAT number",
+      "zatcaQr": "ZATCA tax invoice QR code",
       "billTo": "Billed to",
       "deliverTo": "Delivered to",
       "item": "Item",
@@ -1505,5 +1507,110 @@
     },
     "printReceipt": "Print the receipt again",
     "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}"
+  },
+  "printing": {
+    "qz": {
+      "title": "QZ Tray & tax details",
+      "description": "Connects the till in your browser to thermal receipt and label printers on that machine. Your private key stays encrypted on the server.",
+      "ready": "Ready",
+      "notConfigured": "Keys not set",
+      "enabled": "Enable thermal printing",
+      "enabledHelp": "Allows tills to send ESC/POS jobs through QZ Tray.",
+      "autoPrint": "Print receipt automatically",
+      "autoPrintHelp": "Prints a receipt as soon as a sale is completed at the till.",
+      "vatNumber": "Saudi VAT number (15 digits)",
+      "vatNumberHelp": "Starts and ends with 3. When set, every receipt and invoice includes a ZATCA tax QR code.",
+      "vatNumberPlaceholder": "300000000000003",
+      "certificate": "QZ Tray public certificate (PEM)",
+      "certificateHelp": "Shown to QZ Tray when a till connects.",
+      "certificatePlaceholder": "-----BEGIN CERTIFICATE-----",
+      "saveCertificate": "Save certificate",
+      "privateKey": "QZ Tray private key (PEM)",
+      "keyStored": "Stored: {{masked}}",
+      "keyNotSet": "Not set yet.",
+      "privateKeyPlaceholder": "Paste a new PEM private key",
+      "detectPrinters": "Find printers on this machine",
+      "detectedCount_one": "{{count}} printer found",
+      "detectedCount_other": "{{count}} printers found",
+      "unreachable": "Could not reach QZ Tray on this machine."
+    },
+    "profiles": {
+      "title": "Printers",
+      "description": "Map each counter or label printer to the name QZ Tray sees on that machine.",
+      "empty": "No printers added yet.",
+      "default": "Default",
+      "makeDefault": "Make default",
+      "mm": "{{mm}} mm",
+      "addTitle": "Add a printer",
+      "name": "Label in admin",
+      "namePlaceholder": "e.g. Front till",
+      "osPrinter": "Printer name on the machine",
+      "osPrinterPlaceholder": "e.g. EPSON TM-T20",
+      "kind": "Printer type",
+      "kinds": {
+        "receipt": "Receipt printer",
+        "label": "Label printer"
+      },
+      "paperWidth": "Paper width",
+      "cut": "Cut paper at the end",
+      "openDrawer": "Kick cash drawer open",
+      "setAsDefault": "Use as default",
+      "addButton": "Add printer"
+    },
+    "receipt": {
+      "title": "Receipt template",
+      "description": "Customize what prints on thermal receipts, including language, paper size, logo, header/footer and ZATCA QR code.",
+      "language": "Receipt language",
+      "languages": {
+        "en": "English",
+        "ar": "Arabic",
+        "bilingual": "Bilingual (English + Arabic)"
+      },
+      "paperWidth": "Paper width",
+      "chars": "chars",
+      "logo": "Receipt logo",
+      "chooseLogo": "Choose logo",
+      "changeLogo": "Change logo",
+      "removeLogo": "Remove logo",
+      "headerText": "Header line",
+      "headerPlaceholder": "Optional line under the shop details",
+      "footerText": "Footer line",
+      "footerPlaceholder": "e.g. Thank you",
+      "arabicPreview": "Arabic (automatic)",
+      "fieldsTitle": "Fields shown on the receipt",
+      "fields": {
+        "showAddress": "Shop address",
+        "showPhone": "Shop phone",
+        "showVatNumber": "VAT number",
+        "showBranch": "Branch name",
+        "showCashier": "Cashier name",
+        "showCustomer": "Customer name",
+        "showSku": "Item SKU & unit price",
+        "showVatBreakdown": "VAT row",
+        "showQr": "ZATCA QR code"
+      },
+      "saveButton": "Save receipt template",
+      "previewTitle": "Live thermal preview",
+      "zatcaQrCaption": "ZATCA Simplified Tax Invoice QR"
+    },
+    "label": {
+      "title": "Barcode label template",
+      "description": "Size and fields for product shelf and sticker labels.",
+      "widthMm": "Label width (mm)",
+      "heightMm": "Label height (mm)",
+      "barcodeHeight": "Barcode height (dots)",
+      "fieldsTitle": "Fields shown on the label",
+      "fields": {
+        "showShopName": "Shop name",
+        "showName": "Product name",
+        "showVariant": "Variant options",
+        "showPrice": "Price",
+        "showSku": "SKU line",
+        "showBarcodeText": "Digits under barcode"
+      },
+      "saveButton": "Save label template",
+      "testPrint": "Print test label",
+      "previewTitle": "Live label preview"
+    }
   }
 }

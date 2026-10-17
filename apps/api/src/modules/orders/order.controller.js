@@ -68,7 +68,10 @@ export const adminList = async (req, res) => {
 
 export const adminGet = async (req, res) => {
   privately(res);
-  sendData(res, await service.getOrderForStaff(req.valid.params.id));
+  sendData(
+    res,
+    await service.getOrderForStaff(req.valid.params.id, { lang: requestLanguage(req) }),
+  );
 };
 
 export const transition = async (req, res) => {

@@ -27,13 +27,21 @@ export {
   wrap,
 } from './printing/escpos.js';
 export {
+  buildLabelTemplate,
+  buildReceiptTemplate,
+  DEFAULT_LABEL_CONFIG,
   DEFAULT_LABEL_TEMPLATE,
+  DEFAULT_RECEIPT_CONFIG,
   DEFAULT_RECEIPT_TEMPLATE,
   expand,
   fill,
+  labelData,
+  RECEIPT_LANGUAGES,
   receiptData,
   renderTemplate,
+  resolveReceiptLabel,
 } from './printing/template.js';
+export { decodeZatcaQr, formatZatcaAmount, qrMatrix, qrSvg, zatcaQr } from './printing/zatca.js';
 export { discountAmount, POS, priceSale, tenderSummary } from './pos/sale.js';
 export { collectItemTexts, itemHref, MENU, resolveMenu, walkItems } from './site/menu.js';
 export { isHexColor, THEME, themeCssVars } from './site/theme.js';

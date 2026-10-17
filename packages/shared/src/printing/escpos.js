@@ -21,16 +21,23 @@ export const charsForWidth = (mm) => PAPER.CHARS_PER_LINE[mm] ?? PAPER.CHARS_PER
 /** Spaces `Intl` likes but a thermal printer does not: non-breaking and narrow no-break. */
 const SPACES = /[\u00a0\u202f\u2007]/g;
 
+const utf8 = new TextEncoder();
+const utf8Decode = new TextDecoder('utf-8');
+const isArabicCodePoint = (code) =>
+  (code >= 0x0600 && code <= 0x06ff) || (code >= 0x0750 && code <= 0x077f);
+
 /**
  * Text → bytes. Formatted money arrives with a non-breaking space in it, which becomes a plain
- * one; anything else the printer's code page cannot show becomes '?' rather than nonsense.
- * Arabic receipts need a code page of their own and arrive with the receipt editor (P6.4).
+ * one; Arabic script is encoded as UTF-8 (P6.4), while anything else a receipt code page cannot
+ * show becomes '?' rather than nonsense.
  */
 export function encodeText(text) {
   const out = [];
   for (const char of String(text ?? '').replace(SPACES, ' ')) {
     const code = char.codePointAt(0);
-    out.push(code < 0x80 ? code : 0x3f);
+    if (code < 0x80) out.push(code);
+    else if (isArabicCodePoint(code)) out.push(...utf8.encode(char));
+    else out.push(0x3f);
   }
   return out;
 }
@@ -226,10 +233,11 @@ export const toBase64 = (bytes) => {
  */
 export function previewLines(bytes) {
   const lines = [];
-  let line = '';
+  let lineBytes = [];
   const flush = () => {
+    const line = utf8Decode.decode(Uint8Array.from(lineBytes));
     if (line.trim()) lines.push(line.replace(/\s+$/, ''));
-    line = '';
+    lineBytes = [];
   };
   for (let i = 0; i < bytes.length; i += 1) {
     const byte = bytes[i];
@@ -248,7 +256,7 @@ export function previewLines(bytes) {
     } else if (byte === 0x0a) {
       flush();
     } else {
-      line += String.fromCharCode(byte);
+      lineBytes.push(byte);
     }
   }
   flush();

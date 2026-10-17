@@ -31,6 +31,7 @@ import {
   getOrderById,
   getOrderForStaff,
   registerOrderSubscribers,
+  setOrderShopProvider,
   setPaymentHooks,
   setPaymentMethodResolver,
   setPosCustomerLookup,
@@ -62,7 +63,7 @@ import {
   createInventoryRouter,
   getOnlineInStock,
 } from './inventory/index.js';
-import { createMediaRouter } from './media/index.js';
+import { createMediaRouter, getMediaByIds } from './media/index.js';
 import {
   createNotificationRouter,
   registerNotificationSubscribers,
@@ -176,18 +177,21 @@ export function registerModules() {
   );
   // A sale at the counter can be attached to a customer the shop already knows (P6.1).
   setPosCustomerLookup(findCustomerByContact);
-  // What a receipt prints: the order itself, and how the shop names itself on paper (P6.3).
+  const getShop = async (lang) => {
+    const chrome = await getSiteChrome(lang);
+    return {
+      name: getSetting('store.name'),
+      address: chrome.contact.address,
+      phone: chrome.contact.phone,
+      vatNumber: getSetting('tax.vatNumber'),
+    };
+  };
+  setOrderShopProvider(getShop);
+  // What a receipt prints: the order itself, and how the shop names itself on paper (P6.3/P6.4).
   setPrintingProviders({
     getOrder: (id) => getOrderForStaff(id).catch(() => null),
-    getShop: async (lang) => {
-      const chrome = await getSiteChrome(lang);
-      return {
-        name: getSetting('store.name'),
-        address: chrome.contact.address,
-        phone: chrome.contact.phone,
-        vatNumber: getSetting('tax.vatNumber'),
-      };
-    },
+    getShop,
+    getMediaByIds,
   });
   registerAuthSubscribers();
   // A proven email (verification link or identity provider) adopts that person's guest orders.

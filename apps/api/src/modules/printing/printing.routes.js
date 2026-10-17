@@ -46,10 +46,34 @@ export function createPrintingRouter({ schemas = createPrintingSchemas() } = {})
   r.delete('/profiles/:id', manage, id, c.deleteProfile);
 
   r.get(
+    '/templates',
+    requireAnyPermission(P.POS_SELL, P.SETTINGS_PRINTING, P.PRODUCT_VIEW),
+    c.getTemplates,
+  );
+  r.patch(
+    '/templates/receipt',
+    manage,
+    validate({ body: schemas.receiptTemplate }),
+    c.updateReceiptTemplate,
+  );
+  r.patch(
+    '/templates/label',
+    manage,
+    validate({ body: schemas.labelTemplate }),
+    c.updateLabelTemplate,
+  );
+
+  r.get(
     '/receipt/:id',
     requireAnyPermission(P.POS_SELL, P.ORDER_VIEW),
     validate({ params: schemas.idParam, query: schemas.jobQuery }),
     c.receiptJob,
+  );
+  r.post(
+    '/label',
+    requireAnyPermission(P.POS_SELL, P.PRODUCT_VIEW, P.SETTINGS_PRINTING),
+    validate({ body: schemas.labelJob }),
+    c.labelJob,
   );
   return r;
 }

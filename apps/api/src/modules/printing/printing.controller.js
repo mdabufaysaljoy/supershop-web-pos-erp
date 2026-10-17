@@ -41,3 +41,14 @@ export const receiptJob = async (req, res) =>
       lang: requestLanguage(req),
     }),
   );
+
+export const getTemplates = async (_req, res) => sendData(res, await service.getTemplates());
+
+export const updateReceiptTemplate = async (req, res) =>
+  sendData(res, await service.updateReceiptTemplate(req.access, req.valid.body));
+
+export const updateLabelTemplate = async (req, res) =>
+  sendData(res, await service.updateLabelTemplate(req.access, req.valid.body));
+
+export const labelJob = async (req, res) =>
+  sendData(res, await service.buildLabelJob(req.access, req.valid.body));

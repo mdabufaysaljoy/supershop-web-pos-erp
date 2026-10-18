@@ -1,6 +1,7 @@
 import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import Link from 'next/link';
 import { ProductGrid } from '@/components/catalog/ProductCard';
+import { StorefrontProductRail } from '@/components/catalog/StorefrontProductRail';
 import { CategoryShowcase } from '@/components/home/CategoryShowcase';
 import { HomeHero } from '@/components/home/HomeHero';
 import { NewsletterSection } from '@/components/home/NewsletterSection';
@@ -12,6 +13,11 @@ import { getCategoryTree, searchProducts } from '@/lib/catalog';
 import { blockContext, getHomePage } from '@/lib/cmsPage';
 import { getPageContext } from '@/lib/page';
 import { buildMetadata } from '@/lib/seo';
+
+const STOREFRONT_BLOCK_COMPONENTS = {
+  ...ALL_BLOCK_COMPONENTS,
+  productRail: StorefrontProductRail,
+};
 
 /**
  * Home. The shop arranges it in the builder (seeded with a starting template, P5.6), and this
@@ -44,7 +50,7 @@ export default async function HomePage({ params }) {
       <div className="grid gap-16 sm:gap-20">
         <BlockRenderer
           blocks={page.content.blocks}
-          components={ALL_BLOCK_COMPONENTS}
+          components={STOREFRONT_BLOCK_COMPONENTS}
           context={blockContext({ page, lang, t, fmtOptions })}
         />
         {/* Flagship interactive supershop additions */}

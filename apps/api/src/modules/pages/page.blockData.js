@@ -33,6 +33,7 @@ export function setBlockDataProviders(next) {
 export const rendererImage = (image) =>
   image && {
     url: image.url,
+    sources: image.sources ?? null,
     srcSet: image.sources?.map((s) => `${s.url} ${s.width}w`).join(', ') ?? null,
     width: image.width,
     height: image.height,
@@ -46,13 +47,25 @@ const inGivenOrder = (items, ids) => {
   return ids.map((id) => byId.get(id)).filter(Boolean);
 };
 
-const productView = (card) => ({
-  id: card.id,
-  href: `/product/${card.slug}`,
-  name: card.name,
-  price: card.priceMin,
-  image: rendererImage(card.image),
-});
+const productView = (card) => {
+  const priceMin = card.priceMin ?? card.price ?? 0;
+  const priceMax = card.priceMax ?? priceMin;
+  const image = rendererImage(card.image);
+  return {
+    ...card,
+    id: card.id,
+    slug: card.slug,
+    href: `/product/${card.slug}`,
+    name: card.name,
+    price: priceMin,
+    priceMin,
+    priceMax,
+    compareAtPrice: card.compareAtPrice ?? null,
+    defaultVariantId: card.defaultVariantId ?? null,
+    inStock: card.inStock !== false,
+    image,
+  };
+};
 
 /** Product ids for a rail, from whichever source the admin chose. */
 async function railProducts(props, lang) {

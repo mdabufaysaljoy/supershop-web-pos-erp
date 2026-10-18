@@ -14,7 +14,23 @@ import { useLang } from '@/i18n/I18nProvider';
 import { cartRequest } from '@/lib/cartApi';
 import { trackAddToCart, trackRemoveFromCart } from '@/lib/tracking';
 
-const CartContext = createContext(null);
+const defaultCartContext = {
+  cart: null,
+  open: false,
+  setOpen: () => {},
+  busy: false,
+  saving: false,
+  error: null,
+  items: [],
+  totalCount: 0,
+  subtotal: 0,
+  fmt: { money: (v) => `${(v ?? 0) / 100}` },
+  add: async () => ({ ok: false }),
+  setQty: async () => ({ ok: false }),
+  remove: async () => ({ ok: false }),
+};
+
+const CartContext = createContext(defaultCartContext);
 
 /**
  * Cart state for the whole storefront: loaded once on the client (pages stay cacheable), updated
@@ -118,6 +134,5 @@ export function CartProvider({ fmtOptions, children }) {
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error('useCart outside CartProvider');
-  return ctx;
+  return ctx || defaultCartContext;
 }

@@ -57,13 +57,13 @@ describe('block data', () => {
     const data = await blockDataFor(rail({ source: 'newest', limit: 4 }), 'en');
     expect(calls.search[0]).toEqual({ page: 1, limit: 4, sort: 'newest' });
     expect(data['blk-rail'].products).toEqual([
-      {
+      expect.objectContaining({
         id: 'p1',
         href: '/product/kettle',
         name: 'Kettle',
         price: 1000,
         image: expect.objectContaining({ srcSet: '/m/p1.webp 800w' }),
-      },
+      }),
     ]);
   });
 

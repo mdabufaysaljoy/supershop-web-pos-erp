@@ -1,10 +1,16 @@
 import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import { notFound } from 'next/navigation';
+import { StorefrontProductRail } from '@/components/catalog/StorefrontProductRail';
 import { JsonLd } from '@/components/JsonLd';
 import { blockContext, getCmsPage } from '@/lib/cmsPage';
 import { getPageContext } from '@/lib/page';
 import { buildMetadata } from '@/lib/seo';
 import { faqPageLd } from '@/lib/structuredData';
+
+const STOREFRONT_BLOCK_COMPONENTS = {
+  ...ALL_BLOCK_COMPONENTS,
+  productRail: StorefrontProductRail,
+};
 
 /**
  * A page built in the admin (P5.1). Server-rendered like every other page, with the SAME renderer
@@ -42,7 +48,7 @@ export default async function CmsPage({ params }) {
       <article className="mx-auto grid w-full max-w-5xl gap-10">
         <BlockRenderer
           blocks={page.content.blocks}
-          components={ALL_BLOCK_COMPONENTS}
+          components={STOREFRONT_BLOCK_COMPONENTS}
           context={blockContext({ page, lang, t, fmtOptions })}
         />
       </article>

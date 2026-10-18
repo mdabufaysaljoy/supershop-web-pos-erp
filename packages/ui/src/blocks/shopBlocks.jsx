@@ -32,53 +32,69 @@ export function ProductRailBlock({ id, heading, context = {} }) {
       <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 hide-scrollbar">
         {products.map((product) => (
           <li key={product.id} className="w-56 shrink-0 snap-start sm:w-64">
-            <a
-              href={hrefIn(product.href, context)}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card p-3.5 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl"
-            >
-              <span className="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-muted/40 p-2">
-                {product.image ? (
-                  <img
-                    src={product.image.url}
-                    srcSet={product.image.srcSet ?? undefined}
-                    sizes="(min-width: 640px) 256px, 224px"
-                    alt={product.name}
-                    width={product.image.width}
-                    height={product.image.height}
-                    loading="lazy"
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <span className="text-3xl text-muted-foreground/30">📦</span>
-                )}
-                <span className="absolute start-2.5 top-2.5 rounded-full bg-emerald-600/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
-                  In Stock
+            <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card p-3.5 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl">
+              <div>
+                <span className="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-muted/40 p-2 pointer-events-none">
+                  {product.image ? (
+                    <img
+                      src={product.image.url}
+                      srcSet={product.image.srcSet ?? undefined}
+                      sizes="(min-width: 640px) 256px, 224px"
+                      alt={product.name}
+                      width={product.image.width}
+                      height={product.image.height}
+                      loading="lazy"
+                      className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="text-3xl text-muted-foreground/30">📦</span>
+                  )}
+                  <span className="absolute start-2.5 top-2.5 rounded-full bg-emerald-600/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
+                    In Stock
+                  </span>
                 </span>
-              </span>
-              <div className="space-y-1">
-                <span className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {product.name}
-                </span>
-                <div className="flex items-baseline gap-1 text-base font-bold text-foreground">
-                  <Money amount={product.price} context={context} />
+                <div className="space-y-1">
+                  <span className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    <a
+                      href={hrefIn(product.href, context)}
+                      className="after:absolute after:inset-0 after:content-['']"
+                    >
+                      {product.name}
+                    </a>
+                  </span>
+                  <div className="flex items-baseline gap-1 text-base font-bold text-foreground">
+                    <Money amount={product.price} context={context} />
+                  </div>
                 </div>
               </div>
-              <div className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-primary/10 text-xs font-semibold text-primary transition-all duration-200 group-hover:bg-primary group-hover:text-primary-foreground">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  className="size-3.5"
-                  aria-hidden="true"
+              <div className="relative z-10 mt-3">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (typeof context.onAddToCart === 'function') {
+                      context.onAddToCart(product);
+                    }
+                  }}
+                  className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-primary/10 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
                 >
-                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-                  <path d="M3 6h18" />
-                  <path d="M16 10a4 4 0 0 1-8 0" />
-                </svg>
-                <span>Add to Cart</span>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    className="size-3.5"
+                    aria-hidden="true"
+                  >
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                    <path d="M3 6h18" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                  <span>Add to Cart</span>
+                </button>
               </div>
-            </a>
+            </div>
           </li>
         ))}
       </ul>

@@ -23,12 +23,19 @@ import { QuickView } from './QuickView';
 export function ProductCard({ product: p, priority = false }) {
   const t = useT();
   const lang = useLang();
-  const router = useRouter();
+  let router = null;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    router = useRouter();
+  } catch {
+    router = null;
+  }
   const { add, busy, fmt } = useCart();
   const [swatch, setSwatch] = useState(null);
   const [quick, setQuick] = useState(false);
   const [status, setStatus] = useState(null); // null | 'added' | error message
-  const href = localizePath(productPath(p.slug), lang);
+  const cardSlug = p.slug || (p.href ? p.href.replace(/^\/product\//, '') : '');
+  const href = p.href ? localizePath(p.href, lang) : localizePath(productPath(cardSlug), lang);
   const chosen = p.swatches?.values.find((v) => v.key === swatch);
   const image = chosen?.image ?? p.image;
   const out = (chosen ? chosen.inStock : p.inStock) === false;
@@ -41,7 +48,7 @@ export function ProductCard({ product: p, priority = false }) {
       );
       return;
     }
-    if (now) router.push(localizePath(CHECKOUT_PATH, lang));
+    if (now && router?.push) router.push(localizePath(CHECKOUT_PATH, lang));
   };
   const choose = () => setQuick(true);
 
@@ -224,9 +231,9 @@ export function ProductCard({ product: p, priority = false }) {
         )}
       </div>
 
-      {p.defaultVariantId == null && (
+      {p.defaultVariantId == null && cardSlug && (
         <QuickView
-          slug={p.slug}
+          slug={cardSlug}
           name={p.name}
           start={swatch && p.swatches ? { optionKey: p.swatches.key, valueKey: swatch } : null}
           open={quick}

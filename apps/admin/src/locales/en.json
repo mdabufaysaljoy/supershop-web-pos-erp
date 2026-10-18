@@ -1444,13 +1444,15 @@
       "providerHelp": "Switching provider needs new keys; the card method stays off until they work.",
       "providers": {
         "none": "None — no online payments",
-        "moyasar": "Moyasar"
+        "moyasar": "Moyasar",
+        "stripe": "Stripe"
       },
       "secretKey": "Secret key",
       "webhookSecret": "Webhook secret",
       "stored": "Stored: {{masked}}",
       "notSet": "Not set yet.",
-      "enterNew": "Paste a new key"
+      "enterNew": "Paste a new key",
+      "publishableKeyWarning": "This looks like a publishable key (starts with 'pk_'). Online payments require an API Secret Key (starts with 'sk_')."
     }
   },
   "orders": {

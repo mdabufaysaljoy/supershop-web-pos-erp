@@ -42,6 +42,11 @@ export function createMoyasarProvider({ secretKey, fetchImpl, baseUrl = DEFAULT_
   const auth = `Basic ${Buffer.from(`${secretKey}:`).toString('base64')}`;
 
   const call = async (path, { method = 'GET', body } = {}) => {
+    if (secretKey && secretKey.startsWith('pk_')) {
+      throw gatewayError(
+        'Moyasar secret key is invalid: a publishable key (starts with "pk_") was configured instead of a secret key (starts with "sk_"). Please configure your secret key in Settings -> Payments.',
+      );
+    }
     let res;
     try {
       // Resolved per call: tests replace the global fetch, and a long-lived provider must see it.

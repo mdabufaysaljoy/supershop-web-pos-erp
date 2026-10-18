@@ -1,4 +1,5 @@
 import { createMoyasarProvider } from './moyasar.js';
+import { createStripeProvider } from './stripe.js';
 
 /**
  * Payment gateway adapters (CLAUDE.md §2.4). Business code never imports a gateway SDK and never
@@ -19,7 +20,7 @@ import { createMoyasarProvider } from './moyasar.js';
  * `status` is always one of PAYMENT.STATUSES — each adapter maps its gateway's vocabulary.
  * Adding a gateway = a file here + a branch below + an enum value in `payments.gateway`.
  */
-export const PAYMENT_GATEWAYS = Object.freeze(['moyasar']);
+export const PAYMENT_GATEWAYS = Object.freeze(['moyasar', 'stripe']);
 
 /**
  * @param {{ provider: string, secretKey?: string, fetchImpl?: typeof fetch, baseUrl?: string }} cfg
@@ -29,6 +30,8 @@ export function createPaymentProvider({ provider, secretKey = '', fetchImpl, bas
   switch (provider) {
     case 'moyasar':
       return createMoyasarProvider({ secretKey, fetchImpl, baseUrl });
+    case 'stripe':
+      return createStripeProvider({ secretKey, fetchImpl, baseUrl });
     case 'none':
     case '':
     case undefined:

@@ -9,13 +9,19 @@ import { useSaveSettings } from '@/features/settings/hooks';
  * The gateway behind the "card" method (P4.1): which provider, and its keys. Keys are stored
  * encrypted and never come back — the field shows a mask and only a new value is sent.
  */
-const SECRETS = ['payments.moyasar.secretKey', 'payments.moyasar.webhookSecret'];
+const PROVIDER_SECRETS = {
+  none: ['payments.moyasar.secretKey', 'payments.moyasar.webhookSecret'],
+  moyasar: ['payments.moyasar.secretKey', 'payments.moyasar.webhookSecret'],
+  stripe: ['payments.stripe.secretKey', 'payments.stripe.webhookSecret'],
+};
 
 export function GatewayCard({ settings, canEdit }) {
   const { t } = useTranslation();
   const save = useSaveSettings();
   const [secrets, setSecrets] = useState({});
   const value = (key) => settings?.find((s) => s.key === key)?.value;
+  const currentGateway = value('payments.gateway') ?? 'none';
+  const activeSecrets = PROVIDER_SECRETS[currentGateway] ?? PROVIDER_SECRETS.moyasar;
 
   const saveSecret = (key) => {
     const next = secrets[key];
@@ -39,46 +45,58 @@ export function GatewayCard({ settings, canEdit }) {
         >
           <Select
             className="max-w-xs"
-            value={value('payments.gateway') ?? 'none'}
+            value={currentGateway}
             disabled={!canEdit || save.isPending}
             onChange={(e) => save.mutate([{ key: 'payments.gateway', value: e.target.value }])}
           >
             <option value="none">{t('payments.gateway.providers.none')}</option>
             <option value="moyasar">{t('payments.gateway.providers.moyasar')}</option>
+            <option value="stripe">{t('payments.gateway.providers.stripe')}</option>
           </Select>
         </FormField>
 
-        {SECRETS.map((key) => (
-          <FormField
-            key={key}
-            label={t(`payments.gateway.${key.split('.').pop()}`)}
-            description={
-              // Secrets come back as { isSet, masked } — never the key itself (§5.1).
-              value(key)?.isSet
-                ? t('payments.gateway.stored', { masked: value(key).masked })
-                : t('payments.gateway.notSet')
-            }
-          >
-            <div className="flex gap-2">
-              <PlainTextInput
-                dir="ltr"
-                autoComplete="off"
-                placeholder={t('payments.gateway.enterNew')}
-                value={secrets[key] ?? ''}
-                disabled={!canEdit}
-                onChange={(e) => setSecrets((s) => ({ ...s, [key]: e.target.value }))}
-              />
-              <button
-                type="button"
-                className="h-9 shrink-0 rounded-full border px-4 text-sm"
-                disabled={!canEdit || !secrets[key] || save.isPending}
-                onClick={() => saveSecret(key)}
-              >
-                {t('common.save')}
-              </button>
-            </div>
-          </FormField>
-        ))}
+        {activeSecrets.map((key) => {
+          const isSecretKeyField = key.endsWith('secretKey');
+          const enteredVal = secrets[key]?.trim() ?? '';
+          const isPublishableKey = isSecretKeyField && enteredVal.startsWith('pk_');
+
+          return (
+            <FormField
+              key={key}
+              label={t(`payments.gateway.${key.split('.').pop()}`)}
+              description={
+                // Secrets come back as { isSet, masked } — never the key itself (§5.1).
+                value(key)?.isSet
+                  ? t('payments.gateway.stored', { masked: value(key).masked })
+                  : t('payments.gateway.notSet')
+              }
+            >
+              <div className="flex gap-2">
+                <PlainTextInput
+                  dir="ltr"
+                  autoComplete="off"
+                  placeholder={t('payments.gateway.enterNew')}
+                  value={secrets[key] ?? ''}
+                  disabled={!canEdit}
+                  onChange={(e) => setSecrets((s) => ({ ...s, [key]: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  className="h-9 shrink-0 rounded-full border px-4 text-sm"
+                  disabled={!canEdit || !secrets[key] || save.isPending}
+                  onClick={() => saveSecret(key)}
+                >
+                  {t('common.save')}
+                </button>
+              </div>
+              {isPublishableKey && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                  {t('payments.gateway.publishableKeyWarning')}
+                </p>
+              )}
+            </FormField>
+          );
+        })}
       </CardContent>
     </Card>
   );

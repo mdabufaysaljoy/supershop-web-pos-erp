@@ -17,6 +17,20 @@ describe('registry', () => {
   it('is disabled without a secret key', () => {
     expect(createPaymentProvider({ provider: 'moyasar', secretKey: '' }).enabled).toBe(false);
   });
+
+  it('rejects a publishable key (pk_...) with informative PAYMENT_FAILED error', async () => {
+    const p = createPaymentProvider({
+      provider: 'moyasar',
+      secretKey: 'pk_test_12345',
+      fetchImpl: async () => json({}),
+    });
+    await expect(
+      p.createCheckout({ amount: 1000, currency: 'SAR', callbackUrl: 'https://test.com' }),
+    ).rejects.toMatchObject({
+      code: 'PAYMENT_FAILED',
+      message: expect.stringContaining('publishable key'),
+    });
+  });
 });
 
 describe('creating a hosted payment page', () => {

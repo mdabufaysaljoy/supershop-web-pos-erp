@@ -270,7 +270,7 @@ const DEFINITIONS = [
   {
     key: 'payments.gateway',
     group: 'payments',
-    schema: z.enum(['none', 'moyasar'], { error: V.INVALID_TYPE }),
+    schema: z.enum(['none', 'moyasar', 'stripe'], { error: V.INVALID_TYPE }),
     default: 'none',
   },
   {
@@ -283,6 +283,21 @@ const DEFINITIONS = [
   /** The token the gateway sends back with every webhook (set the same value in its dashboard). */
   {
     key: 'payments.moyasar.webhookSecret',
+    group: 'payments',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
+  {
+    key: 'payments.stripe.secretKey',
+    group: 'payments',
+    schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
+    default: '',
+    secret: true,
+  },
+  /** The webhook signing secret (whsec_...) from the Stripe dashboard. */
+  {
+    key: 'payments.stripe.webhookSecret',
     group: 'payments',
     schema: z.string({ error: V.INVALID_TYPE }).trim().max(255),
     default: '',

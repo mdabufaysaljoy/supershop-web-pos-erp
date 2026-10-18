@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Select } from '@/features/settings/components/controls';
+import { ExportButton } from '@/features/exports/components/ExportButton';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useListParams } from '@/lib/useListParams';
@@ -79,6 +80,12 @@ export function OrdersPage() {
             </option>
           ))}
         </Select>
+        <ExportButton
+          resource="orders"
+          filters={{ q, status, channel }}
+          defaultTitle="orders_export"
+          className="ms-auto"
+        />
       </div>
 
       {isError && <Alert variant="destructive">{errorMessage(t, error)}</Alert>}

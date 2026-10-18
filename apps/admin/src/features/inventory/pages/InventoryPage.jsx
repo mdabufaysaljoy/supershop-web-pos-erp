@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/features/auth/store';
 import { Select } from '@/features/settings/components/controls';
+import { ExportButton } from '@/features/exports/components/ExportButton';
 import { useCan } from '@/lib/permissions';
 import { useListParams } from '@/lib/useListParams';
 import { DocumentsTab } from '../components/DocumentsTab';
@@ -88,23 +89,30 @@ export function InventoryPage() {
             </button>
           ))}
         </div>
-        {branchOptions.length > 1 && (
-          <Select
-            className="mb-2 w-auto"
-            aria-label={t('inventory.branchFilter')}
-            value={branchId}
-            onChange={(e) => go({ branchId: e.target.value, page: 1 })}
-          >
-            <option value="">
-              {t(access?.allBranches ? 'inventory.allBranches' : 'inventory.myBranches')}
-            </option>
-            {branchOptions.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.code} · {b.name.en}
+        <div className="flex items-center gap-2 mb-2">
+          {branchOptions.length > 1 && (
+            <Select
+              className="w-auto"
+              aria-label={t('inventory.branchFilter')}
+              value={branchId}
+              onChange={(e) => go({ branchId: e.target.value, page: 1 })}
+            >
+              <option value="">
+                {t(access?.allBranches ? 'inventory.allBranches' : 'inventory.myBranches')}
               </option>
-            ))}
-          </Select>
-        )}
+              {branchOptions.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.code} · {b.name.en}
+                </option>
+              ))}
+            </Select>
+          )}
+          <ExportButton
+            resource="inventory"
+            filters={{ branchId }}
+            defaultTitle="inventory_stock_levels"
+          />
+        </div>
       </div>
 
       <div role="tabpanel">

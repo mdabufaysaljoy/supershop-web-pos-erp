@@ -27,6 +27,7 @@ import { errorMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
 import { useListParams } from '@/lib/useListParams';
 import { SearchIndexDialog } from '../components/SearchIndexDialog';
+import { ExportButton } from '@/features/exports/components/ExportButton';
 import { lookupProductByCode, products } from '../resource';
 import { STATUS_TONE } from '../status';
 
@@ -158,6 +159,12 @@ export function ProductsPage() {
             ))}
           </Select>
         </div>
+        <ExportButton
+          resource="products"
+          filters={{ q, status, categoryId }}
+          defaultTitle="products_export"
+          className="ms-auto"
+        />
       </div>
 
       {isError && <Alert variant="destructive">{errorMessage(t, error)}</Alert>}

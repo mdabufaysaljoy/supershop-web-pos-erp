@@ -197,6 +197,21 @@ describe('ReportsPage Admin UI (P8.2, P8.3)', () => {
       'GET /api/v1/analytics/performance': json(200, { data: MOCK_PERFORMANCE_DATA }),
       'GET /api/v1/analytics/forecast/sales': json(200, { data: MOCK_SALES_FORECAST }),
       'GET /api/v1/analytics/forecast/stockout': json(200, { data: MOCK_STOCKOUT_FORECAST }),
+      'GET /api/v1/exports/resources': json(200, {
+        data: {
+          orders: [
+            {
+              key: 'orderNumber',
+              label: 'Order Number',
+              type: 'string',
+              default: true,
+              permitted: true,
+            },
+          ],
+        },
+      }),
+      'GET /api/v1/exports/presets': json(200, { data: [] }),
+      'GET /api/v1/exports/jobs': json(200, { data: [] }),
     });
   });
 
@@ -299,5 +314,21 @@ describe('ReportsPage Admin UI (P8.2, P8.3)', () => {
     // Verify replenishment recommendation badge
     expect(screen.getByText('+40')).toBeInTheDocument();
     expect(screen.getByText('+10')).toBeInTheDocument();
+  });
+
+  it('switches to Report Builder tab and displays dataset selectors and column configurations', async () => {
+    const user = userEvent.setup();
+    renderReportsPage();
+
+    await screen.findByRole('heading', { name: /Performance Reports/i });
+
+    const builderTab = screen.getByRole('button', { name: /Report Builder/i });
+    expect(builderTab).toBeInTheDocument();
+    await user.click(builderTab);
+
+    expect(await screen.findByText(/Report Builder Studio/i)).toBeInTheDocument();
+    expect(screen.getByText('Orders')).toBeInTheDocument();
+    expect(screen.getByText('Order Number')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Generate & Export/i })).toBeInTheDocument();
   });
 });

@@ -618,6 +618,38 @@ export async function listOrdersForStaff({ page, limit, sort, status, channel, q
   return { data: items.map(toStaffRow), meta: { page, limit, total } };
 }
 
+/** Fetches orders with branch scoping and filters for universal export (P8.4). */
+export async function getOrdersForExport({ actor, filters = {}, limit = 5000 } = {}) {
+  const branchFilter = actor?.branchFilter
+    ? actor.branchFilter(filters.branchId ? { branchId: filters.branchId } : {})
+    : {};
+  const query = {
+    ...branchFilter,
+    ...(filters.status && { status: filters.status }),
+    ...(filters.channel && { channel: filters.channel }),
+  };
+  if (filters.q) {
+    query.$or = [
+      { orderNo: new RegExp(`^${escapeRegExp(normalizeDigits(filters.q).toUpperCase())}`) },
+      ...(phoneTail(filters.q)
+        ? [{ 'customer.phone': new RegExp(`${phoneTail(filters.q)}$`) }]
+        : []),
+    ];
+  }
+  if (filters.from || filters.to) {
+    query.placedAt = {
+      ...(filters.from && { $gte: new Date(filters.from) }),
+      ...(filters.to && { $lte: new Date(filters.to) }),
+    };
+  }
+  const { items } = await repo.listOrders(query, {
+    sort: { placedAt: -1, _id: -1 },
+    skip: 0,
+    limit,
+  });
+  return items;
+}
+
 export async function getOrderForStaff(id, { lang = 'en' } = {}) {
   const order = await repo.findById(id);
   if (!order) throw new NotFoundError('Order not found');

@@ -287,7 +287,8 @@
     "retry": "Retry",
     "tabs": {
       "performance": "Performance Analysis",
-      "forecasting": "Forecast & Stock-out"
+      "forecasting": "Forecast & Stock-out",
+      "builder": "Report Builder"
     },
     "filters": {
       "branch": "Branch",
@@ -395,6 +396,80 @@
         "estimatedDate": "Est. Stock-out",
         "recommendedReorder": "Reorder Recommendation"
       }
+    },
+    "builder": {
+      "title": "Report Builder Studio",
+      "description": "Design custom tabular reports, pick specific dimensions and metrics, and export in XLSX, CSV, or JSON.",
+      "step1": "1. Choose Dataset / Resource",
+      "step2": "2. Select Columns & Metrics",
+      "generate": "Generate & Export",
+      "recentReports": "Generated Reports",
+      "recentReportsDesc": "Completed background export jobs ready for instant download."
+    }
+  },
+  "export": {
+    "button": "Export",
+    "dialog": {
+      "title": "Export {{resource}}",
+      "description": "Generate an instant file or background report for large datasets.",
+      "filterNotice": "This export will reflect your active filters on this screen."
+    },
+    "tabs": {
+      "quick": "Quick Export",
+      "builder": "Report Builder",
+      "history": "Export History"
+    },
+    "form": {
+      "format": "Export Format",
+      "title": "Custom Report Title (Optional)",
+      "titlePlaceholder": "e.g. {{name}}"
+    },
+    "formats": {
+      "xlsx": "Excel Spreadsheet (.xlsx)",
+      "csv": "CSV (.csv, UTF-8)",
+      "json": "JSON (.json)"
+    },
+    "resources": {
+      "orders": "Orders",
+      "products": "Products & Variants",
+      "customers": "Customers",
+      "inventory": "Stock Levels",
+      "performance": "Sales Performance",
+      "stockout": "Stock-out Forecast",
+      "audit": "Audit Trail"
+    },
+    "builder": {
+      "selectAll": "Select All",
+      "clear": "Clear All",
+      "columns": "Choose Columns",
+      "selectedCount": "{{count}} of {{total}} columns selected"
+    },
+    "presets": {
+      "label": "Saved Presets",
+      "save": "Save Preset",
+      "savePlaceholder": "Preset name...",
+      "saved": "Report preset saved successfully",
+      "deleted": "Report preset deleted"
+    },
+    "history": {
+      "description": "Your recent export files (available for 24 hours):",
+      "empty": "No recent exports found for this resource.",
+      "meta": "{{rows}} rows · Generated on {{date}}"
+    },
+    "status": {
+      "queued": "Queued",
+      "running": "Processing",
+      "done": "Completed",
+      "failed": "Failed"
+    },
+    "actions": {
+      "start": "Start Export",
+      "starting": "Queuing Export...",
+      "generateReport": "Generate Report",
+      "download": "Download"
+    },
+    "notifications": {
+      "started": "Export job started for {{fileName}}"
     }
   },
   "settings": {

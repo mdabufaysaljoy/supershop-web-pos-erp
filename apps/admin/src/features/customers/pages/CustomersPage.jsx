@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Select } from '@/features/settings/components/controls';
+import { ExportButton } from '@/features/exports/components/ExportButton';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useListParams } from '@/lib/useListParams';
@@ -112,6 +113,12 @@ export function CustomersPage() {
           <option value="active">{t('customers.status.active')}</option>
           <option value="disabled">{t('customers.status.disabled')}</option>
         </Select>
+        <ExportButton
+          resource="customers"
+          filters={{ q, status, segment }}
+          defaultTitle="customers_export"
+          className="ms-auto"
+        />
       </div>
 
       {isError && <Alert variant="destructive">{errorMessage(t, error)}</Alert>}

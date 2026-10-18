@@ -6,6 +6,7 @@ import { closeQueues } from './core/queue.js';
 import { closeRedis } from './core/redis.js';
 import { loadLanguages, startTranslationWorker } from './modules/i18n/index.js';
 import { startTransferWorkers } from './modules/productTransfer/index.js';
+import { startExportWorkers } from './modules/exports/index.js';
 import { ensureSearchIndex } from './modules/search/index.js';
 import {
   seedNotificationTemplates,
@@ -32,6 +33,7 @@ async function main() {
   startCampaignWorkers();
   startTranslationWorker();
   await startTransferWorkers();
+  await startExportWorkers();
   await ensureSearchIndex(); // builds the index in the background on first start
 
   const app = createApp();

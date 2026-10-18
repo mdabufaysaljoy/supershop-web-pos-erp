@@ -24,6 +24,7 @@ export {
   getDashboardOrderStats,
   getOrderById,
   getOrderForStaff,
+  getOrdersForExport,
   getPerformanceReportStats,
   getVariantSalesVelocity,
   setOrderShopProvider,

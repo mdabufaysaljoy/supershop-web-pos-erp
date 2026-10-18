@@ -173,6 +173,10 @@ export const EVENTS = Object.freeze({
   CAMPAIGN_SENT: 'campaign.sent',
   CAMPAIGN_CANCELLED: 'campaign.cancelled',
   CAMPAIGN_OPT_OUT: 'campaign.optOut',
+
+  // universal export (P8.4)
+  /** Payload: { jobId, actorId, resource, format, status, counts } */
+  EXPORT_FINISHED: 'export.finished',
 });
 
 const KNOWN = new Set(Object.values(EVENTS));

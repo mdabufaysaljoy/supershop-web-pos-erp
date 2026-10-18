@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ForecastView } from '../components/ForecastView';
+import { ReportBuilderView } from '../components/ReportBuilderView';
 import { PerformanceChart } from '../components/PerformanceChart';
 import { PerformanceFilters } from '../components/PerformanceFilters';
 import { PerformanceSummaryKpis } from '../components/PerformanceSummaryKpis';
@@ -123,10 +124,23 @@ export function ReportsPage() {
         >
           {t('reports.tabs.forecasting')}
         </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('builder')}
+          className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
+            activeTab === 'builder'
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          {t('reports.tabs.builder')}
+        </button>
       </div>
 
       {activeTab === 'forecasting' ? (
         <ForecastView />
+      ) : activeTab === 'builder' ? (
+        <ReportBuilderView />
       ) : (
         <>
           {/* Filters (Dimensions, Date Ranges, Branch, Export) */}

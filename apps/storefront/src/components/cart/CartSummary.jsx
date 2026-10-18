@@ -17,7 +17,7 @@ export function CartSummary() {
     <div className="grid gap-3.5">
       <div className="flex items-center justify-between border-b border-border/60 pb-3">
         <h2 className="text-base font-bold tracking-tight text-foreground">{t('cart.summary')}</h2>
-        <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+        <span className="rounded border border-emerald-300 bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-950">
           ZATCA 15% VAT
         </span>
       </div>
@@ -41,9 +41,7 @@ export function CartSummary() {
           <dt className="text-muted-foreground">{t('checkout.delivery')}</dt>
           <dd className="tabular-nums">
             {totals.subtotal >= 20000 ? (
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                {t('checkout.freeDelivery')}
-              </span>
+              <span className="font-bold text-emerald-900">{t('checkout.freeDelivery')}</span>
             ) : (
               <span className="text-xs text-muted-foreground">{t('cart.shippingAtCheckout')}</span>
             )}
@@ -61,11 +59,11 @@ export function CartSummary() {
         <input
           type="text"
           placeholder={t('cart.promoPlaceholder')}
-          className="h-10 flex-1 rounded-lg border border-border/80 bg-background/80 px-3 text-xs placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="h-10 flex-1 rounded-md border border-border/80 bg-background/80 px-3 text-xs placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
         <button
           type="button"
-          className="h-10 rounded-lg border border-border/80 bg-muted/70 px-3.5 text-xs font-semibold text-foreground hover:bg-muted active:scale-[0.98] transition-all"
+          className="h-10 rounded-md border border-border/80 bg-muted/70 px-3.5 text-xs font-semibold text-foreground hover:bg-muted active:scale-[0.98] transition-all"
         >
           {t('cart.apply')}
         </button>
@@ -82,7 +80,7 @@ export function CartSummary() {
           if (blocked) e.preventDefault();
           else setOpen(false); // leaving for checkout closes the mini-cart behind it
         }}
-        className="group mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-sm font-bold text-white shadow-xs transition-all aria-disabled:opacity-60"
+        className="group mt-1 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-sm font-bold text-white shadow-xs transition-all aria-disabled:opacity-60"
       >
         <svg
           viewBox="0 0 24 24"
@@ -110,7 +108,7 @@ export function CartSummary() {
         <div className="flex items-center gap-2">
           <svg
             viewBox="0 0 24 24"
-            className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+            className="size-4 shrink-0 text-emerald-800"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
@@ -122,7 +120,7 @@ export function CartSummary() {
         <div className="flex items-center gap-2">
           <svg
             viewBox="0 0 24 24"
-            className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+            className="size-4 shrink-0 text-emerald-800"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
@@ -135,7 +133,7 @@ export function CartSummary() {
         <div className="flex items-center gap-2">
           <svg
             viewBox="0 0 24 24"
-            className="size-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+            className="size-4 shrink-0 text-emerald-800"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"

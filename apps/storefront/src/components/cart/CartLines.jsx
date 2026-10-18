@@ -46,7 +46,7 @@ export function CartLines({ size = 'sm', onNavigate }) {
             >
               <div
                 className={cn(
-                  'group relative mb-3.5 grid grid-cols-[auto_1fr] gap-3.5 sm:gap-4 rounded-xl border border-border/80 bg-card p-3.5 sm:p-4 shadow-2xs transition-all hover:border-border',
+                  'group relative mb-3 grid grid-cols-[auto_1fr] gap-3 sm:gap-3.5 rounded-md border border-border/80 bg-card p-3 sm:p-3.5 shadow-2xs transition-all hover:border-border',
                   !ok && 'border-dashed bg-muted/40',
                 )}
               >
@@ -83,8 +83,8 @@ export function CartLines({ size = 'sm', onNavigate }) {
                         </p>
                       )}
                       {ok && (
-                        <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                          <span className="inline-block size-1.5 rounded-full bg-emerald-500" />
+                        <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
+                          <span className="inline-block size-1.5 rounded-full bg-emerald-600" />
                           <span>{t('cart.inStock')}</span>
                         </p>
                       )}
@@ -124,12 +124,12 @@ export function CartLines({ size = 'sm', onNavigate }) {
                   <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
                     {l.status !== 'unavailable' ? (
                       <div
-                        className="inline-flex items-center rounded-lg border border-border/80 bg-background/80 shadow-2xs"
+                        className="inline-flex items-center rounded-md border border-border/80 bg-background/80 shadow-2xs"
                         dir="ltr"
                       >
                         <button
                           type="button"
-                          className="grid size-8 place-items-center rounded-s-lg text-sm font-semibold text-foreground hover:bg-muted active:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
+                          className="grid size-8 place-items-center rounded-s-md text-sm font-semibold text-foreground hover:bg-muted active:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
                           disabled={busy || l.qty <= 1}
                           onClick={() => setQty(l.variantId, l.qty - 1)}
                           aria-label={t('cart.decrease', { name })}
@@ -144,7 +144,7 @@ export function CartLines({ size = 'sm', onNavigate }) {
                         </span>
                         <button
                           type="button"
-                          className="grid size-8 place-items-center rounded-e-lg text-sm font-semibold text-foreground hover:bg-muted active:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
+                          className="grid size-8 place-items-center rounded-e-md text-sm font-semibold text-foreground hover:bg-muted active:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
                           disabled={busy || !ok || l.qty >= l.maxQty}
                           onClick={() => setQty(l.variantId, l.qty + 1)}
                           aria-label={t('cart.increase', { name })}

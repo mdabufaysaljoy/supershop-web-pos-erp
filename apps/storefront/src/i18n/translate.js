@@ -31,6 +31,7 @@ export const CLIENT_NAMESPACES = Object.freeze([
   'track',
   'validation',
   'consent',
+  'nav',
 ]);
 
 /** Subset of a dictionary with the given top-level namespaces. */

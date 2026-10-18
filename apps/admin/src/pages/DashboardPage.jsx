@@ -1,15 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '@/features/auth/store';
-import { PageHeader } from './PageHeader';
+import { DashboardView } from '@/features/dashboard/pages/DashboardView';
 
-/** Placeholder home; KPIs and charts arrive in P8.1. */
+/**
+ * Dashboard (P8.1): KPIs, sales graphs (recharts), channel breakdown, top products,
+ * recent orders, and branch filtering.
+ */
 export function DashboardPage() {
-  const { t } = useTranslation();
-  const name = useAuthStore((s) => s.profile?.name ?? '');
-  return (
-    <PageHeader
-      title={t('pages.dashboard.welcome', { name })}
-      description={t('pages.dashboard.intro')}
-    />
-  );
+  return <DashboardView />;
 }

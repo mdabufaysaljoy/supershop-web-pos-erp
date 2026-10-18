@@ -182,3 +182,9 @@ export {
   productAggregateIssues,
   variantOptionsKey,
 } from './schemas/product.js';
+export {
+  ANALYTICS,
+  calculateDeltaPercent,
+  createAnalyticsSchemas,
+  resolveAnalyticsPeriod,
+} from './schemas/analytics.js';

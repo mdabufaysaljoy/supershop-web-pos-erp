@@ -2,6 +2,7 @@
 export { createAccountRouter } from './account.routes.js';
 export { createCustomerRouter } from './customer.routes.js';
 export {
+  countNewCustomers,
   customerPrincipal,
   findCustomerByContact,
   findOrCreateCustomerFromOAuth,

@@ -229,3 +229,5 @@ export async function updateCustomerByAdmin(actor, customerId, patch) {
 
   return getCustomerDetailForAdmin(customerId);
 }
+
+export const countNewCustomers = (start, end) => repo.countNewCustomers(start, end);

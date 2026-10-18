@@ -20,6 +20,7 @@ export {
   findOrderForReturn,
   getBestSellingProductIds,
   getCustomerOrdersSummary,
+  getDashboardOrderStats,
   getOrderById,
   getOrderForStaff,
   setOrderShopProvider,

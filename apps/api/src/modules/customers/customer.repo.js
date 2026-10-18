@@ -380,3 +380,6 @@ export async function setCustomerMarketingOptOut({
 
   return Customer.findOneAndUpdate(query, { $set: update }, { returnDocument: 'after' });
 }
+
+export const countNewCustomers = (start, end) =>
+  Customer.countDocuments({ createdAt: { $gte: start, $lte: end }, ...notDeleted });

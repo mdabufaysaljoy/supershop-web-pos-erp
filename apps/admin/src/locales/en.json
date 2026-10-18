@@ -217,6 +217,62 @@
     "moveUp": "Move up",
     "remove": "Remove"
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "allBranches": "All branches",
+    "ranges": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "year": "Last 12 months"
+    },
+    "kpis": {
+      "totalSales": "Total sales",
+      "netSales": "Net sales",
+      "orders": "Orders",
+      "aov": "Average order value",
+      "itemsSold": "Items sold",
+      "newCustomers": "New customers",
+      "lowStock": "Low stock alert",
+      "outOfStock": "Out of stock",
+      "vsPrevious": "vs previous period"
+    },
+    "charts": {
+      "salesTrend": "Sales & orders trend",
+      "revenue": "Revenue",
+      "orders": "Orders",
+      "posRevenue": "POS revenue",
+      "onlineRevenue": "Online revenue",
+      "metric": "Metric",
+      "noData": "No sales data for this period"
+    },
+    "channels": {
+      "title": "Sales by channel",
+      "pos": "Point of sale (POS)",
+      "online": "Online store",
+      "ordersCount": "{{count}} orders",
+      "share": "{{percent}}% of sales"
+    },
+    "topProducts": {
+      "title": "Top selling products",
+      "product": "Product",
+      "qty": "Units sold",
+      "revenue": "Revenue",
+      "empty": "No items sold in this period"
+    },
+    "recentOrders": {
+      "title": "Recent orders",
+      "viewAll": "View all orders",
+      "order": "Order",
+      "channel": "Channel",
+      "status": "Status",
+      "customer": "Customer",
+      "total": "Total",
+      "date": "Date",
+      "empty": "No recent orders"
+    }
+  },
   "settings": {
     "title": "Settings",
     "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",

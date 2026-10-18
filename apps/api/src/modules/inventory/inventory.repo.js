@@ -130,3 +130,19 @@ export const levelsIn = (variantIds, branchIds, session) =>
 export const countBranchRecords = async (branchId) =>
   (await StockOperation.countDocuments({ $or: [{ branchId }, { toBranchId: branchId }] })) +
   (await StockLevel.countDocuments({ branchId }));
+
+/** Count low stock and out of stock items for inventory health KPIs. */
+export async function countStockHealth(branchFilter = {}, fallbackThreshold = 5) {
+  const [lowStockCount, outOfStockCount] = await Promise.all([
+    StockLevel.countDocuments({
+      ...branchFilter,
+      onHand: { $gt: 0 },
+      $expr: { $lte: ['$onHand', { $ifNull: ['$lowStockThreshold', fallbackThreshold] }] },
+    }),
+    StockLevel.countDocuments({
+      ...branchFilter,
+      onHand: { $lte: 0 },
+    }),
+  ]);
+  return { lowStockCount, outOfStockCount };
+}

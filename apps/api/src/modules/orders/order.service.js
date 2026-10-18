@@ -705,3 +705,42 @@ export async function getCustomerOrdersSummary(customerId) {
     })),
   };
 }
+
+/**
+ * Aggregated analytics for dashboard (P8.1).
+ */
+export async function getDashboardOrderStats({
+  currentFilter,
+  previousFilter,
+  recentFilter,
+  groupBy = 'day',
+  topLimit = 5,
+}) {
+  const [
+    current,
+    previous,
+    timeSeries,
+    channelBreakdown,
+    topProducts,
+    recentOrders,
+    paymentMethods,
+  ] = await Promise.all([
+    repo.getOrdersAggregate(currentFilter),
+    repo.getOrdersAggregate(previousFilter),
+    repo.getOrdersTimeSeries(currentFilter, groupBy),
+    repo.getChannelBreakdown(currentFilter),
+    repo.getTopProducts(currentFilter, topLimit),
+    repo.getRecentOrders(recentFilter, 5),
+    repo.getPaymentMethodsBreakdown(currentFilter),
+  ]);
+
+  return {
+    current,
+    previous,
+    timeSeries,
+    channelBreakdown,
+    topProducts,
+    recentOrders,
+    paymentMethods,
+  };
+}

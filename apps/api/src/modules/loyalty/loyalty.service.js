@@ -201,7 +201,7 @@ export async function earnPointsForOrder(
  * Subscribes to EVENTS.LOYALTY_REVERSED or called directly.
  */
 export async function reversePointsForReturn(
-  { returnId, returnNo, orderId, orderNo, customerId, amount, actorId = null },
+  { returnId, returnNo, orderId: _orderId, orderNo: _orderNo, customerId, amount, actorId = null },
   { session = null } = {},
 ) {
   if (!customerId || !returnId || !amount || amount <= 0) return null;
@@ -254,16 +254,6 @@ export async function reversePointsForReturn(
 
   const result = session ? await execute(session) : await withTransaction(execute);
   if (!result) return null;
-
-  void eventBus.emit(EVENTS.LOYALTY_REVERSED, {
-    customerId: str(customerId),
-    returnId: str(returnId),
-    returnNo: returnNo ?? null,
-    orderId: str(orderId),
-    orderNo: orderNo ?? null,
-    pointsReversed: result.pointsReversed,
-    balanceAfter: result.account.pointsBalance,
-  });
 
   return {
     account: toLoyaltyAccountDto(result.account),

@@ -142,3 +142,166 @@ export const findRecentOrdersForCustomer = (customerId, limit = 10) =>
     .sort({ placedAt: -1, createdAt: -1 })
     .limit(limit)
     .lean();
+
+// ------------------------------------------------------------- P8.1 analytics aggregations
+
+export async function getOrdersAggregate(matchFilter) {
+  const [row] = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: null,
+        totalSales: { $sum: '$totals.total' },
+        netSales: { $sum: '$totals.net' },
+        ordersCount: { $sum: 1 },
+        itemsSold: { $sum: '$totals.itemCount' },
+        discountTotal: { $sum: '$totals.discountTotal' },
+        taxTotal: { $sum: '$totals.vat' },
+      },
+    },
+  ]);
+  return {
+    totalSales: row?.totalSales ?? 0,
+    netSales: row?.netSales ?? 0,
+    ordersCount: row?.ordersCount ?? 0,
+    itemsSold: row?.itemsSold ?? 0,
+    discountTotal: row?.discountTotal ?? 0,
+    taxTotal: row?.taxTotal ?? 0,
+  };
+}
+
+export async function getOrdersTimeSeries(matchFilter, groupBy = 'day') {
+  let dateFormat = '%Y-%m-%d';
+  if (groupBy === 'hour') {
+    dateFormat = '%Y-%m-%d %H:00';
+  } else if (groupBy === 'month') {
+    dateFormat = '%Y-%m';
+  }
+
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: { $dateToString: { format: dateFormat, date: '$placedAt' } },
+        revenue: { $sum: '$totals.total' },
+        net: { $sum: '$totals.net' },
+        orders: { $sum: 1 },
+        posRevenue: {
+          $sum: { $cond: [{ $eq: ['$channel', 'pos'] }, '$totals.total', 0] },
+        },
+        onlineRevenue: {
+          $sum: { $cond: [{ $eq: ['$channel', 'online'] }, '$totals.total', 0] },
+        },
+        posOrders: {
+          $sum: { $cond: [{ $eq: ['$channel', 'pos'] }, 1, 0] },
+        },
+        onlineOrders: {
+          $sum: { $cond: [{ $eq: ['$channel', 'online'] }, 1, 0] },
+        },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  return rows.map((r) => ({
+    date: r._id,
+    revenue: r.revenue,
+    net: r.net,
+    orders: r.orders,
+    posRevenue: r.posRevenue,
+    onlineRevenue: r.onlineRevenue,
+    posOrders: r.posOrders,
+    onlineOrders: r.onlineOrders,
+  }));
+}
+
+export async function getChannelBreakdown(matchFilter) {
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: '$channel',
+        revenue: { $sum: '$totals.total' },
+        orders: { $sum: 1 },
+      },
+    },
+  ]);
+  const out = {
+    pos: { orders: 0, revenue: 0 },
+    online: { orders: 0, revenue: 0 },
+  };
+  for (const r of rows) {
+    if (r._id === 'pos' || r._id === 'online') {
+      out[r._id] = { orders: r.orders, revenue: r.revenue };
+    }
+  }
+  return out;
+}
+
+export async function getTopProducts(matchFilter, limit = 5) {
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    { $unwind: '$items' },
+    {
+      $group: {
+        _id: '$items.productId',
+        name: { $first: '$items.name' },
+        sku: { $first: '$items.sku' },
+        imageUrl: { $first: '$items.imageUrl' },
+        qty: { $sum: '$items.qty' },
+        revenue: { $sum: '$items.lineTotal' },
+      },
+    },
+    { $sort: { revenue: -1, qty: -1 } },
+    { $limit: limit },
+  ]);
+  return rows.map((r) => ({
+    productId: String(r._id),
+    name: r.name,
+    sku: r.sku,
+    imageUrl: r.imageUrl ?? null,
+    qty: r.qty,
+    revenue: r.revenue,
+  }));
+}
+
+export async function getRecentOrders(matchFilter, limit = 5) {
+  const docs = await Order.find(matchFilter)
+    .sort({ placedAt: -1, createdAt: -1 })
+    .limit(limit)
+    .lean();
+
+  return docs.map((o) => ({
+    id: String(o._id),
+    orderNo: o.orderNo,
+    channel: o.channel,
+    status: o.status,
+    customerName: o.customer?.name ?? 'Walk-in',
+    total: o.totals?.total ?? 0,
+    placedAt: o.placedAt,
+    branchId: o.branchId ? String(o.branchId) : null,
+  }));
+}
+
+export async function getPaymentMethodsBreakdown(matchFilter) {
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: '$payment.method',
+        methodType: { $first: '$payment.methodType' },
+        label: { $first: '$payment.label' },
+        count: { $sum: 1 },
+        total: { $sum: '$totals.total' },
+      },
+    },
+    { $sort: { total: -1 } },
+  ]);
+  return rows.map((r) => ({
+    method: r._id,
+    methodType: r.methodType,
+    label: r.label ?? r._id,
+    count: r.count,
+    total: r.total,
+  }));
+}

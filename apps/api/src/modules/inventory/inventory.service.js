@@ -619,3 +619,12 @@ export async function reversalLinesFor(operationIds, { session } = {}) {
   }
   return [...byBranch.entries()].map(([branchId, lines]) => ({ branchId, lines }));
 }
+
+/**
+ * Inventory health stats (low stock, out of stock) for analytics dashboard.
+ */
+export async function getInventoryHealth(actor, branchId = null) {
+  const fallback = fallbackThreshold() ?? 5;
+  const filter = actor.branchFilter('branchId', branchId ?? null);
+  return repo.countStockHealth(filter, fallback);
+}

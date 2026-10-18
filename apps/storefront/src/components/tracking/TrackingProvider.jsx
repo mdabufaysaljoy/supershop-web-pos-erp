@@ -61,8 +61,14 @@ export function TrackingProvider({ initialData, children }) {
 
   const [consent, setConsent] = useState(() => getStoredConsent());
   const [isBannerOpen, setIsBannerOpen] = useState(() => {
-    if (!consentConfig.enabled) return false;
-    return getStoredConsent() === null;
+    if (typeof window === 'undefined') return false;
+    try {
+      const stored = getStoredConsent();
+      const dismissed = window.localStorage.getItem('pdpl_consent_dismissed') === 'true';
+      return Boolean(consentConfig.enabled && stored === null && !dismissed);
+    } catch {
+      return false;
+    }
   });
 
   // 1. Initialize Google Consent Mode v2 immediately
@@ -142,6 +148,13 @@ export function TrackingProvider({ initialData, children }) {
 
   const handleUpdateConsent = useCallback((newChoice) => {
     const saved = saveConsent(newChoice);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem('pdpl_consent_dismissed', 'true');
+      } catch {
+        // ignore
+      }
+    }
     setConsent(saved);
     setIsBannerOpen(false);
   }, []);

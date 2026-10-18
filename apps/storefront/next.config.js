@@ -24,12 +24,20 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    remotePatterns: [
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'http', hostname: '127.0.0.1' },
+      { protocol: 'https', hostname: '**' },
+    ],
   },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
   async rewrites() {
-    return [{ source: '/api/v1/:path*', destination: `${API_INTERNAL_URL}/api/v1/:path*` }];
+    return [
+      { source: '/api/v1/:path*', destination: `${API_INTERNAL_URL}/api/v1/:path*` },
+      { source: '/media/:path*', destination: `${API_INTERNAL_URL}/media/:path*` },
+    ];
   },
 };
 

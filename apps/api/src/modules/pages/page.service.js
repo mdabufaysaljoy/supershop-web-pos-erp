@@ -80,10 +80,15 @@ export const toAdminDto = (p) => ({
 
 /** The images a page's blocks point at, as the renderer needs them (url + size). */
 async function mediaFor(blocks) {
-  const ids = [...walkBlocks(blocks)]
-    .map((b) => b.props?.mediaId)
-    .filter(Boolean)
-    .map(String);
+  const ids = [];
+  for (const b of walkBlocks(blocks)) {
+    if (b.props?.mediaId) ids.push(String(b.props.mediaId));
+    if (Array.isArray(b.props?.slides)) {
+      for (const s of b.props.slides) {
+        if (s?.mediaId) ids.push(String(s.mediaId));
+      }
+    }
+  }
   if (!ids.length) return {};
   const items = await getMediaByIds([...new Set(ids)]);
   return Object.fromEntries(

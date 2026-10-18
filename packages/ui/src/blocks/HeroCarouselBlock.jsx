@@ -52,25 +52,28 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
           const image = context.media?.[slide.mediaId];
           return (
             <div
-              key={slide.mediaId ?? i}
+              key={`hero-slide-${i}-${slide.mediaId || 'ambient'}`}
               aria-hidden={i === active ? undefined : true}
               className="relative w-full min-w-full shrink-0 grid min-h-[360px] sm:min-h-[460px] lg:min-h-[500px] items-center p-6 sm:p-12 lg:p-16 overflow-hidden"
             >
               {image ? (
-                <img
-                  src={image.url}
-                  srcSet={image.srcSet ?? undefined}
-                  sizes="100vw"
-                  alt={slide.heading || image.alt || ''}
-                  width={image.width}
-                  height={image.height}
-                  loading={i === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={i === 0 ? 'high' : undefined}
-                  className="absolute inset-0 size-full object-cover opacity-25 mix-blend-overlay"
-                />
+                <>
+                  <img
+                    src={image.url}
+                    srcSet={image.srcSet ?? undefined}
+                    sizes="100vw"
+                    alt={slide.heading || image.alt || ''}
+                    width={image.width}
+                    height={image.height}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={i === 0 ? 'high' : undefined}
+                    className="absolute inset-0 size-full object-cover object-center z-0"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/70 to-slate-950/35 rtl:bg-gradient-to-l z-0" />
+                </>
               ) : null}
 
-              <div className="relative grid max-w-2xl gap-4 sm:gap-6">
+              <div className="relative z-10 grid max-w-2xl gap-4 sm:gap-6">
                 {/* Modern category & urgency pill */}
                 <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3.5 py-1 text-xs font-semibold text-primary-foreground backdrop-blur-md w-fit">
                   <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -153,7 +156,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
           <div className="absolute inset-x-0 bottom-4 flex justify-center gap-2">
             {shown.map((slide, i) => (
               <button
-                key={slide.mediaId ?? i}
+                key={`hero-dot-${i}`}
                 type="button"
                 aria-label={`${labels.slide ?? 'Slide'} ${i + 1}`}
                 aria-current={i === active || undefined}

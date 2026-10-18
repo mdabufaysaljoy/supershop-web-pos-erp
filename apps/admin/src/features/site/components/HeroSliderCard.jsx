@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MediaPickerDialog } from '@/features/media/components/MediaPickerDialog';
+import { useMediaList } from '@/features/media/hooks';
 import { pages, usePage, usePageAction, useSaveDraft } from '@/features/pages/resource';
 
 const DEFAULT_SLIDE = {
@@ -44,6 +45,10 @@ export function HeroSliderCard({ disabled }) {
   const [autoplayState, setAutoplayState] = useState(null);
   const [pickingIndex, setPickingIndex] = useState(null);
 
+  // Media library items for live thumbnail preview
+  const mediaList = useMediaList({ limit: 100 });
+  const mediaMap = new Map((mediaList.data?.data ?? []).map((m) => [m.id, m]));
+
   // Derived effective values
   const slides = slidesState ?? heroBlock?.props?.slides ?? [DEFAULT_SLIDE];
   const autoplaySeconds = autoplayState ?? heroBlock?.props?.autoplaySeconds ?? 5;
@@ -76,6 +81,14 @@ export function HeroSliderCard({ disabled }) {
   const handleSaveAndPublish = async () => {
     if (!homeId || !page) return;
     try {
+      const cleanSlides = slides.map((s) => ({
+        mediaId: s.mediaId || null,
+        heading: s.heading || '',
+        text: s.text || '',
+        buttonLabel: s.buttonLabel || '',
+        href: s.href || '/search',
+      }));
+
       const existingBlocks = page.draft?.blocks ?? [];
       let found = false;
       const updatedBlocks = existingBlocks.map((b) => {
@@ -85,7 +98,7 @@ export function HeroSliderCard({ disabled }) {
             ...b,
             props: {
               ...b.props,
-              slides,
+              slides: cleanSlides,
               autoplaySeconds: Number(autoplaySeconds) || 0,
             },
           };
@@ -98,7 +111,7 @@ export function HeroSliderCard({ disabled }) {
           id: 'home-hero',
           type: 'heroCarousel',
           props: {
-            slides,
+            slides: cleanSlides,
             autoplaySeconds: Number(autoplaySeconds) || 0,
           },
         });
@@ -108,7 +121,7 @@ export function HeroSliderCard({ disabled }) {
       await pageAction.mutateAsync('publish');
       toast.success('Hero slider saved & published to storefront!');
     } catch {
-      // error handled by pageAction
+      toast.error('Failed to save and publish hero slider.');
     }
   };
 
@@ -288,16 +301,29 @@ export function HeroSliderCard({ disabled }) {
                 {/* Slide Image */}
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-border/80 p-3 bg-muted/20">
                   <div className="flex items-center gap-3">
-                    <div className="grid size-12 place-items-center rounded-lg bg-muted text-muted-foreground">
-                      <ImageIcon className="size-6" />
-                    </div>
+                    {mediaMap.get(slide.mediaId) ? (
+                      <img
+                        src={
+                          mediaMap.get(slide.mediaId)?.variants?.thumb?.url ||
+                          mediaMap.get(slide.mediaId)?.url
+                        }
+                        alt=""
+                        className="size-14 rounded-lg object-cover border border-border shadow-xs"
+                      />
+                    ) : (
+                      <div className="grid size-14 place-items-center rounded-lg bg-muted text-muted-foreground border border-border">
+                        <ImageIcon className="size-6" />
+                      </div>
+                    )}
                     <div>
                       <span className="text-xs font-semibold">
-                        {slide.mediaId ? 'Custom Image Attached' : 'Ambient Gradient Theme'}
+                        {slide.mediaId
+                          ? mediaMap.get(slide.mediaId)?.name || 'Custom Image Attached'
+                          : 'Ambient Gradient Theme'}
                       </span>
                       <p className="text-[11px] text-muted-foreground">
                         {slide.mediaId
-                          ? `Media ID: ${slide.mediaId}`
+                          ? `${mediaMap.get(slide.mediaId)?.width ? `${mediaMap.get(slide.mediaId)?.width}×${mediaMap.get(slide.mediaId)?.height}px · ` : ''}ID: ${slide.mediaId}`
                           : 'No image uploaded (uses atmospheric dark gradient)'}
                       </p>
                     </div>

@@ -49,7 +49,7 @@ export default async function HomePage({ params }) {
           context={blockContext({ page, lang, t, fmtOptions })}
         />
         {/* Flagship interactive supershop additions */}
-        <FlashDealsBanner lang={lang} t={t} />
+        <FlashDealsBanner lang={lang} />
         <PromoBanners lang={lang} />
         <TestimonialWall />
       </div>
@@ -75,7 +75,7 @@ function BuiltInHome({ lang, storeName, categories, newest, t }) {
   return (
     <div className="grid gap-16 sm:gap-20">
       {/* 1. Modern Flagship Hero Showcase */}
-      <HomeHero lang={lang} storeName={storeName} t={t} />
+      <HomeHero lang={lang} storeName={storeName} />
 
       {/* 2. Trust Badges & Value Propositions */}
       <TrustFeatures />
@@ -84,7 +84,7 @@ function BuiltInHome({ lang, storeName, categories, newest, t }) {
       <CategoryShowcase categories={categories} lang={lang} t={t} />
 
       {/* 4. High-Energy Flash Deals Banner */}
-      <FlashDealsBanner lang={lang} t={t} />
+      <FlashDealsBanner lang={lang} />
 
       {/* 5. Dual Promotional Category Spotlights (Electronics & Fashion) */}
       <PromoBanners lang={lang} />

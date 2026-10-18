@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useT } from '@/i18n/I18nProvider';
 import { localizePath } from '@/i18n/config';
 
 /**
@@ -20,7 +21,9 @@ function getTargetTime() {
 /**
  * High-energy Flash Deals Showcase with active ticking countdown pill & promotional incentives
  */
-export function FlashDealsBanner({ lang, t }) {
+export function FlashDealsBanner({ lang, t: propT }) {
+  const hookT = useT();
+  const t = propT || hookT;
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 8,

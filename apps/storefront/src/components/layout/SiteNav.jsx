@@ -2,22 +2,115 @@ import Link from 'next/link';
 import { localizePath } from '@/i18n/config';
 import { categoryPath } from '@/lib/categories';
 
-/**
- * The header's primary navigation row:
- * - Standalone All Products
- * - Interactive Categories dropdown listing all categories
- * - Offers & Deals showcase with high-visibility badge
- * - Standalone Order Tracking link (separated from shop dropdown)
- * - Any shop-arranged menu items
- *
- * Items with children open accessible panels on hover and focus.
- */
 const linkHref = (href, lang) => (href?.startsWith('/') ? localizePath(href, lang) : href);
 
 const topLinkStyle =
   'inline-flex items-center gap-1.5 border-b-2 border-transparent py-2.5 font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground';
 
-export function SiteNav({ items = [], categories = [], lang, label, t }) {
+/**
+ * Visual metadata for departments (high-res background images and large icons)
+ */
+function getCategoryVisual(name = '', slug = '') {
+  const s = `${slug} ${name}`.toLowerCase();
+  if (
+    s.includes('mobile') ||
+    s.includes('phone') ||
+    s.includes('smartphones') ||
+    s.includes('gadget')
+  ) {
+    return {
+      icon: '📱',
+      tag: 'Flagships, Cases, Chargers & MagSafe',
+      bgImg:
+        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80',
+      iconBg: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+    };
+  }
+  if (
+    s.includes('audio') ||
+    s.includes('headphone') ||
+    s.includes('sound') ||
+    s.includes('earbud') ||
+    s.includes('wearable')
+  ) {
+    return {
+      icon: '🎧',
+      tag: 'Spatial Audio, ANC Buds & Speakers',
+      bgImg:
+        'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80',
+      iconBg: 'bg-purple-500/20 text-purple-400 border border-purple-500/30',
+    };
+  }
+  if (s.includes('comput') || s.includes('laptop') || s.includes('tech') || s.includes('gaming')) {
+    return {
+      icon: '💻',
+      tag: 'Ultrabooks, 4K Displays & Mechanical Keys',
+      bgImg:
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+      iconBg: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30',
+    };
+  }
+  if (
+    s.includes('fashion') ||
+    s.includes('apparel') ||
+    s.includes('cloth') ||
+    s.includes('hoodie') ||
+    s.includes('streetwear')
+  ) {
+    return {
+      icon: '👕',
+      tag: 'Seasonal Streetwear, Hoodies & Footwear',
+      bgImg:
+        'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&auto=format&fit=crop&q=80',
+      iconBg: 'bg-rose-500/20 text-rose-400 border border-rose-500/30',
+    };
+  }
+  if (
+    s.includes('home') ||
+    s.includes('living') ||
+    s.includes('smart-home') ||
+    s.includes('appliance')
+  ) {
+    return {
+      icon: '🏠',
+      tag: 'Smart Robotics, IoT Lighting & Air Care',
+      bgImg:
+        'https://images.unsplash.com/photo-1558002038-1055907df827?w=600&auto=format&fit=crop&q=80',
+      iconBg: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+    };
+  }
+  if (
+    s.includes('power') ||
+    s.includes('charger') ||
+    s.includes('cable') ||
+    s.includes('battery')
+  ) {
+    return {
+      icon: '⚡',
+      tag: 'Fast GaN Bricks, MagSafe & Power Banks',
+      bgImg:
+        'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?w=600&auto=format&fit=crop&q=80',
+      iconBg: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
+    };
+  }
+  return {
+    icon: '🛍️',
+    tag: 'Curated Department & Premium Essentials',
+    bgImg:
+      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&auto=format&fit=crop&q=80',
+    iconBg: 'bg-primary/20 text-primary border border-primary/30',
+  };
+}
+
+export function SiteNav({
+  items = [],
+  categories = [],
+  lang,
+  label,
+  categoriesLabel = 'Categories',
+  allProductsLabel = 'All Products',
+  trackLabel = 'Track Order',
+}) {
   if (!items.length && !categories.length) return null;
 
   // 1. Remove track order if it was nested under any parent item (e.g. Shop)
@@ -37,13 +130,25 @@ export function SiteNav({ items = [], categories = [], lang, label, t }) {
   const hasItemWithHref = (path) =>
     cleanedItems.some((i) => i.href === path || i.href?.endsWith(path));
 
-  // Determine if we need to inject Categories, Offers, or Track Order
   const hasCategoriesItem = cleanedItems.some(
     (i) => i.id === 'categories' || i.label?.toLowerCase() === 'categories',
   );
   const hasOffersItem =
     hasItemWithHref('/search?sort=price_asc') || cleanedItems.some((i) => i.id === 'offers');
   const hasTrackItem = hasItemWithHref('/track') || cleanedItems.some((i) => i.id === 'track');
+
+  // Curated fallback categories if shop categories list is empty
+  const displayCategories =
+    categories.length > 0
+      ? categories
+      : [
+          { id: 'mobiles', name: 'Smartphones & Mobiles', slug: 'mobiles' },
+          { id: 'audio', name: 'Audio & Wireless Wearables', slug: 'audio' },
+          { id: 'computing', name: 'Computing & Gaming Gear', slug: 'computing' },
+          { id: 'fashion', name: 'Fashion & Streetwear Apparel', slug: 'fashion' },
+          { id: 'home', name: 'Smart Living & Robotics', slug: 'smart-home' },
+          { id: 'power', name: 'Power, GaN Chargers & Cables', slug: 'power-cables' },
+        ];
 
   return (
     <nav aria-label={label} className="mx-auto max-w-7xl px-4">
@@ -74,7 +179,7 @@ export function SiteNav({ items = [], categories = [], lang, label, t }) {
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </Link>
-              <div className="invisible absolute start-0 top-full z-50 min-w-56 rounded-xl border bg-background p-3 opacity-0 shadow-xl transition-all duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+              <div className="invisible absolute start-0 top-full z-50 min-w-56 rounded-2xl border bg-background p-3 opacity-0 shadow-xl transition-all duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
                 <ul className="grid gap-1">
                   {item.children.map((child) => (
                     <li key={child.id}>
@@ -103,8 +208,8 @@ export function SiteNav({ items = [], categories = [], lang, label, t }) {
           );
         })}
 
-        {/* Categories Dropdown if not in items list and categories are present */}
-        {!hasCategoriesItem && categories.length > 0 && (
+        {/* Categories Mega Dropdown with Background Images and Big Icons */}
+        {!hasCategoriesItem && (
           <li className="group relative">
             <button
               type="button"
@@ -112,12 +217,12 @@ export function SiteNav({ items = [], categories = [], lang, label, t }) {
               aria-haspopup="true"
             >
               <span aria-hidden="true">📑</span>
-              <span>{t ? t('catalog.categories') : 'Categories'}</span>
+              <span className="font-semibold">{categoriesLabel}</span>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 className="size-3.5 transition-transform group-hover:rotate-180"
@@ -126,27 +231,86 @@ export function SiteNav({ items = [], categories = [], lang, label, t }) {
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </button>
-            <div className="invisible absolute start-0 top-full z-50 min-w-64 rounded-2xl border bg-background p-3 opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-              <div className="p-2 border-b border-border/60 mb-2">
-                <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Browse Departments
-                </p>
+
+            {/* Visual Mega Dropdown Panel */}
+            <div className="invisible absolute start-0 top-full z-50 w-[780px] max-w-[94vw] lg:w-[860px] rounded-3xl border border-border/80 bg-background/95 p-6 opacity-0 shadow-2xl backdrop-blur-2xl transition-all duration-200 group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+              <div className="flex items-center justify-between pb-4 border-b border-border/60 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="flex size-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                    Curated Store Departments
+                  </span>
+                </div>
+                <Link
+                  href={localizePath('/search', lang)}
+                  className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  <span>{allProductsLabel}</span>
+                  <span aria-hidden="true">→</span>
+                </Link>
               </div>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-80 overflow-y-auto">
-                {categories.map((c) => (
-                  <li key={c.id}>
+
+              {/* Grid of Visual Category Cards with Background Images & Big Icons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[460px] overflow-y-auto pr-1">
+                {displayCategories.map((c) => {
+                  const visual = getCategoryVisual(c.name, c.slug);
+                  const bgImage = c.image?.url || visual.bgImg;
+
+                  return (
                     <Link
+                      key={c.id || c.slug}
                       href={localizePath(categoryPath(c.slug), lang)}
-                      className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      className="group/card relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/70 p-4 shadow-xs transition-all duration-300 hover:scale-[1.02] hover:border-primary/50 hover:shadow-lg"
                     >
-                      <span className="truncate">{c.name}</span>
-                      <span aria-hidden="true" className="text-[10px] opacity-60">
+                      {/* Background Image Layer with Dark Gradient Overlay */}
+                      <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover/card:scale-110"
+                        style={{ backgroundImage: `url(${bgImage})` }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/85 to-slate-900/70" />
+
+                      {/* Big Size Icon Container */}
+                      <div
+                        className={`relative z-10 flex size-14 sm:size-16 shrink-0 items-center justify-center rounded-2xl text-3xl sm:text-4xl shadow-md backdrop-blur-md transition-transform duration-300 group-hover/card:scale-110 ${visual.iconBg}`}
+                      >
+                        {c.icon || visual.icon}
+                      </div>
+
+                      {/* Category Content */}
+                      <div className="relative z-10 grid gap-1 text-start min-w-0">
+                        <span className="text-sm sm:text-base font-bold text-white transition-colors group-hover/card:text-amber-300 truncate">
+                          {c.name}
+                        </span>
+                        <span className="text-xs text-slate-300 line-clamp-1">
+                          {c.tag || visual.tag}
+                        </span>
+                      </div>
+
+                      {/* Action Arrow */}
+                      <span
+                        aria-hidden="true"
+                        className="relative z-10 ms-auto flex size-8 items-center justify-center rounded-full bg-white/10 text-white opacity-0 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:translate-x-1 rtl:group-hover/card:-translate-x-1"
+                      >
                         →
                       </span>
                     </Link>
-                  </li>
-                ))}
-              </ul>
+                  );
+                })}
+              </div>
+
+              {/* Bottom Quick Bar */}
+              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <span className="text-emerald-500 font-bold">✓</span> Fast Kingdom-Wide Dispatch
+                </span>
+                <Link
+                  href={`${localizePath('/search', lang)}?sort=price_asc`}
+                  className="font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                >
+                  <span aria-hidden="true">🔥</span>
+                  <span>Shop Super Deals</span>
+                </Link>
+              </div>
             </div>
           </li>
         )}
@@ -169,10 +333,10 @@ export function SiteNav({ items = [], categories = [], lang, label, t }) {
           <li className="ms-auto">
             <Link
               href={localizePath('/track', lang)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 px-3 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-primary hover:text-primary-foreground hover:border-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-2xs"
             >
               <span aria-hidden="true">📦</span>
-              <span>{t ? t('track.linkLabel') : 'Track Order'}</span>
+              <span>{trackLabel}</span>
             </Link>
           </li>
         )}

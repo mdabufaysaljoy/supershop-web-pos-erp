@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useT } from '@/i18n/I18nProvider';
 import { localizePath } from '@/i18n/config';
 
 /**
@@ -12,7 +13,9 @@ import { localizePath } from '@/i18n/config';
  * - Navigation controls (next/prev and dot indicators)
  * - Verified Saudi supershop trust markers
  */
-export function HomeHero({ lang, storeName, t }) {
+export function HomeHero({ lang, storeName, t: propT }) {
+  const hookT = useT();
+  const t = propT || hookT;
   const slides = [
     {
       id: 'tech',

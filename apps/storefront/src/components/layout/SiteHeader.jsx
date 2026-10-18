@@ -64,15 +64,16 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
           <CartButton />
         </div>
       </div>
-      {header.menu?.length ? (
-        <SiteNav
-          items={header.menu}
-          categories={categories}
-          lang={lang}
-          label={t('nav.primary')}
-          t={t}
-        />
-      ) : header.showCategoryRow === false ? null : (
+      <SiteNav
+        items={header.menu ?? []}
+        categories={categories}
+        lang={lang}
+        label={t('nav.primary')}
+        categoriesLabel={t('catalog.categories')}
+        allProductsLabel={t('nav.allProducts')}
+        trackLabel={t('track.linkLabel')}
+      />
+      {header.showCategoryRow === false ? null : (
         <nav aria-label={t('nav.primary')} className="border-t border-border/50 bg-muted/30">
           <div className="mx-auto max-w-7xl px-4 py-1.5">
             <ul className="hide-scrollbar flex items-center gap-1.5 overflow-x-auto text-xs whitespace-nowrap sm:text-sm">

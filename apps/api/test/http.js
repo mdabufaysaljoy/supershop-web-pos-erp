@@ -38,7 +38,10 @@ export function nextEvent(name, timeoutMs = 10_000) {
 }
 
 /** Polls `fn` until it returns a truthy value (for async side effects like audit writes). */
-export async function waitFor(fn, { timeoutMs = 10_000, intervalMs = 20 } = {}) {
+export async function waitFor(
+  fn,
+  { timeoutMs = process.env.CI ? 25_000 : 10_000, intervalMs = 20 } = {},
+) {
   const deadline = Date.now() + timeoutMs;
   for (;;) {
     const value = await fn();

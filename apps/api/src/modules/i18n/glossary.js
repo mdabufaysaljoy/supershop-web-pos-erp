@@ -9,19 +9,25 @@ import * as repo from './i18n.repo.js';
 const VERSION_KEY = 'i18n:glossaryVersion';
 const TTL_MS = 30_000;
 let cached = null;
+let versionEpoch = 0;
 
 export async function getGlossary() {
   if (cached && Date.now() - cached.at < TTL_MS) return cached;
+  const currentEpoch = versionEpoch;
   const [version, terms] = await Promise.all([
     getCounterValue(VERSION_KEY),
     repo.listGlossaryTerms(),
   ]);
-  cached = { at: Date.now(), version, terms };
-  return cached;
+  const entry = { at: Date.now(), version, terms };
+  if (versionEpoch === currentEpoch) {
+    cached = entry;
+  }
+  return entry;
 }
 
 export async function bumpGlossaryVersion() {
   cached = null;
+  versionEpoch++;
   return incrementCounter(VERSION_KEY, 1);
 }
 
@@ -39,6 +45,7 @@ export async function protectTerm(term) {
 
 export const clearGlossaryCache = () => {
   cached = null;
+  versionEpoch++;
 };
 
 /**

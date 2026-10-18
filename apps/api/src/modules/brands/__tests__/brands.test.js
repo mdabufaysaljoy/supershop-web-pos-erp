@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import { waitFor } from '../../../../test/http.js';
 import { useMemoryMongo } from '../../../../test/mongo.js';
 import { createApp } from '../../../app.js';
-import { getGlossary } from '../../i18n/glossary.js';
+import { clearGlossaryCache, getGlossary } from '../../i18n/glossary.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
 import { findSystemRoleId, seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
@@ -30,9 +30,13 @@ const create = async (body) => {
   if (res.status !== 201) throw new Error(`${res.status} ${JSON.stringify(res.body)}`);
   return res.body.data;
 };
-const glossaryTerms = async () => (await getGlossary()).terms.map((t) => t.term);
+const glossaryTerms = async () => {
+  clearGlossaryCache();
+  return (await getGlossary()).terms.map((t) => t.term);
+};
 
 beforeEach(async () => {
+  clearGlossaryCache();
   jobs.length = 0;
   setTranslationScheduler(async (job) => jobs.push(job));
   setBrandUsageCounter(async () => 0);

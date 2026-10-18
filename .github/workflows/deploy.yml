@@ -48,7 +48,7 @@ jobs:
     needs: [verify]
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && secrets.VPS_HOST != ''
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3

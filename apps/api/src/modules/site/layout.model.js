@@ -32,6 +32,7 @@ const layoutSchema = new mongoose.Schema(
       logoId: { type: ObjectId, default: null },
       faviconId: { type: ObjectId, default: null },
       ogImageId: { type: ObjectId, default: null },
+      logoDisplay: { type: String, enum: ['both', 'logo', 'name'], default: 'both' },
     },
     /** How to reach the shop. Plain strings: a phone number is not translated (§5.7). */
     contact: {

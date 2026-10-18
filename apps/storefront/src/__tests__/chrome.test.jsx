@@ -170,4 +170,53 @@ describe('the header', () => {
     render(<SiteHeader lang="en" storeName="Supershop" header={{ menu: [] }} t={t} />);
     expect(screen.getByRole('link', { name: 'Supershop' })).toHaveTextContent('Supershop');
   });
+
+  it('honors logoDisplay options: both, logo only, or name only', () => {
+    const logo = { url: '/m/logo.webp', width: 200, height: 60 };
+
+    // 1. Both logo and name
+    const { unmount: u1 } = render(
+      <SiteHeader
+        lang="en"
+        storeName="Supershop"
+        logo={logo}
+        logoDisplay="both"
+        header={{ menu: [] }}
+        t={t}
+      />,
+    );
+    expect(screen.getByRole('img', { name: 'Supershop' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Supershop' })).toHaveTextContent('Supershop');
+    u1();
+
+    // 2. Only logo
+    const { unmount: u2 } = render(
+      <SiteHeader
+        lang="en"
+        storeName="Supershop"
+        logo={logo}
+        logoDisplay="logo"
+        header={{ menu: [] }}
+        t={t}
+      />,
+    );
+    expect(screen.getByRole('img', { name: 'Supershop' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Supershop' })).not.toHaveTextContent('Supershop');
+    u2();
+
+    // 3. Only name (even if logo is provided)
+    const { unmount: u3 } = render(
+      <SiteHeader
+        lang="en"
+        storeName="Supershop"
+        logo={logo}
+        logoDisplay="name"
+        header={{ menu: [] }}
+        t={t}
+      />,
+    );
+    expect(screen.queryByRole('img', { name: 'Supershop' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Supershop' })).toHaveTextContent('Supershop');
+    u3();
+  });
 });

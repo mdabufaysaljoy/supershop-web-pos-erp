@@ -98,6 +98,7 @@ export default async function LangLayout({ children, params }) {
                     lang={lang}
                     storeName={storeName}
                     logo={chrome.brand.logo}
+                    logoDisplay={chrome.brand.logoDisplay ?? 'both'}
                     categories={categories}
                     header={chrome.header}
                     t={t}

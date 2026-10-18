@@ -31,6 +31,8 @@ export const SITE = Object.freeze({
     'linkedin',
   ]),
   REDIRECT_STATUSES,
+  /** How the brand is presented in the storefront header: both, logo only, or name only. */
+  LOGO_DISPLAY: Object.freeze(['both', 'logo', 'name']),
 });
 
 const hexColor = z
@@ -117,6 +119,8 @@ const brand = z
     faviconId: objectId.nullable(),
     /** The picture used when a page is shared (Open Graph / Twitter). */
     ogImageId: objectId.nullable(),
+    /** Display choice: 'both' (logo + name), 'logo' (logo only), or 'name' (name only). */
+    logoDisplay: z.enum(SITE.LOGO_DISPLAY, { error: V.INVALID_TYPE }).default('both'),
   })
   .strict()
   .partial();

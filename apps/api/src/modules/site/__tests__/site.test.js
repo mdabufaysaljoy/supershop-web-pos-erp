@@ -283,7 +283,7 @@ describe('what the shop says about itself', () => {
 
   it('comes with no pictures until the shop sets them', async () => {
     const chrome = await ok(await request(app).get(`${SITE}/public`));
-    expect(chrome.brand).toEqual({ logo: null, favicon: null, ogImage: null });
+    expect(chrome.brand).toEqual({ logo: null, favicon: null, ogImage: null, logoDisplay: 'both' });
   });
 });
 

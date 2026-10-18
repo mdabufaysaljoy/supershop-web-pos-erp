@@ -77,6 +77,7 @@ export const toLayoutDto = (l) => ({
     logoId: l.brand?.logoId ? String(l.brand.logoId) : null,
     faviconId: l.brand?.faviconId ? String(l.brand.faviconId) : null,
     ogImageId: l.brand?.ogImageId ? String(l.brand.ogImageId) : null,
+    logoDisplay: l.brand?.logoDisplay ?? 'both',
   },
   contact: {
     phone: l.contact?.phone ?? '',
@@ -167,6 +168,7 @@ export async function updateLayout(actor, patch) {
     for (const [field, value] of Object.entries(patch.theme ?? {})) doc.theme[field] = value;
     for (const field of BRAND_IMAGE_FIELDS)
       if (patch.brand?.[field] !== undefined) doc.brand[field] = patch.brand[field];
+    if (patch.brand?.logoDisplay !== undefined) doc.brand.logoDisplay = patch.brand.logoDisplay;
     for (const [field, value] of Object.entries(patch.contact ?? {}))
       doc.contact[field] = field === 'address' ? { en: value } : value;
     if (patch.social !== undefined) doc.social = patch.social;
@@ -256,7 +258,10 @@ export async function getSiteChrome(lang = SOURCE_LANGUAGE) {
         menus: await Promise.all(footerMenus.map((m) => resolvedMenu(m, lang))),
       },
       theme: themeCssVars(layout.theme),
-      brand: await brandImages(layout.brand),
+      brand: {
+        ...(await brandImages(layout.brand)),
+        logoDisplay: layout.brand?.logoDisplay ?? 'both',
+      },
       contact: {
         phone: layout.contact?.phone ?? '',
         whatsapp: layout.contact?.whatsapp ?? '',

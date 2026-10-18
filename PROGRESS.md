@@ -7,6 +7,15 @@
 
 
 ## Done tasks
+- Website Name, Site Title Suffix, and Flexible Logo/Name Display Controls ✔ 2026-10-18 (Antigravity) Fixed website name and site title suffix editing, and added flexible header brand display choices (Both Logo & Name, Logo Only, or Name Only) (`packages/shared`, `apps/api`, `apps/admin`, `apps/storefront`):
+  1. Fix Website Name Saving (`BrandCard.jsx`): Fixed settings payload format by passing `[{ key: 'store.name', value }]` instead of `{ changes: { 'store.name': value } }`, matching the `PATCH /api/v1/settings` schema.
+  2. Fix Site Title Suffix Saving (`BrandCard.jsx`): Fixed layout update payload by sending `{ seo: { titleSuffix } }` cleanly instead of spreading `...layout.seo` (which previously injected `defaultDescription` as an object `{ en: '' }`, violating Zod string schema).
+  3. Header Brand Display Mode (`site.js`, `layout.model.js`, `site.service.js`, `SiteHeader.jsx`, `BrandCard.jsx`): Added `brand.logoDisplay` enum (`both` | `logo` | `name`) supporting flexible storefront header rendering:
+     - "Both Logo & Name": renders uploaded graphic logo and store name text side-by-side.
+     - "Only Logo": renders graphic logo only in the header (falls back safely to name if no logo uploaded).
+     - "Only Name": renders website name text (with store icon), ignoring logo even if uploaded.
+  4. Live Media Thumbnail Previews (`BrandCard.jsx`): Integrated live image thumbnail previews and dimension metadata for uploaded logo, favicon, and OG share images in BrandCard.
+  5. Verification: All 123 storefront Vitest tests, 19 admin appearance tests, 24 site API tests, 346 shared tests, and 12/12 Playwright E2E browser tests passing 100% with zero ESLint warnings.
 - Cart Page High-Contrast Colors & Geometric Radii Refinement ✔ 2026-10-18 (Antigravity) Fixed washed-out colors, item count interpolation, and reduced balloon corner radii to crisp modern geometry on the Cart page (`apps/storefront`):
   1. High-Contrast Typography & Free Delivery Banner (`CartPageView.jsx`): Removed dark mode overrides that produced washed-out, illegible text in OS dark mode. Replaced with solid high-contrast dark green typography (`text-emerald-950 font-bold`) on solid light green banner (`bg-emerald-50/90 border border-emerald-300`) with sleek progress bar (`h-1.5 rounded-sm bg-emerald-200` with `bg-emerald-700` fill).
   2. Item Count Badge & Breadcrumb Navigation (`CartPageView.jsx`, `translate.js`): Fixed `{count}` interpolation in `t('cart.itemCountOther', { count })` (was displaying `2 {{count}} items`), rendering crisp pill badge (`2 items` / `٢ عناصر`). Added `'nav'` namespace to `CLIENT_NAMESPACES` so breadcrumbs render translated "Home" / "الرئيسية" instead of raw key `nav.home`.

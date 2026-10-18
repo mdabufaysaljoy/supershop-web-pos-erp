@@ -13,7 +13,15 @@ import { SiteNav } from './SiteNav';
  * menu the shop arranged if it made one (P5.4), otherwise its top-level categories. Logical
  * spacing only (RTL-safe); the category row scrolls sideways on phones.
  */
-export function SiteHeader({ lang, storeName, logo = null, categories = [], header = {}, t }) {
+export function SiteHeader({
+  lang,
+  storeName,
+  logo = null,
+  logoDisplay = 'both',
+  categories = [],
+  header = {},
+  t,
+}) {
   // Ensure very top navigation option is Home (D-Storefront top nav fix)
   const menuItems = (header.menu ?? []).map((item, idx) => {
     if (idx === 0 && (item.id === 'all' || item.href === '/search')) {
@@ -21,6 +29,10 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
     }
     return item;
   });
+
+  const showLogo = Boolean(logo && logoDisplay !== 'name');
+  const showIcon = !showLogo;
+  const showName = logoDisplay !== 'logo' || !logo;
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 shadow-xs backdrop-blur-md transition-all">
@@ -30,7 +42,7 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
           className="group flex items-center gap-2.5 text-lg font-bold tracking-tight text-foreground transition-transform hover:opacity-95"
           aria-label={storeName}
         >
-          {logo ? (
+          {showLogo && (
             <MediaImage
               image={logo}
               alt={storeName}
@@ -38,29 +50,30 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
               priority
               className="h-9 w-auto object-contain"
             />
-          ) : (
-            <>
-              <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-blue-600 text-primary-foreground shadow-sm shadow-primary/25 transition-transform group-hover:scale-105">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="size-5"
-                  aria-hidden="true"
-                >
-                  <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                  <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
-                  <path d="M2 7h20" />
-                </svg>
-              </span>
-              <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-xl">
-                {storeName}
-              </span>
-            </>
+          )}
+          {showIcon && (
+            <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-blue-600 text-primary-foreground shadow-sm shadow-primary/25 transition-transform group-hover:scale-105">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-5"
+                aria-hidden="true"
+              >
+                <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+                <path d="M2 7h20" />
+              </svg>
+            </span>
+          )}
+          {showName && (
+            <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-xl">
+              {storeName}
+            </span>
           )}
         </Link>
         <div className="col-span-3 row-start-2 md:col-span-1 md:col-start-2 md:row-start-1">

@@ -74,6 +74,10 @@ function setup({
     }),
     'GET /api/v1/brands': json(200, { data: [{ id: 'b1', name: 'Acme', slug: 'acme' }] }),
     'GET /api/v1/site/redirects': json(200, { data: [] }),
+    'GET /api/v1/settings?group=general': json(200, {
+      data: [{ key: 'store.name', value: 'Supershop' }],
+    }),
+    'GET /api/v1/media': json(200, { data: [] }),
     ...routes,
   });
   render(
@@ -328,6 +332,62 @@ describe('the shop’s details', () => {
     setup();
     await siteTab(user);
     expect(screen.getAllByText('Not set — your shop name is shown instead')).toHaveLength(3);
+  });
+
+  it('saves the website name via general settings', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        'PATCH /api/v1/settings': json(200, { data: {} }),
+      },
+    });
+    await siteTab(user);
+
+    const input = screen.getByLabelText('Website Name');
+    await user.clear(input);
+    await user.type(input, 'Riyadh Flagship');
+    await user.click(screen.getByRole('button', { name: 'Save Name' }));
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/settings')).toBe(1));
+    expect(bodyOf(m, 'PATCH /api/v1/settings')).toEqual({
+      changes: [{ key: 'store.name', value: 'Riyadh Flagship' }],
+    });
+  });
+
+  it('saves the site title suffix directly without invalidating other seo fields', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        'PATCH /api/v1/site/layout': json(200, { data: LAYOUT }),
+      },
+    });
+    await siteTab(user);
+
+    const input = screen.getByLabelText('Site Title (Suffix)');
+    await user.clear(input);
+    await user.type(input, 'SuperStore KSA');
+    await user.click(screen.getByRole('button', { name: 'Save Title' }));
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/site/layout')).toBe(1));
+    expect(bodyOf(m, 'PATCH /api/v1/site/layout')).toEqual({
+      seo: { titleSuffix: 'SuperStore KSA' },
+    });
+  });
+
+  it('switches the header brand display mode to logo only or name only', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        'PATCH /api/v1/site/layout': json(200, { data: LAYOUT }),
+      },
+    });
+    await siteTab(user);
+
+    await user.click(screen.getByRole('button', { name: /Only Logo/ }));
+    await waitFor(() => expect(m.count('PATCH /api/v1/site/layout')).toBe(1));
+    expect(bodyOf(m, 'PATCH /api/v1/site/layout')).toEqual({
+      brand: { logoDisplay: 'logo' },
+    });
   });
 });
 

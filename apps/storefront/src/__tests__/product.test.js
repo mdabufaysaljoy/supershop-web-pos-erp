@@ -115,12 +115,15 @@ describe('product JSON-LD', () => {
     const one = { ...product, variants: [product.variants[1]], priceMax: 5000, inStock: null };
     const ld = productLd({ product: one, path: '/product/oxford', lang: 'en', currency: 'SAR' });
     expect(ld.sku).toBe('SKU-b');
-    expect(ld.offers).toEqual({
+    expect(ld.offers).toMatchObject({
       '@type': 'Offer',
       url: 'https://shop.example/product/oxford',
       price: '50.00',
       priceCurrency: 'SAR',
+      priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
       itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@type': 'Organization', name: 'SuperShop' },
     });
+    expect(ld.offers).not.toHaveProperty('availability');
   });
 });

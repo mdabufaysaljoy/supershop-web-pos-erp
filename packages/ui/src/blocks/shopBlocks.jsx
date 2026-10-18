@@ -76,6 +76,8 @@ export function CategoryGridBlock({ id, heading, columns = '3', context = {} }) 
                   srcSet={category.image.srcSet ?? undefined}
                   sizes="(min-width: 640px) 33vw, 50vw"
                   alt=""
+                  width={category.image.width}
+                  height={category.image.height}
                   loading="lazy"
                   className="absolute inset-0 size-full object-cover"
                 />
@@ -143,7 +145,9 @@ export function BannerBlock({
           src={image.url}
           srcSet={image.srcSet ?? undefined}
           sizes="100vw"
-          alt=""
+          alt={heading || image.alt || ''}
+          width={image.width}
+          height={image.height}
           loading="lazy"
           className="absolute inset-0 size-full object-cover opacity-60"
         />

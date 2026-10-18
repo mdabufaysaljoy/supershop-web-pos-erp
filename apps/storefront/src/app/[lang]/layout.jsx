@@ -17,7 +17,7 @@ import { getPublicSettings, getPublicTracking } from '@/lib/api';
 import { TrackingProvider } from '@/components/tracking/TrackingProvider';
 import { getCategoryTree } from '@/lib/catalog';
 import { getSiteChrome } from '@/lib/chrome';
-import { SITE_URL } from '@/lib/site';
+import { absoluteUrl, SITE_URL } from '@/lib/site';
 import { organizationLd, websiteLd } from '@/lib/structuredData';
 import '../globals.css';
 
@@ -120,7 +120,13 @@ export default async function LangLayout({ children, params }) {
             </MotionProvider>
           </TrackingProvider>
         </I18nProvider>
-        <JsonLd data={organizationLd({ name: storeName })} />
+        <JsonLd
+          data={organizationLd({
+            name: storeName,
+            logoUrl: chrome.brand.logo?.url ? absoluteUrl(chrome.brand.logo.url) : undefined,
+            sameAs: Object.values(chrome.social ?? {}).filter(Boolean),
+          })}
+        />
         <JsonLd data={websiteLd({ name: storeName, lang })} />
       </body>
     </html>

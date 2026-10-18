@@ -51,7 +51,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
                 src={image.url}
                 srcSet={image.srcSet ?? undefined}
                 sizes="100vw"
-                alt=""
+                alt={slide.heading || image.alt || ''}
                 width={image.width}
                 height={image.height}
                 loading={i === 0 ? 'eager' : 'lazy'}

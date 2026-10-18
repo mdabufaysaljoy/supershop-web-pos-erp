@@ -3,12 +3,12 @@ import { Breadcrumbs } from '@/components/catalog/Breadcrumbs';
 import { ListingView } from '@/components/catalog/ListingView';
 import { JsonLd } from '@/components/JsonLd';
 import { localizePath } from '@/i18n/config';
-import { categoryPath, findCategory } from '@/lib/categories';
+import { categoryPath, findCategory, productPath } from '@/lib/categories';
 import { getCategoryTree, searchProducts } from '@/lib/catalog';
 import { hasEmptyParams, isRefined, listingHref, parseListing, toSearchQuery } from '@/lib/listing';
 import { getPageContext } from '@/lib/page';
 import { buildMetadata } from '@/lib/seo';
-import { breadcrumbLd } from '@/lib/structuredData';
+import { breadcrumbLd, itemListLd } from '@/lib/structuredData';
 
 export const dynamicParams = true; // any category slug; unknown ones 404
 
@@ -89,6 +89,19 @@ export default async function CategoryPage({ params, searchParams }) {
         }
       />
       <JsonLd data={breadcrumbLd(crumbs, lang)} />
+      {result.data?.length > 0 && (
+        <JsonLd
+          data={itemListLd({
+            name: node.name,
+            items: result.data.map((p) => ({
+              name: p.name,
+              path: productPath(p.slug),
+              image: p.image?.url,
+            })),
+            lang,
+          })}
+        />
+      )}
     </>
   );
 }

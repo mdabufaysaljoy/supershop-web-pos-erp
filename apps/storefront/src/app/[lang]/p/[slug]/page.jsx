@@ -1,8 +1,10 @@
 import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import { notFound } from 'next/navigation';
+import { JsonLd } from '@/components/JsonLd';
 import { blockContext, getCmsPage } from '@/lib/cmsPage';
 import { getPageContext } from '@/lib/page';
 import { buildMetadata } from '@/lib/seo';
+import { faqPageLd } from '@/lib/structuredData';
 
 /**
  * A page built in the admin (P5.1). Server-rendered like every other page, with the SAME renderer
@@ -31,13 +33,20 @@ export default async function CmsPage({ params }) {
   ]);
   if (!page) notFound();
 
+  const faqItems = (page.content?.blocks ?? [])
+    .filter((b) => b.type === 'faq' && Array.isArray(b.props?.items))
+    .flatMap((b) => b.props.items);
+
   return (
-    <article className="mx-auto grid w-full max-w-5xl gap-10">
-      <BlockRenderer
-        blocks={page.content.blocks}
-        components={ALL_BLOCK_COMPONENTS}
-        context={blockContext({ page, lang, t, fmtOptions })}
-      />
-    </article>
+    <>
+      <article className="mx-auto grid w-full max-w-5xl gap-10">
+        <BlockRenderer
+          blocks={page.content.blocks}
+          components={ALL_BLOCK_COMPONENTS}
+          context={blockContext({ page, lang, t, fmtOptions })}
+        />
+      </article>
+      {faqItems.length > 0 && <JsonLd data={faqPageLd(faqItems)} />}
+    </>
   );
 }

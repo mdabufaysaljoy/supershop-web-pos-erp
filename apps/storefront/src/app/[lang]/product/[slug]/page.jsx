@@ -119,6 +119,7 @@ export default async function ProductPage({ params }) {
           path: productPath(slug),
           lang,
           currency: settings['store.currency'],
+          sellerName: settings['store.name'],
         })}
       />
       <JsonLd data={breadcrumbLd(crumbs, lang)} />

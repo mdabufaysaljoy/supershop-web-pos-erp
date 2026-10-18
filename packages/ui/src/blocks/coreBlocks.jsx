@@ -41,7 +41,7 @@ export function ImageBlock({ mediaId, alt, href, width = 'contained', context = 
       src={image.url}
       srcSet={image.srcSet}
       sizes={width === 'full' ? '100vw' : '(min-width: 1024px) 1024px, 100vw'}
-      alt={alt ?? ''}
+      alt={alt || image.alt || ''}
       width={image.width}
       height={image.height}
       loading="lazy"

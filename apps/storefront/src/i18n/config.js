@@ -61,6 +61,10 @@ export function resolveLocaleRoute(pathname) {
   const { lang, path } = splitLocale(pathname);
   if (lang === DEFAULT_LOCALE)
     return { type: 'redirect', pathname: path.length > 1 ? path.replace(/\/+$/, '') : '/' };
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    const clean = pathname.replace(/\/+$/, '');
+    return { type: 'redirect', pathname: clean || '/' };
+  }
   if (lang) return { type: 'next', lang };
   return {
     type: 'rewrite',

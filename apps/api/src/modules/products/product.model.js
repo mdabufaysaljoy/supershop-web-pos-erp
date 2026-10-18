@@ -60,6 +60,9 @@ productSchema.index({ categoryIds: 1 });
 productSchema.index({ brandId: 1 });
 productSchema.index({ supplierId: 1 });
 productSchema.index({ tags: 1 });
+productSchema.index({ deletedAt: 1, status: 1, categoryIds: 1 });
+productSchema.index({ deletedAt: 1, status: 1, brandId: 1 });
+productSchema.index({ deletedAt: 1, status: 1, priceMin: 1 });
 productSchema.plugin(localized, {
   fields: [
     'name',
@@ -106,6 +109,8 @@ variantSchema.index(
   { productId: 1, optionsKey: 1 },
   { unique: true, partialFilterExpression: ACTIVE_ONLY },
 );
+variantSchema.index({ productId: 1, position: 1, _id: 1 });
+variantSchema.index({ productId: 1, deletedAt: 1, position: 1 });
 
 export const Product = mongoose.models.Product ?? mongoose.model('Product', productSchema);
 export const Variant = mongoose.models.Variant ?? mongoose.model('Variant', variantSchema);

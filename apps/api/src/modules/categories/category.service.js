@@ -5,6 +5,7 @@ import { withTransaction } from '../../core/db.js';
 import { AppError, NotFoundError, ValidationError } from '../../core/errors.js';
 import { isDuplicateKey, slugTakenError, uniqueSlug } from '../../core/slug.js';
 import { eventBus } from '../../core/events.js';
+import { CACHE_KEYS, cacheInvalidatePattern, cacheRemember } from '../../core/cache.js';
 import { resolveDoc } from '../i18n/index.js';
 import { getMediaByIds, publicImage } from '../media/index.js';
 import * as repo from './category.repo.js';
@@ -27,8 +28,10 @@ export function setCategoryUsageCounter(fn) {
 const invalidMove = (message) => new AppError(ERROR_CODES.INVALID_MOVE, message, { status: 422 });
 const notFound = () => new NotFoundError('Category not found');
 
-const emit = (actor, name, payload) =>
+const emit = (actor, name, payload) => {
+  void cacheInvalidatePattern(CACHE_KEYS.categoryTreePattern());
   void eventBus.emit(name, { ...payload, actorId: actor.staffId });
+};
 const auditView = (c) => ({
   name: c.name?.en ?? '',
   slug: c.slug,
@@ -269,27 +272,29 @@ export async function deleteCategory(actor, id) {
  * @param {string} lang
  */
 export async function getPublicTree(lang) {
-  const all = await repo.listActive(); // parents first
-  const media = await mediaMap(all.filter((c) => c.isActive));
-  const nodes = new Map();
-  const roots = [];
-  for (const c of all) {
-    if (!c.isActive) continue;
-    const parentKey = c.parentId ? String(c.parentId) : null;
-    if (parentKey && !nodes.has(parentKey)) continue; // parent hidden or missing → hide subtree
-    const r = resolveDoc(c, LOCALIZED, lang);
-    const image = c.imageId ? imageView(media.get(String(c.imageId))) : null;
-    const node = {
-      id: String(c._id),
-      name: r.name,
-      slug: c.slug,
-      description: r.description,
-      image: image ? { ...image, alt: r.name } : null,
-      seo: { title: r.seo.title, description: r.seo.description },
-      children: [],
-    };
-    nodes.set(node.id, node);
-    (parentKey ? nodes.get(parentKey).children : roots).push(node);
-  }
-  return roots;
+  return cacheRemember(CACHE_KEYS.categoryTree(lang), 300, async () => {
+    const all = await repo.listActive(); // parents first
+    const media = await mediaMap(all.filter((c) => c.isActive));
+    const nodes = new Map();
+    const roots = [];
+    for (const c of all) {
+      if (!c.isActive) continue;
+      const parentKey = c.parentId ? String(c.parentId) : null;
+      if (parentKey && !nodes.has(parentKey)) continue; // parent hidden or missing → hide subtree
+      const r = resolveDoc(c, LOCALIZED, lang);
+      const image = c.imageId ? imageView(media.get(String(c.imageId))) : null;
+      const node = {
+        id: String(c._id),
+        name: r.name,
+        slug: c.slug,
+        description: r.description,
+        image: image ? { ...image, alt: r.name } : null,
+        seo: { title: r.seo.title, description: r.seo.description },
+        children: [],
+      };
+      nodes.set(node.id, node);
+      (parentKey ? nodes.get(parentKey).children : roots).push(node);
+    }
+    return roots;
+  });
 }

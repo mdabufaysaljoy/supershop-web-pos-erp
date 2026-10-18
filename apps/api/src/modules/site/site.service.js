@@ -10,6 +10,7 @@ import { V } from '@supershop/shared/validators';
 import { ConflictError, NotFoundError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { uniqueSlug } from '../../core/slug.js';
+import { CACHE_KEYS, cacheRemember, cacheInvalidatePattern } from '../../core/cache.js';
 import { resolveDoc } from '../i18n/index.js';
 import { getMediaByIds, publicImage } from '../media/index.js';
 import * as repo from './site.repo.js';
@@ -38,8 +39,10 @@ export function setMenuRefProviders(next) {
   refs = { ...refs, ...next };
 }
 
-const emit = (name, payload, actor) =>
+const emit = (name, payload, actor) => {
+  void cacheInvalidatePattern(CACHE_KEYS.siteChromePattern());
   void eventBus.emit(name, { ...payload, actorId: actor?.staffId ?? null });
+};
 
 export const toMenuDto = (m) => ({
   id: String(m._id),
@@ -226,49 +229,51 @@ async function brandImages(brand = {}) {
  * pictures, and the theme as CSS variables.
  */
 export async function getSiteChrome(lang = SOURCE_LANGUAGE) {
-  const layout = await repo.getLayout();
-  const ids = [layout.headerMenuId, ...(layout.footer?.menuIds ?? [])].filter(Boolean);
-  const menus = ids.length ? await repo.findMenusByIds(ids) : [];
-  const byId = new Map(menus.map((m) => [String(m._id), m]));
-  const header = layout.headerMenuId ? byId.get(String(layout.headerMenuId)) : null;
-  const footerMenus = (layout.footer?.menuIds ?? [])
-    .map((id) => byId.get(String(id)))
-    .filter(Boolean);
-  const text = resolveDoc(layout, LAYOUT_LOCALIZED, lang);
+  return cacheRemember(CACHE_KEYS.siteChrome(lang), 300, async () => {
+    const layout = await repo.getLayout();
+    const ids = [layout.headerMenuId, ...(layout.footer?.menuIds ?? [])].filter(Boolean);
+    const menus = ids.length ? await repo.findMenusByIds(ids) : [];
+    const byId = new Map(menus.map((m) => [String(m._id), m]));
+    const header = layout.headerMenuId ? byId.get(String(layout.headerMenuId)) : null;
+    const footerMenus = (layout.footer?.menuIds ?? [])
+      .map((id) => byId.get(String(id)))
+      .filter(Boolean);
+    const text = resolveDoc(layout, LAYOUT_LOCALIZED, lang);
 
-  return {
-    announcement: {
-      enabled: Boolean(layout.announcement?.enabled && text.announcement?.text),
-      text: text.announcement?.text ?? '',
-      href: layout.announcement?.href ?? '',
-      tone: layout.announcement?.tone ?? 'primary',
-    },
-    header: {
-      showCategoryRow: layout.showCategoryRow !== false,
-      menu: header ? (await resolvedMenu(header, lang)).items : [],
-    },
-    footer: {
-      note: text.footer?.note ?? '',
-      menus: await Promise.all(footerMenus.map((m) => resolvedMenu(m, lang))),
-    },
-    theme: themeCssVars(layout.theme),
-    brand: await brandImages(layout.brand),
-    contact: {
-      phone: layout.contact?.phone ?? '',
-      whatsapp: layout.contact?.whatsapp ?? '',
-      email: layout.contact?.email ?? '',
-      address: text.contact?.address ?? '',
-      nationalAddress: layout.contact?.nationalAddress ?? '',
-      mapUrl: layout.contact?.mapUrl ?? '',
-    },
-    social: (layout.social ?? []).map((link) => ({ platform: link.platform, url: link.url })),
-    seo: {
-      titleSuffix: text.seo?.titleSuffix ?? '',
-      defaultDescription: text.seo?.defaultDescription ?? '',
-      indexable: layout.seo?.indexable !== false,
-      robotsExtra: layout.seo?.robotsExtra ?? '',
-    },
-  };
+    return {
+      announcement: {
+        enabled: Boolean(layout.announcement?.enabled && text.announcement?.text),
+        text: text.announcement?.text ?? '',
+        href: layout.announcement?.href ?? '',
+        tone: layout.announcement?.tone ?? 'primary',
+      },
+      header: {
+        showCategoryRow: layout.showCategoryRow !== false,
+        menu: header ? (await resolvedMenu(header, lang)).items : [],
+      },
+      footer: {
+        note: text.footer?.note ?? '',
+        menus: await Promise.all(footerMenus.map((m) => resolvedMenu(m, lang))),
+      },
+      theme: themeCssVars(layout.theme),
+      brand: await brandImages(layout.brand),
+      contact: {
+        phone: layout.contact?.phone ?? '',
+        whatsapp: layout.contact?.whatsapp ?? '',
+        email: layout.contact?.email ?? '',
+        address: text.contact?.address ?? '',
+        nationalAddress: layout.contact?.nationalAddress ?? '',
+        mapUrl: layout.contact?.mapUrl ?? '',
+      },
+      social: (layout.social ?? []).map((link) => ({ platform: link.platform, url: link.url })),
+      seo: {
+        titleSuffix: text.seo?.titleSuffix ?? '',
+        defaultDescription: text.seo?.defaultDescription ?? '',
+        indexable: layout.seo?.indexable !== false,
+        robotsExtra: layout.seo?.robotsExtra ?? '',
+      },
+    };
+  });
 }
 
 // ---------------------------------------------------------------- redirects

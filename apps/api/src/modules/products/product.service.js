@@ -555,7 +555,21 @@ export async function* iterateProducts(actor, filters = {}, pageSize = 200) {
       limit: pageSize,
       sort: { field: 'createdAt', direction: 1 },
     });
-    for (const p of items) yield toProductDto(p, await repo.listVariants(p._id), actor);
+    if (!items.length) return;
+    const variants = await repo.listVariantsByProductIds(items.map((p) => p._id));
+    const byProduct = new Map();
+    for (const v of variants) {
+      const pid = String(v.productId);
+      let list = byProduct.get(pid);
+      if (!list) {
+        list = [];
+        byProduct.set(pid, list);
+      }
+      list.push(v);
+    }
+    for (const p of items) {
+      yield toProductDto(p, byProduct.get(String(p._id)) ?? [], actor);
+    }
     if (items.length < pageSize) return;
   }
 }

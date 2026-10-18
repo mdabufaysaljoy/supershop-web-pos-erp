@@ -68,5 +68,8 @@ customerSchema.index(
   { 'identities.provider': 1, 'identities.sub': 1 },
   { partialFilterExpression: { 'identities.0': { $exists: true } } },
 );
+customerSchema.index({ createdAt: -1 });
+customerSchema.index({ status: 1, createdAt: -1 });
+customerSchema.index({ deletedAt: 1, createdAt: -1 });
 
 export const Customer = mongoose.models.Customer ?? mongoose.model('Customer', customerSchema);

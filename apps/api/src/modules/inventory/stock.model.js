@@ -61,6 +61,7 @@ operationSchema.index(
 operationSchema.index({ branchId: 1, createdAt: -1 });
 operationSchema.index({ toBranchId: 1, createdAt: -1 });
 operationSchema.index({ refType: 1, refId: 1 });
+operationSchema.index({ type: 1, createdAt: -1 });
 
 const movementSchema = new mongoose.Schema(
   {
@@ -85,6 +86,7 @@ movementSchema.index({ branchId: 1, createdAt: -1 });
 movementSchema.index({ variantId: 1, branchId: 1, createdAt: -1 });
 movementSchema.index({ productId: 1, createdAt: -1 });
 movementSchema.index({ operationId: 1 });
+movementSchema.index({ type: 1, createdAt: -1 });
 
 // Append-only: the ledger can't be rewritten through the models.
 const appendOnly = () => {

@@ -7,6 +7,7 @@ import {
 import { decryptSecret, encryptSecret, maskSecret } from '../../core/crypto.js';
 import { BadRequestError, NotFoundError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
+import { CACHE_KEYS, cacheRemember, cacheDel } from '../../core/cache.js';
 import * as repo from './tracking.repo.js';
 import * as logRepo from './trackingLog.repo.js';
 import {
@@ -65,23 +66,25 @@ function toPublicDto(doc) {
  * Returns public configuration for storefront layout and script injection.
  */
 export async function getPublicTrackingConfig() {
-  const [integrations, consent] = await Promise.all([
-    repo.listIntegrations(),
-    repo.findConsentSettings(),
-  ]);
+  return cacheRemember(CACHE_KEYS.publicTracking(), 600, async () => {
+    const [integrations, consent] = await Promise.all([
+      repo.listIntegrations(),
+      repo.findConsentSettings(),
+    ]);
 
-  const enabled = integrations.filter((i) => i.enabled).map(toPublicDto);
+    const enabled = integrations.filter((i) => i.enabled).map(toPublicDto);
 
-  return {
-    integrations: enabled,
-    consent: {
-      enabled: Boolean(consent.enabled),
-      defaultAnalytics: Boolean(consent.defaultAnalytics),
-      defaultMarketing: Boolean(consent.defaultMarketing),
-      consentModeV2: Boolean(consent.consentModeV2),
-      privacyPolicyUrl: consent.privacyPolicyUrl || '/privacy',
-    },
-  };
+    return {
+      integrations: enabled,
+      consent: {
+        enabled: Boolean(consent.enabled),
+        defaultAnalytics: Boolean(consent.defaultAnalytics),
+        defaultMarketing: Boolean(consent.defaultMarketing),
+        consentModeV2: Boolean(consent.consentModeV2),
+        privacyPolicyUrl: consent.privacyPolicyUrl || '/privacy',
+      },
+    };
+  });
 }
 
 /**
@@ -160,6 +163,7 @@ export async function updateIntegration(actor, provider, input) {
     updatedBy: actor.staffId,
   });
 
+  void cacheDel(CACHE_KEYS.publicTracking());
   void eventBus.emit(EVENTS.TRACKING_INTEGRATION_UPDATED, {
     provider,
     enabled: updated.enabled,
@@ -175,6 +179,7 @@ export async function updateIntegration(actor, provider, input) {
 export async function updateConsentSettings(actor, input) {
   const updated = await repo.upsertConsentSettings(input, actor.staffId);
 
+  void cacheDel(CACHE_KEYS.publicTracking());
   void eventBus.emit(EVENTS.TRACKING_CONSENT_UPDATED, {
     enabled: updated.enabled,
     actorId: actor.staffId,

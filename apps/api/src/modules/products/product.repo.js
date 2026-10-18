@@ -87,6 +87,13 @@ export const listVariants = (productId, session) =>
     .sort({ position: 1, _id: 1 })
     .lean();
 
+export const listVariantsByProductIds = (productIds, session) =>
+  productIds.length
+    ? Variant.find({ productId: { $in: productIds }, ...ACTIVE }, null, opts(session))
+        .sort({ position: 1, _id: 1 })
+        .lean()
+    : [];
+
 /** Active variants of OTHER products using any of these SKUs/barcodes. */
 export const findCodeConflicts = ({ productId, skus, barcodes }) =>
   Variant.find(

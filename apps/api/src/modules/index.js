@@ -100,6 +100,7 @@ import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from '
 import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import { createExportRouter } from './exports/index.js';
+import { trackingRouter } from './tracking/index.js';
 import {
   countPurchaseOrdersInBranch,
   countPurchaseOrdersOfSupplier,
@@ -344,4 +345,5 @@ export function mountModuleRoutes(api) {
   api.use('/reports', createAnalyticsRouter());
   api.use('/exports', createExportRouter());
   api.use('/reports/exports', createExportRouter());
+  api.use('/tracking', trackingRouter);
 }

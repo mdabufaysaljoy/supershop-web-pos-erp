@@ -435,5 +435,28 @@
     "minutes": "Minutes",
     "seconds": "Seconds",
     "emailAddress": "Email address"
+  },
+  "consent": {
+    "title": "We value your privacy",
+    "description": "We use cookies and marketing trackers to ensure site functionality, analyze traffic, and personalize advertising in compliance with Saudi Personal Data Protection Law (PDPL).",
+    "acceptAll": "Accept All",
+    "necessaryOnly": "Necessary Only",
+    "customize": "Customize Preferences",
+    "savePreferences": "Save Preferences",
+    "privacyPolicy": "Privacy Policy",
+    "categories": {
+      "necessary": {
+        "title": "Strictly Necessary",
+        "description": "Required for site navigation, security, and cart operation. Cannot be disabled."
+      },
+      "analytics": {
+        "title": "Analytics & Performance",
+        "description": "Measures visits and navigation paths so we can measure and improve store performance."
+      },
+      "marketing": {
+        "title": "Marketing & Advertising",
+        "description": "Enables personalized campaigns and conversion tracking across Google, Meta, TikTok, and Snapchat."
+      }
+    }
   }
 }

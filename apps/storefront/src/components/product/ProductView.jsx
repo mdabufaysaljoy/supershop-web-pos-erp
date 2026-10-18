@@ -1,13 +1,14 @@
 'use client';
 
 import { createFormatters } from '@supershop/shared';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { AddToCart } from '@/components/cart/AddToCart';
 import { PriceTag } from '@/components/catalog/PriceTag';
 import { useT } from '@/i18n/I18nProvider';
 import { Gallery } from './Gallery';
 import { useVariantSelection } from './useVariantSelection';
 import { VariantOptions } from './VariantOptions';
+import { trackViewItem } from '@/lib/tracking';
 
 /**
  * Interactive part of the product page: gallery + option selector + add to cart / buy now.
@@ -24,6 +25,21 @@ export function ProductView({ product, fmtOptions, pricesIncludeVat }) {
     },
   );
   const stock = variant ? variant.inStock : product.inStock;
+
+  useEffect(() => {
+    if (product) {
+      trackViewItem({
+        item: {
+          item_id: variant?.id || product.id,
+          item_name: product.name,
+          price: (variant?.price ?? product.priceMin ?? 0) / 100,
+          item_category: product.category?.name,
+          item_brand: product.brand?.name,
+        },
+        currency: 'SAR',
+      });
+    }
+  }, [product, variant?.id, variant?.price]);
 
   return (
     <div className="grid gap-8 md:grid-cols-2">

@@ -1,5 +1,6 @@
 import { PERMISSIONS as P } from '@supershop/shared';
 import {
+  Activity,
   BarChart3,
   ClipboardList,
   Clock,
@@ -89,6 +90,7 @@ export const NAV = [
         permission: [P.PAGE_VIEW, P.MENU_MANAGE], // any of them
       },
       { path: '/campaigns', label: 'nav.campaigns', icon: Megaphone, permission: P.CAMPAIGN_VIEW },
+      { path: '/tracking', label: 'nav.tracking', icon: Activity, permission: P.TRACKING_MANAGE },
     ],
   },
   {

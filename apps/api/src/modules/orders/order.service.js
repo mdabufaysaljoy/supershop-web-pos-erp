@@ -391,6 +391,7 @@ export async function placeOrder(ctx, input, { lang, idempotencyKey = null }) {
             branchId: primary ? oid(primary) : null,
             confirmationTokenHash: sha256(token),
             idempotencyKey: key,
+            attribution: input.attribution ?? null,
             placedAt: new Date(),
           },
           session,
@@ -577,6 +578,7 @@ export const toStaffOrderDto = (o, shop = defaultShop()) => {
     /** What the admin may offer right now, and why an action is blocked (P4.4 renders these). */
     nextActions: nextActions(o),
     shop,
+    attribution: o.attribution ?? null,
     zatcaQr: qr || null,
   };
 };

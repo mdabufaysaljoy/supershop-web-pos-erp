@@ -13,6 +13,7 @@ import { ACCOUNT_BASE } from '@/lib/accountApi';
 import { checkoutRequest, CONFIRMATION_PATH, detailsToErrors } from '@/lib/checkout';
 import { CustomFields } from './CustomFields';
 import { fieldError } from '@/lib/fieldError';
+import { getAttributionPayload } from '@/lib/tracking';
 
 const schemas = createCheckoutSchemas();
 
@@ -83,14 +84,18 @@ export function CheckoutForm({ fields, methods = [], method = null, onMethodChan
   const setAddress = (patch) => setForm((f) => ({ ...f, address: { ...f.address, ...patch } }));
   const err = (path) => fieldError(t, errors[path]);
 
-  const body = () => ({
-    contact: { name: form.name, phone: form.phone, email: form.email },
-    deliveryMethod: 'delivery',
-    address: form.address,
-    paymentMethod: form.paymentMethod,
-    note: form.note,
-    customFields: custom,
-  });
+  const body = () => {
+    const attribution = getAttributionPayload();
+    return {
+      contact: { name: form.name, phone: form.phone, email: form.email },
+      deliveryMethod: 'delivery',
+      address: form.address,
+      paymentMethod: form.paymentMethod,
+      note: form.note,
+      customFields: custom,
+      ...(attribution ? { attribution } : {}),
+    };
+  };
 
   const submit = async (e) => {
     e.preventDefault();

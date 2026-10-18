@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { useLang } from '@/i18n/I18nProvider';
 import { cartRequest } from '@/lib/cartApi';
+import { trackAddToCart, trackRemoveFromCart } from '@/lib/tracking';
 
 const CartContext = createContext(null);
 
@@ -75,11 +76,40 @@ export function CartProvider({ fmtOptions, children }) {
       /** Adds and (unless `open: false`, e.g. Buy now) opens the mini-cart. */
       add: async (variantId, qty = 1, { open: openAfter = true } = {}) => {
         const res = await run('POST', '/items', { variantId, qty });
-        if (res.ok && openAfter) setOpen(true);
+        if (res.ok) {
+          const item = res.view?.items?.find((i) => i.variantId === variantId);
+          if (item) {
+            trackAddToCart({
+              item: {
+                item_id: item.variantId,
+                item_name: item.name,
+                price: (item.price ?? 0) / 100,
+                quantity: qty,
+              },
+              currency: 'SAR',
+            });
+          }
+          if (openAfter) setOpen(true);
+        }
         return res;
       },
       setQty: (variantId, qty) => run('PATCH', `/items/${variantId}`, { qty }),
-      remove: (variantId) => run('DELETE', `/items/${variantId}`),
+      remove: async (variantId) => {
+        const item = cart?.items?.find((i) => i.variantId === variantId);
+        const res = await run('DELETE', `/items/${variantId}`);
+        if (res.ok && item) {
+          trackRemoveFromCart({
+            item: {
+              item_id: item.variantId,
+              item_name: item.name,
+              price: (item.price ?? 0) / 100,
+              quantity: item.qty,
+            },
+            currency: 'SAR',
+          });
+        }
+        return res;
+      },
     }),
     [cart, fmt, pending, saving, error, open, run],
   );

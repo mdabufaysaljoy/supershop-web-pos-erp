@@ -30,6 +30,7 @@ import { ReturnsPage } from '@/features/returns/pages/ReturnsPage';
 import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
 import { ShiftsPage } from '@/features/shifts/pages/ShiftsPage';
+import { TrackingPage } from '@/features/tracking/pages/TrackingPage';
 import { RequirePermission } from '@/features/auth/components/RequirePermission';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { ComingSoonPage } from '@/pages/ComingSoonPage';
@@ -57,6 +58,7 @@ const PAGES = {
   '/categories': <CategoriesPage />,
   '/media': <MediaLibraryPage />,
   '/campaigns': <CampaignsPage />,
+  '/tracking': <TrackingPage />,
   '/settings': <SettingsPage />,
   '/reports': <ReportsPage />,
 };

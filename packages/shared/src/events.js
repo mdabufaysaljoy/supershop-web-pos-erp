@@ -177,6 +177,10 @@ export const EVENTS = Object.freeze({
   // universal export (P8.4)
   /** Payload: { jobId, actorId, resource, format, status, counts } */
   EXPORT_FINISHED: 'export.finished',
+
+  // tracking & consent (P9.1)
+  TRACKING_INTEGRATION_UPDATED: 'tracking.integrationUpdated',
+  TRACKING_CONSENT_UPDATED: 'tracking.consentUpdated',
 });
 
 const KNOWN = new Set(Object.values(EVENTS));

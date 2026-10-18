@@ -538,11 +538,25 @@ export const AUDIT_MAPPINGS = {
     entityId: p.customerId ?? null,
     data: { channel: p.channel },
   }),
+
+  // tracking & consent (P9.1)
+  [EVENTS.TRACKING_INTEGRATION_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'tracking_integration',
+    entityId: p.provider,
+    data: { provider: p.provider, enabled: p.enabled },
+  }),
+  [EVENTS.TRACKING_CONSENT_UPDATED]: (p) => ({
+    ...staffActor(p),
+    entityType: 'tracking_consent',
+    entityId: 'consent',
+    data: { enabled: p.enabled },
+  }),
 };
 
 /** Last line of defense: strip secret-looking fields anywhere in before/after/data. */
 const SECRET_KEY_RE =
-  /^(password|passwordHash|token|refreshToken|accessToken|secret|apiKey|encryptedValue)$/i;
+  /^(password|passwordHash|token|refreshToken|accessToken|secret|apiKey|encryptedValue|capiToken|apiSecret)$/i;
 export function scrubSecrets(value, depth = 0) {
   if (depth > 10 || value == null || typeof value !== 'object') return value;
   if (value instanceof Date) return value;

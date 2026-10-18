@@ -167,6 +167,11 @@ const orderSchema = new mongoose.Schema(
     confirmationTokenHash: { type: String, default: null },
     /** `<cart|customer>:<Idempotency-Key>` — a retried checkout returns the first order. */
     idempotencyKey: { type: String, default: null },
+    /** Marketing tracking attribution (P9.1) — UTMs, click-IDs, client identifiers. */
+    attribution: {
+      type: Object,
+      default: null,
+    },
     placedAt: { type: Date, required: true },
   },
   { collection: 'orders', timestamps: true, minimize: false },

@@ -48,7 +48,8 @@
     "suppliers": "Suppliers",
     "branches": "Branches",
     "purchaseOrders": "Purchase orders",
-    "appearance": "Appearance"
+    "appearance": "Appearance",
+    "tracking": "Tracking"
   },
   "pages": {
     "dashboard": {
@@ -470,6 +471,88 @@
     },
     "notifications": {
       "started": "Export job started for {{fileName}}"
+    }
+  },
+  "tracking": {
+    "title": "Marketing Tracking & Integrations",
+    "description": "Configure client dataLayer containers, server-side APIs (Meta CAPI, GA4 MP), and PDPL cookie consent banner.",
+    "tabs": {
+      "integrations": "Integrations",
+      "consent": "PDPL Consent Banner"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Disabled"
+    },
+    "providers": {
+      "gtm": {
+        "name": "Google Tag Manager",
+        "desc": "Client container for web dataLayer and optional Server GTM URL endpoint."
+      },
+      "ga4": {
+        "name": "Google Analytics 4",
+        "desc": "Direct Measurement ID and API secret for Measurement Protocol."
+      },
+      "meta": {
+        "name": "Meta Pixel & Conversions API",
+        "desc": "Browser pixel and Server CAPI token for Facebook/Instagram ads."
+      },
+      "google_ads": {
+        "name": "Google Ads",
+        "desc": "Conversion ID and label for tracking purchase and lead conversions."
+      },
+      "tiktok": {
+        "name": "TikTok Pixel",
+        "desc": "TikTok Events API and web pixel for TikTok ad campaigns."
+      },
+      "snapchat": {
+        "name": "Snapchat Pixel",
+        "desc": "Snap Conversions API token and web pixel tracking."
+      }
+    },
+    "fields": {
+      "gtmContainerId": "GTM Container ID",
+      "gtmServerUrl": "Server-side GTM URL (Optional)",
+      "ga4MeasurementId": "GA4 Measurement ID",
+      "ga4ApiSecret": "GA4 API Secret Token",
+      "metaPixelId": "Meta Pixel ID",
+      "metaCapiToken": "Conversions API (CAPI) Access Token",
+      "metaTestCode": "Test Event Code (Optional)",
+      "googleAdsConversionId": "Conversion ID",
+      "googleAdsConversionLabel": "Conversion Label",
+      "tiktokPixelId": "TikTok Pixel ID",
+      "tiktokAccessToken": "Events API Access Token",
+      "snapPixelId": "Snapchat Pixel ID",
+      "snapApiToken": "Conversions API Token"
+    },
+    "events": {
+      "title": "Tracked Events",
+      "selectAll": "Select all",
+      "clear": "Clear"
+    },
+    "consent": {
+      "title": "PDPL Cookie Consent Banner",
+      "desc": "Saudi Personal Data Protection Law compliance. Gate tracking tags until explicit consent is given.",
+      "consentModeV2": "Google Consent Mode v2",
+      "consentModeV2Desc": "Sends denied/granted signals (ad_storage, analytics_storage) with tags.",
+      "privacyPolicyUrl": "Privacy Policy URL",
+      "privacyPolicyUrlDesc": "Link to your full privacy policy page.",
+      "categoriesTitle": "Default Consent State",
+      "catNecessary": "Strictly Necessary",
+      "catNecessaryDesc": "Required for site functionality, sessions, and security.",
+      "catAnalytics": "Analytics Storage",
+      "catAnalyticsDesc": "Traffic statistics and visitor engagement metrics.",
+      "catMarketing": "Marketing & Ads",
+      "catMarketingDesc": "Ad targeting and conversion attribution pixels.",
+      "alwaysActive": "Always active"
+    },
+    "actions": {
+      "save": "Save Changes",
+      "saveConsent": "Save Consent Settings"
+    },
+    "notifications": {
+      "saved": "{{provider}} integration settings saved successfully.",
+      "consentSaved": "Consent banner settings saved successfully."
     }
   },
   "settings": {

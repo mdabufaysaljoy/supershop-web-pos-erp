@@ -40,3 +40,17 @@ export async function getPublicSettings() {
     return { ...PUBLIC_DEFAULTS };
   }
 }
+
+/**
+ * Public marketing tracking config (enabled providers + client IDs, PDPL consent settings).
+ * Cached with ISR tags; falls back gracefully if API is offline.
+ * @returns {Promise<{ integrations: Array<object>, consent: object }>}
+ */
+export async function getPublicTracking() {
+  try {
+    const res = await apiGet('/api/v1/tracking/public', { tags: ['tracking'], revalidate: 300 });
+    return res.data ?? { integrations: [], consent: { enabled: false } };
+  } catch {
+    return { integrations: [], consent: { enabled: false } };
+  }
+}

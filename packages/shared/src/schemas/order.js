@@ -12,6 +12,7 @@ import {
   slug,
 } from '../validators/fields.js';
 import { normalizeDigits } from '../digits.js';
+import { attributionSchema } from './tracking.js';
 
 /**
  * Orders & checkout (P3.4). Money is integer halalas. The lifecycle is config-driven (P4.3);
@@ -146,6 +147,8 @@ export function createCheckoutSchemas({ allowInternationalPhone = false } = {}) 
         note: plainText({ max: ORDER.NOTE_MAX }).optional(),
         /** Admin-defined checkout fields; validated against their definitions server-side. */
         customFields: z.record(z.string(), z.unknown()).optional(),
+        /** Marketing tracking attribution (P9.1) — UTMs, click-IDs, client identifiers. */
+        attribution: attributionSchema.optional(),
       })
       .strict(),
     /** GET /orders/track?number=&phone= (P3.6 uses the same pair). */

@@ -2,13 +2,14 @@
 
 import { createFormatters } from '@supershop/shared';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '@/components/cart/CartProvider';
 import { localizePath } from '@/i18n/config';
 import { useLang, useT } from '@/i18n/I18nProvider';
 import { ORDER } from '@supershop/shared';
 import { apiRequest } from '@/lib/accountApi';
 import { checkoutRequest } from '@/lib/checkout';
+import { trackPurchase } from '@/lib/tracking';
 
 /**
  * Thank-you page. The order is fetched with the unguessable token from the link, so a reload or a
@@ -20,6 +21,7 @@ export function OrderConfirmation({ token, fmtOptions }) {
   const { reload } = useCart();
   const fmt = useMemo(() => createFormatters(fmtOptions), [fmtOptions]);
   const [state, setState] = useState({ order: null, error: null });
+  const trackedOrder = useRef(null);
 
   useEffect(() => {
     let alive = true;
@@ -32,6 +34,23 @@ export function OrderConfirmation({ token, fmtOptions }) {
         if (!alive) return;
         setState({ order, error: null });
         void reload(); // the cart is empty now
+
+        if (order && trackedOrder.current !== order.orderNo) {
+          trackedOrder.current = order.orderNo;
+          trackPurchase({
+            orderNumber: order.orderNo,
+            value: (order.totals?.total ?? 0) / 100,
+            currency: 'SAR',
+            tax: (order.totals?.vat ?? 0) / 100,
+            shipping: (order.totals?.deliveryFee ?? 0) / 100,
+            items: (order.items || []).map((item) => ({
+              item_id: item.variantId,
+              item_name: item.name,
+              price: (item.price ?? item.unitPrice ?? 0) / 100,
+              quantity: item.qty,
+            })),
+          });
+        }
       })
       .catch((e) => alive && setState({ order: null, error: e.code }));
     return () => {

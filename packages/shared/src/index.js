@@ -210,3 +210,15 @@ export {
   EXPORT_RESOURCES,
   RESOURCE_COLUMNS,
 } from './schemas/export.js';
+export {
+  attributionSchema,
+  buildDataLayerPayload,
+  buildEcomItem,
+  consentSettingsSchema,
+  generateEventId,
+  updateTrackingIntegrationSchema,
+  CONSENT_CATEGORIES,
+  CONSENT_COOKIE_NAME,
+  PROVIDER_CONFIG_SCHEMAS,
+  TRACKING_PROVIDERS,
+} from './schemas/tracking.js';

@@ -13,7 +13,8 @@ import { CartProvider } from '@/components/cart/CartProvider';
 import { MotionProvider } from '@/components/motion/MotionProvider';
 import { formatOptions } from '@/lib/catalog';
 import { pickNamespaces } from '@/i18n/translate';
-import { getPublicSettings } from '@/lib/api';
+import { getPublicSettings, getPublicTracking } from '@/lib/api';
+import { TrackingProvider } from '@/components/tracking/TrackingProvider';
 import { getCategoryTree } from '@/lib/catalog';
 import { getSiteChrome } from '@/lib/chrome';
 import { SITE_URL } from '@/lib/site';
@@ -53,11 +54,12 @@ export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#
 export default async function LangLayout({ children, params }) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
-  const [settings, dict, categories, chrome] = await Promise.all([
+  const [settings, dict, categories, chrome, tracking] = await Promise.all([
     getPublicSettings(),
     getDictionary(lang),
     getCategoryTree(lang),
     getSiteChrome(lang),
+    getPublicTracking(),
   ]);
   const t = translator(dict);
   const storeName = settings['store.name'];
@@ -87,34 +89,36 @@ export default async function LangLayout({ children, params }) {
           {t('site.skipToContent')}
         </a>
         <I18nProvider lang={lang} dict={pickNamespaces(dict)}>
-          <MotionProvider>
-            <CartProvider fmtOptions={fmtOptions}>
-              <AuthProvider>
-                <AnnouncementBar announcement={chrome.announcement} lang={lang} />
-                <SiteHeader
-                  lang={lang}
-                  storeName={storeName}
-                  logo={chrome.brand.logo}
-                  categories={categories}
-                  header={chrome.header}
-                  t={t}
-                />
-                <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
-                  {children}
-                </main>
-                <SiteFooter
-                  lang={lang}
-                  storeName={storeName}
-                  pricesIncludeVat={settings['tax.pricesIncludeVat']}
-                  footer={chrome.footer}
-                  contact={chrome.contact}
-                  social={chrome.social}
-                  t={t}
-                  fmt={fmt}
-                />
-              </AuthProvider>
-            </CartProvider>
-          </MotionProvider>
+          <TrackingProvider initialData={tracking}>
+            <MotionProvider>
+              <CartProvider fmtOptions={fmtOptions}>
+                <AuthProvider>
+                  <AnnouncementBar announcement={chrome.announcement} lang={lang} />
+                  <SiteHeader
+                    lang={lang}
+                    storeName={storeName}
+                    logo={chrome.brand.logo}
+                    categories={categories}
+                    header={chrome.header}
+                    t={t}
+                  />
+                  <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
+                    {children}
+                  </main>
+                  <SiteFooter
+                    lang={lang}
+                    storeName={storeName}
+                    pricesIncludeVat={settings['tax.pricesIncludeVat']}
+                    footer={chrome.footer}
+                    contact={chrome.contact}
+                    social={chrome.social}
+                    t={t}
+                    fmt={fmt}
+                  />
+                </AuthProvider>
+              </CartProvider>
+            </MotionProvider>
+          </TrackingProvider>
         </I18nProvider>
         <JsonLd data={organizationLd({ name: storeName })} />
         <JsonLd data={websiteLd({ name: storeName, lang })} />

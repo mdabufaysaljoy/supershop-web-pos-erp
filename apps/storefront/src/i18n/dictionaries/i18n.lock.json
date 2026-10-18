@@ -1371,6 +1371,58 @@
     "blocks.emailAddress": {
       "src": "f2488fd4ef4adbc6",
       "out": "8a0b55ab8c62713f"
+    },
+    "consent.title": {
+      "src": "f32003fddf2c8773",
+      "status": "failed"
+    },
+    "consent.description": {
+      "src": "7d4c39d875321275",
+      "status": "failed"
+    },
+    "consent.acceptAll": {
+      "src": "3e86b1723088cc27",
+      "status": "failed"
+    },
+    "consent.necessaryOnly": {
+      "src": "769a5e09cb1c7cc7",
+      "status": "failed"
+    },
+    "consent.customize": {
+      "src": "eb82f850e070d243",
+      "status": "failed"
+    },
+    "consent.savePreferences": {
+      "src": "e5b8e6907faa36b2",
+      "status": "failed"
+    },
+    "consent.privacyPolicy": {
+      "src": "506ff394621596dd",
+      "status": "failed"
+    },
+    "consent.categories.necessary.title": {
+      "src": "c5a55f9cc79c8e8e",
+      "status": "failed"
+    },
+    "consent.categories.necessary.description": {
+      "src": "51cc13df926d847b",
+      "status": "failed"
+    },
+    "consent.categories.analytics.title": {
+      "src": "2a4135266d1ded6e",
+      "status": "failed"
+    },
+    "consent.categories.analytics.description": {
+      "src": "1951653c2c49c9d5",
+      "status": "failed"
+    },
+    "consent.categories.marketing.title": {
+      "src": "a17f05cac77ad17c",
+      "status": "failed"
+    },
+    "consent.categories.marketing.description": {
+      "src": "a487b98cc361f3bc",
+      "status": "failed"
     }
   }
 }

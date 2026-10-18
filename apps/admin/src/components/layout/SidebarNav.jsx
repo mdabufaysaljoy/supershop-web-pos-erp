@@ -12,7 +12,7 @@ export function SidebarNav({ onNavigate }) {
     <nav aria-label={t('app.name')} className="flex flex-col gap-5 px-3 py-4">
       {sections.map((section) => (
         <div key={section.section} className="grid gap-1">
-          <p className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">
             {t(section.section)}
           </p>
           {section.items.map(({ path, label, icon: Icon }) => (
@@ -23,13 +23,27 @@ export function SidebarNav({ onNavigate }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-sidebar-foreground/75 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground',
-                  isActive && 'bg-sidebar-accent font-semibold text-white shadow-2xs',
+                  'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all',
+                  isActive
+                    ? 'bg-primary font-semibold text-primary-foreground shadow-xs'
+                    : 'text-slate-300/80 hover:bg-white/5 hover:text-white',
                 )
               }
             >
-              <Icon className="size-4 shrink-0" aria-hidden="true" />
-              {t(label)}
+              {({ isActive }) => (
+                <>
+                  <Icon
+                    className={cn(
+                      'size-4 shrink-0 transition-colors',
+                      isActive
+                        ? 'text-primary-foreground'
+                        : 'text-slate-400 group-hover:text-white',
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span>{t(label)}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </div>

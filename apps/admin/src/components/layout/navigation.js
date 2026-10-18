@@ -33,15 +33,10 @@ import {
  */
 export const NAV = [
   {
-    section: 'nav.sections.overview',
-    items: [
-      { path: '/', label: 'nav.dashboard', icon: LayoutDashboard, permission: P.DASHBOARD_VIEW },
-    ],
-  },
-  {
     section: 'nav.sections.sales',
     items: [
       { path: '/pos', label: 'nav.pos', icon: ShoppingCart, permission: P.POS_SELL },
+      { path: '/orders', label: 'nav.orders', icon: Receipt, permission: P.ORDER_VIEW },
       {
         path: '/shifts',
         label: 'nav.shifts',
@@ -54,15 +49,13 @@ export const NAV = [
         icon: RotateCcw,
         permission: [P.RETURN_CREATE, P.RETURN_APPROVE],
       },
-      { path: '/orders', label: 'nav.orders', icon: Receipt, permission: P.ORDER_VIEW },
-      { path: '/customers', label: 'nav.customers', icon: Users, permission: P.CUSTOMER_VIEW },
     ],
   },
   {
     section: 'nav.sections.catalog',
     items: [
+      { path: '/suppliers', label: 'nav.suppliers', icon: Factory, permission: P.SUPPLIER_MANAGE },
       { path: '/products', label: 'nav.products', icon: Package, permission: P.PRODUCT_VIEW },
-      { path: '/inventory', label: 'nav.inventory', icon: Boxes, permission: P.INVENTORY_VIEW },
       {
         path: '/categories',
         label: 'nav.categories',
@@ -70,14 +63,22 @@ export const NAV = [
         permission: P.CATEGORY_MANAGE,
       },
       { path: '/brands', label: 'nav.brands', icon: Tags, permission: P.BRAND_MANAGE },
-      { path: '/suppliers', label: 'nav.suppliers', icon: Factory, permission: P.SUPPLIER_MANAGE },
       {
         path: '/purchase-orders',
         label: 'nav.purchaseOrders',
         icon: ClipboardList,
-        permission: [P.PURCHASE_VIEW, P.PURCHASE_MANAGE], // any of them
+        permission: [P.PURCHASE_VIEW, P.PURCHASE_MANAGE],
       },
+      { path: '/inventory', label: 'nav.inventory', icon: Boxes, permission: P.INVENTORY_VIEW },
       { path: '/media', label: 'nav.media', icon: Images, permission: P.MEDIA_MANAGE },
+    ],
+  },
+  {
+    section: 'nav.sections.people',
+    items: [
+      { path: '/customers', label: 'nav.customers', icon: Users, permission: P.CUSTOMER_VIEW },
+      { path: '/campaigns', label: 'nav.campaigns', icon: Megaphone, permission: P.CAMPAIGN_VIEW },
+      { path: '/subscribers', label: 'nav.subscribers', icon: Mail, permission: P.CAMPAIGN_VIEW },
     ],
   },
   {
@@ -88,16 +89,17 @@ export const NAV = [
         path: '/appearance',
         label: 'nav.appearance',
         icon: Palette,
-        permission: [P.PAGE_VIEW, P.MENU_MANAGE], // any of them
+        permission: [P.PAGE_VIEW, P.MENU_MANAGE],
       },
-      { path: '/campaigns', label: 'nav.campaigns', icon: Megaphone, permission: P.CAMPAIGN_VIEW },
-      { path: '/subscribers', label: 'nav.subscribers', icon: Mail, permission: P.CAMPAIGN_VIEW },
       { path: '/tracking', label: 'nav.tracking', icon: Activity, permission: P.TRACKING_MANAGE },
     ],
   },
   {
     section: 'nav.sections.insights',
-    items: [{ path: '/reports', label: 'nav.reports', icon: BarChart3, permission: P.REPORT_VIEW }],
+    items: [
+      { path: '/', label: 'nav.dashboard', icon: LayoutDashboard, permission: P.DASHBOARD_VIEW },
+      { path: '/reports', label: 'nav.reports', icon: BarChart3, permission: P.REPORT_VIEW },
+    ],
   },
   {
     section: 'nav.sections.admin',

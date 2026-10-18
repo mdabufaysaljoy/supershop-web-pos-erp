@@ -41,36 +41,38 @@
     "closeMenu": "Close menu",
     "sections": {
       "overview": "Overview",
-      "sales": "Sales",
-      "catalog": "Catalog",
-      "content": "Content & marketing",
+      "sales": "Sell",
+      "catalog": "Catalogue",
+      "people": "People",
+      "content": "Content",
       "insights": "Insights",
       "admin": "Administration"
     },
     "dashboard": "Dashboard",
     "pos": "Point of sale",
     "shifts": "Shifts",
-    "returns": "Returns & exchanges",
-    "orders": "Orders",
+    "returns": "Returns",
+    "orders": "Sales / Orders",
     "customers": "Customers",
-    "products": "Products",
+    "products": "Products & stock",
     "inventory": "Inventory",
     "pages": "Pages",
-    "campaigns": "Campaigns",
-    "subscribers": "Subscribers",
+    "campaigns": "Loyalty",
+    "subscribers": "Marketing",
     "reports": "Reports",
     "staff": "Staff",
     "roles": "Roles",
     "settings": "Settings",
     "audit": "Audit log",
     "media": "Media library",
-    "categories": "Categories",
+    "categories": "Departments",
     "brands": "Brands",
     "suppliers": "Suppliers",
     "branches": "Branches",
-    "purchaseOrders": "Purchase orders",
+    "purchaseOrders": "Import products",
     "appearance": "Appearance",
-    "tracking": "Tracking"
+    "tracking": "Tracking",
+    "userProfile": "User profile"
   },
   "pages": {
     "dashboard": {
@@ -2030,7 +2032,14 @@
       "entry_other": "{{count}} items · {{time}}"
     },
     "printReceipt": "Print the receipt again",
-    "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}"
+    "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}",
+    "departments": {
+      "all": "All departments"
+    },
+    "brands": {
+      "all": "All brands"
+    },
+    "split": "Split:"
   },
   "printing": {
     "qz": {

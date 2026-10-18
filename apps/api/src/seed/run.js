@@ -10,6 +10,7 @@ import { seedHomePage } from '../modules/pages/index.js';
 import { seedPaymentMethods } from '../modules/paymentMethods/index.js';
 import { seedDefaultRoles } from '../modules/rbac/index.js';
 import { ensureSuperAdmin } from '../modules/staff/index.js';
+import { seedDefaultCatalog } from './catalog.seed.js';
 
 /**
  * `npm run seed` — idempotent. Safe to run on every deploy:
@@ -66,6 +67,11 @@ async function main() {
       home
         ? `✔ home page created and published (/${home.slug}, ${home.blocks} sections — edit it in Pages)`
         : '✔ home page already exists (unchanged)',
+    );
+
+    const catalog = await seedDefaultCatalog();
+    console.info(
+      `✔ catalog ensured: ${catalog.brands} brands, ${catalog.suppliers} suppliers, ${catalog.categories} categories, ${catalog.products} products, ${catalog.customers} customers`,
     );
 
     const generated = SEED_ADMIN_PASSWORD ? null : `${randomToken(12)}-9a`;

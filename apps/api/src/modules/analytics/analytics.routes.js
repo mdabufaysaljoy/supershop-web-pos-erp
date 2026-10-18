@@ -30,5 +30,19 @@ export function createAnalyticsRouter({ schemas = defaultSchemas } = {}) {
     c.getPerformance,
   );
 
+  r.get(
+    '/forecast/sales',
+    requirePermission(P.REPORT_VIEW),
+    validate({ query: schemas.salesForecastQuery }),
+    c.getSalesForecast,
+  );
+
+  r.get(
+    '/forecast/stockout',
+    requirePermission(P.REPORT_VIEW),
+    validate({ query: schemas.stockoutForecastQuery }),
+    c.getStockoutForecast,
+  );
+
   return r;
 }

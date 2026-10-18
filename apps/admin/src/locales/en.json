@@ -274,14 +274,26 @@
     }
   },
   "reports": {
-    "title": "Performance Reports",
-    "subtitle": "Analyze sales, revenue, and margins across staff, products, categories, brands, branches, and channels.",
+    "title": "Performance Reports & Forecasting",
+    "subtitle": "Analyze performance across sales dimensions and predict future demand and stock-outs.",
     "exportCsv": "Export CSV",
     "topPerformers": "Top Performers by {{dimension}}",
     "tableTitle": "Performance Breakdown: {{dimension}}",
     "noData": "No performance data found for the selected range and filters",
     "errorLoading": "Failed to load performance metrics",
+    "errorTitle": "Failed to load forecast data",
+    "errorMessage": "An error occurred while computing projections. Please try again.",
+    "empty": "No data found for the selected window.",
     "retry": "Retry",
+    "tabs": {
+      "performance": "Performance Analysis",
+      "forecasting": "Forecast & Stock-out"
+    },
+    "filters": {
+      "branch": "Branch",
+      "allBranches": "All Branches",
+      "exportCsv": "Export CSV"
+    },
     "dimensions": {
       "product": "Product",
       "category": "Category",
@@ -304,6 +316,9 @@
     "columns": {
       "name": "Name",
       "code": "Code / SKU",
+      "branch": "Branch",
+      "date": "Date",
+      "type": "Type",
       "orders": "Orders",
       "units": "Units",
       "revenue": "Gross Revenue",
@@ -314,6 +329,72 @@
       "profit": "Gross Profit",
       "profitSar": "Gross Profit (SAR)",
       "margin": "Margin %"
+    },
+    "forecast": {
+      "strategyLabel": "Strategy",
+      "horizonLabel": "Horizon",
+      "lookbackLabel": "Lookback",
+      "chartTitle": "Sales & Demand Projection",
+      "chartSubtitle": "Historical actual demand paired with forward projections and 95% confidence bounds.",
+      "strategies": {
+        "movingAverage": "Simple Moving Average",
+        "seasonality": "Day-of-Week Seasonality"
+      },
+      "horizons": {
+        "7d": "7 Days",
+        "14d": "14 Days",
+        "30d": "30 Days"
+      },
+      "lookbacks": {
+        "14d": "14 Days",
+        "30d": "30 Days",
+        "60d": "60 Days",
+        "90d": "90 Days"
+      },
+      "kpis": {
+        "projectedRevenue": "Projected Revenue",
+        "projectedUnits": "Projected Units",
+        "historicalDailyRate": "Historical Daily Rate",
+        "projectedGrowth": "Projected Trend",
+        "perDay": "day",
+        "unitsHorizon": "horizon total",
+        "dailyBaseline": "daily average baseline",
+        "vsHistoricalRate": "vs historical rate"
+      },
+      "legend": {
+        "actual": "Actual Sales",
+        "forecast": "Forecasted Demand",
+        "confidence": "95% Confidence Interval"
+      }
+    },
+    "stockout": {
+      "tableTitle": "Stock-out Risk & Replenishment",
+      "tableSubtitle": "Predicted run-out dates based on current on-hand stock and historical sales velocity.",
+      "searchPlaceholder": "Search product or SKU…",
+      "noItems": "No inventory items match the selected risk criteria.",
+      "noDepletion": "No Depletion",
+      "risks": {
+        "all": "All Tracked",
+        "outOfStock": "Out of Stock",
+        "critical": "Critical (≤ 3d)",
+        "warning": "Warning (≤ 7d)",
+        "healthy": "Healthy (> 7d)"
+      },
+      "badges": {
+        "outOfStock": "Out of Stock",
+        "critical": "Critical",
+        "warning": "Warning",
+        "healthy": "Healthy"
+      },
+      "columns": {
+        "variant": "Variant",
+        "onHand": "On Hand",
+        "dailyVelocity": "Daily Velocity",
+        "daysRemaining": "Days Remaining",
+        "risk": "Risk Level",
+        "estimatedDate": "Est. Stock-out",
+        "recommendedReorder": "Reorder Recommendation"
+      }
     }
   },
   "settings": {

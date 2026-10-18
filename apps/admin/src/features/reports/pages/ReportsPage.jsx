@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ForecastView } from '../components/ForecastView';
 import { PerformanceChart } from '../components/PerformanceChart';
 import { PerformanceFilters } from '../components/PerformanceFilters';
 import { PerformanceSummaryKpis } from '../components/PerformanceSummaryKpis';
@@ -9,6 +10,7 @@ import { usePerformanceReport } from '../resource';
 
 export function ReportsPage() {
   const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState('performance'); // 'performance' | 'forecasting'
   const [dimension, setDimension] = useState('product');
   const [range, setRange] = useState('7d');
   const [branchId, setBranchId] = useState(null);
@@ -97,66 +99,98 @@ export function ReportsPage() {
         <p className="text-xs text-muted-foreground mt-1">{t('reports.subtitle')}</p>
       </div>
 
-      {/* Filters (Dimensions, Date Ranges, Branch, Export) */}
-      <PerformanceFilters
-        dimension={dimension}
-        onDimensionChange={(d) => {
-          setDimension(d);
-          setSortBy('revenue');
-          setSortDir('desc');
-        }}
-        range={range}
-        onRangeChange={setRange}
-        branchId={branchId}
-        onBranchChange={setBranchId}
-        onExportCsv={handleExportCsv}
-      />
+      {/* Primary Section Tabs: Performance vs Forecasting */}
+      <div className="flex border-b border-border">
+        <button
+          type="button"
+          onClick={() => setActiveTab('performance')}
+          className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
+            activeTab === 'performance'
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          {t('reports.tabs.performance')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('forecasting')}
+          className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
+            activeTab === 'forecasting'
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          {t('reports.tabs.forecasting')}
+        </button>
+      </div>
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-20 rounded-lg bg-muted/40 animate-pulse" />
-            ))}
-          </div>
-          <div className="h-72 rounded-lg bg-muted/40 animate-pulse" />
-          <div className="h-80 rounded-lg bg-muted/40 animate-pulse" />
-        </div>
-      )}
-
-      {/* Error state */}
-      {isError && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center text-xs">
-          <p className="font-semibold text-destructive">{t('reports.errorLoading')}</p>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            className="mt-2 rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground"
-          >
-            {t('reports.retry')}
-          </button>
-        </div>
-      )}
-
-      {/* Content */}
-      {!isLoading && !isError && (
+      {activeTab === 'forecasting' ? (
+        <ForecastView />
+      ) : (
         <>
-          {/* Summary KPIs */}
-          <PerformanceSummaryKpis summary={report.summary} />
-
-          {/* Visual Chart */}
-          <PerformanceChart chartData={report.chart} dimension={dimension} />
-
-          {/* Detailed Table */}
-          <PerformanceTable
-            items={report.items}
+          {/* Filters (Dimensions, Date Ranges, Branch, Export) */}
+          <PerformanceFilters
             dimension={dimension}
-            sortBy={sortBy}
-            sortDir={sortDir}
-            onSortChange={handleSortChange}
-            hasProfit={report.summary?.totalProfit !== undefined}
+            onDimensionChange={(d) => {
+              setDimension(d);
+              setSortBy('revenue');
+              setSortDir('desc');
+            }}
+            range={range}
+            onRangeChange={setRange}
+            branchId={branchId}
+            onBranchChange={setBranchId}
+            onExportCsv={handleExportCsv}
           />
+
+          {/* Loading state */}
+          {isLoading && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-20 rounded-lg bg-muted/40 animate-pulse" />
+                ))}
+              </div>
+              <div className="h-72 rounded-lg bg-muted/40 animate-pulse" />
+              <div className="h-80 rounded-lg bg-muted/40 animate-pulse" />
+            </div>
+          )}
+
+          {/* Error state */}
+          {isError && (
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center text-xs">
+              <p className="font-semibold text-destructive">{t('reports.errorLoading')}</p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-2 rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground"
+              >
+                {t('reports.retry')}
+              </button>
+            </div>
+          )}
+
+          {/* Content */}
+          {!isLoading && !isError && (
+            <>
+              {/* Summary KPIs */}
+              <PerformanceSummaryKpis summary={report.summary} />
+
+              {/* Visual Chart */}
+              <PerformanceChart chartData={report.chart} dimension={dimension} />
+
+              {/* Detailed Table */}
+              <PerformanceTable
+                items={report.items}
+                dimension={dimension}
+                sortBy={sortBy}
+                sortDir={sortDir}
+                onSortChange={handleSortChange}
+                hasProfit={report.summary?.totalProfit !== undefined}
+              />
+            </>
+          )}
         </>
       )}
     </div>

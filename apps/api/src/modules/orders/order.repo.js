@@ -1,5 +1,9 @@
 import { ORDER_FLOW } from '@supershop/shared';
+import mongoose from 'mongoose';
 import { Order } from './order.model.js';
+
+const oid = (id) =>
+  id instanceof mongoose.Types.ObjectId ? id : new mongoose.Types.ObjectId(String(id));
 
 /** The ONLY place touching the order model. */
 
@@ -741,5 +745,100 @@ export async function getPerformanceByChannel(
     net: r.net,
     quantity: r.quantity,
     averageOrderValue: r.averageOrderValue,
+  }));
+}
+
+/**
+ * Contiguous daily sales history for forecasting (P8.3).
+ */
+export async function getDailySalesHistory({ start, end, branchId = null, productId = null }) {
+  const match = {
+    status: { $ne: 'cancelled' },
+    placedAt: { $gte: start, $lte: end },
+  };
+  if (branchId) {
+    match.branchId = oid(branchId);
+  }
+
+  if (productId) {
+    const pId = oid(productId);
+    const rows = await Order.aggregate([
+      { $match: { ...match, 'items.productId': pId } },
+      { $unwind: '$items' },
+      { $match: { 'items.productId': pId } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$placedAt' } },
+          quantity: { $sum: '$items.qty' },
+          revenue: { $sum: '$items.lineTotal' },
+          orders: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+    return rows.map((r) => ({
+      date: r._id,
+      quantity: r.quantity,
+      revenue: r.revenue,
+      orders: r.orders,
+    }));
+  }
+
+  const rows = await Order.aggregate([
+    { $match: match },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$placedAt' } },
+        quantity: { $sum: '$totals.itemCount' },
+        revenue: { $sum: '$totals.total' },
+        orders: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+  return rows.map((r) => ({
+    date: r._id,
+    quantity: r.quantity,
+    revenue: r.revenue,
+    orders: r.orders,
+  }));
+}
+
+/**
+ * Historical sales velocity per variant for stock-out prediction (P8.3).
+ */
+export async function getVariantSalesVelocity({ start, end, branchId = null }) {
+  const match = {
+    status: { $ne: 'cancelled' },
+    placedAt: { $gte: start, $lte: end },
+  };
+  if (branchId) {
+    match.branchId = oid(branchId);
+  }
+
+  const rows = await Order.aggregate([
+    { $match: match },
+    { $unwind: '$items' },
+    {
+      $group: {
+        _id: '$items.variantId',
+        productId: { $first: '$items.productId' },
+        name: { $first: '$items.name' },
+        sku: { $first: '$items.sku' },
+        unitsSold: { $sum: '$items.qty' },
+        ordersCount: { $sum: 1 },
+        revenue: { $sum: '$items.lineTotal' },
+      },
+    },
+  ]);
+
+  return rows.map((r) => ({
+    variantId: String(r._id),
+    productId: String(r.productId),
+    name: r.name,
+    sku: r.sku,
+    unitsSold: r.unitsSold,
+    ordersCount: r.ordersCount,
+    revenue: r.revenue,
   }));
 }

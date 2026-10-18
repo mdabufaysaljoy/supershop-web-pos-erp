@@ -186,5 +186,16 @@ export {
   ANALYTICS,
   calculateDeltaPercent,
   createAnalyticsSchemas,
+  FORECAST,
+  parseHorizonDays,
+  parseLookbackDays,
   resolveAnalyticsPeriod,
 } from './schemas/analytics.js';
+export {
+  calculateStockoutRisk,
+  getForecastingStrategy,
+  listForecastingStrategies,
+  movingAverageStrategy,
+  registerForecastingStrategy,
+  seasonalityStrategy,
+} from './forecasting/strategies.js';

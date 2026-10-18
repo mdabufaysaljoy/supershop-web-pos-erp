@@ -12,3 +12,15 @@ export async function getPerformance(req, res) {
   const report = await s.getPerformanceReport(actor, req.valid.query);
   sendData(res, report);
 }
+
+export async function getSalesForecast(req, res) {
+  const actor = req.access;
+  const forecast = await s.getSalesForecast({ actor, ...req.valid.query });
+  sendData(res, forecast);
+}
+
+export async function getStockoutForecast(req, res) {
+  const actor = req.access;
+  const prediction = await s.getStockoutForecast({ actor, ...req.valid.query });
+  sendData(res, prediction);
+}

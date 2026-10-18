@@ -628,3 +628,10 @@ export async function getInventoryHealth(actor, branchId = null) {
   const filter = actor.branchFilter('branchId', branchId ?? null);
   return repo.countStockHealth(filter, fallback);
 }
+
+/**
+ * Retrieves stock levels summary for stockout forecasting (P8.3).
+ */
+export async function getStockLevelsForPrediction({ branchId = null } = {}) {
+  return repo.getStockLevelsSummary(branchId ? oid(branchId) : null);
+}

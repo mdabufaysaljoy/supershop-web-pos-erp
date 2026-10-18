@@ -6,6 +6,48 @@ export const ANALYTICS = Object.freeze({
   SORT_FIELDS: Object.freeze(['revenue', 'quantity', 'orders', 'name', 'profit']),
 });
 
+export const FORECAST = Object.freeze({
+  STRATEGIES: Object.freeze(['moving_average', 'seasonality']),
+  HORIZONS: Object.freeze(['7d', '14d', '30d']),
+  LOOKBACKS: Object.freeze(['14d', '30d', '60d', '90d']),
+  RISK_LEVELS: Object.freeze(['all', 'out_of_stock', 'critical', 'warning', 'healthy']),
+  SORT_FIELDS: Object.freeze([
+    'daysRemaining',
+    'onHand',
+    'dailyVelocity',
+    'recommendedReorderQty',
+    'name',
+  ]),
+});
+
+export function parseHorizonDays(horizon = '14d') {
+  switch (horizon) {
+    case '7d':
+      return 7;
+    case '14d':
+      return 14;
+    case '30d':
+      return 30;
+    default:
+      return 14;
+  }
+}
+
+export function parseLookbackDays(lookback = '30d') {
+  switch (lookback) {
+    case '14d':
+      return 14;
+    case '30d':
+      return 30;
+    case '60d':
+      return 60;
+    case '90d':
+      return 90;
+    default:
+      return 30;
+  }
+}
+
 /**
  * Calculates start, end, previousStart, previousEnd, and bucket grouping for a range.
  * Pure function so it can be tested with a deterministic `now`.
@@ -105,8 +147,30 @@ export function createAnalyticsSchemas() {
     sortDir: z.enum(['asc', 'desc']).default('desc'),
   });
 
+  const salesForecastQuery = z.object({
+    strategy: z.enum(FORECAST.STRATEGIES).default('moving_average'),
+    horizon: z.enum(FORECAST.HORIZONS).default('14d'),
+    lookback: z.enum(FORECAST.LOOKBACKS).default('30d'),
+    branchId: z.string().trim().optional().nullable(),
+    productId: z.string().trim().optional().nullable(),
+  });
+
+  const stockoutForecastQuery = z.object({
+    lookback: z.enum(FORECAST.LOOKBACKS).default('30d'),
+    branchId: z.string().trim().optional().nullable(),
+    risk: z.enum(FORECAST.RISK_LEVELS).default('all'),
+    targetDays: z.coerce.number().int().min(7).max(180).default(30),
+    search: z.string().trim().optional().nullable(),
+    limit: z.coerce.number().int().min(1).max(200).default(50),
+    page: z.coerce.number().int().min(1).default(1),
+    sortBy: z.enum(FORECAST.SORT_FIELDS).default('daysRemaining'),
+    sortDir: z.enum(['asc', 'desc']).default('asc'),
+  });
+
   return {
     dashboardQuery,
     performanceQuery,
+    salesForecastQuery,
+    stockoutForecastQuery,
   };
 }

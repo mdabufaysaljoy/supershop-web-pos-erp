@@ -146,3 +146,38 @@ export async function countStockHealth(branchFilter = {}, fallbackThreshold = 5)
   ]);
   return { lowStockCount, outOfStockCount };
 }
+
+/**
+ * Summary of stock levels for stockout prediction (P8.3).
+ */
+export async function getStockLevelsSummary(branchId = null) {
+  if (branchId) {
+    const rows = await StockLevel.find({ branchId }).lean();
+    return rows.map((r) => ({
+      variantId: String(r.variantId),
+      productId: String(r.productId),
+      branchId: String(r.branchId),
+      onHand: r.onHand ?? 0,
+      lowStockThreshold: r.lowStockThreshold ?? null,
+    }));
+  }
+
+  const rows = await StockLevel.aggregate([
+    {
+      $group: {
+        _id: '$variantId',
+        productId: { $first: '$productId' },
+        onHand: { $sum: '$onHand' },
+        lowStockThreshold: { $min: '$lowStockThreshold' },
+      },
+    },
+  ]);
+
+  return rows.map((r) => ({
+    variantId: String(r._id),
+    productId: String(r.productId),
+    branchId: null,
+    onHand: r.onHand ?? 0,
+    lowStockThreshold: r.lowStockThreshold ?? null,
+  }));
+}

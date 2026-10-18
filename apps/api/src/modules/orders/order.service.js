@@ -801,3 +801,17 @@ export async function getPerformanceReportStats({
     totals,
   };
 }
+
+/**
+ * Daily sales history for forecasting (P8.3).
+ */
+export async function getDailySalesHistory(options) {
+  return repo.getDailySalesHistory(options);
+}
+
+/**
+ * Historical sales velocity per variant for stock-out prediction (P8.3).
+ */
+export async function getVariantSalesVelocity(options) {
+  return repo.getVariantSalesVelocity(options);
+}

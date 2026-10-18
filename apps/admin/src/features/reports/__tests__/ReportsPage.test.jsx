@@ -93,13 +93,110 @@ function renderReportsPage() {
   );
 }
 
-describe('ReportsPage Admin UI (P8.2)', () => {
+const MOCK_SALES_FORECAST = {
+  strategy: {
+    name: 'moving_average',
+    label: 'Simple Moving Average',
+    description: 'Projects daily sales based on historical average rate',
+  },
+  availableStrategies: [
+    { name: 'moving_average', label: 'Simple Moving Average' },
+    { name: 'seasonality', label: 'Day-of-Week Seasonality' },
+  ],
+  horizon: '14d',
+  horizonDays: 14,
+  lookback: '30d',
+  lookbackDays: 30,
+  historical: [
+    { date: '2026-10-16', quantity: 10, revenue: 100000, orders: 2 },
+    { date: '2026-10-17', quantity: 15, revenue: 150000, orders: 3 },
+  ],
+  forecast: [
+    {
+      date: '2026-10-18',
+      quantity: 12.5,
+      revenue: 125000,
+      lowerQuantity: 8,
+      upperQuantity: 17,
+      lowerRevenue: 80000,
+      upperRevenue: 170000,
+    },
+  ],
+  summary: {
+    historicalTotalUnits: 25,
+    historicalTotalRevenue: 250000,
+    historicalDailyAvgUnits: 12.5,
+    historicalDailyAvgRevenue: 125000,
+    forecastTotalUnits: 175,
+    forecastTotalRevenue: 1750000,
+    forecastDailyAvgUnits: 12.5,
+    forecastDailyAvgRevenue: 125000,
+    projectedGrowthPercent: 0,
+  },
+};
+
+const MOCK_STOCKOUT_FORECAST = {
+  summary: {
+    totalTracked: 2,
+    outOfStockCount: 1,
+    criticalCount: 1,
+    warningCount: 0,
+    healthyCount: 0,
+    totalRecommendedReorderUnits: 50,
+  },
+  items: [
+    {
+      variantId: 'v-1',
+      productId: 'p-1',
+      sku: 'OUT-001',
+      productName: 'Out of Stock Product',
+      variantLabel: 'Size: M',
+      branchId: 'br-1',
+      branchName: 'Main Store',
+      onHand: 0,
+      dailyVelocity: 2.0,
+      daysRemaining: 0,
+      estimatedStockoutDate: '2026-10-18T00:00:00.000Z',
+      riskLevel: 'out_of_stock',
+      recommendedReorderQty: 40,
+    },
+    {
+      variantId: 'v-2',
+      productId: 'p-2',
+      sku: 'CRIT-002',
+      productName: 'Critical Product',
+      variantLabel: 'Color: Red',
+      branchId: 'br-1',
+      branchName: 'Main Store',
+      onHand: 4,
+      dailyVelocity: 2.0,
+      daysRemaining: 2,
+      estimatedStockoutDate: '2026-10-20T00:00:00.000Z',
+      riskLevel: 'critical',
+      recommendedReorderQty: 10,
+    },
+  ],
+  pagination: {
+    total: 2,
+    page: 1,
+    limit: 50,
+    pages: 1,
+  },
+  filters: {
+    lookback: '30d',
+    risk: 'all',
+  },
+};
+
+describe('ReportsPage Admin UI (P8.2, P8.3)', () => {
   beforeEach(() => {
     setupAuth();
 
     mockFetch({
       'GET /api/v1/inventory/branches': json(200, { data: MOCK_BRANCHES }),
       'GET /api/v1/analytics/performance': json(200, { data: MOCK_PERFORMANCE_DATA }),
+      'GET /api/v1/analytics/forecast/sales': json(200, { data: MOCK_SALES_FORECAST }),
+      'GET /api/v1/analytics/forecast/stockout': json(200, { data: MOCK_STOCKOUT_FORECAST }),
     });
   });
 
@@ -168,5 +265,39 @@ describe('ReportsPage Admin UI (P8.2)', () => {
     // Export button
     const exportBtn = screen.getByRole('button', { name: /Export CSV/i });
     expect(exportBtn).toBeInTheDocument();
+  });
+
+  it('switches to Forecast & Stock-out tab, renders sales projections and stockout table', async () => {
+    const user = userEvent.setup();
+    renderReportsPage();
+
+    await screen.findByRole('heading', { name: /Performance Reports/i });
+
+    // Click Forecast & Stock-out tab
+    const forecastTab = screen.getByRole('button', { name: /Forecast & Stock-out/i });
+    expect(forecastTab).toBeInTheDocument();
+    await user.click(forecastTab);
+
+    // Verify Strategy Pills
+    expect(await screen.findByText('Simple Moving Average')).toBeInTheDocument();
+    expect(screen.getByText('Day-of-Week Seasonality')).toBeInTheDocument();
+
+    // Verify KPI Cards
+    expect(screen.getByText(/Projected Revenue/i)).toBeInTheDocument();
+    expect(screen.getByText(/Projected Units/i)).toBeInTheDocument();
+
+    // Verify Stockout Table Items
+    expect(await screen.findByText('Out of Stock Product')).toBeInTheDocument();
+    expect(screen.getByText('OUT-001')).toBeInTheDocument();
+    expect(screen.getByText('Critical Product')).toBeInTheDocument();
+    expect(screen.getByText('CRIT-002')).toBeInTheDocument();
+
+    // Verify Stockout Risk Badges
+    expect(screen.getAllByText(/Out of Stock/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/Critical/i).length).toBeGreaterThanOrEqual(1);
+
+    // Verify replenishment recommendation badge
+    expect(screen.getByText('+40')).toBeInTheDocument();
+    expect(screen.getByText('+10')).toBeInTheDocument();
   });
 });

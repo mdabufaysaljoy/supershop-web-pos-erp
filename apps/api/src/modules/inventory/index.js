@@ -10,6 +10,7 @@ export {
   getOnlineStockByBranch,
   getTotalOnHand,
   getInventoryHealth,
+  getStockLevelsForPrediction,
   publishStockResult,
   reversalLinesFor,
 } from './inventory.service.js';

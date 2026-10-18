@@ -10,6 +10,7 @@ import {
   FolderTree,
   Images,
   LayoutDashboard,
+  Mail,
   Megaphone,
   Package,
   Palette,
@@ -90,6 +91,7 @@ export const NAV = [
         permission: [P.PAGE_VIEW, P.MENU_MANAGE], // any of them
       },
       { path: '/campaigns', label: 'nav.campaigns', icon: Megaphone, permission: P.CAMPAIGN_VIEW },
+      { path: '/subscribers', label: 'nav.subscribers', icon: Mail, permission: P.CAMPAIGN_VIEW },
       { path: '/tracking', label: 'nav.tracking', icon: Activity, permission: P.TRACKING_MANAGE },
     ],
   },

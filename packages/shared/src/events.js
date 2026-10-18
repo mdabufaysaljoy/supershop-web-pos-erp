@@ -174,6 +174,7 @@ export const EVENTS = Object.freeze({
   CAMPAIGN_SCHEDULED: 'campaign.scheduled',
   CAMPAIGN_SENT: 'campaign.sent',
   CAMPAIGN_CANCELLED: 'campaign.cancelled',
+  CAMPAIGN_OPT_IN: 'campaign.optIn',
   CAMPAIGN_OPT_OUT: 'campaign.optOut',
 
   // universal export (P8.4)

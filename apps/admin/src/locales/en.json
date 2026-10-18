@@ -57,6 +57,7 @@
     "inventory": "Inventory",
     "pages": "Pages",
     "campaigns": "Campaigns",
+    "subscribers": "Subscribers",
     "reports": "Reports",
     "staff": "Staff",
     "roles": "Roles",
@@ -2407,6 +2408,26 @@
       "cancelled": "Cancelled",
       "failed": "Failed"
     }
+  },
+  "subscribers": {
+    "title": "Newsletter Subscribers",
+    "subtitle": "Audience members subscribed to receive email newsletters, offers, and announcements.",
+    "campaignsButton": "Marketing Campaigns",
+    "exportButton": "Export CSV",
+    "totalSubscribers": "Total Subscribers",
+    "activeSubscribed": "Active Subscribed",
+    "unsubscribed": "Unsubscribed",
+    "searchPlaceholder": "Search by email address…",
+    "allStatuses": "All statuses",
+    "statusSubscribed": "Subscribed",
+    "statusUnsubscribed": "Unsubscribed",
+    "email": "Email Address",
+    "status": "Status",
+    "source": "Source",
+    "subscribedAt": "Subscribed Date",
+    "unsubscribe": "Unsubscribe",
+    "resubscribe": "Resubscribe",
+    "noSubscribers": "No newsletter subscribers found."
   },
   "help": {
     "title": "Help & Guidance",

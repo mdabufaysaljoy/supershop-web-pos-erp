@@ -30,12 +30,26 @@ export function NewsletterSection() {
           method="post"
           action="/api/v1/newsletter"
           className="flex w-full max-w-md flex-col gap-2.5 sm:flex-row"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            const btn = e.currentTarget.querySelector('button');
-            if (btn) {
-              btn.textContent = 'Subscribed ✓';
-              btn.disabled = true;
+            const form = e.currentTarget;
+            const input = form.querySelector('input[type="email"]');
+            const btn = form.querySelector('button');
+            const email = input?.value;
+            if (!email) return;
+            if (btn) btn.disabled = true;
+            try {
+              await fetch('/api/v1/newsletter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, source: 'storefront_footer_newsletter' }),
+              });
+              if (btn) {
+                btn.textContent = 'Subscribed ✓';
+              }
+              if (input) input.disabled = true;
+            } catch {
+              if (btn) btn.disabled = false;
             }
           }}
         >

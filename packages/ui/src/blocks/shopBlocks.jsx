@@ -413,7 +413,12 @@ export function TestimonialsBlock({ heading, items = [] }) {
  * Newsletter sign-up. The form posts to the storefront route the page gives it, so this component
  * stays dumb and the campaign module (P7.3) owns what happens next.
  */
-export function NewsletterBlock({ heading, text, buttonLabel, context = {} }) {
+export function NewsletterBlock({
+  heading = 'Subscribe for new offer updates',
+  text = 'Get exclusive deals, flash discounts, and new arrivals delivered straight to your inbox.',
+  buttonLabel = 'Subscribe',
+  context = {},
+}) {
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/40 to-card p-8 sm:p-12 shadow-xl">
       <div className="absolute -start-24 -bottom-24 size-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />

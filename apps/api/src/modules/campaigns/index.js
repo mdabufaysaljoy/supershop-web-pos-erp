@@ -24,3 +24,11 @@ export {
   updateCampaign,
 } from './campaign.service.js';
 export { createUnsubscribeToken, verifyUnsubscribeToken } from './campaign.unsubscribeToken.js';
+export { Subscriber } from './subscriber.model.js';
+export { createNewsletterRouter, createSubscribersRouter } from './subscriber.routes.js';
+export {
+  deleteSubscriber,
+  listSubscribers,
+  subscribeNewsletter,
+  updateSubscriber,
+} from './subscriber.service.js';

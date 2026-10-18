@@ -94,3 +94,34 @@ export function useSendTestCampaign(id) {
     },
   });
 }
+
+const SUBSCRIBERS_BASE = '/api/v1/subscribers';
+
+export const subscribers = createResource('subscribers', SUBSCRIBERS_BASE);
+
+export function useUpdateSubscriber() {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: ({ id, status }) =>
+      apiData(`${SUBSCRIBERS_BASE}/${id}`, { method: 'PATCH', body: { status } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['subscribers'] });
+      toast.success(t('common.saved'));
+    },
+    onError: (err) => toast.error(errorMessage(t, err)),
+  });
+}
+
+export function useDeleteSubscriber() {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: (id) => apiData(`${SUBSCRIBERS_BASE}/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['subscribers'] });
+      toast.success(t('common.deleted'));
+    },
+    onError: (err) => toast.error(errorMessage(t, err)),
+  });
+}

@@ -96,9 +96,9 @@ export const HOME_TEMPLATE = Object.freeze({
       id: 'home-newsletter',
       type: 'newsletter',
       props: {
-        heading: 'Stay in touch',
-        text: 'Offers and new arrivals, now and then — never more than that.',
-        buttonLabel: 'Sign me up',
+        heading: 'Subscribe for new offer updates',
+        text: 'Get exclusive deals, flash discounts, and new arrivals delivered straight to your inbox.',
+        buttonLabel: 'Subscribe',
       },
     },
   ],

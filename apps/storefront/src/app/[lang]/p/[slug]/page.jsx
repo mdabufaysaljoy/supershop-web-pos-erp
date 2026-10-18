@@ -1,5 +1,6 @@
 import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import { notFound } from 'next/navigation';
+import { StorefrontNewsletterBlock } from '@/components/home/StorefrontNewsletterBlock';
 import { StorefrontProductRail } from '@/components/catalog/StorefrontProductRail';
 import { JsonLd } from '@/components/JsonLd';
 import { blockContext, getCmsPage } from '@/lib/cmsPage';
@@ -10,6 +11,7 @@ import { faqPageLd } from '@/lib/structuredData';
 const STOREFRONT_BLOCK_COMPONENTS = {
   ...ALL_BLOCK_COMPONENTS,
   productRail: StorefrontProductRail,
+  newsletter: StorefrontNewsletterBlock,
 };
 
 /**

@@ -523,9 +523,9 @@ defineBlock({
   },
   translatable: ['heading', 'text', 'buttonLabel'],
   defaults: {
-    heading: 'Stay in touch',
-    text: 'Offers and new arrivals, now and then.',
-    buttonLabel: 'Sign up',
+    heading: 'Subscribe for new offer updates',
+    text: 'Get exclusive deals, flash discounts, and new arrivals delivered straight to your inbox.',
+    buttonLabel: 'Subscribe',
   },
   label: 'Newsletter sign-up',
   icon: 'mail',

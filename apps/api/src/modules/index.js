@@ -94,7 +94,11 @@ import {
   createLoyaltyRouter,
   registerLoyaltySubscribers,
 } from './loyalty/index.js';
-import { createCampaignRouter } from './campaigns/index.js';
+import {
+  createCampaignRouter,
+  createNewsletterRouter,
+  createSubscribersRouter,
+} from './campaigns/index.js';
 import { createAnalyticsRouter } from './analytics/index.js';
 import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from './pages/index.js';
 import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
@@ -339,6 +343,8 @@ export function mountModuleRoutes(api) {
   );
   api.use('/notifications', createNotificationRouter());
   api.use('/campaigns', createCampaignRouter());
+  api.use('/newsletter', createNewsletterRouter());
+  api.use('/subscribers', createSubscribersRouter());
   api.use('/inventory', createInventoryRouter());
   api.use('/purchase-orders', createPurchaseOrderRouter());
   api.use('/analytics', createAnalyticsRouter());

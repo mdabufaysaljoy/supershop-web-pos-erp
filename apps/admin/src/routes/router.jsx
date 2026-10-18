@@ -10,6 +10,7 @@ import { CustomerDetailPage } from '@/features/customers/pages/CustomerDetailPag
 import { CustomersPage } from '@/features/customers/pages/CustomersPage';
 import { CampaignsPage } from '@/features/campaigns/pages/CampaignsPage';
 import { CampaignEditorPage } from '@/features/campaigns/pages/CampaignEditorPage';
+import { SubscribersPage } from '@/features/campaigns/pages/SubscribersPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
 import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
@@ -58,6 +59,7 @@ const PAGES = {
   '/categories': <CategoriesPage />,
   '/media': <MediaLibraryPage />,
   '/campaigns': <CampaignsPage />,
+  '/subscribers': <SubscribersPage />,
   '/tracking': <TrackingPage />,
   '/settings': <SettingsPage />,
   '/reports': <ReportsPage />,

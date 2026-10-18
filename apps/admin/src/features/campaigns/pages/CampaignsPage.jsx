@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Select } from '@/features/settings/components/controls';
-import { can } from '@/lib/permissions';
+import { useCan } from '@/lib/permissions';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useListParams } from '@/lib/useListParams';
@@ -28,6 +28,7 @@ const PAGE_SIZE = 25;
 
 export function CampaignsPage() {
   const { t } = useTranslation();
+  const can = useCan();
   const searchParams = useSearchParams();
   const { page, q, go } = useListParams(searchParams);
   const channel = searchParams[0].get('channel') ?? '';
@@ -69,14 +70,22 @@ export function CampaignsPage() {
           <h1 className="text-2xl font-bold tracking-tight">{t('campaigns.title')}</h1>
           <p className="text-sm text-muted-foreground">{t('campaigns.subtitle')}</p>
         </div>
-        {can(P.CAMPAIGN_MANAGE) && (
-          <Button asChild>
-            <Link to="/campaigns/new">
-              <Plus className="me-2 size-4" />
-              {t('campaigns.createButton')}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline">
+            <Link to="/subscribers">
+              <Mail className="me-2 size-4" />
+              {t('subscribers.title', 'Subscribers')}
             </Link>
           </Button>
-        )}
+          {can(P.CAMPAIGN_MANAGE) && (
+            <Button asChild>
+              <Link to="/campaigns/new">
+                <Plus className="me-2 size-4" />
+                {t('campaigns.createButton')}
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}

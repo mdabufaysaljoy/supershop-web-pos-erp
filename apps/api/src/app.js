@@ -75,6 +75,7 @@ export function createApp({
       },
     }),
   );
+  app.use(express.urlencoded({ extended: false, limit: config.JSON_BODY_LIMIT }));
   app.use(cookieParser());
   app.use(rejectUnsafeKeys);
 

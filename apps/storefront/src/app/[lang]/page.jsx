@@ -6,6 +6,7 @@ import { CategoryShowcase } from '@/components/home/CategoryShowcase';
 import { HomeHero } from '@/components/home/HomeHero';
 import { NewsletterSection } from '@/components/home/NewsletterSection';
 import { PromoBanners } from '@/components/home/PromoBanners';
+import { StorefrontNewsletterBlock } from '@/components/home/StorefrontNewsletterBlock';
 import { TestimonialWall } from '@/components/home/TestimonialWall';
 import { TrustFeatures } from '@/components/home/TrustFeatures';
 import { localizePath } from '@/i18n/config';
@@ -17,6 +18,7 @@ import { buildMetadata } from '@/lib/seo';
 const STOREFRONT_BLOCK_COMPONENTS = {
   ...ALL_BLOCK_COMPONENTS,
   productRail: StorefrontProductRail,
+  newsletter: StorefrontNewsletterBlock,
 };
 
 /**

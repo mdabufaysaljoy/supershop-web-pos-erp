@@ -492,6 +492,66 @@
       "src": "9c0e74e6c04b89e8",
       "out": "6d758e359fbad32b"
     },
+    "cart.itemCountOne": {
+      "src": "93c85e9a47e959f4",
+      "out": "f659d3e5cce460d8",
+      "mode": "manual"
+    },
+    "cart.itemCountOther": {
+      "src": "34d726f8f741e3cd",
+      "out": "4dc1817091b8b30e",
+      "mode": "manual"
+    },
+    "cart.continueShopping": {
+      "src": "264a224fd18a1bf5",
+      "out": "f99b9530aa23461a",
+      "mode": "manual"
+    },
+    "cart.freeShippingUnlocked": {
+      "src": "fc1793f11cf10dc1",
+      "out": "ecbf159ef4892ea7",
+      "mode": "manual"
+    },
+    "cart.freeShippingRemaining": {
+      "src": "ac3e3f0468f1bc25",
+      "out": "11a49d18bfe58a50",
+      "mode": "manual"
+    },
+    "cart.inStock": {
+      "src": "f66315eb0e3a2f61",
+      "out": "a0788d4ddf319621",
+      "mode": "manual"
+    },
+    "cart.secureCheckout": {
+      "src": "6e59d54b422e012f",
+      "out": "86c6f363a235a663",
+      "mode": "manual"
+    },
+    "cart.promoPlaceholder": {
+      "src": "993da76ffa4c66df",
+      "out": "db501b898bda0f82",
+      "mode": "manual"
+    },
+    "cart.apply": {
+      "src": "31e392d1c0378bec",
+      "out": "268974da5082e980",
+      "mode": "manual"
+    },
+    "cart.emptySubtitle": {
+      "src": "b5d6955381786c7b",
+      "out": "892d0f24e1ac7088",
+      "mode": "manual"
+    },
+    "cart.fastDispatch": {
+      "src": "723e236ee6bbcff4",
+      "out": "77ae5835d2588530",
+      "mode": "manual"
+    },
+    "cart.easyReturns": {
+      "src": "13beafccfc06ab47",
+      "out": "cc13186dde0396a4",
+      "mode": "manual"
+    },
     "checkout.title": {
       "src": "7df4c009994c2d29",
       "out": "4663a51d168e5e4c"

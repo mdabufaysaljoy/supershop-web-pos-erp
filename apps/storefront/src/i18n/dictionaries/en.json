@@ -146,7 +146,19 @@
       "generic": "Something went wrong. Please try again."
     },
     "added": "Added to cart",
-    "buyNow": "Buy now"
+    "buyNow": "Buy now",
+    "itemCountOne": "{{count}} item",
+    "itemCountOther": "{{count}} items",
+    "continueShopping": "Continue shopping",
+    "freeShippingUnlocked": "You unlocked Free Kingdom-wide Delivery!",
+    "freeShippingRemaining": "Add {{amount}} more for Free Delivery across Saudi Arabia",
+    "inStock": "In stock",
+    "secureCheckout": "256-Bit SSL Encrypted Checkout",
+    "promoPlaceholder": "Enter promo code",
+    "apply": "Apply",
+    "emptySubtitle": "Looks like you haven't added anything to your cart yet.",
+    "fastDispatch": "Fast SPL Courier Dispatch",
+    "easyReturns": "14-Day Free Returns"
   },
   "checkout": {
     "title": "Complete your order",

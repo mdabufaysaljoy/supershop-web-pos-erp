@@ -141,7 +141,19 @@
       "generic": "حدث شيء خاطئ أرجوك حاول مرة أخرى."
     },
     "added": "مضافة إلى العربة",
-    "buyNow": "اشتري الآن"
+    "buyNow": "اشتري الآن",
+    "itemCountOne": "{{count}} منتج",
+    "itemCountOther": "{{count}} منتجات",
+    "continueShopping": "متابعة التسوق",
+    "freeShippingUnlocked": "لقد حصلت على توصيل مجاني لجميع أنحاء المملكة!",
+    "freeShippingRemaining": "أضف {{amount}} إضافية للحصول على توصيل مجاني داخل المملكة",
+    "inStock": "متوفر في المخزون",
+    "secureCheckout": "دفع آمن ومشفر 256 بت",
+    "promoPlaceholder": "أدخل رمز الخصم",
+    "apply": "تطبيق",
+    "emptySubtitle": "يبدو أنك لم تضف أي منتج إلى سلتك بعد.",
+    "fastDispatch": "شحن سريع عبر البريد السعودي سبل",
+    "easyReturns": "إرجاع مجاني خلال 14 يوماً"
   },
   "checkout": {
     "title": "أكمل طلبك",

@@ -46,37 +46,46 @@ export function CartLines({ size = 'sm', onNavigate }) {
             >
               <div
                 className={cn(
-                  'mb-3 grid grid-cols-[auto_1fr] gap-3 rounded-xl border p-3',
-                  !ok && 'bg-muted/40',
+                  'group relative mb-3.5 grid grid-cols-[auto_1fr] gap-3.5 sm:gap-4 rounded-xl border border-border/80 bg-card p-3.5 sm:p-4 shadow-2xs transition-all hover:border-border',
+                  !ok && 'border-dashed bg-muted/40',
                 )}
               >
                 <div
-                  className={cn('overflow-hidden rounded-lg bg-muted', big ? 'size-24' : 'size-20')}
+                  className={cn(
+                    'relative shrink-0 overflow-hidden rounded-md border border-border/60 bg-muted/30 shadow-2xs',
+                    big ? 'size-20 sm:size-24' : 'size-18',
+                  )}
                 >
                   <MediaImage
                     image={l.image}
                     alt={name}
-                    sizes="96px"
+                    sizes={big ? '96px' : '72px'}
                     className="size-full object-cover"
                   />
                 </div>
-                <div className="grid min-w-0 gap-1">
+                <div className="grid min-w-0 gap-1.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       {href ? (
                         <Link
                           href={href}
                           onClick={onNavigate}
-                          className="line-clamp-2 text-sm font-medium hover:underline"
+                          className="line-clamp-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
                         >
                           {name}
                         </Link>
                       ) : (
-                        <p className="line-clamp-2 text-sm font-medium">{name}</p>
+                        <p className="line-clamp-2 text-sm font-semibold text-foreground">{name}</p>
                       )}
                       {l.options.length > 0 && (
-                        <p className="text-xs text-muted-foreground">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {l.options.map((o) => `${o.name}: ${o.value}`).join(' · ')}
+                        </p>
+                      )}
+                      {ok && (
+                        <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                          <span className="inline-block size-1.5 rounded-full bg-emerald-500" />
+                          <span>{t('cart.inStock')}</span>
                         </p>
                       )}
                     </div>
@@ -85,7 +94,7 @@ export function CartLines({ size = 'sm', onNavigate }) {
                       disabled={busy}
                       onClick={() => remove(l.variantId)}
                       aria-label={t('cart.removeItem', { name })}
-                      className="shrink-0 rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+                      className="shrink-0 rounded-md p-1.5 text-muted-foreground/70 hover:bg-destructive/10 hover:text-destructive active:scale-95 disabled:opacity-50 transition-all"
                     >
                       <svg
                         viewBox="0 0 24 24"
@@ -107,17 +116,20 @@ export function CartLines({ size = 'sm', onNavigate }) {
                     <p className="text-xs font-medium text-destructive">{t('cart.unavailable')}</p>
                   )}
                   {l.notices.map((n) => (
-                    <p key={n.code} role="status" className="text-xs text-amber-700">
+                    <p key={n.code} role="status" className="text-xs font-medium text-amber-700">
                       {noticeText(n, t, fmt)}
                     </p>
                   ))}
 
-                  <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                  <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
                     {l.status !== 'unavailable' ? (
-                      <div className="inline-flex items-center rounded-full border" dir="ltr">
+                      <div
+                        className="inline-flex items-center rounded-lg border border-border/80 bg-background/80 shadow-2xs"
+                        dir="ltr"
+                      >
                         <button
                           type="button"
-                          className="grid size-8 place-items-center rounded-full text-lg hover:bg-muted disabled:opacity-40"
+                          className="grid size-8 place-items-center rounded-s-lg text-sm font-semibold text-foreground hover:bg-muted active:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
                           disabled={busy || l.qty <= 1}
                           onClick={() => setQty(l.variantId, l.qty - 1)}
                           aria-label={t('cart.decrease', { name })}
@@ -125,14 +137,14 @@ export function CartLines({ size = 'sm', onNavigate }) {
                           −
                         </button>
                         <span
-                          className="min-w-8 text-center text-sm tabular-nums"
+                          className="min-w-8 border-x border-border/60 text-center text-xs font-semibold tabular-nums text-foreground"
                           aria-label={t('cart.quantity')}
                         >
                           {fmt.number(l.qty)}
                         </span>
                         <button
                           type="button"
-                          className="grid size-8 place-items-center rounded-full text-lg hover:bg-muted disabled:opacity-40"
+                          className="grid size-8 place-items-center rounded-e-lg text-sm font-semibold text-foreground hover:bg-muted active:bg-muted/80 disabled:cursor-not-allowed disabled:opacity-30 transition-colors"
                           disabled={busy || !ok || l.qty >= l.maxQty}
                           onClick={() => setQty(l.variantId, l.qty + 1)}
                           aria-label={t('cart.increase', { name })}
@@ -145,7 +157,7 @@ export function CartLines({ size = 'sm', onNavigate }) {
                     )}
                     <div className="text-end">
                       {ok && (
-                        <p className="text-sm font-semibold tabular-nums">
+                        <p className="text-base font-bold tabular-nums text-foreground">
                           {fmt.money(l.lineTotal)}
                         </p>
                       )}

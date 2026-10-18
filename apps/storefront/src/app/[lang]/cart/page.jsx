@@ -15,13 +15,6 @@ export async function generateMetadata({ params }) {
   });
 }
 
-export default async function CartPage({ params }) {
-  const { lang } = await params;
-  const { t } = await getPageContext(lang);
-  return (
-    <div className="grid gap-6">
-      <h1 className="text-3xl font-semibold tracking-tight">{t('cart.title')}</h1>
-      <CartPageView />
-    </div>
-  );
+export default function CartPage() {
+  return <CartPageView />;
 }

@@ -65,7 +65,13 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
         </div>
       </div>
       {header.menu?.length ? (
-        <SiteNav items={header.menu} lang={lang} label={t('nav.primary')} />
+        <SiteNav
+          items={header.menu}
+          categories={categories}
+          lang={lang}
+          label={t('nav.primary')}
+          t={t}
+        />
       ) : header.showCategoryRow === false ? null : (
         <nav aria-label={t('nav.primary')} className="border-t border-border/50 bg-muted/30">
           <div className="mx-auto max-w-7xl px-4 py-1.5">

@@ -22,13 +22,27 @@ export const HOME_TEMPLATE = Object.freeze({
         slides: [
           {
             mediaId: null,
-            heading: 'Everything for your home, delivered',
-            text: 'Gadgets, fashion and everyday essentials, across the Kingdom.',
-            buttonLabel: 'Shop now',
-            href: '/search',
+            heading: 'Mega Supershop — Electronics, Tech & Essentials',
+            text: 'Discover top flagship electronics, audio gear, and cutting-edge devices across Saudi Arabia.',
+            buttonLabel: 'Explore Electronics',
+            href: '/search?q=electronics',
+          },
+          {
+            mediaId: null,
+            heading: 'Trending Fashion, Streetwear & Modern Living',
+            text: 'Curated seasonal styles, premium apparel, footwear and accessories for everyday comfort.',
+            buttonLabel: 'Shop Fashion',
+            href: '/search?q=fashion',
+          },
+          {
+            mediaId: null,
+            heading: 'Super Deals of the Week — Up to 50% Off',
+            text: 'Unbeatable limited-time savings on top-rated products with fast Saudi dispatch.',
+            buttonLabel: 'Grab Deals Now',
+            href: '/search?sort=price_asc',
           },
         ],
-        autoplaySeconds: 0,
+        autoplaySeconds: 5,
       },
     },
     {

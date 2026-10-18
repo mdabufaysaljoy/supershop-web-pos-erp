@@ -155,3 +155,31 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Continuous slow marquee scrolling from right to left */
+@keyframes marquee-rtl-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee-rtl-slide 45s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+    width: 100%;
+    overflow-x: auto;
+  }
+}

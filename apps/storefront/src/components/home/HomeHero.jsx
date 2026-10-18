@@ -1,16 +1,127 @@
+'use client';
+
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { localizePath } from '@/i18n/config';
 
 /**
- * Modern flagship Hero Showcase:
- * - Ambient gradient mesh background with luminous blur orbs
- * - Verified supershop badge & value proposition pills
- * - Bold high-contrast typography with English source localization
- * - Interactive Deal Spotlight glass card
+ * Flagship Multi-Slide Interactive Hero Showcase:
+ * - Ambient gradient mesh with glowing orbs
+ * - Auto-sliding carousel with pause on hover
+ * - Multi-category showcases (Electronics, Fashion, Super Deals)
+ * - Navigation controls (next/prev and dot indicators)
+ * - Verified Saudi supershop trust markers
  */
 export function HomeHero({ lang, storeName, t }) {
+  const slides = [
+    {
+      id: 'tech',
+      badge: 'Kingdom-Wide Express Delivery · 100% Genuine',
+      title: t
+        ? t('home.title', { store: storeName })
+        : `${storeName} — Electronics & Smart Living`,
+      subtitle: t
+        ? t('site.tagline')
+        : 'Flagship smartphones, pro audio, gaming laptops, and ultra 4K tech gear.',
+      ctaPrimary: {
+        label: t ? t('home.shopAll') : 'Shop Electronics',
+        href: `${localizePath('/search', lang)}?q=electronics`,
+      },
+      ctaSecondary: {
+        label: t ? t('home.newArrivals') : 'New Arrivals',
+        href: `${localizePath('/search', lang)}?sort=newest`,
+      },
+      card: {
+        badge: 'Featured Daily Spotlight',
+        discount: 'Save 35%',
+        icon: '🎧',
+        category: 'Audio & Smart Living',
+        name: 'Pro Wireless ANC Headphones',
+        desc: 'Spatial Audio · 40h Battery · Ultra-Fast Charging',
+        originalPrice: 'SAR 499',
+        price: 'SAR 324',
+        href: `${localizePath('/search', lang)}?q=headphones`,
+        buttonLabel: 'Explore Audio Gear',
+      },
+    },
+    {
+      id: 'fashion',
+      badge: 'New Season Drop · Saudi Express Shipping',
+      title: 'Modern Fashion, Streetwear & Everyday Comfort',
+      subtitle: 'Premium collections, oversized hoodies, luxury watches, and designer sneakers.',
+      ctaPrimary: {
+        label: 'Shop Fashion',
+        href: `${localizePath('/search', lang)}?q=fashion`,
+      },
+      ctaSecondary: {
+        label: 'View Collections',
+        href: `${localizePath('/search', lang)}?sort=best_selling`,
+      },
+      card: {
+        badge: 'Style Pick of the Week',
+        discount: 'Save 40%',
+        icon: '👕',
+        category: 'Apparel & Streetwear',
+        name: 'Heavyweight Cotton Streetwear Hoodie',
+        desc: 'Breathable · Pre-Shrunk · Custom Arabic Typography',
+        originalPrice: 'SAR 280',
+        price: 'SAR 168',
+        href: `${localizePath('/search', lang)}?q=hoodie`,
+        buttonLabel: 'Shop Apparel',
+      },
+    },
+    {
+      id: 'deals',
+      badge: 'Mega Super Deals · Limited Quantity',
+      title: 'Super Deals of the Week — Up to 50% Off',
+      subtitle:
+        'Exclusive weekly markdowns across high-demand gadgets, accessories, and home living.',
+      ctaPrimary: {
+        label: 'Grab Super Deals',
+        href: `${localizePath('/search', lang)}?sort=price_asc`,
+      },
+      ctaSecondary: {
+        label: 'All Offers',
+        href: `${localizePath('/search', lang)}?sort=price_asc`,
+      },
+      card: {
+        badge: 'Limited Flash Deal',
+        discount: 'Save 50%',
+        icon: '⚡',
+        category: 'Power & Accessories',
+        name: '65W Multi-Port GaN Fast Charger',
+        desc: 'PD 3.0 · Dual USB-C + USB-A · Laptop Compatible',
+        originalPrice: 'SAR 199',
+        price: 'SAR 99',
+        href: `${localizePath('/search', lang)}?q=charger`,
+        buttonLabel: 'Claim Deal',
+      },
+    },
+  ];
+
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = slides.length;
+
+  const go = useCallback((next) => setIndex(((next % count) + count) % count), [count]);
+
+  useEffect(() => {
+    if (paused) return undefined;
+    const timer = setInterval(() => setIndex((i) => (i + 1) % count), 6000);
+    return () => clearInterval(timer);
+  }, [count, paused]);
+
+  const active = slides[index];
+
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-indigo-900/40 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-6 py-12 text-white shadow-2xl sm:px-12 sm:py-20">
+    <section
+      aria-label="Featured Hero Slider"
+      className="relative overflow-hidden rounded-3xl border border-indigo-900/40 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-6 py-12 text-white shadow-2xl sm:px-12 sm:py-20 select-none"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
       {/* Decorative ambient glowing orbs */}
       <div
         aria-hidden="true"
@@ -23,26 +134,26 @@ export function HomeHero({ lang, storeName, t }) {
 
       <div className="relative z-10 grid items-center gap-10 lg:grid-cols-12">
         {/* Left Column: Headline, Tagline, CTAs & Social Proof */}
-        <div className="grid gap-6 lg:col-span-7">
+        <div className="grid gap-6 lg:col-span-7 transition-all duration-500">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-300 backdrop-blur-md">
             <span className="flex size-2 rounded-full bg-emerald-400 animate-pulse-subtle" />
-            <span>Kingdom-Wide Express Delivery · 100% Genuine</span>
+            <span>{active.badge}</span>
           </div>
 
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-balance">
-            {t('home.title', { store: storeName })}
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-balance leading-tight">
+            {active.title}
           </h1>
 
-          <p className="max-w-xl text-base text-slate-300 sm:text-lg text-balance">
-            {t('site.tagline')}
+          <p className="max-w-xl text-base text-slate-300 sm:text-lg text-balance leading-relaxed">
+            {active.subtitle}
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
-              href={localizePath('/search', lang)}
+              href={active.ctaPrimary.href}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>{t('home.shopAll')}</span>
+              <span>{active.ctaPrimary.label}</span>
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -59,10 +170,10 @@ export function HomeHero({ lang, storeName, t }) {
             </Link>
 
             <Link
-              href={`${localizePath('/search', lang)}?sort=newest`}
+              href={active.ctaSecondary.href}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/30"
             >
-              <span>{t('home.newArrivals')}</span>
+              <span>{active.ctaSecondary.label}</span>
               <span aria-hidden="true">✨</span>
             </Link>
           </div>
@@ -91,41 +202,77 @@ export function HomeHero({ lang, storeName, t }) {
               <div className="flex items-center gap-2">
                 <span className="flex size-3 rounded-full bg-rose-500 animate-pulse-subtle" />
                 <span className="text-xs font-bold uppercase tracking-wider text-rose-400">
-                  Featured Daily Spotlight
+                  {active.card.badge}
                 </span>
               </div>
               <span className="rounded-full bg-amber-400/20 px-2.5 py-0.5 text-[11px] font-bold text-amber-300">
-                Save 35%
+                {active.card.discount}
               </span>
             </div>
 
             <div className="py-6 text-center">
               <div className="mx-auto mb-4 flex size-28 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-blue-500/20 text-5xl shadow-inner">
-                🎧
+                {active.card.icon}
               </div>
               <p className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">
-                Audio & Smart Living
+                {active.card.category}
               </p>
-              <h3 className="mt-1 text-lg font-bold text-white">Pro Wireless ANC Headphones</h3>
-              <p className="mt-1 text-xs text-slate-300">
-                Spatial Audio · 40h Battery · Ultra-Fast Charging
-              </p>
+              <h3 className="mt-1 text-lg font-bold text-white">{active.card.name}</h3>
+              <p className="mt-1 text-xs text-slate-300">{active.card.desc}</p>
 
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 backdrop-blur-md">
-                <span className="text-xs text-slate-400 line-through">SAR 499</span>
-                <span className="text-base font-extrabold text-amber-300">SAR 324</span>
+                <span className="text-xs text-slate-400 line-through">
+                  {active.card.originalPrice}
+                </span>
+                <span className="text-base font-extrabold text-amber-300">{active.card.price}</span>
                 <span className="text-[10px] text-slate-300">incl. VAT</span>
               </div>
             </div>
 
             <Link
-              href={localizePath('/search?q=headphones', lang)}
+              href={active.card.href}
               className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 font-semibold text-white shadow-md transition-all hover:opacity-95"
             >
-              <span>Explore Audio Gear</span>
+              <span>{active.card.buttonLabel}</span>
               <span aria-hidden="true">→</span>
             </Link>
           </div>
+        </div>
+      </div>
+
+      {/* Slider Controls: Next/Prev Arrows & Dots */}
+      <div className="relative z-20 mt-8 flex items-center justify-between border-t border-white/10 pt-4">
+        <div className="flex gap-2">
+          {slides.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              aria-label={`Slide ${i + 1}`}
+              onClick={() => setIndex(i)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                i === index ? 'w-8 bg-primary' : 'w-2.5 bg-white/40 hover:bg-white/70'
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Previous slide"
+            onClick={() => go(index - 1)}
+            className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/5 hover:bg-white/20 text-white backdrop-blur-md transition-all rtl:rotate-180"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            aria-label="Next slide"
+            onClick={() => go(index + 1)}
+            className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/5 hover:bg-white/20 text-white backdrop-blur-md transition-all rtl:rotate-180"
+          >
+            ›
+          </button>
         </div>
       </div>
     </section>

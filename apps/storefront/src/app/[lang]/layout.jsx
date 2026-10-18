@@ -112,6 +112,8 @@ export default async function LangLayout({ children, params }) {
                     footer={chrome.footer}
                     contact={chrome.contact}
                     social={chrome.social}
+                    seoDescription={chrome.seo.defaultDescription}
+                    categories={categories}
                     t={t}
                     fmt={fmt}
                   />

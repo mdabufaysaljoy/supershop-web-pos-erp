@@ -34,24 +34,47 @@ export function CountdownBlock({ heading, endsAt, buttonLabel, href, context = {
   const over = left !== null && left <= 0;
 
   return (
-    <section className="grid justify-items-center gap-4 rounded-2xl bg-foreground p-8 text-background">
-      {heading ? <h2 className="text-2xl font-semibold tracking-tight">{heading}</h2> : null}
+    <section className="relative overflow-hidden grid justify-items-center gap-6 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-rose-500/15 p-8 sm:p-12 text-foreground shadow-sm">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <span className="flex items-center gap-1.5 rounded-full bg-rose-600 px-3 py-0.5 text-xs font-bold text-white shadow-xs">
+          <span aria-hidden="true">🔥</span>
+          <span>Limited-Time Offer</span>
+        </span>
+        {heading ? (
+          <h2 className="text-2xl font-extrabold tracking-tight sm:text-4xl text-balance">
+            {heading}
+          </h2>
+        ) : null}
+      </div>
+
       {left !== null && !over ? (
-        <ul className="flex gap-4 tabular-nums" suppressHydrationWarning>
+        <ul
+          className="flex flex-wrap justify-center gap-3 sm:gap-5 tabular-nums"
+          suppressHydrationWarning
+        >
           {parts(left).map(([unit, value]) => (
-            <li key={unit} className="grid w-16 justify-items-center">
-              <span className="text-3xl font-semibold">{number(value, context)}</span>
-              <span className="text-xs uppercase opacity-70">{labels[unit] ?? unit}</span>
+            <li
+              key={unit}
+              className="flex min-w-[72px] sm:min-w-[84px] flex-col items-center justify-center rounded-2xl border border-border/80 bg-background/90 p-3 sm:p-4 shadow-sm backdrop-blur-md"
+            >
+              <span className="font-mono text-2xl sm:text-4xl font-extrabold text-foreground">
+                {number(value, context)}
+              </span>
+              <span className="mt-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {labels[unit] ?? unit}
+              </span>
             </li>
           ))}
         </ul>
       ) : null}
+
       {buttonLabel && !over ? (
         <a
           href={hrefIn(href, context)}
-          className="inline-flex h-11 items-center rounded-full bg-background px-6 text-sm font-medium text-foreground"
+          className="inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-8 text-sm font-bold text-background shadow-lg transition-transform hover:scale-105 active:scale-95"
         >
-          {buttonLabel}
+          <span>{buttonLabel}</span>
+          <span aria-hidden="true">→</span>
         </a>
       ) : null}
     </section>

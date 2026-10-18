@@ -7,6 +7,12 @@
 
 
 ## Done tasks
+- Admin "Why Shop With Us" Section Manager & Full CRUD Controls ✔ 2026-10-18 (Antigravity) Added dedicated section manager tab and card in Admin Appearance to add, edit, reorder, and delete the storefront "Why shop with us" selling points block (`apps/admin`, `packages/ui`):
+  1. Section Manager Card (`FeaturesManagerCard.jsx`): Created dedicated control card in Appearance panel with live heading editor, card list with icon picker preview (truck, refresh, headset, shield, offers), move up/down reordering, individual card addition (up to 12) & deletion, and one-click whole-section deletion and restoration.
+  2. Appearance Tab Integration (`AppearancePage.jsx`, `en.json`): Added "Why Shop With Us" tab (`/appearance?tab=features`) alongside Header/Colours, Hero Slider, Shop Details, and Moved Addresses.
+  3. Seamless Draft & Publish Integration (`FeaturesManagerCard.jsx`): Directly persists changes to Home page blocks draft via `useSaveDraft` (`PATCH /api/v1/pages/:id`) and publishes immediately to the storefront via `usePageAction('publish')`.
+  4. Block Key Stability (`shopBlocks.jsx`): Added unique item key fallback (`item.id ?? `${item.title}-${index}``) in `FeaturesBlock` to prevent React key reconciliation warnings.
+  5. Verification: All 21 Appearance tests (including 2 new features manager tests), all 205 admin tests, 123 storefront tests, 12/12 Playwright E2E browser tests, ESLint, and i18n checks passing 100% with zero warnings.
 - Website Name, Site Title Suffix, and Flexible Logo/Name Display Controls ✔ 2026-10-18 (Antigravity) Fixed website name and site title suffix editing, and added flexible header brand display choices (Both Logo & Name, Logo Only, or Name Only) (`packages/shared`, `apps/api`, `apps/admin`, `apps/storefront`):
   1. Fix Website Name Saving (`BrandCard.jsx`): Fixed settings payload format by passing `[{ key: 'store.name', value }]` instead of `{ changes: { 'store.name': value } }`, matching the `PATCH /api/v1/settings` schema.
   2. Fix Site Title Suffix Saving (`BrandCard.jsx`): Fixed layout update payload by sending `{ seo: { titleSuffix } }` cleanly instead of spreading `...layout.seo` (which previously injected `defaultDescription` as an object `{ en: '' }`, violating Zod string schema).

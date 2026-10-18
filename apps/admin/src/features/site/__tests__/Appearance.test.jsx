@@ -469,3 +469,99 @@ describe('moved addresses', () => {
     expect(screen.getByRole('button', { name: 'Add redirect' })).toBeDisabled();
   });
 });
+
+describe('the why shop with us section', () => {
+  const featuresTab = async (user) => {
+    await loaded();
+    await user.click(screen.getByRole('tab', { name: 'Why Shop With Us' }));
+    await screen.findByText('Why Shop With Us (Value Proposition)');
+  };
+
+  it('allows editing selling points and saving & publishing to home page', async () => {
+    const user = userEvent.setup();
+    const homePageData = {
+      id: 'pg1',
+      title: { en: 'Home' },
+      slug: 'home',
+      isHome: true,
+      draft: {
+        blocks: [
+          {
+            id: 'home-features',
+            type: 'features',
+            props: {
+              heading: 'Why shop with us',
+              items: [
+                {
+                  title: 'Delivery across the Kingdom',
+                  text: 'Dispatched within one working day.',
+                  icon: 'truck',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+
+    const m = setup({
+      routes: {
+        'GET /api/v1/pages': json(200, { data: [homePageData] }),
+        'GET /api/v1/pages/pg1': json(200, { data: homePageData }),
+        'PATCH /api/v1/pages/pg1': json(200, { data: homePageData }),
+        'POST /api/v1/pages/pg1/publish': json(200, { data: homePageData }),
+      },
+    });
+
+    await featuresTab(user);
+    expect(screen.getByDisplayValue('Why shop with us')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Delivery across the Kingdom')).toBeInTheDocument();
+
+    const titleInput = screen.getByDisplayValue('Delivery across the Kingdom');
+    await user.clear(titleInput);
+    await user.type(titleInput, 'Express 24h Delivery');
+
+    await user.click(screen.getByRole('button', { name: 'Save & Publish Section' }));
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/pages/pg1')).toBe(1));
+    await waitFor(() => expect(m.count('POST /api/v1/pages/pg1/publish')).toBe(1));
+
+    const draftBody = bodyOf(m, 'PATCH /api/v1/pages/pg1');
+    expect(draftBody.draft.blocks[0].props.items[0].title).toBe('Express 24h Delivery');
+  });
+
+  it('allows deleting the entire section from home page', async () => {
+    const user = userEvent.setup();
+    const homePageData = {
+      id: 'pg1',
+      title: { en: 'Home' },
+      slug: 'home',
+      isHome: true,
+      draft: {
+        blocks: [
+          {
+            id: 'home-features',
+            type: 'features',
+            props: { heading: 'Why shop with us', items: [] },
+          },
+        ],
+      },
+    };
+
+    const m = setup({
+      routes: {
+        'GET /api/v1/pages': json(200, { data: [homePageData] }),
+        'GET /api/v1/pages/pg1': json(200, { data: homePageData }),
+        'PATCH /api/v1/pages/pg1': json(200, { data: homePageData }),
+        'POST /api/v1/pages/pg1/publish': json(200, { data: homePageData }),
+      },
+    });
+
+    await featuresTab(user);
+    await user.click(screen.getByRole('button', { name: 'Delete Section' }));
+
+    await waitFor(() => expect(m.count('PATCH /api/v1/pages/pg1')).toBe(1));
+    expect(bodyOf(m, 'PATCH /api/v1/pages/pg1').draft.blocks).toEqual([]);
+    expect(screen.getByText('Section Currently Removed')).toBeInTheDocument();
+  });
+});

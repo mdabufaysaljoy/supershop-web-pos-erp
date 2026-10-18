@@ -373,9 +373,9 @@ export function FeaturesBlock({ heading, items = [] }) {
   return (
     <Section heading={heading}>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <li
-            key={item.title}
+            key={item.id ?? `${item.title}-${index}`}
             className="group flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/60 p-5 shadow-xs backdrop-blur-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
           >
             <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">

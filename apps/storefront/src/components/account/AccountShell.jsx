@@ -131,7 +131,7 @@ export function AccountShell({ title, children }) {
         {/* Breadcrumb row */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Link href={localizePath('/', lang)} className="hover:text-foreground transition-colors">
-            {t('site.nav.home') || 'Home'}
+            {t('nav.home') || 'Home'}
           </Link>
           <span>/</span>
           <Link

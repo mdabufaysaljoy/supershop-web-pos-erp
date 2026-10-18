@@ -1423,6 +1423,51 @@
     "consent.categories.marketing.description": {
       "src": "a487b98cc361f3bc",
       "status": "failed"
+    },
+    "checkout.step1Title": {
+      "src": "9681395de456c72b",
+      "out": "b97654e3508f39b5",
+      "mode": "manual"
+    },
+    "checkout.step2Title": {
+      "src": "64ac16acee449afc",
+      "out": "2bcfa50cdeba9ff7",
+      "mode": "manual"
+    },
+    "checkout.continueToStep2": {
+      "src": "9fc355ae12abefc5",
+      "out": "95e31af65c9dc83c",
+      "mode": "manual"
+    },
+    "checkout.backToStep1": {
+      "src": "0e9f48eba075d225",
+      "out": "8b2bfba0953655a1",
+      "mode": "manual"
+    },
+    "checkout.editContact": {
+      "src": "464c4ffd019e1e96",
+      "out": "113d570d6555bc43",
+      "mode": "manual"
+    },
+    "checkout.splNationalAddress": {
+      "src": "666e53205966426c",
+      "out": "32850768d773afc1",
+      "mode": "manual"
+    },
+    "checkout.splSubtitle": {
+      "src": "f90d6e2429e436b7",
+      "out": "8dce67c53740ecad",
+      "mode": "manual"
+    },
+    "checkout.splFoldHint": {
+      "src": "dbd0d51e58775a40",
+      "out": "dbabade59051e6bb",
+      "mode": "manual"
+    },
+    "checkout.splFoldedBadge": {
+      "src": "ecec39d77115bb97",
+      "out": "a7dc98969f3dc905",
+      "mode": "manual"
     }
   }
 }

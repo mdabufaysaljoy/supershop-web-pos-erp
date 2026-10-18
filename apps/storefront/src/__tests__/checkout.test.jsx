@@ -129,6 +129,7 @@ function setup(handler, { fields = [], cart = CART, methods = [METHOD.cod] } = {
 const fill = async () => {
   await userEvent.type(screen.getByLabelText(/^Full name/), 'Sara Ali');
   await userEvent.type(screen.getByLabelText(/^Mobile number/), '0512345678');
+  await userEvent.click(screen.getByRole('button', { name: /continue/i }));
   await userEvent.type(screen.getByLabelText(/^Street and building/), 'King Fahd Rd 12');
   await userEvent.type(screen.getByLabelText(/^City/), 'Riyadh');
 };
@@ -188,7 +189,7 @@ describe('checkout form', () => {
       { fields: FIELDS },
     );
     await screen.findByText('Oxford Shirt');
-    await userEvent.click(screen.getByRole('button', { name: 'Send my order' }));
+    await userEvent.click(screen.getByRole('button', { name: /continue/i }));
     expect(screen.getByLabelText(/^Full name/)).toHaveAttribute('aria-invalid', 'true');
     expect(posted(m)).toHaveLength(0);
 
@@ -243,6 +244,7 @@ describe('paying by card (P4.1)', () => {
   it('offers only the methods the shop can take, cash first', async () => {
     setup(() => json(404, {}), { methods: [METHOD.cod] });
     await screen.findByText('Oxford Shirt');
+    await fill();
     expect(screen.getByLabelText(/Cash payment on delivery/)).toBeChecked();
     expect(screen.queryByLabelText(/Card, Mada or Apple Pay/)).toBeNull();
   });
@@ -267,8 +269,8 @@ describe('paying by card (P4.1)', () => {
       { methods: [METHOD.cod, METHOD.card] },
     );
     await screen.findByText('Oxford Shirt');
-    await userEvent.click(screen.getByLabelText(/Card, Mada or Apple Pay/));
     await fill();
+    await userEvent.click(screen.getByLabelText(/Card, Mada or Apple Pay/));
     await userEvent.click(screen.getByRole('button', { name: 'Send my order' }));
 
     await waitFor(() => expect(assign).toHaveBeenCalledWith('https://pay.test/inv_1'));

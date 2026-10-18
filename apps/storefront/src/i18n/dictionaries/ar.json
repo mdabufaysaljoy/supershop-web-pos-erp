@@ -209,7 +209,16 @@
     },
     "buildingNumber": "رقم المبنى",
     "additionalNumber": "العدد الإضافي",
-    "methodFee": "+ {{amount}}"
+    "methodFee": "+ {{amount}}",
+    "step1Title": "بيانات الاتصال",
+    "step2Title": "التوصيل والدفع",
+    "continueToStep2": "المتابعة إلى التوصيل والدفع",
+    "backToStep1": "العودة إلى بيانات الاتصال",
+    "editContact": "تعديل",
+    "splNationalAddress": "العنوان الوطني السعودي · العنوان الوطني",
+    "splSubtitle": "الصيغة الرسمية لسبل (SPL) لتوصيل أسرع وأدق",
+    "splFoldHint": "انقر لفتح تفاصيل العنوان الوطني",
+    "splFoldedBadge": "اختياري · انقر للفتح"
   },
   "validation": {
     "required": "هذا المجال مطلوب.",

@@ -32,6 +32,11 @@ test.describe('Storefront Online Checkout Flow (P10.2)', () => {
       await emailInput.fill('faisal@example.com');
     }
 
+    const continueBtn = page.getByRole('button', { name: /continue/i });
+    if (await continueBtn.isVisible()) {
+      await continueBtn.click();
+    }
+
     const streetInput = page.locator('input[autocomplete="street-address"]');
     await streetInput.fill('Olaya Street, Building 42');
 

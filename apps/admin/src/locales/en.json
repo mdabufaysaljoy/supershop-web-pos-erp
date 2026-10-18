@@ -2405,5 +2405,96 @@
       "cancelled": "Cancelled",
       "failed": "Failed"
     }
+  },
+  "help": {
+    "title": "Help & Guidance",
+    "description": "Quick reference guides, POS keyboard shortcuts, and staff workflows.",
+    "buttonLabel": "Help & documentation",
+    "searchPlaceholder": "Search help topics, shortcuts, workflows...",
+    "clearSearch": "Clear search",
+    "noResults": "No help topics match your search query.",
+    "allTopics": "All Topics",
+    "openUserGuide": "Open Full User Guide",
+    "userGuideNote": "Comprehensive single-file system manual located at docs/ADMIN_USER_GUIDE.md",
+    "shortcutColKey": "Key",
+    "shortcutColAction": "Action",
+    "quickLinks": "Quick Links",
+    "closeHelp": "Close help",
+    "topics": {
+      "pos": {
+        "title": "POS Counter Sales & Shortcuts",
+        "badge": "Counter",
+        "description": "Fast till operations, keyboard shortcuts, barcode scanning, and split payments.",
+        "p1": "Cashiers can scan barcodes directly with any USB or Bluetooth keyboard-wedge scanner. Product lookups query the current branch inventory with live pricing.",
+        "p2": "Discounts require pos.discount permission and are capped at the store maximum limit. Price overrides require pos.priceOverride permission.",
+        "p3": "Split tenders allow combining Cash, Card/Mada, and Store Credit. Overpaid cash calculates exact change due to return from the drawer."
+      },
+      "shifts": {
+        "title": "Cashier Shifts & Cash Management",
+        "badge": "Shifts",
+        "description": "Shift opening float, paid-in/paid-out movements, discrepancy thresholds, and Z-Reports.",
+        "p1": "Each cashier opens one active shift with an initial cash float before processing sales.",
+        "p2": "Mid-shift cash additions (Paid In) and expenses (Paid Out) require a documented reason for audit compliance.",
+        "p3": "If closing counted cash differs from expected cash by more than the allowed discrepancy limit, a manager with shift.view permission must review and authorize the close.",
+        "p4": "Closing a shift generates an immutable Z-Report with a sequential Z-number, permanently snapshotting all shift metrics."
+      },
+      "returns": {
+        "title": "Returns, Exchanges & Credit Notes",
+        "badge": "Returns",
+        "description": "Restocking items, damaged write-offs, exchange value rules, and loyalty clawbacks.",
+        "p1": "Items returned in good condition are set to restock (re-added to sellable branch stock). Damaged items are booked as a return and immediate write-off.",
+        "p2": "Exchanges require that total replacement value equals or exceeds return credit. The customer settles any remaining difference.",
+        "p3": "Partial returns pro-rate discounts and VAT, taking the exact remaining balance on the final item to guarantee zero-halala drift.",
+        "p4": "When an order with awarded loyalty points is refunded, the points earned on the refunded amount are automatically reversed."
+      },
+      "orders": {
+        "title": "Order Fulfillment & Lifecycle",
+        "badge": "Orders",
+        "description": "Omnichannel status flow, tracking parcels, shipments, and printable tax invoices.",
+        "p1": "Online and counter orders transition through standardized lifecycle states: Pending → Paid → Processing → Shipped → Completed.",
+        "p2": "Adding a shipment with carrier and tracking number marks the order shipped and notifies the customer.",
+        "p3": "Every invoice and receipt includes a ZATCA Phase-1 compliant TLV QR code when the 15-digit Saudi VAT number is configured."
+      },
+      "inventory": {
+        "title": "Stock Ledger & Adjustments",
+        "badge": "Inventory",
+        "description": "Append-only transactions, branch transfers, purchase orders, and stock-out alerts.",
+        "p1": "Stock is managed through an append-only ledger. Inventory movements are immutable records.",
+        "p2": "Branch transfers deduct stock from the source branch upon dispatch and add stock to the destination branch upon receipt.",
+        "p3": "Stock-out forecasts flag items with <= 3 days of remaining inventory as critical and recommend reorder quantities."
+      },
+      "barcodes": {
+        "title": "Barcode Standards & Symbology",
+        "badge": "Catalog",
+        "description": "GS1 restricted prefixes 20–29, Code 128 symbology, and thermal label printing.",
+        "p1": "In-store products use GS1 restricted-circulation prefixes (20–29) with sequential check digits.",
+        "p2": "Alphanumeric SKUs and external barcodes print in Code 128 format automatically.",
+        "p3": "Barcode labels can be previewed live and printed directly to thermal label printers via QZ Tray."
+      },
+      "translations": {
+        "title": "Arabic Translations & Overrides",
+        "badge": "i18n",
+        "description": "Automated translation pipeline, protected glossary terms, and manual overrides.",
+        "p1": "All products, categories, pages, and marketing campaigns auto-translate to Arabic upon save.",
+        "p2": "Protected brand names are registered in the glossary as never-translate terms to prevent accidental literal translation.",
+        "p3": "Storefront UI strings can be reviewed and overridden with custom Arabic translations in Settings → Languages without a code deploy."
+      },
+      "exports": {
+        "title": "Universal Background Exports",
+        "badge": "Exports",
+        "description": "Asynchronous Excel/CSV reports, formula injection defense, and secure private download links.",
+        "p1": "Exports for orders, products, customers, and inventory run asynchronously in the background via BullMQ.",
+        "p2": "CSV exports include UTF-8 Byte Order Marks (BOM) for Excel Arabic compatibility and prefix dangerous formula characters (=, +, -, @) to prevent injection.",
+        "p3": "Download links remain privately accessible for 24 hours before automatic expiration."
+      }
+    },
+    "shortcuts": {
+      "f2": "Focus barcode and search input",
+      "f4": "Jump to payment tender input",
+      "enter": "Add selected search item or submit sale",
+      "esc": "Clear search query or dismiss dialog",
+      "scanner": "USB/Bluetooth scanner automatically scans into the till without clicking",
+      "ctrlP": "Print receipt or invoice"
+    }
   }
 }

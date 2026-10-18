@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, Outlet } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { HelpDrawer } from '@/components/help/HelpDrawer';
 import { useAccessSync } from '@/features/auth/hooks';
 import { SidebarNav } from './SidebarNav';
 import { UserMenu } from './UserMenu';
@@ -48,7 +49,8 @@ export function AppLayout() {
               </div>
             </SheetContent>
           </Sheet>
-          <div className="ms-auto">
+          <div className="ms-auto flex items-center gap-2">
+            <HelpDrawer />
             <UserMenu />
           </div>
         </header>

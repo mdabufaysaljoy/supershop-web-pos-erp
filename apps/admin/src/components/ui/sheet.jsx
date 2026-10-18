@@ -8,16 +8,20 @@ export const SheetTrigger = D.Trigger;
 export const SheetTitle = ({ className, ...props }) => (
   <D.Title className={cn('sr-only', className)} {...props} />
 );
+export const SheetDescription = ({ className, ...props }) => (
+  <D.Description className={cn('sr-only', className)} {...props} />
+);
 
-export function SheetContent({ className, children, closeLabel, ...props }) {
+export function SheetContent({ className, children, closeLabel, side = 'start', ...props }) {
   return (
     <D.Portal>
       <D.Overlay className="fixed inset-0 z-50 bg-black/50" />
       <D.Content
         aria-describedby={undefined}
         className={cn(
-          'fixed inset-y-0 start-0 z-50 flex h-full w-72 flex-col border-e bg-sidebar shadow-lg outline-none',
-          className,
+          'fixed inset-y-0 z-50 flex h-full flex-col bg-sidebar shadow-lg outline-none',
+          side === 'end' ? 'end-0 border-s' : 'start-0 border-e',
+          className || 'w-72',
         )}
         {...props}
       >

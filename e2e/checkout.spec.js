@@ -56,6 +56,8 @@ test.describe('Storefront Online Checkout Flow (P10.2)', () => {
 
     // 7. Verify order confirmation page
     await page.waitForURL(/.*confirmation.*/, { timeout: 15_000 });
-    await expect(page.locator('body')).toContainText(/order/i);
+    await expect(page.locator('body')).not.toContainText(/find that order/i);
+    await expect(page.locator('body')).toContainText(/Thank you for your order/i);
+    await expect(page.locator('body')).toContainText(/ORD-\d+/);
   });
 });

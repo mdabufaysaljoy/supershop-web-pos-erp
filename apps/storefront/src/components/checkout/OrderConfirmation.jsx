@@ -18,22 +18,31 @@ import { trackPurchase } from '@/lib/tracking';
 export function OrderConfirmation({ token, fmtOptions }) {
   const t = useT();
   const lang = useLang();
+  const activeToken =
+    token ||
+    (typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('token')
+      : null);
   const { reload } = useCart();
   const fmt = useMemo(() => createFormatters(fmtOptions), [fmtOptions]);
   const [state, setState] = useState({ order: null, error: null });
   const trackedOrder = useRef(null);
+  const reloadRef = useRef(reload);
+  useEffect(() => {
+    reloadRef.current = reload;
+  }, [reload]);
 
   useEffect(() => {
     let alive = true;
-    if (!token) {
+    if (!activeToken) {
       setState({ order: null, error: 'missing' }); // eslint-disable-line react-hooks/set-state-in-effect -- no token in the URL
       return () => {};
     }
-    checkoutRequest('GET', `/confirmation?token=${encodeURIComponent(token)}`, { lang })
+    checkoutRequest('GET', `/confirmation?token=${encodeURIComponent(activeToken)}`, { lang })
       .then((order) => {
         if (!alive) return;
         setState({ order, error: null });
-        void reload(); // the cart is empty now
+        void reloadRef.current?.(); // the cart is empty now
 
         if (order && trackedOrder.current !== order.orderNo) {
           trackedOrder.current = order.orderNo;
@@ -56,15 +65,32 @@ export function OrderConfirmation({ token, fmtOptions }) {
     return () => {
       alive = false;
     };
-  }, [token, lang, reload]);
+  }, [activeToken, lang]);
 
   if (state.error) {
+    const isRateLimited = state.error === 'RATE_LIMITED';
     return (
-      <div className="grid justify-items-center gap-3 rounded-xl border border-dashed p-12 text-center">
-        <p className="text-lg font-medium">{t('checkout.confirmation.notFound')}</p>
-        <Link href={localizePath('/', lang)} className="text-sm underline underline-offset-4">
-          {t('notFound.back')}
-        </Link>
+      <div className="mx-auto max-w-lg grid justify-items-center gap-3 rounded-2xl border border-dashed border-border/80 bg-card/60 p-12 text-center shadow-xs">
+        <p className="text-lg font-bold text-foreground">
+          {isRateLimited ? t('cart.errors.generic') : t('checkout.confirmation.notFound')}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-3">
+          {isRateLimited && (
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all"
+            >
+              {t('checkout.confirmation.payment.retry')}
+            </button>
+          )}
+          <Link
+            href={localizePath('/', lang)}
+            className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-6 text-sm font-medium hover:bg-muted transition-colors"
+          >
+            {t('notFound.back')}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -88,12 +114,12 @@ export function OrderConfirmation({ token, fmtOptions }) {
 
   return (
     <div className="grid gap-8">
-      <PaymentState order={o} token={token} />
-      <div className="grid justify-items-center gap-2 rounded-2xl bg-muted px-6 py-10 text-center">
-        <span className="grid size-12 place-items-center rounded-full bg-emerald-600 text-primary-foreground">
+      <PaymentState order={o} token={activeToken} />
+      <div className="grid justify-items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-50/50 p-8 md:p-10 text-center dark:bg-emerald-950/20 shadow-xs">
+        <span className="grid size-14 place-items-center rounded-2xl bg-emerald-600 text-white shadow-xs">
           <svg
             viewBox="0 0 24 24"
-            className="size-6"
+            className="size-7"
             aria-hidden
             fill="none"
             stroke="currentColor"
@@ -102,27 +128,34 @@ export function OrderConfirmation({ token, fmtOptions }) {
             <path d="m5 12 5 5L20 7" />
           </svg>
         </span>
-        <h1 className="text-2xl font-semibold">{t('checkout.confirmation.title')}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {t('checkout.confirmation.title')}
+        </h1>
+        <p className="max-w-md text-sm text-muted-foreground">
           {t('checkout.confirmation.body', { email: o.customer.email || o.customer.phone })}
         </p>
-        <p className="mt-2 text-lg font-semibold" dir="ltr">
-          {o.orderNo}
-        </p>
+        <div className="mt-1 inline-flex items-center gap-2 rounded-lg border border-border/70 bg-background/80 px-4 py-1.5 shadow-2xs">
+          <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+            Order
+          </span>
+          <span className="text-base font-bold text-foreground tabular-nums" dir="ltr">
+            {o.orderNo}
+          </span>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <section
-          className="grid content-start gap-3 rounded-xl border p-5"
+          className="grid content-start gap-4 rounded-2xl border border-border/80 bg-card p-6 shadow-xs"
           aria-labelledby="items-heading"
         >
-          <h2 id="items-heading" className="font-semibold">
+          <h2 id="items-heading" className="text-base font-bold text-foreground">
             {t('checkout.confirmation.items')}
           </h2>
-          <ul className="grid gap-2 text-sm">
+          <ul className="grid gap-2.5 text-sm">
             {o.items.map((i) => (
               <li key={i.variantId} className="flex justify-between gap-3">
-                <span>
+                <span className="text-foreground">
                   {i.name}
                   {i.options.length > 0 && (
                     <span className="text-muted-foreground">
@@ -132,32 +165,34 @@ export function OrderConfirmation({ token, fmtOptions }) {
                   )}
                   <span className="text-muted-foreground"> × {fmt.number(i.qty)}</span>
                 </span>
-                <span className="tabular-nums">{fmt.money(i.lineTotal)}</span>
+                <span className="font-semibold tabular-nums text-foreground">
+                  {fmt.money(i.lineTotal)}
+                </span>
               </li>
             ))}
           </ul>
-          <dl className="grid gap-1.5 border-t pt-3 text-sm">
+          <dl className="grid gap-2 border-t border-border/60 pt-4 text-sm">
             {line(t('cart.subtotal'), fmt.money(o.totals.subtotal))}
             {line(
               t('checkout.delivery'),
               o.totals.deliveryFee ? fmt.money(o.totals.deliveryFee) : t('checkout.freeDelivery'),
             )}
             {line(t('checkout.confirmation.vat'), fmt.money(o.totals.vat))}
-            <div className="flex justify-between gap-4 border-t pt-2 text-base font-semibold">
-              <dt>{t('cart.total')}</dt>
-              <dd className="tabular-nums">{fmt.money(o.totals.total)}</dd>
+            <div className="flex justify-between gap-4 border-t border-border/80 pt-3 text-base font-bold">
+              <dt className="text-foreground">{t('cart.total')}</dt>
+              <dd className="tabular-nums text-foreground">{fmt.money(o.totals.total)}</dd>
             </div>
           </dl>
         </section>
 
         <section
-          className="grid content-start gap-3 rounded-xl border p-5"
+          className="grid content-start gap-4 rounded-2xl border border-border/80 bg-card p-6 shadow-xs"
           aria-labelledby="delivery-heading"
         >
-          <h2 id="delivery-heading" className="font-semibold">
+          <h2 id="delivery-heading" className="text-base font-bold text-foreground">
             {t('checkout.confirmation.delivery')}
           </h2>
-          <dl className="grid gap-1.5 text-sm">
+          <dl className="grid gap-2 text-sm">
             {line(t('checkout.name'), o.customer.name)}
             {line(t('checkout.phone'), <span dir="ltr">{o.customer.phone}</span>)}
             {line(t('checkout.email'), o.customer.email)}
@@ -171,17 +206,17 @@ export function OrderConfirmation({ token, fmtOptions }) {
             {line(t('checkout.note'), o.note)}
           </dl>
           <p className="text-sm text-muted-foreground">{t('checkout.confirmation.next')}</p>
-          <div className="mt-2 flex flex-wrap gap-3">
+          <div className="mt-3 flex flex-wrap gap-3">
             <Link
               href={localizePath('/search', lang)}
-              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all"
             >
               {t('checkout.confirmation.keepShopping')}
             </Link>
             {/* Only the order number travels in the link — the phone is typed on the page (§5.1). */}
             <Link
               href={`${localizePath('/track', lang)}?order=${encodeURIComponent(o.orderNo)}`}
-              className="inline-flex h-11 items-center justify-center rounded-full border px-6 text-sm font-medium"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-6 text-sm font-semibold hover:bg-muted transition-colors"
             >
               {t('track.linkLabel')}
             </Link>

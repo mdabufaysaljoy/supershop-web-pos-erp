@@ -3,7 +3,7 @@ import { getPageContext } from '@/lib/page';
 import { buildMetadata } from '@/lib/seo';
 
 /** Thank-you page; the order is loaded in the browser from the link's token. Never indexed. */
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
   const { lang } = await params;

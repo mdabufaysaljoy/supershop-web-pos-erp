@@ -76,6 +76,8 @@ export function CartProvider({ fmtOptions, children }) {
     void run('GET', ''); // eslint-disable-line react-hooks/set-state-in-effect -- external fetch
   }, [run]);
 
+  const reload = useCallback(() => run('GET', ''), [run]);
+
   const value = useMemo(
     () => ({
       cart,
@@ -88,7 +90,7 @@ export function CartProvider({ fmtOptions, children }) {
       open,
       setOpen,
       count: cart?.totals.itemCount ?? 0,
-      reload: () => run('GET', ''),
+      reload,
       /** Adds and (unless `open: false`, e.g. Buy now) opens the mini-cart. */
       add: async (variantId, qty = 1, { open: openAfter = true } = {}) => {
         const res = await run('POST', '/items', { variantId, qty });
@@ -127,7 +129,7 @@ export function CartProvider({ fmtOptions, children }) {
         return res;
       },
     }),
-    [cart, fmt, pending, saving, error, open, run],
+    [cart, fmt, pending, saving, error, open, reload, run],
   );
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

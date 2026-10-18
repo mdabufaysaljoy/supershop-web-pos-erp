@@ -88,35 +88,35 @@ export function AddressFields({ value, onChange, error }) {
       </div>
 
       {/* Saudi National Address (العنوان الوطني / SPL) */}
-      <div className="rounded-2xl border border-emerald-600/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-4 sm:p-5 transition-all shadow-xs">
+      <div className="rounded-2xl border-2 border-emerald-600/40 bg-emerald-50/70 p-4 sm:p-5 transition-all shadow-xs">
         <button
           type="button"
           onClick={() => setOpenNational((o) => !o)}
           aria-expanded={openNational}
-          className="flex w-full items-center justify-between gap-3 text-start transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 rounded-xl cursor-pointer"
+          className="flex w-full items-center justify-between gap-3 text-start transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 rounded-xl cursor-pointer"
         >
           <div className="flex items-center gap-3">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-base shadow-xs select-none">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-800 text-white text-base shadow-xs select-none">
               🇸🇦
             </span>
             <div>
-              <p className="text-xs sm:text-sm font-extrabold uppercase tracking-wide text-emerald-950 dark:text-emerald-100 group-hover:text-emerald-800 transition-colors">
+              <p className="text-xs sm:text-sm font-black uppercase tracking-wide text-emerald-950 group-hover:text-emerald-800 transition-colors">
                 {t('checkout.splNationalAddress')}
               </p>
-              <p className="text-[11px] font-medium text-emerald-800/80 dark:text-emerald-300/80">
+              <p className="text-[11px] font-semibold text-emerald-800">
                 {t('checkout.splSubtitle')}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {!openNational && (
-              <span className="hidden sm:inline-flex items-center rounded-full bg-emerald-600/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-900 dark:text-emerald-200 border border-emerald-600/20">
+              <span className="hidden sm:inline-flex items-center rounded-lg bg-emerald-800 text-white px-2.5 py-0.5 text-[11px] font-bold shadow-2xs">
                 {t('checkout.splFoldedBadge')}
               </span>
             )}
             <span
-              className={`flex size-7 items-center justify-center rounded-full bg-emerald-600/10 text-emerald-900 dark:text-emerald-200 transition-transform duration-200 ${
-                openNational ? 'rotate-180 bg-emerald-600/20' : ''
+              className={`flex size-7 items-center justify-center rounded-lg bg-emerald-800 text-white transition-transform duration-200 shadow-2xs ${
+                openNational ? 'rotate-180 bg-emerald-900' : ''
               }`}
               aria-hidden="true"
             >
@@ -136,7 +136,7 @@ export function AddressFields({ value, onChange, error }) {
         </button>
 
         {openNational && (
-          <div className="mt-4 pt-4 border-t border-emerald-600/20 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 pt-4 border-t border-emerald-600/30 grid gap-4 sm:grid-cols-2 text-emerald-950 [&_label]:font-bold [&_label]:text-emerald-950 [&_label]:text-xs [&_label]:uppercase [&_label]:tracking-wider [&_p]:text-emerald-800 [&_p]:font-medium [&_p]:text-xs">
             <FormField
               label={t('checkout.shortAddress')}
               description={t('checkout.shortAddressHint')}
@@ -148,7 +148,7 @@ export function AddressFields({ value, onChange, error }) {
                 placeholder="e.g. RRRD2929"
                 value={value.shortAddress}
                 onChange={(e) => onChange({ shortAddress: e.target.value.toUpperCase() })}
-                className="h-11 rounded-xl font-mono uppercase tracking-wider border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+                className="h-11 rounded-xl font-mono uppercase tracking-wider border-emerald-600/50 bg-white text-emerald-950 placeholder:text-muted-foreground/60 focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-700/20 transition-all text-sm font-semibold shadow-2xs"
               />
             </FormField>
 
@@ -161,7 +161,7 @@ export function AddressFields({ value, onChange, error }) {
                 placeholder="5 digits (e.g. 12211)"
                 value={value.postalCode}
                 onChange={(e) => onChange({ postalCode: e.target.value })}
-                className="h-11 rounded-xl font-mono border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+                className="h-11 rounded-xl font-mono border-emerald-600/50 bg-white text-emerald-950 placeholder:text-muted-foreground/60 focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-700/20 transition-all text-sm font-semibold shadow-2xs"
               />
             </FormField>
 
@@ -173,7 +173,7 @@ export function AddressFields({ value, onChange, error }) {
                 placeholder="4 digits (e.g. 7234)"
                 value={value.buildingNumber}
                 onChange={(e) => onChange({ buildingNumber: e.target.value })}
-                className="h-11 rounded-xl font-mono border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+                className="h-11 rounded-xl font-mono border-emerald-600/50 bg-white text-emerald-950 placeholder:text-muted-foreground/60 focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-700/20 transition-all text-sm font-semibold shadow-2xs"
               />
             </FormField>
 
@@ -185,7 +185,7 @@ export function AddressFields({ value, onChange, error }) {
                 placeholder="4 digits (e.g. 2938)"
                 value={value.additionalNumber}
                 onChange={(e) => onChange({ additionalNumber: e.target.value })}
-                className="h-11 rounded-xl font-mono border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+                className="h-11 rounded-xl font-mono border-emerald-600/50 bg-white text-emerald-950 placeholder:text-muted-foreground/60 focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-700/20 transition-all text-sm font-semibold shadow-2xs"
               />
             </FormField>
           </div>

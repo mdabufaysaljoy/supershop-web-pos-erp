@@ -16,11 +16,12 @@ export const PAYMENT_METHOD = Object.freeze({
    *  - `cod`      collect on delivery
    *  - `offline`  the customer pays another way and the shop confirms it (transfer, at the branch)
    *  - `cash`     handed over at the counter (P6.1) — the only kind that can be overpaid
+   *  - `mfs`      mobile financial services / digital wallet (bKash, Nagad, STC Pay, Urpay)
    */
-  TYPES: Object.freeze(['gateway', 'cod', 'offline', 'cash']),
+  TYPES: Object.freeze(['gateway', 'cod', 'offline', 'cash', 'mfs']),
   /** What may be chosen where: a website cannot take cash, a counter cannot use a payment page. */
-  ONLINE_TYPES: Object.freeze(['gateway', 'cod', 'offline']),
-  POS_TYPES: Object.freeze(['cash', 'offline']),
+  ONLINE_TYPES: Object.freeze(['gateway', 'cod', 'offline', 'mfs']),
+  POS_TYPES: Object.freeze(['cash', 'offline', 'mfs']),
   /** Only cash can be overpaid, with the difference handed back as change. */
   CHANGE_TYPES: Object.freeze(['cash']),
   /** Keys the shop cannot delete: the ones checkout and the till know how to finish themselves. */
@@ -78,7 +79,7 @@ export function createPaymentMethodSchemas() {
       .object({
         ...fields,
         key: slug.refine((v) => !PAYMENT_METHOD.BUILT_IN.includes(v), { error: V.ALREADY_EXISTS }),
-        type: z.literal('offline', { error: V.INVALID_TYPE }).default('offline'),
+        type: z.enum(['offline', 'mfs'], { error: V.INVALID_TYPE }).default('offline'),
       })
       .strict()
       .refine((v) => v.maxTotal == null || v.minTotal == null || v.maxTotal > v.minTotal, {
@@ -86,7 +87,11 @@ export function createPaymentMethodSchemas() {
         path: ['maxTotal'],
       }),
     update: z
-      .object({ ...fields, label: fields.label.optional() })
+      .object({
+        ...fields,
+        label: fields.label.optional(),
+        type: z.enum(['offline', 'mfs'], { error: V.INVALID_TYPE }).optional(),
+      })
       .strict()
       .refine((v) => Object.values(v).some((x) => x !== undefined), { error: V.REQUIRED })
       .refine((v) => v.maxTotal == null || v.minTotal == null || v.maxTotal > v.minTotal, {
@@ -97,6 +102,7 @@ export function createPaymentMethodSchemas() {
     reorder: z.object({ ids: z.array(objectId).min(1).max(50) }).strict(),
     publicQuery: z.object({
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
+      channel: z.enum(['online', 'pos'], { error: V.INVALID_TYPE }).optional(),
     }),
   };
 }

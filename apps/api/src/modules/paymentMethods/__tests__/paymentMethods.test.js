@@ -129,6 +129,25 @@ describe('custom methods', () => {
     expect((await root.del(`${BASE}/${created.id}`)).status).toBe(204);
     expect(await byKey('bank-transfer')).toBeUndefined();
   });
+
+  it('adds an MFS payment method and offers it at POS and online', async () => {
+    const mfs = {
+      key: 'bkash',
+      type: 'mfs',
+      label: 'bKash',
+      instructions: 'Pay to merchant wallet 01700000000',
+    };
+    const created = await ok(await root.post(BASE, mfs), 201);
+    expect(created).toMatchObject({ key: 'bkash', type: 'mfs', builtIn: false });
+
+    // Available for POS sales
+    const posMethods = await publicList('?channel=pos');
+    expect(posMethods.map((m) => m.key)).toContain('bkash');
+
+    // Also available for online checkout
+    const onlineMethods = await publicList('?channel=online');
+    expect(onlineMethods.map((m) => m.key)).toContain('bkash');
+  });
 });
 
 describe('ordering', () => {

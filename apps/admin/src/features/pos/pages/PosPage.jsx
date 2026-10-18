@@ -12,7 +12,7 @@ import { PaymentPanel } from '../components/PaymentPanel';
 import { SaleLines } from '../components/SaleLines';
 import { ShiftBar } from '../components/ShiftBar';
 import { TillSearch } from '../components/TillSearch';
-import { useSell } from '../resource';
+import { usePosPaymentMethods, useSell } from '../resource';
 import { useSale } from '../useSale';
 
 /**
@@ -30,6 +30,7 @@ export function PosPage() {
   const [online, setOnline] = useState(true);
   const [showHeld, setShowHeld] = useState(false);
   const sell = useSell();
+  const posMethods = usePosPaymentMethods();
   const printing = usePrintingStatus();
   const printReceipt = usePrintReceipt();
 
@@ -57,7 +58,11 @@ export function PosPage() {
     };
   }, []);
 
-  const methods = useMemo(() => sale.priced?.methods ?? [], [sale.priced]);
+  const methods = useMemo(() => {
+    if (sale.priced?.methods && sale.priced.methods.length > 0) return sale.priced.methods;
+    if (posMethods.data && posMethods.data.length > 0) return posMethods.data;
+    return [];
+  }, [sale.priced?.methods, posMethods.data]);
   const total = sale.totals?.total ?? 0;
   const subtotal = sale.priced?.totals?.subtotal ?? sale.totals?.subtotal ?? total;
   const unsure = sale.stale || !online;

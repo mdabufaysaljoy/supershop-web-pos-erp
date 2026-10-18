@@ -165,7 +165,7 @@ export async function createMethod(input, ctx = {}) {
   const position = (await repo.countAll()) + 1;
   const created = await repo.insert({
     key: input.key,
-    type: 'offline',
+    type: input.type ?? 'offline',
     label: { [SOURCE_LANGUAGE]: input.label },
     instructions: { [SOURCE_LANGUAGE]: input.instructions ?? '' },
     enabled: input.enabled ?? true,
@@ -186,6 +186,7 @@ export async function updateMethod(id, patch, ctx = {}) {
     if (patch.label !== undefined) doc.set(`label.${SOURCE_LANGUAGE}`, patch.label);
     if (patch.instructions !== undefined)
       doc.set(`instructions.${SOURCE_LANGUAGE}`, patch.instructions);
+    if (patch.type !== undefined && !doc.builtIn) doc.type = patch.type;
     if (patch.enabled !== undefined) doc.enabled = patch.enabled;
     if (patch.fee !== undefined) doc.fee = { fixed: patch.fee.fixed ?? 0, bps: patch.fee.bps ?? 0 };
     if (patch.iconId !== undefined) doc.iconId = patch.iconId;

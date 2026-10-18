@@ -47,6 +47,9 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
       data: { enabled: false, autoPrintReceipt: true, configured: false },
     }),
     'GET /api/v1/pos/search': json(200, { data: [SHIRT] }),
+    'GET /api/v1/payment-methods/public': json(200, {
+      data: [{ key: 'cash', type: 'cash', label: 'Cash' }],
+    }),
     'POST /api/v1/pos/quote': ({ init }) => {
       const body = JSON.parse(init.body);
       const qty = body.items.reduce((n, i) => n + i.qty, 0);
@@ -172,6 +175,53 @@ describe('taking the money', () => {
     expect(call.init.headers['Idempotency-Key']).toMatch(/[\w-]{8,}/);
     expect(await screen.findByText(/POS-000001/)).toBeInTheDocument();
     expect(screen.getByText('Nothing in the basket yet. Scan something.')).toBeInTheDocument();
+  });
+
+  it('allows walk-in customer to tender with an MFS payment method and transaction reference', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        'GET /api/v1/payment-methods/public': json(200, {
+          data: [
+            { key: 'cash', type: 'cash', label: 'Cash' },
+            { key: 'bkash', type: 'mfs', label: 'bKash' },
+          ],
+        }),
+        'POST /api/v1/pos/quote': () =>
+          json(200, {
+            data: {
+              ...quoteFor(1, 11_500),
+              methods: [
+                { key: 'cash', type: 'cash', label: 'Cash' },
+                { key: 'bkash', type: 'mfs', label: 'bKash' },
+              ],
+            },
+          }),
+        'POST /api/v1/pos/sales': json(201, {
+          data: {
+            orderNo: 'POS-000002',
+            totals: { total: 11_500 },
+            changeGiven: 0,
+            payments: [{ method: 'bkash', amount: 11_500, reference: 'TRX-12345' }],
+          },
+        }),
+      },
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    // Click the MFS button (+ bKash)
+    await user.click(await screen.findByRole('button', { name: /bKash/i }));
+    // Tender list now has bKash
+    expect(screen.getAllByText('bKash').length).toBeGreaterThanOrEqual(2);
+
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    const call = m.calls.filter((c) => c.key === 'POST /api/v1/pos/sales').at(-1);
+    expect(JSON.parse(call.init.body)).toMatchObject({
+      payments: [{ method: 'bkash', amount: 11_500 }],
+      customer: { mode: 'walkin' },
+    });
   });
 
   it('will not complete a sale that is not covered', async () => {

@@ -220,6 +220,32 @@ describe('ringing a sale up', () => {
     expect(res.body.error.details[0].path).toBe('payments.0.method');
   });
 
+  it('allows a walk-in customer to pay via MFS payment method with transaction reference', async () => {
+    await ok(
+      await root.post('/api/v1/payment-methods', {
+        key: 'bkash',
+        type: 'mfs',
+        label: 'bKash',
+        instructions: 'Merchant wallet 01700000000',
+      }),
+      201,
+    );
+    const sale = await ok(
+      await till().sell(
+        basket({
+          customer: { mode: 'walkin' },
+          payments: [{ method: 'bkash', amount: 11_500, reference: 'TRX998877' }],
+        }),
+      ),
+      201,
+    );
+    expect(sale.payments).toMatchObject([
+      { method: 'bkash', label: 'bKash', amount: 11_500, reference: 'TRX998877' },
+    ]);
+    expect(sale.payment.method).toBe('bkash');
+    expect(sale.customer.name).toBe('Walk-in customer');
+  });
+
   it('sells the same basket once, however often the till retries', async () => {
     const body = basket();
     const first = await ok(await till().sell(body, 'till-1-abc12345'), 201);

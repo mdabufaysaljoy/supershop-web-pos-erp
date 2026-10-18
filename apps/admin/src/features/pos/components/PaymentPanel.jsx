@@ -53,6 +53,7 @@ export function PaymentPanel({
 
   const [method, setMethod] = useState(null);
   const [amount, setAmount] = useState('');
+  const [reference, setReference] = useState('');
   const [discountType, setDiscountType] = useState('amount');
   const [customerOpen, setCustomerOpen] = useState(false);
 
@@ -62,14 +63,20 @@ export function PaymentPanel({
   const add = (value) => {
     const paid = value ?? halalasTender(amount);
     if (!paid) return;
-    onChange([...payments, { method: chosen, amount: paid }]);
+    const item = { method: chosen, amount: paid };
+    if (reference.trim()) item.reference = reference.trim();
+    onChange([...payments, item]);
     setAmount('');
+    setReference('');
   };
 
   const addWithMethod = (methodKey) => {
     const dueAmount = tender.due > 0 ? tender.due : total;
     if (dueAmount > 0) {
-      onChange([...payments, { method: methodKey, amount: dueAmount }]);
+      const item = { method: methodKey, amount: dueAmount };
+      if (reference.trim()) item.reference = reference.trim();
+      onChange([...payments, item]);
+      setReference('');
     }
   };
 
@@ -213,10 +220,17 @@ export function PaymentPanel({
                 key={`${payment.method}-${index}`}
                 className="flex items-center justify-between text-xs py-1"
               >
-                <span className="font-medium text-slate-700 capitalize">
-                  {methods.find((m) => m.key === payment.method)?.label ?? payment.method}
-                </span>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col min-w-0">
+                  <span className="font-medium text-slate-700 capitalize">
+                    {methods.find((m) => m.key === payment.method)?.label ?? payment.method}
+                  </span>
+                  {payment.reference && (
+                    <span className="text-[10px] text-slate-500 font-mono truncate">
+                      Ref: {payment.reference}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
                   <span className="font-bold tabular-nums text-slate-900">
                     {fmt.money(payment.amount)}
                   </span>
@@ -281,6 +295,23 @@ export function PaymentPanel({
           </Button>
         </div>
 
+        {/* Optional Reference / Trx ID Input for MFS & counter transfers */}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={reference}
+            placeholder={t('pos.payment.referencePlaceholder', 'Trx ID / Mobile ref (optional)')}
+            className="h-8 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary/20 transition-all font-mono"
+            onChange={(e) => setReference(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                add();
+              }
+            }}
+          />
+        </div>
+
         {/* Exact Amount Helper */}
         {tender.due > 0 && (
           <Button
@@ -294,10 +325,10 @@ export function PaymentPanel({
           </Button>
         )}
 
-        {/* Saudi Split Payment Quick Buttons */}
+        {/* Quick Payment Split Buttons */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-slate-500 font-medium">{t('pos.split', 'Split:')}</span>
-          {SAUDI_SPLIT_METHODS.map((m) => (
+          {(methods.length > 0 ? methods : SAUDI_SPLIT_METHODS).map((m) => (
             <button
               key={m.key}
               type="button"

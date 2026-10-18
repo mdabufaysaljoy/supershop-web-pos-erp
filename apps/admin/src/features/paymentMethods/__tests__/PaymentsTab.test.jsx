@@ -159,6 +159,23 @@ describe('Settings → Payments', () => {
     });
   });
 
+  it('adds an MFS payment method using a quick preset', async () => {
+    const user = userEvent.setup();
+    const m = setup(['settings.view', 'settings.payments'], {
+      'POST /api/v1/payment-methods': ({ init }) =>
+        json(201, { data: { ...METHODS[0], id: 'm4', ...JSON.parse(init.body) } }),
+    });
+    await screen.findByText('Add your own method');
+    await user.click(screen.getByRole('button', { name: /\+ bKash/ }));
+    await user.click(screen.getByRole('button', { name: 'Add method' }));
+    await waitFor(() => expect(m.count('POST /api/v1/payment-methods')).toBe(1));
+    expect(bodyOf(m, 'POST /api/v1/payment-methods')).toMatchObject({
+      type: 'mfs',
+      key: 'bkash',
+      label: 'bKash',
+    });
+  });
+
   it('read-only staff can look but not touch', async () => {
     setup(['settings.view']);
     await screen.findByText('Cash payment on delivery');

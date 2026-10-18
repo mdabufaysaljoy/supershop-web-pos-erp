@@ -8,9 +8,12 @@ const ctxOf = (req) => ({ requestId: req.id === undefined ? undefined : String(r
 
 export const publicList = (isGatewayReady) => async (req, res) => {
   const lang = requestLanguage(req, req.valid.query?.lang);
+  const channel = req.valid.query?.channel ?? 'online';
   res.set('Cache-Control', 'public, max-age=60');
   res.set('Vary', 'Accept-Language, Cookie');
-  sendData(res, await service.availableMethods({ isGatewayReady, lang }), { meta: { lang } });
+  sendData(res, await service.availableMethods({ isGatewayReady, lang, channel }), {
+    meta: { lang },
+  });
 };
 
 export const list = async (_req, res) => sendData(res, await service.listMethods());

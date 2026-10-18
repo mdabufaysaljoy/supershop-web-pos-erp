@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArabicPreview } from '@/components/ArabicPreview';
-import { Badge, Checkbox } from '@/features/settings/components/controls';
+import { Badge, Checkbox, Select } from '@/features/settings/components/controls';
 import { fieldMessage } from '@/lib/i18n';
 import { useDeleteMethod, useUpdateMethod } from '../hooks';
 
@@ -28,6 +28,7 @@ export function MethodRow({ method, canEdit, first, last, onMove }) {
   const edit = draft ?? {
     label: method.label?.en ?? '',
     instructions: method.instructions?.en ?? '',
+    type: method.type ?? 'offline',
     feeFixed: fromMinor(method.fee?.fixed ?? 0),
     feePercent: String((method.fee?.bps ?? 0) / 100),
     minTotal: method.minTotal == null ? '' : fromMinor(method.minTotal),
@@ -47,6 +48,7 @@ export function MethodRow({ method, canEdit, first, last, onMove }) {
   const body = () => ({
     label: edit.label,
     instructions: edit.instructions,
+    ...(method.builtIn ? {} : { type: edit.type }),
     fee: {
       fixed: minor(edit.feeFixed, 0),
       bps: Math.round(Number(edit.feePercent || 0) * 100),
@@ -120,6 +122,36 @@ export function MethodRow({ method, canEdit, first, last, onMove }) {
 
       {open && (
         <div className="grid gap-4 border-t p-4">
+          {!method.builtIn && (
+            <FormField
+              label={t('payments.methods.type', 'Method Type')}
+              description={t(
+                'payments.methods.typeHelp',
+                'Choose MFS or offline/manual collection.',
+              )}
+              error={fieldMessage(t, errors.type)}
+            >
+              <Select
+                value={edit.type}
+                disabled={!canEdit}
+                onChange={(e) => set({ type: e.target.value })}
+              >
+                <option value="mfs">
+                  {t(
+                    'payments.methods.types.mfs',
+                    'MFS (Mobile Financial Services / Digital Wallet)',
+                  )}
+                </option>
+                <option value="offline">
+                  {t(
+                    'payments.methods.types.offline',
+                    'Collected by you (Bank Transfer, Counter, Offline)',
+                  )}
+                </option>
+              </Select>
+            </FormField>
+          )}
+
           <FormField
             label={t('payments.methods.label')}
             description={t('payments.methods.labelHelp')}

@@ -1423,10 +1423,18 @@
       "saved": "Payment method saved.",
       "deleted": "Payment method deleted.",
       "confirmDelete": "Delete “{{name}}”? Orders already placed keep their copy.",
+      "type": "Method type",
+      "typeHelp": "Choose MFS (Mobile Financial Services) or offline / manual collection.",
       "types": {
         "gateway": "Online payment",
         "cod": "Cash on delivery",
-        "offline": "Collected by you"
+        "offline": "Collected by you",
+        "cash": "Cash at counter",
+        "mfs": "MFS / Mobile Wallet"
+      },
+      "presets": {
+        "title": "Quick MFS presets",
+        "hint": "Click a preset to quickly fill details for common mobile financial services"
       }
     },
     "gateway": {
@@ -2016,6 +2024,8 @@
       "total": "To pay",
       "method": "Paying with",
       "amount": "Amount",
+      "reference": "Reference / Trx ID",
+      "referencePlaceholder": "Trx ID / Mobile ref (optional)",
       "add": "Add",
       "exact": "Exact amount ({{amount}})",
       "paid": "Tendered",

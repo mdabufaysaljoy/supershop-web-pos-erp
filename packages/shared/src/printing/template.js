@@ -87,7 +87,9 @@ export function receiptData(
       lineTotal: money(item.lineTotal),
     })),
     payments: (order.payments ?? []).map((payment) => ({
-      label: payment.label ?? payment.method,
+      label: payment.reference
+        ? `${payment.label ?? payment.method} (${payment.reference})`
+        : (payment.label ?? payment.method),
       amount: money(payment.amount),
     })),
     /** Set by the caller for a tax invoice (P6.4 fills it with the ZATCA TLV). */

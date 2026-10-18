@@ -37,9 +37,24 @@ describe('Database Ops Scripts (P10.3)', () => {
       process.env.TEST_REAL_MONGO_URI ||
       'mongodb://127.0.0.1:27017/supershop?directConnection=true';
 
+    // In environments without mongodump installed or real Mongo running (e.g. CI),
+    // provide a lightweight mock binary that writes a valid gzip archive.
+    const mockBinDir = path.join(TEST_BACKUP_DIR, 'mock-bin');
+    fs.mkdirSync(mockBinDir, { recursive: true });
+
+    if (!process.env.TEST_REAL_MONGO_URI) {
+      const mockDumpPath = path.join(mockBinDir, 'mongodump');
+      fs.writeFileSync(
+        mockDumpPath,
+        '#!/usr/bin/env bash\nfor arg in "$@"; do case "$arg" in --archive=*) arch="${arg#--archive=}"; echo "mock-mongo-archive" | gzip > "$arch" ;; esac; done\nexit 0\n',
+        { mode: 0o755 },
+      );
+    }
+
     const output = execSync(`"${BACKUP_SCRIPT}"`, {
       env: {
         ...process.env,
+        PATH: `${mockBinDir}:${process.env.PATH}`,
         MONGO_URI: mongoUri,
         BACKUP_DIR: TEST_BACKUP_DIR,
         RETENTION_DAYS: '1',

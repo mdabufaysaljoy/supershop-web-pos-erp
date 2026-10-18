@@ -340,4 +340,5 @@ export function mountModuleRoutes(api) {
   api.use('/purchase-orders', createPurchaseOrderRouter());
   api.use('/analytics', createAnalyticsRouter());
   api.use('/dashboard', createAnalyticsRouter());
+  api.use('/reports', createAnalyticsRouter());
 }

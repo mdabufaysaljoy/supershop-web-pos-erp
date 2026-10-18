@@ -273,6 +273,49 @@
       "empty": "No recent orders"
     }
   },
+  "reports": {
+    "title": "Performance Reports",
+    "subtitle": "Analyze sales, revenue, and margins across staff, products, categories, brands, branches, and channels.",
+    "exportCsv": "Export CSV",
+    "topPerformers": "Top Performers by {{dimension}}",
+    "tableTitle": "Performance Breakdown: {{dimension}}",
+    "noData": "No performance data found for the selected range and filters",
+    "errorLoading": "Failed to load performance metrics",
+    "retry": "Retry",
+    "dimensions": {
+      "product": "Product",
+      "category": "Category",
+      "brand": "Brand",
+      "staff": "Staff",
+      "branch": "Branch",
+      "channel": "Channel"
+    },
+    "metrics": {
+      "totalRevenue": "Total Revenue",
+      "netSales": "Net Sales",
+      "unitsSold": "Units Sold",
+      "totalOrders": "Total Orders",
+      "aov": "Average Order Value",
+      "totalProfit": "Total Profit",
+      "margin": "Margin",
+      "revenue": "Revenue",
+      "units": "Units"
+    },
+    "columns": {
+      "name": "Name",
+      "code": "Code / SKU",
+      "orders": "Orders",
+      "units": "Units",
+      "revenue": "Gross Revenue",
+      "revenueSar": "Gross Revenue (SAR)",
+      "net": "Net Sales",
+      "netSar": "Net Sales (SAR)",
+      "share": "Sales Share",
+      "profit": "Gross Profit",
+      "profitSar": "Gross Profit (SAR)",
+      "margin": "Margin %"
+    }
+  },
   "settings": {
     "title": "Settings",
     "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",

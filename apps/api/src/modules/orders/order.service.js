@@ -744,3 +744,60 @@ export async function getDashboardOrderStats({
     paymentMethods,
   };
 }
+
+/**
+ * Performance report statistics by dimension (P8.2).
+ */
+export async function getPerformanceReportStats({
+  dimension = 'product',
+  start,
+  end,
+  branchId = null,
+  limit = 50,
+  sortBy = 'revenue',
+  sortDir = 'desc',
+  includeCost = false,
+}) {
+  const matchFilter = {
+    status: { $ne: 'cancelled' },
+    placedAt: { $gte: start, $lte: end },
+  };
+  if (branchId) {
+    matchFilter.branchId = oid(branchId);
+  }
+
+  let items = [];
+  switch (dimension) {
+    case 'staff':
+      items = await repo.getPerformanceByStaff(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'category':
+      items = await repo.getPerformanceByCategory(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'brand':
+      items = await repo.getPerformanceByBrand(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'branch':
+      items = await repo.getPerformanceByBranch(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'channel':
+      items = await repo.getPerformanceByChannel(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'product':
+    default:
+      items = await repo.getPerformanceByProduct(matchFilter, {
+        limit,
+        sortBy,
+        sortDir,
+        includeCost,
+      });
+      break;
+  }
+
+  const totals = await repo.getOrdersAggregate(matchFilter);
+
+  return {
+    items,
+    totals,
+  };
+}

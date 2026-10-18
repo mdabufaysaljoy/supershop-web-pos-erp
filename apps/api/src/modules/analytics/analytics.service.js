@@ -1,7 +1,12 @@
-import { calculateDeltaPercent, ORDER_FLOW, resolveAnalyticsPeriod } from '@supershop/shared';
+import {
+  calculateDeltaPercent,
+  ORDER_FLOW,
+  PERMISSIONS,
+  resolveAnalyticsPeriod,
+} from '@supershop/shared';
 import { countNewCustomers } from '../customers/index.js';
 import { getInventoryHealth } from '../inventory/index.js';
-import { getDashboardOrderStats } from '../orders/index.js';
+import { getDashboardOrderStats, getPerformanceReportStats } from '../orders/index.js';
 
 /**
  * Fills zero-order buckets in time-series data so charts have an unbroken axis.
@@ -176,5 +181,104 @@ export async function getDashboardOverview(actor, { range = '7d', branchId = nul
     topProducts: ordersData.topProducts,
     recentOrders: ordersData.recentOrders,
     paymentMethods: ordersData.paymentMethods,
+  };
+}
+
+/**
+ * Generates a performance report breakdown for a specific dimension (P8.2).
+ */
+export async function getPerformanceReport(
+  actor,
+  {
+    dimension = 'product',
+    range = '7d',
+    branchId = null,
+    limit = 50,
+    sortBy = 'revenue',
+    sortDir = 'desc',
+    now,
+  } = {},
+) {
+  if (branchId) {
+    actor.assertBranch(branchId);
+  }
+
+  let effectiveBranchId = branchId;
+  if (!effectiveBranchId && !actor.allBranches) {
+    effectiveBranchId = actor.branchIds?.[0] ?? null;
+  }
+
+  const period = resolveAnalyticsPeriod({ range, now });
+  const { start, end } = period;
+
+  const includeCost = actor.can(PERMISSIONS.PRODUCT_VIEW_COST);
+
+  const stats = await getPerformanceReportStats({
+    dimension,
+    start,
+    end,
+    branchId: effectiveBranchId,
+    limit,
+    sortBy,
+    sortDir,
+    includeCost,
+  });
+
+  const { items, totals } = stats;
+  const totalRevenue = totals.totalSales ?? 0;
+  const totalNet = totals.netSales ?? 0;
+  const totalOrders = totals.ordersCount ?? 0;
+  const totalUnits = totals.itemsSold ?? 0;
+
+  let totalCost = 0;
+  let totalProfit = 0;
+
+  const enrichedItems = items.map((item, index) => {
+    const sharePercent =
+      totalRevenue > 0 ? Number(((item.revenue / totalRevenue) * 100).toFixed(1)) : 0;
+    if (includeCost && typeof item.cost === 'number') {
+      totalCost += item.cost;
+      totalProfit += item.profit ?? 0;
+    }
+    return {
+      rank: index + 1,
+      ...item,
+      sharePercent,
+    };
+  });
+
+  const summary = {
+    totalRevenue,
+    totalNet,
+    totalOrders,
+    totalUnits,
+    averageOrderValue: totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0,
+  };
+
+  if (includeCost && dimension === 'product') {
+    summary.totalCost = totalCost;
+    summary.totalProfit = totalProfit;
+    summary.overallMargin = totalNet > 0 ? Number(((totalProfit / totalNet) * 100).toFixed(1)) : 0;
+  }
+
+  const chart = enrichedItems.slice(0, 10).map((i) => ({
+    name: i.name,
+    revenue: i.revenue,
+    quantity: i.quantity,
+    ordersCount: i.ordersCount,
+    sharePercent: i.sharePercent,
+  }));
+
+  return {
+    dimension,
+    range,
+    period: {
+      start,
+      end,
+    },
+    branchId: effectiveBranchId,
+    summary,
+    items: enrichedItems,
+    chart,
   };
 }

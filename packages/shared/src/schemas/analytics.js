@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 export const ANALYTICS = Object.freeze({
   RANGES: Object.freeze(['today', '7d', '30d', '90d', 'year']),
+  DIMENSIONS: Object.freeze(['staff', 'product', 'category', 'brand', 'branch', 'channel']),
+  SORT_FIELDS: Object.freeze(['revenue', 'quantity', 'orders', 'name', 'profit']),
 });
 
 /**
@@ -94,7 +96,17 @@ export function createAnalyticsSchemas() {
     branchId: z.string().trim().optional().nullable(),
   });
 
+  const performanceQuery = z.object({
+    dimension: z.enum(ANALYTICS.DIMENSIONS).default('product'),
+    range: z.enum(ANALYTICS.RANGES).default('7d'),
+    branchId: z.string().trim().optional().nullable(),
+    limit: z.coerce.number().int().min(1).max(200).default(50),
+    sortBy: z.enum(ANALYTICS.SORT_FIELDS).default('revenue'),
+    sortDir: z.enum(['asc', 'desc']).default('desc'),
+  });
+
   return {
     dashboardQuery,
+    performanceQuery,
   };
 }

@@ -23,5 +23,12 @@ export function createAnalyticsRouter({ schemas = defaultSchemas } = {}) {
     c.getDashboard,
   );
 
+  r.get(
+    '/performance',
+    requirePermission(P.REPORT_VIEW),
+    validate({ query: schemas.performanceQuery }),
+    c.getPerformance,
+  );
+
   return r;
 }

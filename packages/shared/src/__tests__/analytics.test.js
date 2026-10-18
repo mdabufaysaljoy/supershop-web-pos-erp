@@ -7,12 +7,20 @@ import {
 } from '../index.js';
 
 describe('Analytics Shared Contracts (P8.1)', () => {
-  it('exports valid range constants', () => {
+  it('exports valid range and dimension constants', () => {
     expect(ANALYTICS.RANGES).toEqual(['today', '7d', '30d', '90d', 'year']);
+    expect(ANALYTICS.DIMENSIONS).toEqual([
+      'staff',
+      'product',
+      'category',
+      'brand',
+      'branch',
+      'channel',
+    ]);
   });
 
   it('validates query schema with defaults and valid ranges', () => {
-    const { dashboardQuery } = createAnalyticsSchemas();
+    const { dashboardQuery, performanceQuery } = createAnalyticsSchemas();
 
     const empty = dashboardQuery.parse({});
     expect(empty.range).toBe('7d');
@@ -23,6 +31,30 @@ describe('Analytics Shared Contracts (P8.1)', () => {
     expect(withBranch.branchId).toBe('br-123');
 
     expect(() => dashboardQuery.parse({ range: 'invalid' })).toThrow();
+
+    // Performance query defaults
+    const perfDefault = performanceQuery.parse({});
+    expect(perfDefault.dimension).toBe('product');
+    expect(perfDefault.range).toBe('7d');
+    expect(perfDefault.sortBy).toBe('revenue');
+    expect(perfDefault.sortDir).toBe('desc');
+    expect(perfDefault.limit).toBe(50);
+
+    // Performance query custom
+    const perfCustom = performanceQuery.parse({
+      dimension: 'staff',
+      range: '30d',
+      branchId: 'b1',
+      limit: 10,
+      sortBy: 'orders',
+      sortDir: 'asc',
+    });
+    expect(perfCustom.dimension).toBe('staff');
+    expect(perfCustom.sortBy).toBe('orders');
+    expect(perfCustom.sortDir).toBe('asc');
+    expect(perfCustom.limit).toBe(10);
+
+    expect(() => performanceQuery.parse({ dimension: 'unknown' })).toThrow();
   });
 
   it('resolves date periods correctly for different ranges', () => {

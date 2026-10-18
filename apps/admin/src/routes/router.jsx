@@ -25,6 +25,7 @@ import { ProductEditorPage } from '@/features/products/pages/ProductEditorPage';
 import { ProductsPage } from '@/features/products/pages/ProductsPage';
 import { PurchaseOrderEditorPage } from '@/features/purchaseOrders/pages/PurchaseOrderEditorPage';
 import { PurchaseOrdersPage } from '@/features/purchaseOrders/pages/PurchaseOrdersPage';
+import { ReportsPage } from '@/features/reports/pages/ReportsPage';
 import { ReturnsPage } from '@/features/returns/pages/ReturnsPage';
 import { SuppliersPage } from '@/features/suppliers/pages/SuppliersPage';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
@@ -57,6 +58,7 @@ const PAGES = {
   '/media': <MediaLibraryPage />,
   '/campaigns': <CampaignsPage />,
   '/settings': <SettingsPage />,
+  '/reports': <ReportsPage />,
 };
 
 /** Sub-pages of a menu section: `{ path, permission, element }` (matched before `:id`). */

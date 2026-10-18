@@ -305,3 +305,441 @@ export async function getPaymentMethodsBreakdown(matchFilter) {
     total: r.total,
   }));
 }
+
+export async function getPerformanceByProduct(
+  matchFilter,
+  { limit = 50, sortBy = 'revenue', sortDir = 'desc', includeCost = false } = {},
+) {
+  const pipeline = [{ $match: matchFilter }, { $unwind: '$items' }];
+
+  if (includeCost) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'variants',
+          localField: 'items.variantId',
+          foreignField: '_id',
+          as: 'variantDoc',
+        },
+      },
+      {
+        $addFields: {
+          itemCost: {
+            $multiply: ['$items.qty', { $ifNull: [{ $arrayElemAt: ['$variantDoc.cost', 0] }, 0] }],
+          },
+        },
+      },
+    );
+  }
+
+  const groupStage = {
+    $group: {
+      _id: '$items.productId',
+      name: { $first: '$items.name' },
+      sku: { $first: '$items.sku' },
+      imageUrl: { $first: '$items.imageUrl' },
+      quantity: { $sum: '$items.qty' },
+      revenue: { $sum: '$items.lineTotal' },
+      net: { $sum: '$items.net' },
+      orders: { $addToSet: '$_id' },
+    },
+  };
+
+  if (includeCost) {
+    groupStage.$group.cost = { $sum: '$itemCost' };
+  }
+
+  pipeline.push(groupStage);
+
+  const projectStage = {
+    $project: {
+      _id: 1,
+      name: 1,
+      sku: 1,
+      imageUrl: 1,
+      quantity: 1,
+      revenue: 1,
+      net: 1,
+      ordersCount: { $size: '$orders' },
+    },
+  };
+
+  if (includeCost) {
+    projectStage.$project.cost = 1;
+    projectStage.$project.profit = { $subtract: ['$net', '$cost'] };
+  }
+
+  pipeline.push(projectStage);
+
+  const sortField =
+    sortBy === 'quantity'
+      ? 'quantity'
+      : sortBy === 'orders'
+        ? 'ordersCount'
+        : sortBy === 'name'
+          ? 'name'
+          : sortBy === 'profit' && includeCost
+            ? 'profit'
+            : 'revenue';
+  const sortDirection = sortDir === 'asc' ? 1 : -1;
+
+  pipeline.push({ $sort: { [sortField]: sortDirection, revenue: -1 } });
+  pipeline.push({ $limit: limit });
+
+  const rows = await Order.aggregate(pipeline);
+  return rows.map((r) => {
+    const item = {
+      id: String(r._id),
+      name: r.name,
+      sku: r.sku,
+      imageUrl: r.imageUrl ?? null,
+      quantity: r.quantity,
+      revenue: r.revenue,
+      net: r.net,
+      ordersCount: r.ordersCount,
+    };
+    if (includeCost) {
+      item.cost = r.cost ?? 0;
+      item.profit = r.profit ?? 0;
+      item.marginPercent = r.net > 0 ? Number(((item.profit / r.net) * 100).toFixed(1)) : 0;
+    }
+    return item;
+  });
+}
+
+export async function getPerformanceByStaff(
+  matchFilter,
+  { limit = 50, sortBy = 'revenue', sortDir = 'desc' } = {},
+) {
+  const sortField =
+    sortBy === 'quantity'
+      ? 'quantity'
+      : sortBy === 'orders'
+        ? 'ordersCount'
+        : sortBy === 'name'
+          ? 'name'
+          : 'revenue';
+  const sortDirection = sortDir === 'asc' ? 1 : -1;
+
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: '$staffId',
+        ordersCount: { $sum: 1 },
+        revenue: { $sum: '$totals.total' },
+        net: { $sum: '$totals.net' },
+        quantity: { $sum: '$totals.itemCount' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'staff',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'staffDoc',
+      },
+    },
+    { $unwind: { path: '$staffDoc', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        name: { $ifNull: ['$staffDoc.name', 'Online / Unassigned'] },
+        email: '$staffDoc.email',
+        ordersCount: 1,
+        revenue: 1,
+        net: 1,
+        quantity: 1,
+        averageOrderValue: {
+          $cond: [
+            { $gt: ['$ordersCount', 0] },
+            { $round: [{ $divide: ['$revenue', '$ordersCount'] }, 0] },
+            0,
+          ],
+        },
+      },
+    },
+    { $sort: { [sortField]: sortDirection, revenue: -1 } },
+    { $limit: limit },
+  ]);
+
+  return rows.map((r) => ({
+    id: r._id ? String(r._id) : null,
+    name: r.name,
+    email: r.email ?? null,
+    ordersCount: r.ordersCount,
+    revenue: r.revenue,
+    net: r.net,
+    quantity: r.quantity,
+    averageOrderValue: r.averageOrderValue,
+  }));
+}
+
+export async function getPerformanceByCategory(
+  matchFilter,
+  { limit = 50, sortBy = 'revenue', sortDir = 'desc' } = {},
+) {
+  const sortField =
+    sortBy === 'quantity'
+      ? 'quantity'
+      : sortBy === 'orders'
+        ? 'ordersCount'
+        : sortBy === 'name'
+          ? 'name'
+          : 'revenue';
+  const sortDirection = sortDir === 'asc' ? 1 : -1;
+
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    { $unwind: '$items' },
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'items.productId',
+        foreignField: '_id',
+        as: 'productDoc',
+      },
+    },
+    { $unwind: { path: '$productDoc', preserveNullAndEmptyArrays: true } },
+    { $unwind: { path: '$productDoc.categoryIds', preserveNullAndEmptyArrays: true } },
+    {
+      $group: {
+        _id: '$productDoc.categoryIds',
+        quantity: { $sum: '$items.qty' },
+        revenue: { $sum: '$items.lineTotal' },
+        net: { $sum: '$items.net' },
+        orders: { $addToSet: '$_id' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'categoryDoc',
+      },
+    },
+    { $unwind: { path: '$categoryDoc', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        name: { $ifNull: ['$categoryDoc.name.en', 'Uncategorized'] },
+        slug: '$categoryDoc.slug',
+        quantity: 1,
+        revenue: 1,
+        net: 1,
+        ordersCount: { $size: '$orders' },
+      },
+    },
+    { $sort: { [sortField]: sortDirection, revenue: -1 } },
+    { $limit: limit },
+  ]);
+
+  return rows.map((r) => ({
+    id: r._id ? String(r._id) : null,
+    name: r.name,
+    slug: r.slug ?? null,
+    quantity: r.quantity,
+    revenue: r.revenue,
+    net: r.net,
+    ordersCount: r.ordersCount,
+  }));
+}
+
+export async function getPerformanceByBrand(
+  matchFilter,
+  { limit = 50, sortBy = 'revenue', sortDir = 'desc' } = {},
+) {
+  const sortField =
+    sortBy === 'quantity'
+      ? 'quantity'
+      : sortBy === 'orders'
+        ? 'ordersCount'
+        : sortBy === 'name'
+          ? 'name'
+          : 'revenue';
+  const sortDirection = sortDir === 'asc' ? 1 : -1;
+
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    { $unwind: '$items' },
+    {
+      $lookup: {
+        from: 'products',
+        localField: 'items.productId',
+        foreignField: '_id',
+        as: 'productDoc',
+      },
+    },
+    { $unwind: { path: '$productDoc', preserveNullAndEmptyArrays: true } },
+    {
+      $group: {
+        _id: '$productDoc.brandId',
+        quantity: { $sum: '$items.qty' },
+        revenue: { $sum: '$items.lineTotal' },
+        net: { $sum: '$items.net' },
+        orders: { $addToSet: '$_id' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'brands',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'brandDoc',
+      },
+    },
+    { $unwind: { path: '$brandDoc', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        name: { $ifNull: ['$brandDoc.name', 'No Brand'] },
+        slug: '$brandDoc.slug',
+        quantity: 1,
+        revenue: 1,
+        net: 1,
+        ordersCount: { $size: '$orders' },
+      },
+    },
+    { $sort: { [sortField]: sortDirection, revenue: -1 } },
+    { $limit: limit },
+  ]);
+
+  return rows.map((r) => ({
+    id: r._id ? String(r._id) : null,
+    name: r.name,
+    slug: r.slug ?? null,
+    quantity: r.quantity,
+    revenue: r.revenue,
+    net: r.net,
+    ordersCount: r.ordersCount,
+  }));
+}
+
+export async function getPerformanceByBranch(
+  matchFilter,
+  { limit = 50, sortBy = 'revenue', sortDir = 'desc' } = {},
+) {
+  const sortField =
+    sortBy === 'quantity'
+      ? 'quantity'
+      : sortBy === 'orders'
+        ? 'ordersCount'
+        : sortBy === 'name'
+          ? 'name'
+          : 'revenue';
+  const sortDirection = sortDir === 'asc' ? 1 : -1;
+
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: '$branchId',
+        ordersCount: { $sum: 1 },
+        revenue: { $sum: '$totals.total' },
+        net: { $sum: '$totals.net' },
+        quantity: { $sum: '$totals.itemCount' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'branches',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'branchDoc',
+      },
+    },
+    { $unwind: { path: '$branchDoc', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        name: { $ifNull: ['$branchDoc.name.en', 'HQ / Unassigned'] },
+        code: '$branchDoc.code',
+        ordersCount: 1,
+        revenue: 1,
+        net: 1,
+        quantity: 1,
+        averageOrderValue: {
+          $cond: [
+            { $gt: ['$ordersCount', 0] },
+            { $round: [{ $divide: ['$revenue', '$ordersCount'] }, 0] },
+            0,
+          ],
+        },
+      },
+    },
+    { $sort: { [sortField]: sortDirection, revenue: -1 } },
+    { $limit: limit },
+  ]);
+
+  return rows.map((r) => ({
+    id: r._id ? String(r._id) : null,
+    name: r.name,
+    code: r.code ?? null,
+    ordersCount: r.ordersCount,
+    revenue: r.revenue,
+    net: r.net,
+    quantity: r.quantity,
+    averageOrderValue: r.averageOrderValue,
+  }));
+}
+
+export async function getPerformanceByChannel(
+  matchFilter,
+  { limit = 50, sortBy = 'revenue', sortDir = 'desc' } = {},
+) {
+  const sortField =
+    sortBy === 'quantity'
+      ? 'quantity'
+      : sortBy === 'orders'
+        ? 'ordersCount'
+        : sortBy === 'name'
+          ? 'name'
+          : 'revenue';
+  const sortDirection = sortDir === 'asc' ? 1 : -1;
+
+  const rows = await Order.aggregate([
+    { $match: matchFilter },
+    {
+      $group: {
+        _id: '$channel',
+        ordersCount: { $sum: 1 },
+        revenue: { $sum: '$totals.total' },
+        net: { $sum: '$totals.net' },
+        quantity: { $sum: '$totals.itemCount' },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: {
+          $cond: [{ $eq: ['$_id', 'pos'] }, 'Point of Sale (POS)', 'Online Store'],
+        },
+        ordersCount: 1,
+        revenue: 1,
+        net: 1,
+        quantity: 1,
+        averageOrderValue: {
+          $cond: [
+            { $gt: ['$ordersCount', 0] },
+            { $round: [{ $divide: ['$revenue', '$ordersCount'] }, 0] },
+            0,
+          ],
+        },
+      },
+    },
+    { $sort: { [sortField]: sortDirection, revenue: -1 } },
+    { $limit: limit },
+  ]);
+
+  return rows.map((r) => ({
+    id: r._id,
+    channel: r._id,
+    name: r.name,
+    ordersCount: r.ordersCount,
+    revenue: r.revenue,
+    net: r.net,
+    quantity: r.quantity,
+    averageOrderValue: r.averageOrderValue,
+  }));
+}

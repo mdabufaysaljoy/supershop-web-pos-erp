@@ -23,6 +23,7 @@ export {
   getDashboardOrderStats,
   getOrderById,
   getOrderForStaff,
+  getPerformanceReportStats,
   setOrderShopProvider,
   setPaymentHooks,
   setPaymentMethodResolver,

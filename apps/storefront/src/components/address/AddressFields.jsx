@@ -32,81 +32,146 @@ export const toAddressForm = (address) => ({
 export function AddressFields({ value, onChange, error }) {
   const t = useT();
   return (
-    <>
+    <div className="space-y-4">
+      {/* Primary street address */}
       <FormField label={t('checkout.addressLine')} error={error('line1')} required>
-        <PlainTextInput
-          autoComplete="street-address"
-          maxLength={200}
-          placeholder={t('checkout.addressLinePlaceholder')}
-          value={value.line1}
-          onChange={(e) => onChange({ line1: e.target.value })}
-        />
+        <div className="relative">
+          <PlainTextInput
+            autoComplete="street-address"
+            maxLength={200}
+            placeholder={t('checkout.addressLinePlaceholder')}
+            value={value.line1}
+            onChange={(e) => onChange({ line1: e.target.value })}
+            className="h-11 rounded-xl ps-10 border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+          />
+          <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5 text-base select-none">
+            📍
+          </span>
+        </div>
       </FormField>
+
+      {/* City & District */}
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField label={t('checkout.city')} error={error('city')} required>
-          <PlainTextInput
-            autoComplete="address-level2"
-            maxLength={60}
-            value={value.city}
-            onChange={(e) => onChange({ city: e.target.value })}
-          />
+          <div className="relative">
+            <PlainTextInput
+              autoComplete="address-level2"
+              maxLength={60}
+              value={value.city}
+              onChange={(e) => onChange({ city: e.target.value })}
+              className="h-11 rounded-xl ps-10 border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+            />
+            <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5 text-base select-none">
+              🏙️
+            </span>
+          </div>
         </FormField>
         <FormField label={t('checkout.district')} error={error('district')}>
-          <PlainTextInput
-            maxLength={80}
-            value={value.district}
-            onChange={(e) => onChange({ district: e.target.value })}
-          />
-        </FormField>
-        <FormField label={t('checkout.postalCode')} error={error('postalCode')}>
-          <PlainTextInput
-            inputMode="numeric"
-            dir="ltr"
-            maxLength={5}
-            autoComplete="postal-code"
-            value={value.postalCode}
-            onChange={(e) => onChange({ postalCode: e.target.value })}
-          />
-        </FormField>
-        <FormField label={t('checkout.buildingNumber')} error={error('buildingNumber')}>
-          <PlainTextInput
-            inputMode="numeric"
-            dir="ltr"
-            maxLength={4}
-            value={value.buildingNumber}
-            onChange={(e) => onChange({ buildingNumber: e.target.value })}
-          />
-        </FormField>
-        <FormField label={t('checkout.additionalNumber')} error={error('additionalNumber')}>
-          <PlainTextInput
-            inputMode="numeric"
-            dir="ltr"
-            maxLength={4}
-            value={value.additionalNumber}
-            onChange={(e) => onChange({ additionalNumber: e.target.value })}
-          />
-        </FormField>
-        <FormField
-          label={t('checkout.shortAddress')}
-          description={t('checkout.shortAddressHint')}
-          error={error('shortAddress')}
-        >
-          <PlainTextInput
-            dir="ltr"
-            maxLength={8}
-            value={value.shortAddress}
-            onChange={(e) => onChange({ shortAddress: e.target.value })}
-          />
+          <div className="relative">
+            <PlainTextInput
+              maxLength={80}
+              value={value.district}
+              onChange={(e) => onChange({ district: e.target.value })}
+              className="h-11 rounded-xl ps-10 border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+            />
+            <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5 text-base select-none">
+              🏘️
+            </span>
+          </div>
         </FormField>
       </div>
+
+      {/* Saudi National Address (العنوان الوطني / SPL) */}
+      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-4 sm:p-5 transition-all">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/15 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-emerald-500/15 text-sm shadow-xs select-none">
+              🇸🇦
+            </span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+                Saudi National Address · العنوان الوطني
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                Official SPL format for faster, direct courier delivery
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+            SPL Standard
+          </span>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            label={t('checkout.shortAddress')}
+            description={t('checkout.shortAddressHint')}
+            error={error('shortAddress')}
+          >
+            <PlainTextInput
+              dir="ltr"
+              maxLength={8}
+              placeholder="e.g. RRRD2929"
+              value={value.shortAddress}
+              onChange={(e) => onChange({ shortAddress: e.target.value.toUpperCase() })}
+              className="h-11 rounded-xl font-mono uppercase tracking-wider border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+            />
+          </FormField>
+
+          <FormField label={t('checkout.postalCode')} error={error('postalCode')}>
+            <PlainTextInput
+              inputMode="numeric"
+              dir="ltr"
+              maxLength={5}
+              autoComplete="postal-code"
+              placeholder="5 digits (e.g. 12211)"
+              value={value.postalCode}
+              onChange={(e) => onChange({ postalCode: e.target.value })}
+              className="h-11 rounded-xl font-mono border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+            />
+          </FormField>
+
+          <FormField label={t('checkout.buildingNumber')} error={error('buildingNumber')}>
+            <PlainTextInput
+              inputMode="numeric"
+              dir="ltr"
+              maxLength={4}
+              placeholder="4 digits (e.g. 7234)"
+              value={value.buildingNumber}
+              onChange={(e) => onChange({ buildingNumber: e.target.value })}
+              className="h-11 rounded-xl font-mono border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+            />
+          </FormField>
+
+          <FormField label={t('checkout.additionalNumber')} error={error('additionalNumber')}>
+            <PlainTextInput
+              inputMode="numeric"
+              dir="ltr"
+              maxLength={4}
+              placeholder="4 digits (e.g. 2938)"
+              value={value.additionalNumber}
+              onChange={(e) => onChange({ additionalNumber: e.target.value })}
+              className="h-11 rounded-xl font-mono border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+            />
+          </FormField>
+        </div>
+      </div>
+
+      {/* Extra directions / Landmark */}
       <FormField label={t('checkout.landmark')} error={error('landmark')}>
-        <PlainTextInput
-          maxLength={200}
-          placeholder={t('checkout.landmarkPlaceholder')}
-          value={value.landmark}
-          onChange={(e) => onChange({ landmark: e.target.value })}
-        />
+        <div className="relative">
+          <PlainTextInput
+            maxLength={200}
+            placeholder={t('checkout.landmarkPlaceholder')}
+            value={value.landmark}
+            onChange={(e) => onChange({ landmark: e.target.value })}
+            className="h-11 rounded-xl ps-10 border-border/70 bg-background/60 focus:bg-background focus:border-primary transition-all text-sm"
+          />
+          <span className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5 text-base select-none">
+            🧭
+          </span>
+        </div>
       </FormField>
-    </>
+    </div>
   );
 }

@@ -40,12 +40,15 @@ export function AuthCard({ title, description, error, success, children }) {
   );
 }
 
-export function SubmitButton({ busy, label, busyLabel, disabled }) {
+export function SubmitButton({ busy, label, busyLabel, disabled, className }) {
   return (
     <button
       type="submit"
       disabled={busy || disabled}
-      className="h-11 rounded-full bg-primary text-sm font-medium text-primary-foreground disabled:opacity-60"
+      className={
+        className ||
+        'h-11 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 disabled:opacity-60 transition-all'
+      }
     >
       {busy ? busyLabel : label}
     </button>

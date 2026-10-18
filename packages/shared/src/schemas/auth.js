@@ -51,5 +51,23 @@ export function createAuthSchemas({ passwordPolicy, allowInternationalPhone = fa
     resetPassword: z.object({ token: oneTimeToken, password: newPassword }),
     changePassword: z.object({ currentPassword: loginPassword, newPassword }),
     verifyEmail: z.object({ token: oneTimeToken }),
+    twoFactorVerify: z.object({
+      code: z
+        .string({ error: V.REQUIRED })
+        .trim()
+        .min(6, { error: V.TOO_SHORT })
+        .max(32, { error: V.TOO_LONG }),
+    }),
+    twoFactorChallenge: z.object({
+      mfaToken: z.string({ error: V.REQUIRED }).trim().min(20, { error: V.CODE_INVALID }),
+      code: z
+        .string({ error: V.REQUIRED })
+        .trim()
+        .min(6, { error: V.TOO_SHORT })
+        .max(32, { error: V.TOO_LONG }),
+    }),
+    twoFactorDisable: z.object({
+      password: loginPassword,
+    }),
   };
 }

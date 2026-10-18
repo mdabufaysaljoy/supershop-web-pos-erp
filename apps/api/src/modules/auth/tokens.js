@@ -87,3 +87,55 @@ export function newOneTimeToken() {
 }
 
 export const hashOneTimeToken = (token) => sha256(token);
+
+const MFA_CHALLENGE_TTL_SEC = 300; // 5 minutes
+
+/**
+ * Signs a short-lived token returned during login when TOTP 2FA is required.
+ *
+ * @param {{ type: string, principalId: string }} p
+ * @returns {Promise<string>}
+ */
+export async function signMfaChallengeToken({ type, principalId }) {
+  const { audience } = policyFor(type);
+  return new SignJWT({ typ: 'mfa_challenge', ptyp: type })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(principalId)
+    .setIssuer(ISSUER)
+    .setAudience(audience)
+    .setIssuedAt()
+    .setExpirationTime(`${MFA_CHALLENGE_TTL_SEC}s`)
+    .sign(accessKey);
+}
+
+/**
+ * Verifies the MFA challenge token before accepting a TOTP / recovery code.
+ *
+ * @param {string} token
+ * @param {string} type expected principal type
+ * @returns {Promise<{ principalId: string, type: string }>}
+ */
+export async function verifyMfaChallengeToken(token, type) {
+  try {
+    const { payload } = await jwtVerify(token, accessKey, {
+      algorithms: ['HS256'],
+      issuer: ISSUER,
+      audience: policyFor(type).audience,
+      clockTolerance: 5,
+    });
+    if (
+      payload.typ !== 'mfa_challenge' ||
+      payload.ptyp !== type ||
+      typeof payload.sub !== 'string'
+    ) {
+      throw tokenError(ERROR_CODES.TOKEN_INVALID, 'Invalid MFA challenge token');
+    }
+    return { principalId: payload.sub, type };
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+    if (err instanceof joseErrors.JWTExpired) {
+      throw tokenError(ERROR_CODES.TOKEN_EXPIRED, 'MFA challenge expired, please log in again');
+    }
+    throw tokenError(ERROR_CODES.TOKEN_INVALID, 'Invalid MFA challenge token');
+  }
+}

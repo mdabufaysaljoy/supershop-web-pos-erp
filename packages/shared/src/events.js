@@ -17,6 +17,8 @@ export const EVENTS = Object.freeze({
   /** Payload carries the raw one-time `token`: subscribers may only put it in the email link. */
   AUTH_EMAIL_VERIFICATION_REQUESTED: 'auth.emailVerificationRequested',
   AUTH_EMAIL_VERIFIED: 'auth.emailVerified',
+  AUTH_2FA_ENABLED: 'auth.twoFactorEnabled',
+  AUTH_2FA_DISABLED: 'auth.twoFactorDisabled',
 
   // users
   STAFF_CREATED: 'staff.created',

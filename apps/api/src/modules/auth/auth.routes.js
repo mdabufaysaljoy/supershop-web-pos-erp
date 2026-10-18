@@ -53,6 +53,7 @@ export function createAuthRouter(
   ];
   const resetLimit = limiter('password-reset', LIMITS.passwordReset);
   const sensitiveLimit = limiter('sensitive', LIMITS.sensitive);
+  const twoFactorLimit = limiter('2fa', LIMITS.twoFactor);
 
   r.use((_req, res, next) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -70,6 +71,13 @@ export function createAuthRouter(
   r.post('/password/forgot', resetLimit, body('forgotPassword'), c.forgotPassword(type));
   r.post('/password/reset', resetLimit, body('resetPassword'), c.resetPassword(type));
   r.post('/password/change', auth, sensitiveLimit, body('changePassword'), c.changePassword(type));
+
+  // Two-factor authentication (TOTP + recovery codes)
+  r.post('/2fa/challenge', twoFactorLimit, body('twoFactorChallenge'), c.challenge2fa(type));
+  r.get('/2fa/status', auth, c.status2fa(type));
+  r.post('/2fa/setup', auth, sensitiveLimit, c.setup2fa(type));
+  r.post('/2fa/verify', auth, twoFactorLimit, body('twoFactorVerify'), c.verify2fa(type));
+  r.post('/2fa/disable', auth, sensitiveLimit, body('twoFactorDisable'), c.disable2fa(type));
 
   if (type === PRINCIPAL_TYPES.CUSTOMER) {
     r.post('/email/verify', sensitiveLimit, body('verifyEmail'), c.verifyEmail(type));

@@ -39,6 +39,20 @@ export function useLogin() {
   return useMutation({
     mutationFn: async (credentials) => {
       const data = await authApi.login(credentials);
+      if (data.mfaRequired) {
+        return data;
+      }
+      useAuthStore.getState().setAccessToken(data.accessToken);
+      await loadSession(data.accessToken);
+      return data;
+    },
+  });
+}
+
+export function useChallenge2fa() {
+  return useMutation({
+    mutationFn: async ({ mfaToken, code }) => {
+      const data = await authApi.challenge2fa({ mfaToken, code });
       useAuthStore.getState().setAccessToken(data.accessToken);
       await loadSession(data.accessToken);
       return data;

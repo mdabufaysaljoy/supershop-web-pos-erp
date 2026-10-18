@@ -24,11 +24,11 @@ export function sendSession(res, type, tokens, extra = {}, status = 200) {
 export const login = (type) => async (req, res) => {
   const { password, ...rest } = req.valid.body;
   const identifier = rest.email ?? rest.identifier;
-  const { profile, ...tokens } = await service.login(
-    type,
-    { identifier, password },
-    requestContext(req),
-  );
+  const result = await service.login(type, { identifier, password }, requestContext(req));
+  if (result.mfaRequired) {
+    return sendData(res, { mfaRequired: true, mfaToken: result.mfaToken });
+  }
+  const { profile, ...tokens } = result;
   sendSession(res, type, tokens, { profile });
 };
 
@@ -89,4 +89,41 @@ export const verifyEmail = (type) => async (req, res) => {
 export const resendVerification = (type) => async (req, res) => {
   await service.requestEmailVerification(type, req.auth.principalId, requestContext(req));
   sendData(res, { status: 'accepted' }, { status: 202 });
+};
+
+export const status2fa = (type) => async (req, res) => {
+  sendData(res, await service.get2faStatus(type, req.auth.principalId));
+};
+
+export const setup2fa = (type) => async (req, res) => {
+  sendData(res, await service.setup2fa(type, req.auth.principalId));
+};
+
+export const verify2fa = (type) => async (req, res) => {
+  const result = await service.verify2fa(
+    type,
+    req.auth.principalId,
+    req.valid.body.code,
+    requestContext(req),
+  );
+  sendData(res, result);
+};
+
+export const challenge2fa = (type) => async (req, res) => {
+  const { profile, ...tokens } = await service.challenge2fa(
+    type,
+    req.valid.body,
+    requestContext(req),
+  );
+  sendSession(res, type, tokens, { profile });
+};
+
+export const disable2fa = (type) => async (req, res) => {
+  const result = await service.disable2fa(
+    type,
+    req.auth.principalId,
+    req.valid.body.password,
+    requestContext(req),
+  );
+  sendData(res, result);
 };

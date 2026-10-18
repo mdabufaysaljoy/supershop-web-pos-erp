@@ -74,4 +74,5 @@ export const LIMITS = Object.freeze({
   oauth: { windowMs: 15 * MINUTE, limit: 30 }, // sign-in redirects per IP (P3.5)
   print: { windowMs: MINUTE, limit: 120 }, // QZ call signatures per staff member (P6.3)
   webhook: { windowMs: MINUTE, limit: 120 }, // gateway callbacks per IP (P4.1)
+  twoFactor: { windowMs: 15 * MINUTE, limit: 10 }, // TOTP verification / MFA challenge per IP
 });

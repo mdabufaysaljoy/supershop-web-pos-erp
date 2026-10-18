@@ -1,4 +1,5 @@
-import { LogOut, MonitorOff } from 'lucide-react';
+import { LogOut, MonitorOff, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { TwoFactorModal } from '@/features/auth/components/TwoFactorModal';
 import { useLogout } from '@/features/auth/hooks';
 import { useAuthStore } from '@/features/auth/store';
 
@@ -22,6 +24,7 @@ const initials = (name = '') =>
 
 export function UserMenu() {
   const { t } = useTranslation();
+  const [show2fa, setShow2fa] = useState(false);
   const profile = useAuthStore((s) => s.profile);
   const isSuperAdmin = useAuthStore((s) => s.access?.isSuperAdmin);
   const logout = useLogout();
@@ -30,33 +33,41 @@ export function UserMenu() {
   const leave = (m) => m.mutate();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-9 gap-2 px-2">
-          <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
-            {initials(profile?.name)}
-          </span>
-          <span className="hidden text-sm font-medium sm:inline">{profile?.name}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel className="grid gap-0.5">
-          <span>{profile?.name}</span>
-          <span className="text-xs font-normal text-muted-foreground">{profile?.email}</span>
-          {isSuperAdmin && (
-            <span className="text-xs font-normal text-muted-foreground">
-              {t('user.superAdmin')}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-9 gap-2 px-2">
+            <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">
+              {initials(profile?.name)}
             </span>
-          )}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => leave(logout)}>
-          <LogOut aria-hidden="true" /> {t('auth.signOut')}
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => leave(logoutAll)}>
-          <MonitorOff aria-hidden="true" /> {t('auth.signOutEverywhere')}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <span className="hidden text-sm font-medium sm:inline">{profile?.name}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel className="grid gap-0.5">
+            <span>{profile?.name}</span>
+            <span className="text-xs font-normal text-muted-foreground">{profile?.email}</span>
+            {isSuperAdmin && (
+              <span className="text-xs font-normal text-muted-foreground">
+                {t('user.superAdmin')}
+              </span>
+            )}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setShow2fa(true)}>
+            <ShieldCheck aria-hidden="true" /> {t('auth.twoFactorSecurity')}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => leave(logout)}>
+            <LogOut aria-hidden="true" /> {t('auth.signOut')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => leave(logoutAll)}>
+            <MonitorOff aria-hidden="true" /> {t('auth.signOutEverywhere')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <TwoFactorModal open={show2fa} onOpenChange={setShow2fa} />
+    </>
   );
 }

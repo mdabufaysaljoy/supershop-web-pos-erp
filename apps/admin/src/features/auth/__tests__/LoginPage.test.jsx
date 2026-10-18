@@ -89,4 +89,37 @@ describe('LoginPage', () => {
     });
     expect(m.calls[1].init.headers.Authorization).toBe('Bearer tok');
   });
+
+  it('handles MFA challenge requirement and completes two-factor verification', async () => {
+    mockFetch({
+      'POST /api/v1/auth/staff/login': json(200, {
+        data: { mfaRequired: true, mfaToken: 'mfa-challenge-jwt-token' },
+      }),
+      'POST /api/v1/auth/staff/2fa/challenge': json(200, {
+        data: { accessToken: 'tok-2fa', profile: { name: 'Sara 2FA' } },
+      }),
+      'GET /api/v1/auth/staff/me': json(200, { data: { name: 'Sara 2FA Admin' } }),
+      'GET /api/v1/staff/me/access': json(200, { data: { permissions: ['pos.sell'] } }),
+    });
+
+    const router = renderLogin('/login');
+    await fill('sara@shop.test', 'correct-horse-9');
+
+    // 2FA challenge form is rendered
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
+      'Two-factor authentication',
+    );
+    expect(screen.getByPlaceholderText('123456')).toBeInTheDocument();
+
+    // Enter 6-digit TOTP code and submit
+    await userEvent.type(screen.getByPlaceholderText('123456'), '654321');
+    await userEvent.click(screen.getByRole('button', { name: 'Verify & sign in' }));
+
+    await vi.waitFor(() => expect(router.state.location.pathname).toBe('/'));
+    expect(useAuthStore.getState()).toMatchObject({
+      status: 'authenticated',
+      accessToken: 'tok-2fa',
+      profile: { name: 'Sara 2FA Admin' },
+    });
+  });
 });

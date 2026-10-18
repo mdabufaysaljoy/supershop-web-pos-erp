@@ -18,6 +18,14 @@ const credentialSchema = new Schema(
     failedLoginCount: { type: Number, default: 0, min: 0 },
     lockedUntil: { type: Date, default: null },
     lastLoginAt: { type: Date, default: null },
+    twoFactor: {
+      enabled: { type: Boolean, default: false },
+      secretEncrypted: { type: String, default: null },
+      tempSecretEncrypted: { type: String, default: null },
+      tempSecretExpiresAt: { type: Date, default: null },
+      recoveryCodeHashes: { type: [String], default: [] },
+      enabledAt: { type: Date, default: null },
+    },
   },
   { collection: 'auth_credentials', timestamps: true },
 );

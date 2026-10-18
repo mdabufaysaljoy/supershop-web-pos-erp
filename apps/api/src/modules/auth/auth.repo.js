@@ -147,3 +147,53 @@ export const consumeAuthToken = (tokenHash, purpose, principalType) =>
     { $set: { usedAt: new Date() } },
     { returnDocument: 'after', lean: true },
   );
+
+// ---------- two-factor authentication ----------
+export const setTemp2faSecret = (id, tempSecretEncrypted, tempSecretExpiresAt) =>
+  Credential.updateOne(
+    { _id: id },
+    {
+      $set: {
+        'twoFactor.tempSecretEncrypted': tempSecretEncrypted,
+        'twoFactor.tempSecretExpiresAt': tempSecretExpiresAt,
+      },
+    },
+  );
+
+export const enable2fa = (id, secretEncrypted, recoveryCodeHashes) =>
+  Credential.updateOne(
+    { _id: id },
+    {
+      $set: {
+        'twoFactor.enabled': true,
+        'twoFactor.secretEncrypted': secretEncrypted,
+        'twoFactor.tempSecretEncrypted': null,
+        'twoFactor.tempSecretExpiresAt': null,
+        'twoFactor.recoveryCodeHashes': recoveryCodeHashes,
+        'twoFactor.enabledAt': new Date(),
+      },
+    },
+  );
+
+export const disable2fa = (id) =>
+  Credential.updateOne(
+    { _id: id },
+    {
+      $set: {
+        'twoFactor.enabled': false,
+        'twoFactor.secretEncrypted': null,
+        'twoFactor.tempSecretEncrypted': null,
+        'twoFactor.tempSecretExpiresAt': null,
+        'twoFactor.recoveryCodeHashes': [],
+        'twoFactor.enabledAt': null,
+      },
+    },
+  );
+
+export async function consumeRecoveryCode(id, codeHash) {
+  const res = await Credential.updateOne(
+    { _id: id, 'twoFactor.recoveryCodeHashes': codeHash },
+    { $pull: { 'twoFactor.recoveryCodeHashes': codeHash } },
+  );
+  return res.modifiedCount > 0;
+}

@@ -40,6 +40,8 @@ export const AUDIT_MAPPINGS = {
     data: { expiresAt: p.expiresAt },
   }),
   [EVENTS.AUTH_EMAIL_VERIFIED]: (p) => principal(p),
+  [EVENTS.AUTH_2FA_ENABLED]: (p) => principal(p),
+  [EVENTS.AUTH_2FA_DISABLED]: (p) => principal(p),
   [EVENTS.CUSTOMER_UPDATED]: (p) => ({
     ...staffActor(p),
     entityType: 'customer',

@@ -47,6 +47,11 @@ export const track = async (req, res) => {
   sendData(res, await service.trackOrder(req.valid.query));
 };
 
+export const publicReceipt = async (req, res) => {
+  privately(res);
+  sendData(res, await service.getPublicReceipt(req.valid.params.orderNo));
+};
+
 // ------------------------------------------------------------- P3.5 order history
 
 export const myOrders = async (req, res) => {

@@ -13,17 +13,34 @@ export function QrCode({ value, size = 128, margin = 2, title, className }) {
     matrix = null;
   }
   if (!matrix) return null;
-  const total = matrix.size + margin * 2;
+  const dim = matrix.length ?? matrix.size;
+  if (!dim) return null;
+  const total = dim + margin * 2;
   const cells = [];
-  for (let r = 0; r < matrix.size; r++) {
-    let c = 0;
-    while (c < matrix.size) {
-      if (matrix.modules[r * matrix.size + c]) {
-        const start = c;
-        while (c < matrix.size && matrix.modules[r * matrix.size + c]) c++;
-        cells.push({ x: start + margin, y: r + margin, w: c - start });
-      } else {
-        c++;
+  if (Array.isArray(matrix[0])) {
+    for (let r = 0; r < dim; r++) {
+      let c = 0;
+      while (c < dim) {
+        if (matrix[r][c]) {
+          const start = c;
+          while (c < dim && matrix[r][c]) c++;
+          cells.push({ x: start + margin, y: r + margin, w: c - start });
+        } else {
+          c++;
+        }
+      }
+    }
+  } else if (matrix.modules) {
+    for (let r = 0; r < dim; r++) {
+      let c = 0;
+      while (c < dim) {
+        if (matrix.modules[r * dim + c]) {
+          const start = c;
+          while (c < dim && matrix.modules[r * dim + c]) c++;
+          cells.push({ x: start + margin, y: r + margin, w: c - start });
+        } else {
+          c++;
+        }
       }
     }
   }

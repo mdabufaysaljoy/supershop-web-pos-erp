@@ -41,5 +41,11 @@ export function createCheckoutRouter({ schemas = createCheckoutSchemas() } = {})
     validate({ query: schemas.trackQuery }),
     c.track,
   );
+  r.get(
+    '/receipt/:orderNo',
+    createRateLimiter({ name: 'order-lookup', ...LIMITS.orderLookup }),
+    validate({ params: z.object({ orderNo: z.string().trim().min(3).max(64) }) }),
+    c.publicReceipt,
+  );
   return r;
 }

@@ -188,7 +188,7 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         break;
       case 'line':
         out.push(ESC, 0x61, 0);
-        line('-'.repeat(width));
+        line((command.char ?? '-').repeat(width));
         break;
       case 'qr':
         out.push(ESC, 0x61, ALIGN[command.align ?? 'center']);

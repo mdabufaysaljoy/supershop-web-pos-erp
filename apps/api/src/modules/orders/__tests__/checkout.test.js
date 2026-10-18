@@ -411,6 +411,19 @@ describe('idempotency and reading the order back', () => {
     expect((await request(app).get(`${CHECKOUT}/track?number=NOPE&phone=0512345678`)).status).toBe(
       400,
     );
+
+    // Digital sales receipt lookup (for thermal receipt QR code redirection)
+    const receipt = await ok(await request(app).get(`${CHECKOUT}/receipt/${order.orderNo}`));
+    expect(receipt).toMatchObject({
+      orderNo: order.orderNo,
+      status: 'pending',
+      currency: 'SAR',
+      customerName: 'Sara Ali',
+      totals: { itemCount: order.totals.itemCount, total: order.totals.total },
+    });
+    expect(receipt.items.length).toBeGreaterThan(0);
+    expect(receipt).toHaveProperty('zatcaQr');
+    expect((await request(app).get(`${CHECKOUT}/receipt/NONEXISTENT-999`)).status).toBe(404);
   });
 
   it('needs the CSRF header and keeps the cart cookie usable afterwards', async () => {

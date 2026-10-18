@@ -29,6 +29,7 @@ export const CLIENT_NAMESPACES = Object.freeze([
   'cart',
   'checkout',
   'track',
+  'receipt',
   'validation',
   'consent',
   'nav',

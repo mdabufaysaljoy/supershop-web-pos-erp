@@ -29,6 +29,7 @@ const FIELD_KEYS = [
   'showSku',
   'showVatBreakdown',
   'showQr',
+  'showOnlineReceipt',
 ];
 
 const SAMPLE_SALE = {
@@ -99,9 +100,17 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
         vat: SAMPLE_SALE.totals.vat,
       })
     : '';
+  const onlineReceiptUrl = fields.showOnlineReceipt
+    ? `http://localhost:3000/${lang === 'ar' ? 'ar' : 'en'}/receipt/${SAMPLE_SALE.orderNo}`
+    : '';
   const data = receiptData(
-    { ...SAMPLE_SALE, zatcaQr: qr },
-    { shop: previewShop, currency: 'SAR', lang: lang === 'ar' ? 'ar' : 'en' },
+    { ...SAMPLE_SALE, zatcaQr: qr, onlineReceiptUrl },
+    {
+      shop: previewShop,
+      currency: 'SAR',
+      lang: lang === 'ar' ? 'ar' : 'en',
+      storefrontUrl: 'http://localhost:3000',
+    },
   );
   const compiled = buildReceiptTemplate(
     {
@@ -304,6 +313,22 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
                   <span className="text-[10px] text-neutral-500">
                     {t('printing.receipt.zatcaQrCaption')}
                   </span>
+                </div>
+              )}
+              {fields.showOnlineReceipt && (
+                <div
+                  data-testid="receipt-preview-online-qr"
+                  className="mt-3 flex flex-col items-center gap-1 border-t border-dashed border-neutral-200 pt-3"
+                >
+                  <QrCode
+                    value={onlineReceiptUrl}
+                    size={120}
+                    title={t('printing.receipt.onlineReceiptQrCaption')}
+                  />
+                  <span className="text-center text-[10px] font-semibold text-emerald-700">
+                    {t('printing.receipt.onlineReceiptQrCaption')}
+                  </span>
+                  <span className="font-mono text-[9px] text-neutral-400">{onlineReceiptUrl}</span>
                 </div>
               )}
             </div>

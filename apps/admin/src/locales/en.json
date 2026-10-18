@@ -2120,11 +2120,13 @@
         "showCustomer": "Customer name",
         "showSku": "Item SKU & unit price",
         "showVatBreakdown": "VAT row",
-        "showQr": "ZATCA QR code"
+        "showQr": "ZATCA QR code",
+        "showOnlineReceipt": "Online sales receipt QR code"
       },
       "saveButton": "Save receipt template",
       "previewTitle": "Live thermal preview",
-      "zatcaQrCaption": "ZATCA Simplified Tax Invoice QR"
+      "zatcaQrCaption": "ZATCA Simplified Tax Invoice QR",
+      "onlineReceiptQrCaption": "Scan with camera to view sales details online"
     },
     "label": {
       "title": "Barcode label template",

@@ -24,7 +24,7 @@ export function fill(text, data) {
  */
 export function receiptData(
   order,
-  { shop = {}, currency = 'SAR', lang = 'en', timeZone = 'Asia/Riyadh' } = {},
+  { shop = {}, currency = 'SAR', lang = 'en', timeZone = 'Asia/Riyadh', storefrontUrl = '' } = {},
 ) {
   const money = (amount) => formatMoney(amount ?? 0, { currency, lang });
   /** Short and in the shop's own time: a receipt has one line for this, not a timestamp. */
@@ -41,6 +41,14 @@ export function receiptData(
           calendar: 'gregory',
         }).format(date);
   };
+  const baseUrl = (order.onlineReceiptUrl || storefrontUrl || shop.website || '').replace(
+    /\/+$/,
+    '',
+  );
+  const onlineReceiptUrl =
+    order.onlineReceiptUrl ||
+    (baseUrl && order.orderNo ? `${baseUrl}/${lang}/receipt/${order.orderNo}` : '');
+
   return {
     shop: {
       name: shop.name ?? '',
@@ -54,6 +62,7 @@ export function receiptData(
       cashier: order.cashierName ?? '',
       branch: order.branchName ?? '',
       note: order.note ?? '',
+      onlineReceiptUrl,
     },
     customer: {
       name: order.customer?.name ?? '',
@@ -83,6 +92,7 @@ export function receiptData(
     })),
     /** Set by the caller for a tax invoice (P6.4 fills it with the ZATCA TLV). */
     qr: order.zatcaQr ?? '',
+    onlineReceiptUrl,
     /** The same figures unformatted, for `showIf`: a zero discount prints no discount line. */
     raw: {
       discount: order.totals?.discountTotal ?? 0,
@@ -90,6 +100,7 @@ export function receiptData(
       change: order.changeGiven ?? 0,
       note: order.note ?? '',
       customer: order.customer?.customerId ? order.customer?.name : '',
+      onlineReceiptUrl,
     },
   };
 }
@@ -155,6 +166,7 @@ export const renderTemplate = (template, data, { widthMm = 80 } = {}) =>
 /** What a shop starts with: a plain, complete receipt it can then reword (P6.4). */
 export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'text', value: '{{shop.name}}', align: 'center', bold: true, double: true },
+  { type: 'text', value: 'SIMPLIFIED TAX INVOICE', align: 'center', bold: true },
   { type: 'text', value: '{{shop.address}}', align: 'center' },
   { type: 'text', value: '{{shop.phone}}', align: 'center' },
   { type: 'text', value: 'VAT {{shop.vatNumber}}', align: 'center', showIf: 'shop.vatNumber' },
@@ -178,6 +190,21 @@ export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'row', left: 'Customer', right: '{{customer.name}}', showIf: 'raw.customer' },
   { type: 'feed', lines: 1 },
   { type: 'qr', value: '{{qr}}' },
+  { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
+  {
+    type: 'text',
+    value: 'Scan to verify & view receipt online:',
+    align: 'center',
+    showIf: 'raw.onlineReceiptUrl',
+  },
+  { type: 'qr', value: '{{order.onlineReceiptUrl}}', showIf: 'raw.onlineReceiptUrl' },
+  {
+    type: 'text',
+    value: '{{order.onlineReceiptUrl}}',
+    align: 'center',
+    showIf: 'raw.onlineReceiptUrl',
+  },
+  { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
   { type: 'text', value: 'Thank you', align: 'center' },
   { type: 'feed', lines: 2 },
   { type: 'cut' },
@@ -216,6 +243,7 @@ export const DEFAULT_RECEIPT_CONFIG = Object.freeze({
     showSku: true,
     showVatBreakdown: true,
     showQr: true,
+    showOnlineReceipt: true,
   }),
   labels: Object.freeze({
     receipt: Object.freeze({ en: 'Receipt' }),
@@ -228,6 +256,8 @@ export const DEFAULT_RECEIPT_CONFIG = Object.freeze({
     total: Object.freeze({ en: 'Total' }),
     change: Object.freeze({ en: 'Change' }),
     customer: Object.freeze({ en: 'Customer' }),
+    taxInvoice: Object.freeze({ en: 'SIMPLIFIED TAX INVOICE' }),
+    scanOnline: Object.freeze({ en: 'Scan to verify & view receipt online:' }),
   }),
 });
 
@@ -292,6 +322,7 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
 
   const blocks = [
     { type: 'text', value: '{{shop.name}}', align: 'center', bold: true, double: true },
+    { type: 'text', value: lbl('taxInvoice'), align: 'center', bold: true },
   ];
   if (fields.showAddress) blocks.push({ type: 'text', value: '{{shop.address}}', align: 'center' });
   if (fields.showPhone) blocks.push({ type: 'text', value: '{{shop.phone}}', align: 'center' });
@@ -353,6 +384,25 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
   }
   blocks.push({ type: 'feed', lines: 1 });
   if (fields.showQr) blocks.push({ type: 'qr', value: '{{qr}}' });
+  if (fields.showOnlineReceipt) {
+    blocks.push(
+      { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
+      {
+        type: 'text',
+        value: lbl('scanOnline'),
+        align: 'center',
+        showIf: 'raw.onlineReceiptUrl',
+      },
+      { type: 'qr', value: '{{order.onlineReceiptUrl}}', showIf: 'raw.onlineReceiptUrl' },
+      {
+        type: 'text',
+        value: '{{order.onlineReceiptUrl}}',
+        align: 'center',
+        showIf: 'raw.onlineReceiptUrl',
+      },
+      { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
+    );
+  }
   blocks.push(
     ...centeredTextBlocks(
       config?.footerText ?? DEFAULT_RECEIPT_CONFIG.footerText,

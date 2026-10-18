@@ -20,6 +20,7 @@ import {
 } from '@supershop/shared';
 import { ConflictError, NotFoundError, ServiceUnavailableError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
+import { config } from '../../core/config.js';
 import { getSecretSetting, getSetting } from '../settings/index.js';
 import * as repo from './printing.repo.js';
 
@@ -220,13 +221,20 @@ async function toReceiptTemplateDto(doc) {
         vat: SAMPLE_SALE.totals.vat,
       })
     : '';
+  const storefrontBase = (
+    config.STOREFRONT_URL ||
+    getSetting('store.url') ||
+    'http://localhost:3000'
+  ).replace(/\/+$/, '');
+  const onlineReceiptUrl = `${storefrontBase}/${lang === 'ar' ? 'ar' : 'en'}/receipt/${SAMPLE_SALE.orderNo}`;
   const data = receiptData(
-    { ...SAMPLE_SALE, zatcaQr: qr },
+    { ...SAMPLE_SALE, zatcaQr: qr, onlineReceiptUrl },
     {
       shop: previewShop,
       currency: getSetting('store.currency'),
       lang: lang === 'ar' ? 'ar' : 'en',
       timeZone: getSetting('store.timeZone'),
+      storefrontUrl: storefrontBase,
     },
   );
   const compiled = buildReceiptTemplate({ ...doc, lang, widthMm, fields, labels }, { lang });
@@ -248,6 +256,7 @@ async function toReceiptTemplateDto(doc) {
       charsPerLine: charsForWidth(widthMm),
       lines: previewLines(bytes),
       qr,
+      onlineReceiptUrl,
       hasShopVatNumber: Boolean(shop.vatNumber),
     },
   };
@@ -360,6 +369,14 @@ export async function buildReceiptJob(order, { profileId, shop = {}, lang = 'en'
   ]);
   const tplLang = saved.lang ?? lang;
   const fields = { ...DEFAULT_RECEIPT_CONFIG.fields, ...saved.fields };
+  const storefrontBase = (
+    config.STOREFRONT_URL ||
+    getSetting('store.url') ||
+    'http://localhost:3000'
+  ).replace(/\/+$/, '');
+  const onlineReceiptUrl =
+    order.onlineReceiptUrl ||
+    `${storefrontBase}/${tplLang === 'ar' ? 'ar' : 'en'}/receipt/${order.orderNo}`;
   const qr =
     order.zatcaQr ||
     (fields.showQr
@@ -372,12 +389,13 @@ export async function buildReceiptJob(order, { profileId, shop = {}, lang = 'en'
         })
       : '');
   const data = receiptData(
-    { ...order, zatcaQr: qr },
+    { ...order, zatcaQr: qr, onlineReceiptUrl },
     {
       shop,
       currency: getSetting('store.currency'),
       lang: tplLang === 'ar' ? 'ar' : 'en',
       timeZone: getSetting('store.timeZone'),
+      storefrontUrl: storefrontBase,
     },
   );
   const compiled = buildReceiptTemplate(saved, { lang: tplLang });
@@ -391,6 +409,7 @@ export async function buildReceiptJob(order, { profileId, shop = {}, lang = 'en'
     widthMm: profile.widthMm,
     lang: tplLang,
     qr: qr || null,
+    onlineReceiptUrl,
     /** QZ Tray takes raw bytes as base64 (`{ type: 'raw', format: 'base64' }`). */
     data: toBase64(renderTemplate(template, data, { widthMm: profile.widthMm })),
   };

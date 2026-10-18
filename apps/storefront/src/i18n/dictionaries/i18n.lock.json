@@ -1528,6 +1528,118 @@
       "src": "ecec39d77115bb97",
       "out": "a7dc98969f3dc905",
       "mode": "manual"
+    },
+    "receipt.title": {
+      "src": "867a538b781f1a08",
+      "status": "failed"
+    },
+    "receipt.description": {
+      "src": "0cecf387e9f559e3",
+      "status": "failed"
+    },
+    "receipt.verified": {
+      "src": "4da665552838540a",
+      "status": "failed"
+    },
+    "receipt.simplifiedInvoice": {
+      "src": "0692ae84b6894e0d",
+      "status": "failed"
+    },
+    "receipt.orderNumber": {
+      "src": "48a67cac2d9d0e7e",
+      "status": "failed"
+    },
+    "receipt.date": {
+      "src": "a217562db538b07c",
+      "status": "failed"
+    },
+    "receipt.branch": {
+      "src": "52656e8104eef3fd",
+      "status": "failed"
+    },
+    "receipt.cashier": {
+      "src": "ae9c884ce737dbaa",
+      "status": "failed"
+    },
+    "receipt.customer": {
+      "src": "bf3763383aaf4306",
+      "status": "failed"
+    },
+    "receipt.status": {
+      "src": "920e413c7d411b61",
+      "status": "failed"
+    },
+    "receipt.paid": {
+      "src": "fb81b961af456e5e",
+      "status": "failed"
+    },
+    "receipt.items": {
+      "src": "0289bb34d9d2b4c9",
+      "status": "failed"
+    },
+    "receipt.item": {
+      "src": "652bcc3a47842889",
+      "status": "failed"
+    },
+    "receipt.qty": {
+      "src": "a9be9c3e9ab66e18",
+      "status": "failed"
+    },
+    "receipt.price": {
+      "src": "93c91c851e7acc17",
+      "status": "failed"
+    },
+    "receipt.total": {
+      "src": "c9b3c38247f744e1",
+      "status": "failed"
+    },
+    "receipt.subtotal": {
+      "src": "8c0f2cb34079ede4",
+      "status": "failed"
+    },
+    "receipt.discount": {
+      "src": "cb72ec985b5f3d75",
+      "status": "failed"
+    },
+    "receipt.taxableNet": {
+      "src": "a7bc3e970b3d7a8a",
+      "status": "failed"
+    },
+    "receipt.vat": {
+      "src": "87fe6f76fdd084e9",
+      "status": "failed"
+    },
+    "receipt.grandTotal": {
+      "src": "1f25b74796671d6b",
+      "status": "failed"
+    },
+    "receipt.paymentDetails": {
+      "src": "e9143587ebf6f078",
+      "status": "failed"
+    },
+    "receipt.change": {
+      "src": "9d6f431a2b26e2f8",
+      "status": "failed"
+    },
+    "receipt.zatcaTitle": {
+      "src": "098224bee44b70d0",
+      "status": "failed"
+    },
+    "receipt.zatcaDescription": {
+      "src": "3ffa688e954d7b08",
+      "status": "failed"
+    },
+    "receipt.print": {
+      "src": "98bad4f12cd29b2f",
+      "status": "failed"
+    },
+    "receipt.notFound": {
+      "src": "f37fa5f8bf9476d3",
+      "status": "failed"
+    },
+    "receipt.backHome": {
+      "src": "ab7a9a3069d67c4e",
+      "status": "failed"
     }
   }
 }

@@ -217,6 +217,23 @@ describe('a receipt', () => {
     expect(lines.some((l) => l.includes('POS-000001'))).toBe(true);
     expect(lines.at(-1)).toBe('Thank you');
   });
+
+  it('generates dynamic online receipt QR code when storefrontUrl or onlineReceiptUrl is present', () => {
+    const online = receiptData(SALE, {
+      shop: SHOP,
+      storefrontUrl: 'https://supershop.com',
+    });
+    expect(online.order.onlineReceiptUrl).toBe('https://supershop.com/en/receipt/POS-000001');
+    const expanded = expand(DEFAULT_RECEIPT_TEMPLATE, online);
+    const qrBlocks = expanded.filter((b) => b.type === 'qr');
+    expect(qrBlocks.some((b) => b.value === 'https://supershop.com/en/receipt/POS-000001')).toBe(
+      true,
+    );
+    const lines = textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, online, { widthMm: 80 }));
+    expect(lines).toContain('https://supershop.com/en/receipt/POS-000001');
+    expect(lines.some((l) => l.includes('Scan to verify & view receipt online'))).toBe(true);
+    expect(lines.at(-1)).toBe('Thank you');
+  });
 });
 
 describe('a label', () => {

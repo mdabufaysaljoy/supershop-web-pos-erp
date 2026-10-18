@@ -479,5 +479,35 @@
         "description": "Enables personalized campaigns and conversion tracking across Google, Meta, TikTok, and Snapchat."
       }
     }
+  },
+  "receipt": {
+    "title": "Digital Sales Receipt",
+    "description": "Official simplified tax invoice and sale verification.",
+    "verified": "Official Receipt · Verified",
+    "simplifiedInvoice": "Simplified Tax Invoice",
+    "orderNumber": "Invoice #",
+    "date": "Date & Time",
+    "branch": "Branch",
+    "cashier": "Cashier",
+    "customer": "Customer",
+    "status": "Status",
+    "paid": "Paid",
+    "items": "Purchased Items",
+    "item": "Item",
+    "qty": "Qty",
+    "price": "Price",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "taxableNet": "Taxable Net",
+    "vat": "VAT (15%)",
+    "grandTotal": "Total Due",
+    "paymentDetails": "Payment Details",
+    "change": "Change Given",
+    "zatcaTitle": "ZATCA E-Invoice Verification",
+    "zatcaDescription": "Scan with any ZATCA-compliant e-invoicing app to verify official invoice authenticity.",
+    "print": "Print Receipt",
+    "notFound": "Receipt not found. Please check the receipt number.",
+    "backHome": "Back to Store"
   }
 }

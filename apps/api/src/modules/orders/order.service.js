@@ -505,6 +505,75 @@ export async function trackOrder({ number, phone }) {
   return toTrackingDto(order);
 }
 
+/** Public Digital Sales Receipt for POS walk-ins and customers scanning QR code */
+export const toPublicReceiptDto = (o, shop = defaultShop()) => {
+  const shopData = {
+    name: shop?.name || getSetting('store.name') || 'Supershop',
+    address: shop?.address ?? '',
+    phone: shop?.phone ?? '',
+    vatNumber: shop?.vatNumber || getSetting('tax.vatNumber') || '',
+  };
+  const qr = zatcaQr({
+    sellerName: shopData.name,
+    vatNumber: shopData.vatNumber,
+    timestamp: o.placedAt ?? o.createdAt,
+    total: o.totals?.total ?? 0,
+    vat: o.totals?.vat ?? 0,
+  });
+  return {
+    orderNo: o.orderNo,
+    status: o.status,
+    channel: o.channel,
+    placedAt: o.placedAt ?? o.createdAt,
+    cashierName: o.cashierName ?? null,
+    branchName: o.branchName ?? null,
+    customerName: o.customer?.mode === 'walkin' ? null : (o.customer?.name ?? null),
+    currency: o.currency ?? 'SAR',
+    shop: shopData,
+    items: (o.items ?? []).map((i) => ({
+      name: i.name,
+      sku: i.sku ?? '',
+      qty: i.qty,
+      unitPrice: i.unitPrice,
+      discountTotal: i.discountTotal ?? 0,
+      lineTotal: i.lineTotal,
+      imageUrl: i.imageUrl ?? null,
+    })),
+    totals: {
+      itemCount: o.totals?.itemCount ?? 0,
+      subtotal: o.totals?.subtotal ?? 0,
+      discountTotal: o.totals?.discountTotal ?? 0,
+      net: o.totals?.net ?? 0,
+      vat: o.totals?.vat ?? 0,
+      total: o.totals?.total ?? 0,
+    },
+    payments: o.payments?.length
+      ? o.payments.map((p) => ({
+          method: p.method,
+          label: p.label ?? p.method,
+          amount: p.amount,
+        }))
+      : o.payment
+        ? [
+            {
+              method: o.payment.method,
+              label: o.payment.label ?? o.payment.method,
+              amount: o.totals?.total ?? 0,
+            },
+          ]
+        : [],
+    changeGiven: o.changeGiven ?? 0,
+    zatcaQr: qr,
+  };
+};
+
+export async function getPublicReceipt(orderNo) {
+  const order = await repo.findByNumber(orderNo);
+  if (!order) throw new NotFoundError('Receipt not found');
+  const shop = resolveShop ? await resolveShop(order.lang || 'en') : defaultShop();
+  return toPublicReceiptDto(order, shop);
+}
+
 /** For other modules (admin order screens arrive with P4.4). */
 export const getOrderById = async (id) => {
   const order = await repo.findById(id);

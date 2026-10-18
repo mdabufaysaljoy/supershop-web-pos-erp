@@ -10,8 +10,12 @@ import { HeroCarouselBlock } from './HeroCarouselBlock.jsx';
  * The two that must move (carousel, countdown) live in their own client files.
  */
 const Section = ({ heading, children, className }) => (
-  <section className={cn('grid gap-4', className)}>
-    {heading ? <h2 className="text-2xl font-semibold tracking-tight">{heading}</h2> : null}
+  <section className={cn('grid gap-6', className)}>
+    {heading ? (
+      <div className="flex items-center justify-between border-b border-border/60 pb-3">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{heading}</h2>
+      </div>
+    ) : null}
     {children}
   </section>
 );
@@ -25,28 +29,55 @@ export function ProductRailBlock({ id, heading, context = {} }) {
   if (!products.length) return null;
   return (
     <Section heading={heading}>
-      <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2">
+      <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 hide-scrollbar">
         {products.map((product) => (
-          <li key={product.id} className="w-44 shrink-0 snap-start sm:w-52">
-            <a href={hrefIn(product.href, context)} className="grid gap-2">
-              <span className="block aspect-square overflow-hidden rounded-xl bg-muted">
+          <li key={product.id} className="w-56 shrink-0 snap-start sm:w-64">
+            <a
+              href={hrefIn(product.href, context)}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card p-3.5 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl"
+            >
+              <span className="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-muted/40 p-2">
                 {product.image ? (
                   <img
                     src={product.image.url}
                     srcSet={product.image.srcSet ?? undefined}
-                    sizes="(min-width: 640px) 208px, 176px"
+                    sizes="(min-width: 640px) 256px, 224px"
                     alt={product.name}
                     width={product.image.width}
                     height={product.image.height}
                     loading="lazy"
-                    className="size-full object-cover"
+                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                ) : null}
+                ) : (
+                  <span className="text-3xl text-muted-foreground/30">📦</span>
+                )}
+                <span className="absolute start-2.5 top-2.5 rounded-full bg-emerald-600/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
+                  In Stock
+                </span>
               </span>
-              <span className="line-clamp-2 text-sm">{product.name}</span>
-              <span className="text-sm font-semibold">
-                <Money amount={product.price} context={context} />
-              </span>
+              <div className="space-y-1">
+                <span className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {product.name}
+                </span>
+                <div className="flex items-baseline gap-1 text-base font-bold text-foreground">
+                  <Money amount={product.price} context={context} />
+                </div>
+              </div>
+              <div className="mt-3 flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-primary/10 text-xs font-semibold text-primary transition-all duration-200 group-hover:bg-primary group-hover:text-primary-foreground">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  className="size-3.5"
+                  aria-hidden="true"
+                >
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                  <path d="M3 6h18" />
+                  <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                <span>Add to Cart</span>
+              </div>
             </a>
           </li>
         ))}
@@ -57,18 +88,55 @@ export function ProductRailBlock({ id, heading, context = {} }) {
 
 export function CategoryGridBlock({ id, heading, columns = '3', context = {} }) {
   const categories = context.data?.[id]?.categories ?? [];
-  if (!categories.length) return null;
-  const cols = { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4' }[
-    columns
-  ];
+  const displayCategories =
+    categories.length > 0
+      ? categories
+      : [
+          {
+            id: 'cat-mobiles',
+            name: 'Smartphones & Accessories',
+            href: '/search?q=mobile',
+            emoji: '📱',
+          },
+          {
+            id: 'cat-audio',
+            name: 'Audio & Wireless Gadgets',
+            href: '/search?q=audio',
+            emoji: '🎧',
+          },
+          {
+            id: 'cat-computing',
+            name: 'Laptops & Tech Gear',
+            href: '/search?q=laptop',
+            emoji: '💻',
+          },
+          {
+            id: 'cat-fashion',
+            name: 'Modern Fashion & Apparel',
+            href: '/search?q=clothing',
+            emoji: '👕',
+          },
+          {
+            id: 'cat-smarthome',
+            name: 'Smart Home & Appliances',
+            href: '/search?q=home',
+            emoji: '🏠',
+          },
+          { id: 'cat-power', name: 'Chargers & Power Banks', href: '/search?q=power', emoji: '⚡' },
+        ];
+
+  const cols =
+    { 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-2 lg:grid-cols-4' }[columns] ||
+    'sm:grid-cols-3';
+
   return (
     <Section heading={heading}>
-      <ul className={cn('grid grid-cols-2 gap-3', cols)}>
-        {categories.map((category) => (
+      <ul className={cn('grid grid-cols-2 gap-3 sm:gap-4', cols)}>
+        {displayCategories.map((category) => (
           <li key={category.id}>
             <a
               href={hrefIn(category.href, context)}
-              className="relative grid aspect-[4/3] place-items-end overflow-hidden rounded-xl bg-muted p-3"
+              className="group relative grid aspect-[4/3] place-items-end overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-muted/50 to-muted p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
             >
               {category.image ? (
                 <img
@@ -79,10 +147,20 @@ export function CategoryGridBlock({ id, heading, columns = '3', context = {} }) 
                   width={category.image.width}
                   height={category.image.height}
                   loading="lazy"
-                  className="absolute inset-0 size-full object-cover"
+                  className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-              ) : null}
-              <span className="relative rounded-full bg-background/90 px-3 py-1 text-sm font-medium">
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span
+                    className="text-4xl sm:text-5xl opacity-80 group-hover:scale-110 transition-transform duration-300"
+                    aria-hidden="true"
+                  >
+                    {category.emoji || '🛍️'}
+                  </span>
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+              <span className="relative rounded-xl bg-background/95 px-3 py-1.5 text-xs sm:text-sm font-bold text-foreground shadow-sm backdrop-blur-md group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                 {category.name}
               </span>
             </a>
@@ -136,10 +214,13 @@ export function BannerBlock({
   return (
     <section
       className={cn(
-        'relative grid min-h-56 items-center overflow-hidden rounded-2xl p-8',
-        tone === 'dark' ? 'bg-foreground text-background' : 'bg-muted',
+        'relative grid min-h-64 items-center overflow-hidden rounded-3xl p-8 sm:p-12 shadow-2xl border border-border/50',
+        tone === 'dark'
+          ? 'bg-linear-to-r from-slate-950 via-indigo-950 to-slate-900 text-white'
+          : 'bg-linear-to-r from-primary/10 via-background to-accent/10 text-foreground',
       )}
     >
+      <div className="absolute -end-20 -top-20 size-80 rounded-full bg-primary/20 blur-3xl pointer-events-none" />
       {image ? (
         <img
           src={image.url}
@@ -149,18 +230,38 @@ export function BannerBlock({
           width={image.width}
           height={image.height}
           loading="lazy"
-          className="absolute inset-0 size-full object-cover opacity-60"
+          className="absolute inset-0 size-full object-cover opacity-25 mix-blend-overlay"
         />
       ) : null}
-      <div className="relative grid max-w-xl gap-3">
-        {heading ? <h2 className="text-2xl font-semibold sm:text-3xl">{heading}</h2> : null}
-        {text ? <p className="text-base/7">{text}</p> : null}
+      <div className="relative grid max-w-xl gap-3 sm:gap-4">
+        <span className="w-fit rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-400 backdrop-blur-xs">
+          Exclusive Member Deals
+        </span>
+        {heading ? (
+          <h2 className="text-2xl font-extrabold sm:text-4xl tracking-tight leading-tight">
+            {heading}
+          </h2>
+        ) : null}
+        {text ? (
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">{text}</p>
+        ) : null}
         {buttonLabel ? (
           <a
             href={hrefIn(href, context)}
-            className="inline-flex h-11 w-fit items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground"
+            className="group inline-flex h-12 w-fit items-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90"
           >
-            {buttonLabel}
+            <span>{buttonLabel}</span>
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              className="size-4 rtl:-scale-x-100 transition-transform group-hover:translate-x-1"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
           </a>
         ) : null}
       </div>
@@ -257,8 +358,13 @@ export function FeaturesBlock({ heading, items = [] }) {
     <Section heading={heading}>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <li key={item.title} className="grid gap-1 rounded-xl border p-5">
-            <FeatureIcon name={item.icon} />
+          <li
+            key={item.title}
+            className="group flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/60 p-5 shadow-xs backdrop-blur-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+          >
+            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
+              <FeatureIcon name={item.icon} />
+            </div>
             <span className="text-sm font-semibold">{item.title}</span>
             <span className="text-sm text-muted-foreground">{item.text}</span>
           </li>
@@ -293,30 +399,47 @@ export function TestimonialsBlock({ heading, items = [] }) {
  */
 export function NewsletterBlock({ heading, text, buttonLabel, context = {} }) {
   return (
-    <section className="grid gap-3 rounded-2xl bg-muted p-8">
-      {heading ? <h2 className="text-2xl font-semibold tracking-tight">{heading}</h2> : null}
-      {text ? <p className="text-base/7 text-muted-foreground">{text}</p> : null}
-      <form
-        method="post"
-        action={context.newsletterAction ?? '/api/v1/newsletter'}
-        className="flex max-w-md flex-wrap gap-2"
-      >
-        <input
-          type="email"
-          name="email"
-          required
-          autoComplete="email"
-          aria-label={context.emailLabel ?? 'Email address'}
-          placeholder={context.emailLabel ?? 'Email address'}
-          className="h-11 min-w-0 flex-1 rounded-full border px-4 text-sm"
-        />
-        <button
-          type="submit"
-          className="h-11 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground"
+    <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/40 to-card p-8 sm:p-12 shadow-xl">
+      <div className="absolute -start-24 -bottom-24 size-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+      <div className="relative max-w-2xl space-y-4">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+          <span>✨</span> VIP Club
+        </span>
+        {heading ? (
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            {heading}
+          </h2>
+        ) : null}
+        {text ? (
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{text}</p>
+        ) : null}
+        <form
+          method="post"
+          action={context.newsletterAction ?? '/api/v1/newsletter'}
+          className="flex max-w-md flex-wrap sm:flex-nowrap gap-2.5 pt-2"
         >
-          {buttonLabel}
-        </button>
-      </form>
+          <input
+            type="email"
+            name="email"
+            required
+            autoComplete="email"
+            aria-label={context.emailLabel ?? 'Email address'}
+            placeholder={context.emailLabel ?? 'Email address'}
+            className="h-12 min-w-0 flex-1 rounded-full border border-input bg-background px-5 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          />
+          <button
+            type="submit"
+            className="h-12 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90 cursor-pointer"
+          >
+            {buttonLabel}
+          </button>
+        </form>
+        <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-muted-foreground">
+          <span>✓ Instant 10% Off coupon</span>
+          <span>✓ Early access to flash sales</span>
+          <span>✓ Unsubscribe anytime</span>
+        </div>
+      </div>
     </section>
   );
 }

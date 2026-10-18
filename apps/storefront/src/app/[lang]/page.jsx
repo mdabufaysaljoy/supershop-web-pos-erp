@@ -42,12 +42,16 @@ export default async function HomePage({ params }) {
   const [{ t, fmtOptions }, page] = await Promise.all([getPageContext(lang), getHomePage(lang)]);
   if (page)
     return (
-      <div className="grid gap-16">
+      <div className="grid gap-16 sm:gap-20">
         <BlockRenderer
           blocks={page.content.blocks}
           components={ALL_BLOCK_COMPONENTS}
           context={blockContext({ page, lang, t, fmtOptions })}
         />
+        {/* Flagship interactive supershop additions */}
+        <FlashDealsBanner lang={lang} t={t} />
+        <PromoBanners lang={lang} />
+        <TestimonialWall />
       </div>
     );
   const [{ settings }, categories, newest] = await Promise.all([

@@ -79,16 +79,75 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
                   {t('nav.allProducts')}
                 </Link>
               </li>
-              {categories.slice(0, 10).map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={localizePath(categoryPath(c.slug), lang)}
-                    className="inline-flex items-center rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-                  >
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
+              {categories.length > 0 ? (
+                categories.slice(0, 10).map((c) => (
+                  <li key={c.id}>
+                    <Link
+                      href={localizePath(categoryPath(c.slug), lang)}
+                      className="inline-flex items-center rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      {c.name}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      href={`${localizePath('/search', lang)}?q=mobile`}
+                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      <span aria-hidden="true">📱</span>
+                      Mobiles & Gadgets
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`${localizePath('/search', lang)}?q=audio`}
+                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      <span aria-hidden="true">🎧</span>
+                      Audio & Sound
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`${localizePath('/search', lang)}?q=laptop`}
+                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      <span aria-hidden="true">💻</span>
+                      Computing & Tech
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`${localizePath('/search', lang)}?q=clothing`}
+                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      <span aria-hidden="true">👕</span>
+                      Fashion & Apparel
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`${localizePath('/search', lang)}?q=home`}
+                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      <span aria-hidden="true">🏠</span>
+                      Smart Home
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href={`${localizePath('/search', lang)}?q=power`}
+                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                    >
+                      <span aria-hidden="true">⚡</span>
+                      Power & Charging
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
         </nav>

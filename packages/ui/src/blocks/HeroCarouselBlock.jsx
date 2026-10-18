@@ -26,6 +26,8 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
   const labels = context.labels ?? {};
   const active = Math.min(index, count - 1);
 
+  const isRtl = context.lang === 'ar';
+
   return (
     <section
       aria-roledescription="carousel"
@@ -39,91 +41,96 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
       <div className="absolute -top-24 -end-24 size-96 rounded-full bg-primary/25 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -start-24 size-96 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
 
-      {shown.map((slide, i) => {
-        const image = context.media?.[slide.mediaId];
-        return (
-          <div
-            key={slide.mediaId ?? i}
-            aria-hidden={i === active ? undefined : true}
-            className={cn(
-              'grid min-h-[360px] sm:min-h-[460px] lg:min-h-[500px] items-center p-6 sm:p-12 lg:p-16',
-              i === active ? 'relative' : 'absolute inset-0 opacity-0 pointer-events-none',
-            )}
-          >
-            {image ? (
-              <img
-                src={image.url}
-                srcSet={image.srcSet ?? undefined}
-                sizes="100vw"
-                alt={slide.heading || image.alt || ''}
-                width={image.width}
-                height={image.height}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                fetchPriority={i === 0 ? 'high' : undefined}
-                className="absolute inset-0 size-full object-cover opacity-25 mix-blend-overlay"
-              />
-            ) : null}
-
-            <div className="relative grid max-w-2xl gap-4 sm:gap-6">
-              {/* Modern category & urgency pill */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3.5 py-1 text-xs font-semibold text-primary-foreground backdrop-blur-md w-fit">
-                <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Mega Supershop Collection · Saudi Arabia</span>
-              </div>
-
-              {slide.heading ? (
-                <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.12]">
-                  {slide.heading}
-                </h2>
+      {/* Smooth horizontal sliding track with 500ms easing */}
+      <div
+        className="flex w-full transition-transform duration-500 ease-in-out"
+        style={{
+          transform: isRtl ? `translateX(${active * 100}%)` : `translateX(-${active * 100}%)`,
+        }}
+      >
+        {shown.map((slide, i) => {
+          const image = context.media?.[slide.mediaId];
+          return (
+            <div
+              key={slide.mediaId ?? i}
+              aria-hidden={i === active ? undefined : true}
+              className="relative w-full min-w-full shrink-0 grid min-h-[360px] sm:min-h-[460px] lg:min-h-[500px] items-center p-6 sm:p-12 lg:p-16 overflow-hidden"
+            >
+              {image ? (
+                <img
+                  src={image.url}
+                  srcSet={image.srcSet ?? undefined}
+                  sizes="100vw"
+                  alt={slide.heading || image.alt || ''}
+                  width={image.width}
+                  height={image.height}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : undefined}
+                  className="absolute inset-0 size-full object-cover opacity-25 mix-blend-overlay"
+                />
               ) : null}
 
-              {slide.text ? (
-                <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
-                  {slide.text}
-                </p>
-              ) : null}
-
-              {slide.buttonLabel ? (
-                <div className="flex flex-wrap items-center gap-4 pt-1 sm:pt-2">
-                  <a
-                    href={hrefIn(slide.href, context)}
-                    tabIndex={i === active ? undefined : -1}
-                    className="group inline-flex h-12 items-center gap-2.5 rounded-full bg-primary px-8 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:bg-primary/90 transition-all duration-300"
-                  >
-                    <span>{slide.buttonLabel}</span>
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="size-4 rtl:-scale-x-100 transition-transform group-hover:translate-x-1"
-                      aria-hidden="true"
-                    >
-                      <path d="M5 12h14" />
-                      <path d="m12 5 7 7-7 7" />
-                    </svg>
-                  </a>
+              <div className="relative grid max-w-2xl gap-4 sm:gap-6">
+                {/* Modern category & urgency pill */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-3.5 py-1 text-xs font-semibold text-primary-foreground backdrop-blur-md w-fit">
+                  <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Mega Supershop Collection · Saudi Arabia</span>
                 </div>
-              ) : null}
 
-              {/* Trust highlights */}
-              <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-300 font-medium">
-                <span className="flex items-center gap-1.5">
-                  <span className="text-emerald-400 font-bold">✓</span> 100% Genuine
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="text-emerald-400 font-bold">✓</span> 2-Year KSA Warranty
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="text-emerald-400 font-bold">✓</span> Tabby & Tamara Pay in 4
-                </span>
+                {slide.heading ? (
+                  <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.12]">
+                    {slide.heading}
+                  </h2>
+                ) : null}
+
+                {slide.text ? (
+                  <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                    {slide.text}
+                  </p>
+                ) : null}
+
+                {slide.buttonLabel ? (
+                  <div className="flex flex-wrap items-center gap-4 pt-1 sm:pt-2">
+                    <a
+                      href={hrefIn(slide.href, context)}
+                      tabIndex={i === active ? undefined : -1}
+                      className="group inline-flex h-12 items-center gap-2.5 rounded-full bg-primary px-8 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:bg-primary/90 transition-all duration-300"
+                    >
+                      <span>{slide.buttonLabel}</span>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="size-4 rtl:-scale-x-100 transition-transform group-hover:translate-x-1"
+                        aria-hidden="true"
+                      >
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                      </svg>
+                    </a>
+                  </div>
+                ) : null}
+
+                {/* Trust highlights */}
+                <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-300 font-medium">
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-emerald-400 font-bold">✓</span> 100% Genuine
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-emerald-400 font-bold">✓</span> 2-Year KSA Warranty
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="text-emerald-400 font-bold">✓</span> Tabby & Tamara Pay in 4
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       {count > 1 ? (
         <>

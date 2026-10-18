@@ -155,6 +155,7 @@ export function SiteNav({
       <ul className="-mb-px flex flex-wrap items-center gap-6 text-sm">
         {/* Render arranged items */}
         {cleanedItems.map((item) => {
+          const isHome = item.id === 'home' || item.href === '/';
           const isOffers = item.id === 'offers' || item.href?.includes('sort=price_asc');
           const isTrack = item.id === 'track' || item.href === '/track';
 
@@ -165,6 +166,7 @@ export function SiteNav({
                 className={`${topLinkStyle} group-hover:text-foreground`}
                 aria-haspopup="true"
               >
+                {isHome && <span aria-hidden="true">🏠</span>}
                 <span>{item.label}</span>
                 <svg
                   viewBox="0 0 24 24"
@@ -200,6 +202,7 @@ export function SiteNav({
                 href={linkHref(item.href, lang)}
                 className={`${topLinkStyle} ${isOffers ? 'text-amber-600 dark:text-amber-400 font-semibold' : ''}`}
               >
+                {isHome && <span aria-hidden="true">🏠</span>}
                 {isTrack && <span aria-hidden="true">📦</span>}
                 {isOffers && <span aria-hidden="true">🔥</span>}
                 <span>{item.label}</span>

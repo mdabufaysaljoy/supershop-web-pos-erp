@@ -14,6 +14,14 @@ import { SiteNav } from './SiteNav';
  * spacing only (RTL-safe); the category row scrolls sideways on phones.
  */
 export function SiteHeader({ lang, storeName, logo = null, categories = [], header = {}, t }) {
+  // Ensure very top navigation option is Home (D-Storefront top nav fix)
+  const menuItems = (header.menu ?? []).map((item, idx) => {
+    if (idx === 0 && (item.id === 'all' || item.href === '/search')) {
+      return { ...item, id: 'home', label: t('nav.home'), href: '/' };
+    }
+    return item;
+  });
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 shadow-xs backdrop-blur-md transition-all">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-3 px-4 py-3 md:grid-cols-[auto_minmax(0,36rem)_1fr_auto]">
@@ -65,7 +73,7 @@ export function SiteHeader({ lang, storeName, logo = null, categories = [], head
         </div>
       </div>
       <SiteNav
-        items={header.menu ?? []}
+        items={menuItems}
         categories={categories}
         lang={lang}
         label={t('nav.primary')}

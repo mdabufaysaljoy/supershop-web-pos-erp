@@ -2,7 +2,6 @@ import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import Link from 'next/link';
 import { ProductGrid } from '@/components/catalog/ProductCard';
 import { CategoryShowcase } from '@/components/home/CategoryShowcase';
-import { FlashDealsBanner } from '@/components/home/FlashDealsBanner';
 import { HomeHero } from '@/components/home/HomeHero';
 import { NewsletterSection } from '@/components/home/NewsletterSection';
 import { PromoBanners } from '@/components/home/PromoBanners';
@@ -49,7 +48,6 @@ export default async function HomePage({ params }) {
           context={blockContext({ page, lang, t, fmtOptions })}
         />
         {/* Flagship interactive supershop additions */}
-        <FlashDealsBanner lang={lang} />
         <PromoBanners lang={lang} />
         <TestimonialWall />
       </div>
@@ -83,10 +81,7 @@ function BuiltInHome({ lang, storeName, categories, newest, t }) {
       {/* 3. Multi-Category Department Grid */}
       <CategoryShowcase categories={categories} lang={lang} t={t} />
 
-      {/* 4. High-Energy Flash Deals Banner */}
-      <FlashDealsBanner lang={lang} />
-
-      {/* 5. Dual Promotional Category Spotlights (Electronics & Fashion) */}
+      {/* 4. Dual Promotional Category Spotlights (Electronics & Fashion) */}
       <PromoBanners lang={lang} />
 
       {/* 6. Trending & New Arrivals Product Showcase */}

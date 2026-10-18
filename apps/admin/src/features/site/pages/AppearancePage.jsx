@@ -9,6 +9,7 @@ import { AnnouncementCard } from '../components/AnnouncementCard';
 import { BrandCard } from '../components/BrandCard';
 import { ChromeCard } from '../components/ChromeCard';
 import { ContactCard } from '../components/ContactCard';
+import { HeroSliderCard } from '../components/HeroSliderCard';
 import { MenusCard } from '../components/MenusCard';
 import { RedirectsCard } from '../components/RedirectsCard';
 import { SeoCard } from '../components/SeoCard';
@@ -16,11 +17,12 @@ import { ThemeCard } from '../components/ThemeCard';
 import { useLayout, useMenus } from '../resource';
 
 /**
- * Appearance (P5.4/P5.5), in three tabs: what wraps the pages, what the shop says about itself,
- * and the addresses that have moved. Everything here is data — nothing needs a deploy.
+ * Appearance (P5.4/P5.5), in four tabs: what wraps the pages, the flagship hero slider,
+ * what the shop says about itself, and the addresses that have moved. Everything here is data — nothing needs a deploy.
  */
 const TABS = [
   { id: 'chrome', label: 'appearance.tabs.chrome' },
+  { id: 'slider', label: 'appearance.tabs.slider' },
   { id: 'site', label: 'appearance.tabs.site' },
   { id: 'redirects', label: 'appearance.tabs.redirects' },
 ];
@@ -70,6 +72,7 @@ export function AppearancePage() {
             <ThemeCard layout={layout.data} disabled={!canEditChrome} />
           </>
         )}
+        {active.id === 'slider' && <HeroSliderCard disabled={!canEditChrome} />}
         {active.id === 'site' && (
           <>
             <BrandCard layout={layout.data} disabled={!canEditChrome} />

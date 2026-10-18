@@ -14,6 +14,8 @@ build/
 .next/
 out/
 coverage/
+test-results/
+playwright-report/
 .turbo/
 .vite/
 

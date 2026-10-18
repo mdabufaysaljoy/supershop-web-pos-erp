@@ -156,3 +156,34 @@ describe('percentToBps', () => {
     expect(() => percentToBps('-1')).toThrow(RangeError);
   });
 });
+
+describe('money invariants & tax categories (P10.2 unit suite)', () => {
+  it('splits zero-rated (0 bps) and exempt prices with 0 VAT and exact net', () => {
+    const gross = 5000;
+    const { net, vat } = splitGross(gross, 0);
+    expect(net).toBe(gross);
+    expect(vat).toBe(0);
+    expect(vatFromGross(gross, 0)).toBe(0);
+    expect(vatFromNet(gross, 0)).toBe(0);
+  });
+
+  it('splits negative gross amounts for refunds with exact balance', () => {
+    const gross = -11500;
+    const { net, vat } = splitGross(gross, 1500);
+    expect(net + vat).toBe(gross);
+    expect(net).toBe(-10000);
+    expect(vat).toBe(-1500);
+  });
+
+  it('preserves exact total in allocate for single halala across multiple lines', () => {
+    const parts = allocate(1, [10, 20, 30, 40]);
+    expect(parts.reduce((a, b) => a + b, 0)).toBe(1);
+    expect(parts).toEqual([0, 0, 0, 1]); // largest weight gets the single halala
+  });
+
+  it('preserves exact total in allocate for zero remainder', () => {
+    const parts = allocate(900, [1, 1, 1]);
+    expect(parts).toEqual([300, 300, 300]);
+    expect(parts.reduce((a, b) => a + b, 0)).toBe(900);
+  });
+});

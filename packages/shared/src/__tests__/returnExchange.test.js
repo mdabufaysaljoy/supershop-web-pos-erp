@@ -129,6 +129,19 @@ describe('P6.6 returnExchange shared logic', () => {
       due: 0,
       change: 1_500,
     });
+
+    // Even exchange: exact match with zero difference due
+    const evenExchange = priceSale([{ unitPrice: 11_500, qty: 1, taxCategory: 'standard' }], {
+      tax,
+    });
+    const evenAccepted = priceExchangeSettlement({
+      returnCredit,
+      exchangePriced: evenExchange,
+    });
+    expect(evenAccepted.valid).toBe(true);
+    expect(evenAccepted.differenceDue).toBe(0);
+    expect(evenAccepted.tender.due).toBe(0);
+    expect(evenAccepted.tender.change).toBe(0);
   });
 
   it('renders thermal return and exchange receipts via ESC/POS', () => {

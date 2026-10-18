@@ -13,6 +13,7 @@ import {
   startNotificationWorkers,
 } from './modules/notifications/index.js';
 import { startCampaignWorkers } from './modules/campaigns/index.js';
+import { startTrackingWorkers } from './modules/tracking/index.js';
 import { seedPaymentMethods } from './modules/paymentMethods/index.js';
 import { loadSettings, startSettingsSync, stopSettingsSync } from './modules/settings/index.js';
 
@@ -32,6 +33,7 @@ async function main() {
   startNotificationWorkers();
   startCampaignWorkers();
   startTranslationWorker();
+  startTrackingWorkers();
   await startTransferWorkers();
   await startExportWorkers();
   await ensureSearchIndex(); // builds the index in the background on first start

@@ -100,7 +100,7 @@ import { createPageRouter, getPublishedPageSlugs, setBlockDataProviders } from '
 import { createSiteRouter, getSiteChrome, setMenuRefProviders } from './site/index.js';
 import { createProductTransferRouter } from './productTransfer/index.js';
 import { createExportRouter } from './exports/index.js';
-import { trackingRouter } from './tracking/index.js';
+import { registerTrackingSubscribers, trackingRouter } from './tracking/index.js';
 import {
   countPurchaseOrdersInBranch,
   countPurchaseOrdersOfSupplier,
@@ -255,6 +255,7 @@ export function registerModules() {
   registerI18nSubscribers();
   registerSearchSubscribers();
   registerLoyaltySubscribers();
+  registerTrackingSubscribers({ getOrder: (id) => getOrderById(id) });
   // Catalog items can't be deleted while products reference them.
   setCategoryUsageCounter(countProductsInCategory);
   setBrandUsageCounter(countProductsOfBrand);

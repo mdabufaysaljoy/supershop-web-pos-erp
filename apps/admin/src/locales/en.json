@@ -478,7 +478,65 @@
     "description": "Configure client dataLayer containers, server-side APIs (Meta CAPI, GA4 MP), and PDPL cookie consent banner.",
     "tabs": {
       "integrations": "Integrations",
-      "consent": "PDPL Consent Banner"
+      "consent": "PDPL Consent Banner",
+      "logs": "Event Logs"
+    },
+    "logs": {
+      "title": "Server-Side Event Logs",
+      "description": "Real-time audit log of server-side dispatches, platform responses, retries, and test events.",
+      "sendTest": "Send Test Event",
+      "filters": {
+        "allProviders": "All Providers",
+        "allStatuses": "All Statuses",
+        "allEvents": "All Events",
+        "searchPlaceholder": "Search order # or event ID...",
+        "filter": "Filter",
+        "reset": "Reset"
+      },
+      "table": {
+        "timestamp": "Timestamp",
+        "provider": "Provider",
+        "event": "Event",
+        "status": "Status",
+        "orderOrId": "Order / Event ID",
+        "latency": "Latency",
+        "actions": "Actions",
+        "empty": "No tracking event logs found."
+      },
+      "status": {
+        "success": "Success",
+        "failed": "Failed",
+        "pending": "Pending",
+        "skipped": "Skipped"
+      },
+      "details": {
+        "title": "Event Log Details",
+        "provider": "Provider",
+        "event": "Event Name",
+        "status": "Status",
+        "latency": "Latency",
+        "attempts": "Attempts",
+        "skipReason": "Skip Reason",
+        "error": "Error Message",
+        "payload": "Sanitized Payload (PII Hashed)",
+        "response": "Provider Response",
+        "close": "Close",
+        "retry": "Retry Dispatch"
+      },
+      "test": {
+        "title": "Send Test Conversion Event",
+        "desc": "Trigger a test dispatch with synthetic data to verify provider credentials and live event receipt.",
+        "provider": "Target Provider",
+        "event": "Event Type",
+        "testCode": "Test Event Code (Meta)",
+        "testCodeHelp": "Paste code from Meta Events Manager > Test Events to see live signals.",
+        "orderNo": "Order Number (Optional)",
+        "value": "Conversion Value",
+        "currency": "Currency",
+        "send": "Send Test Event",
+        "sending": "Dispatching...",
+        "result": "Dispatch Result"
+      }
     },
     "status": {
       "active": "Active",
@@ -552,7 +610,10 @@
     },
     "notifications": {
       "saved": "{{provider}} integration settings saved successfully.",
-      "consentSaved": "Consent banner settings saved successfully."
+      "consentSaved": "Consent banner settings saved successfully.",
+      "retried": "Event dispatch re-queued successfully.",
+      "testSuccess": "Test event dispatched successfully!",
+      "testFailed": "Test event dispatch failed."
     }
   },
   "settings": {

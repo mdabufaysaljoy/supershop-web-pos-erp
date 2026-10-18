@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { TRACKING_EVENTS } from '../trackingEvents.js';
 import { V } from '../validators/messages.js';
-import { httpUrl, plainText } from '../validators/fields.js';
+import { httpUrl, objectId, plainText } from '../validators/fields.js';
+
+export const trackingLogIdParamSchema = z.object({
+  id: objectId,
+});
 
 export const TRACKING_PROVIDERS = Object.freeze([
   'gtm',
@@ -74,6 +78,7 @@ const ga4ConfigSchema = z
       .or(z.literal(''))
       .optional(),
     apiSecret: z.string().trim().max(100).optional(),
+    debugMode: z.boolean().optional(),
   })
   .strict();
 
@@ -234,3 +239,91 @@ export function buildDataLayerPayload(event, options = {}) {
 
   return payload;
 }
+
+export const TRACKING_LOG_STATUS = Object.freeze(['pending', 'success', 'failed', 'skipped']);
+
+/**
+ * Maps standard tracking event names to Meta Conversions API standard event names.
+ */
+export const META_EVENT_MAP = Object.freeze({
+  page_view: 'PageView',
+  view_item_list: 'ViewContent',
+  view_item: 'ViewContent',
+  search: 'Search',
+  add_to_cart: 'AddToCart',
+  remove_from_cart: 'Custom',
+  view_cart: 'ViewContent',
+  begin_checkout: 'InitiateCheckout',
+  add_shipping_info: 'AddPaymentInfo',
+  add_payment_info: 'AddPaymentInfo',
+  purchase: 'Purchase',
+  refund: 'Custom',
+  sign_up: 'CompleteRegistration',
+  login: 'Custom',
+  generate_lead: 'Lead',
+});
+
+/**
+ * Normalizes phone numbers for marketing platform hashing (e.g. Meta CAPI, Google Ads).
+ * Extracts digits only and resolves Saudi national leading zeros.
+ * @param {string} phone
+ * @returns {string}
+ */
+export function normalizePhoneForTracking(phone) {
+  if (!phone || typeof phone !== 'string') return '';
+  const digits = phone.replace(/\D/g, '');
+  if (digits.startsWith('05') && digits.length === 10) {
+    return `966${digits.slice(1)}`;
+  }
+  return digits;
+}
+
+/**
+ * Schema for querying tracking event logs in the admin viewer.
+ */
+export const trackingLogQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  provider: z.enum(TRACKING_PROVIDERS).optional(),
+  event: z.string().trim().optional(),
+  status: z.enum(TRACKING_LOG_STATUS).optional(),
+  search: z.string().trim().max(100).optional(),
+  from: z.string().datetime().optional(),
+  to: z.string().datetime().optional(),
+});
+
+/**
+ * Schema for dispatching a test tracking event from the admin UI.
+ */
+export const testEventSchema = z.object({
+  provider: z.enum(TRACKING_PROVIDERS),
+  event: z
+    .string()
+    .refine((e) => Object.values(TRACKING_EVENTS).includes(e))
+    .default('purchase'),
+  testEventCode: z.string().trim().max(100).optional(),
+  orderNumber: z.string().trim().max(100).optional(),
+  value: z.number().nonnegative().optional().default(100),
+  currency: z.string().trim().length(3).default('SAR'),
+});
+
+/**
+ * Schema for server-side event ingestion.
+ */
+export const serverEventIngestSchema = z.object({
+  event: z.string().refine((e) => Object.values(TRACKING_EVENTS).includes(e)),
+  eventId: z.string().trim().max(100).optional(),
+  orderNumber: z.string().trim().max(100).optional(),
+  orderId: z.string().trim().max(50).optional(),
+  currency: z.string().trim().length(3).default('SAR'),
+  value: z.number().nonnegative().optional(),
+  items: z.array(z.record(z.string(), z.unknown())).optional(),
+  customer: z
+    .object({
+      email: z.string().trim().max(255).optional(),
+      phone: z.string().trim().max(50).optional(),
+      name: z.string().trim().max(255).optional(),
+    })
+    .optional(),
+  attribution: attributionSchema.optional(),
+});

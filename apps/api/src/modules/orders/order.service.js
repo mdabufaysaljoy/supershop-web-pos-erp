@@ -179,6 +179,7 @@ export const toOrderDto = (o, { token, redirectUrl } = {}) => ({
   shipment: latestShipment(o),
   customFields: o.customFields ?? {},
   note: o.note ?? '',
+  attribution: o.attribution ?? null,
   ...(token && { confirmationToken: token }),
   /** Where to send the customer to pay, when the method needs a payment page (P4.1). */
   ...(redirectUrl

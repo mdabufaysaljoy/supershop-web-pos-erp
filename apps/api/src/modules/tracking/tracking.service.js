@@ -1,8 +1,19 @@
-import { EVENTS, PROVIDER_CONFIG_SCHEMAS, TRACKING_PROVIDERS } from '@supershop/shared';
+import {
+  EVENTS,
+  PROVIDER_CONFIG_SCHEMAS,
+  TRACKING_PROVIDERS,
+  generateEventId,
+} from '@supershop/shared';
 import { decryptSecret, encryptSecret, maskSecret } from '../../core/crypto.js';
-import { BadRequestError } from '../../core/errors.js';
+import { BadRequestError, NotFoundError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import * as repo from './tracking.repo.js';
+import * as logRepo from './trackingLog.repo.js';
+import {
+  enqueueTrackingEvent,
+  processTrackingJob,
+  sanitizePayloadForLogging,
+} from './tracking.jobs.js';
 
 const aadFor = (provider, key) => `tracking:${provider}:${key}`;
 
@@ -202,5 +213,185 @@ export async function getDecryptedCredentials(provider) {
     clientConfig: doc.clientConfig ?? {},
     credentials: decrypted,
     events: doc.events ?? [],
+  };
+}
+
+/**
+ * Queries tracking event logs for the admin viewer.
+ */
+export async function queryTrackingLogs(query) {
+  return logRepo.queryLogs(query);
+}
+
+/**
+ * Gets a single tracking event log with full payload and response.
+ */
+export async function getTrackingLog(id) {
+  const log = await logRepo.findLogById(id);
+  if (!log) {
+    throw new NotFoundError('Tracking event log not found');
+  }
+  return log;
+}
+
+/**
+ * Retries a failed tracking event log.
+ */
+export async function retryTrackingLog(id, { fetchImpl } = {}) {
+  const log = await logRepo.findLogById(id);
+  if (!log) {
+    throw new NotFoundError('Tracking event log not found');
+  }
+
+  // Update status back to pending
+  await logRepo.updateLog(id, {
+    status: 'pending',
+    errorMessage: null,
+  });
+
+  // Re-run dispatch
+  try {
+    await processTrackingJob(
+      {
+        data: {
+          logId: String(log._id),
+          provider: log.provider,
+          event: log.event,
+          eventId: log.eventId,
+          orderNumber: log.orderNumber,
+          payload: log.payload,
+          isTest: log.isTest,
+          testEventCode: log.testEventCode,
+        },
+      },
+      { fetchImpl },
+    );
+  } catch {
+    // Error is already recorded on log by processTrackingJob
+  }
+
+  return logRepo.findLogById(id);
+}
+
+/**
+ * Dispatches an on-demand test event from admin panel.
+ */
+export async function dispatchTestEvent(input, { fetchImpl } = {}) {
+  const {
+    provider,
+    event = 'purchase',
+    testEventCode,
+    orderNumber,
+    value = 100,
+    currency = 'SAR',
+  } = input;
+
+  if (!TRACKING_PROVIDERS.includes(provider)) {
+    throw new BadRequestError(`Unknown tracking provider: ${provider}`);
+  }
+
+  const eventId = `test_${generateEventId()}`;
+  const testOrderNo = orderNumber || `TEST-${Date.now().toString(36).toUpperCase()}`;
+
+  const testPayload = {
+    event,
+    eventId,
+    orderNumber: testOrderNo,
+    value,
+    currency,
+    items: [
+      {
+        item_id: 'TEST-SKU-1',
+        item_name: 'Test Product',
+        price: value,
+        quantity: 1,
+      },
+    ],
+    customer: {
+      email: 'test@example.com',
+      phone: '0501234567',
+      name: 'Test Customer',
+    },
+    attribution: {
+      landingPage: 'https://supershop.example/test',
+      clientUserAgent: 'SuperShop-Admin-TestRunner/1.0',
+    },
+  };
+
+  const sanitizedPayload = sanitizePayloadForLogging(testPayload);
+
+  const log = await logRepo.createLog({
+    provider,
+    event,
+    eventId,
+    orderNumber: testOrderNo,
+    status: 'pending',
+    payload: sanitizedPayload,
+    isTest: true,
+    testEventCode: testEventCode || null,
+  });
+
+  try {
+    const result = await processTrackingJob(
+      {
+        data: {
+          logId: String(log._id),
+          provider,
+          event,
+          eventId,
+          orderNumber: testOrderNo,
+          payload: testPayload,
+          isTest: true,
+          testEventCode,
+        },
+      },
+      { fetchImpl },
+    );
+
+    const updated = await logRepo.findLogById(log._id);
+    return {
+      success: true,
+      log: updated,
+      result,
+    };
+  } catch (err) {
+    const updated = await logRepo.findLogById(log._id);
+    return {
+      success: false,
+      log: updated,
+      error: err.message,
+    };
+  }
+}
+
+/**
+ * Direct public server-side event ingestion endpoint.
+ */
+export async function ingestServerEvent(input) {
+  const eventId = input.eventId || generateEventId();
+  const integrations = await repo.listIntegrations();
+  const activeProviders = integrations
+    .filter((i) => i.enabled && (i.events || []).includes(input.event))
+    .map((i) => i.provider);
+
+  const eventData = {
+    ...input,
+    eventId,
+  };
+
+  for (const provider of activeProviders) {
+    void enqueueTrackingEvent({
+      provider,
+      event: input.event,
+      eventId,
+      orderNumber: input.orderNumber,
+      payload: eventData,
+    });
+  }
+
+  return {
+    enqueued: true,
+    eventId,
+    dispatchedTo: activeProviders,
   };
 }

@@ -221,4 +221,11 @@ export {
   CONSENT_COOKIE_NAME,
   PROVIDER_CONFIG_SCHEMAS,
   TRACKING_PROVIDERS,
+  TRACKING_LOG_STATUS,
+  META_EVENT_MAP,
+  normalizePhoneForTracking,
+  trackingLogQuerySchema,
+  trackingLogIdParamSchema,
+  testEventSchema,
+  serverEventIngestSchema,
 } from './schemas/tracking.js';

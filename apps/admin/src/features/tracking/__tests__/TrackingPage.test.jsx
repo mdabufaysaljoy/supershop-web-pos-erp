@@ -219,4 +219,150 @@ describe('TrackingPage Admin UI (P9.1)', () => {
 
     expect(updatedConsent.privacyPolicyUrl).toBe('/legal/privacy-policy');
   });
+
+  it('switches to Event Logs tab, renders log items, inspects details, and retries failed event', async () => {
+    const user = userEvent.setup();
+    let retryCalled = false;
+
+    const MOCK_LOGS = [
+      {
+        _id: 'log-1',
+        provider: 'meta',
+        event: 'purchase',
+        status: 'success',
+        orderNumber: 'ORD-5001',
+        eventId: 'evt_meta_5001',
+        latencyMs: 125,
+        attempts: 1,
+        payload: { event: 'purchase', orderNumber: 'ORD-5001' },
+        response: { events_received: 1 },
+        createdAt: new Date().toISOString(),
+      },
+      {
+        _id: 'log-2',
+        provider: 'ga4',
+        event: 'purchase',
+        status: 'failed',
+        orderNumber: 'ORD-5002',
+        eventId: 'evt_ga4_5002',
+        latencyMs: 80,
+        attempts: 2,
+        errorMessage: 'Connection timed out',
+        payload: { event: 'purchase', orderNumber: 'ORD-5002' },
+        response: null,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+
+    mockFetch({
+      'GET /api/v1/tracking': json(200, {
+        data: {
+          integrations: MOCK_INTEGRATIONS,
+          consent: MOCK_CONSENT,
+        },
+      }),
+      'GET /api/v1/tracking/logs': json(200, {
+        data: {
+          items: MOCK_LOGS,
+          pagination: { page: 1, pages: 1, total: 2 },
+        },
+      }),
+      'POST /api/v1/tracking/logs/log-2/retry': () => {
+        retryCalled = true;
+        return json(200, { data: { ...MOCK_LOGS[1], status: 'pending' } });
+      },
+    });
+
+    renderTrackingPage();
+
+    await screen.findByRole('heading', { name: /Marketing Tracking & Integrations/i });
+
+    // Switch to Event Logs tab
+    const logsTab = screen.getByRole('button', { name: /Event Logs/i });
+    await user.click(logsTab);
+
+    // Verify Event Logs header and table entries
+    expect(await screen.findByText('Server-Side Event Logs')).toBeInTheDocument();
+    expect(screen.getByText('ORD-5001')).toBeInTheDocument();
+    expect(screen.getByText('ORD-5002')).toBeInTheDocument();
+    expect(screen.getByText('125 ms')).toBeInTheDocument();
+
+    // Find and click inspect button on first log
+    const inspectButtons = screen.getAllByTitle('Event Log Details');
+    await user.click(inspectButtons[0]);
+
+    // Verify modal opened with details and payload
+    expect(await screen.findByText('Sanitized Payload (PII Hashed)')).toBeInTheDocument();
+
+    // Close modal
+    const closeButtons = screen.getAllByRole('button', { name: /Close/i });
+    await user.click(closeButtons[0]);
+
+    // Click retry button on the failed log
+    const retryButtons = screen.getAllByTitle('Retry Dispatch');
+    await user.click(retryButtons[0]);
+
+    await waitFor(() => {
+      expect(retryCalled).toBe(true);
+    });
+  });
+
+  it('opens TestEventDialog and dispatches a test event', async () => {
+    const user = userEvent.setup();
+    let testDispatched = null;
+
+    mockFetch({
+      'GET /api/v1/tracking': json(200, {
+        data: {
+          integrations: MOCK_INTEGRATIONS,
+          consent: MOCK_CONSENT,
+        },
+      }),
+      'GET /api/v1/tracking/logs': json(200, {
+        data: {
+          items: [],
+          pagination: { page: 1, pages: 1, total: 0 },
+        },
+      }),
+      'POST /api/v1/tracking/test': ({ init }) => {
+        testDispatched = JSON.parse(init.body);
+        return json(200, {
+          data: {
+            success: true,
+            log: { latencyMs: 95 },
+            result: { response: { events_received: 1 } },
+          },
+        });
+      },
+    });
+
+    renderTrackingPage();
+
+    await screen.findByRole('heading', { name: /Marketing Tracking & Integrations/i });
+
+    // Switch to Event Logs tab
+    const logsTab = screen.getByRole('button', { name: /Event Logs/i });
+    await user.click(logsTab);
+
+    // Click Send Test Event button
+    const sendTestBtn = await screen.findByRole('button', { name: /Send Test Event/i });
+    await user.click(sendTestBtn);
+
+    // Fill in test dialog
+    expect(await screen.findByText('Send Test Conversion Event')).toBeInTheDocument();
+    const testCodeInput = screen.getByPlaceholderText('e.g. TEST12345');
+    await user.type(testCodeInput, 'CODE_789');
+
+    // Submit dialog
+    const submitBtn = screen.getByRole('button', { name: /^Send Test Event$/i });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(testDispatched).toBeTruthy();
+    });
+
+    expect(testDispatched.provider).toBe('meta');
+    expect(testDispatched.testEventCode).toBe('CODE_789');
+    expect(await screen.findByText(/Test event dispatched successfully!/i)).toBeInTheDocument();
+  });
 });

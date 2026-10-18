@@ -1,9 +1,14 @@
 import { ALL_BLOCK_COMPONENTS, BlockRenderer } from '@supershop/ui';
 import Link from 'next/link';
-import { MediaImage } from '@/components/catalog/MediaImage';
 import { ProductGrid } from '@/components/catalog/ProductCard';
+import { CategoryShowcase } from '@/components/home/CategoryShowcase';
+import { FlashDealsBanner } from '@/components/home/FlashDealsBanner';
+import { HomeHero } from '@/components/home/HomeHero';
+import { NewsletterSection } from '@/components/home/NewsletterSection';
+import { PromoBanners } from '@/components/home/PromoBanners';
+import { TestimonialWall } from '@/components/home/TestimonialWall';
+import { TrustFeatures } from '@/components/home/TrustFeatures';
 import { localizePath } from '@/i18n/config';
-import { categoryPath } from '@/lib/categories';
 import { getCategoryTree, searchProducts } from '@/lib/catalog';
 import { blockContext, getHomePage } from '@/lib/cmsPage';
 import { getPageContext } from '@/lib/page';
@@ -37,7 +42,7 @@ export default async function HomePage({ params }) {
   const [{ t, fmtOptions }, page] = await Promise.all([getPageContext(lang), getHomePage(lang)]);
   if (page)
     return (
-      <div className="grid gap-14">
+      <div className="grid gap-16">
         <BlockRenderer
           blocks={page.content.blocks}
           components={ALL_BLOCK_COMPONENTS}
@@ -61,66 +66,69 @@ export default async function HomePage({ params }) {
   );
 }
 
-/** The storefront's own home, for a shop without a home page of its own. */
+/** The flagship supershop storefront experience */
 function BuiltInHome({ lang, storeName, categories, newest, t }) {
   return (
-    <div className="grid gap-14">
-      <section className="grid gap-4 rounded-2xl bg-muted px-6 py-12 sm:px-10 sm:py-16">
-        <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-          {t('home.title', { store: storeName })}
-        </h1>
-        <p className="max-w-xl text-muted-foreground">{t('site.tagline')}</p>
-        <p>
-          <Link
-            href={localizePath('/search', lang)}
-            className="inline-flex h-11 items-center rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground"
-          >
-            {t('home.shopAll')}
-          </Link>
-        </p>
-      </section>
+    <div className="grid gap-16 sm:gap-20">
+      {/* 1. Modern Flagship Hero Showcase */}
+      <HomeHero lang={lang} storeName={storeName} t={t} />
 
-      {categories.length > 0 && (
-        <section className="grid gap-4" aria-labelledby="home-categories">
-          <h2 id="home-categories" className="text-xl font-semibold">
-            {t('home.categories')}
-          </h2>
-          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {categories.map((c) => (
-              <li key={c.id}>
-                <Link href={localizePath(categoryPath(c.slug), lang)} className="group grid gap-2">
-                  <span className="block aspect-square overflow-hidden rounded-xl bg-muted">
-                    <MediaImage
-                      image={c.image}
-                      alt=""
-                      sizes="(min-width: 1024px) 16vw, (min-width: 640px) 30vw, 46vw"
-                      className="size-full object-cover transition-transform group-hover:scale-105 motion-reduce:transition-none"
-                    />
-                  </span>
-                  <span className="text-sm font-medium">{c.name}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {/* 2. Trust Badges & Value Propositions */}
+      <TrustFeatures />
 
+      {/* 3. Multi-Category Department Grid */}
+      <CategoryShowcase categories={categories} lang={lang} t={t} />
+
+      {/* 4. High-Energy Flash Deals Banner */}
+      <FlashDealsBanner lang={lang} t={t} />
+
+      {/* 5. Dual Promotional Category Spotlights (Electronics & Fashion) */}
+      <PromoBanners lang={lang} />
+
+      {/* 6. Trending & New Arrivals Product Showcase */}
       {newest.length > 0 && (
-        <section className="grid gap-4" aria-labelledby="home-new">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 id="home-new" className="text-xl font-semibold">
-              {t('home.newArrivals')}
-            </h2>
+        <section className="grid gap-6" aria-labelledby="home-new">
+          <div className="flex items-end justify-between gap-4 border-b border-border/60 pb-3">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                Fresh Stock Drops
+              </span>
+              <h2
+                id="home-new"
+                className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+              >
+                {t('home.newArrivals')}
+              </h2>
+            </div>
             <Link
               href={`${localizePath('/search', lang)}?sort=newest`}
-              className="text-sm underline underline-offset-4"
+              className="group inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
             >
-              {t('home.viewAll')}
+              <span>{t('home.viewAll')}</span>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-4 rtl:-scale-x-100 transition-transform group-hover:translate-x-1"
+                aria-hidden="true"
+              >
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
             </Link>
           </div>
           <ProductGrid products={newest} eager={0} />
         </section>
       )}
+
+      {/* 7. Customer Reviews & Community Trust Wall */}
+      <TestimonialWall />
+
+      {/* 8. VIP Club / Newsletter Subscription Banner */}
+      <NewsletterSection />
     </div>
   );
 }

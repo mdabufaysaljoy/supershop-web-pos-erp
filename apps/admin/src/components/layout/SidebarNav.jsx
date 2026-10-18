@@ -23,8 +23,8 @@ export function SidebarNav({ onNavigate }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground',
-                  isActive && 'bg-sidebar-accent text-sidebar-foreground',
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-sidebar-foreground/75 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground',
+                  isActive && 'bg-sidebar-accent font-semibold text-white shadow-2xs',
                 )
               }
             >

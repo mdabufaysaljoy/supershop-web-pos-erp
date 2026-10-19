@@ -7,6 +7,11 @@
 
 
 ## Done tasks
+- POS Layout Proportions: 1-Column Filter/Search and 2-Column Product Viewing ✔ 2026-10-19 (Antigravity) Re-proportioned the POS workspace grid into a balanced 5-column layout where filter and search occupy 1 column and product viewing occupies 2 columns right after filters, providing ample space for 2-column product display (`apps/admin`):
+  1. 5-Column POS Grid Architecture (`PosPage.jsx`): Replaced narrow fractional layout with `grid-cols-1 md:grid-cols-2 lg:grid-cols-5`, assigning `lg:col-span-1` to Filters & Search, `lg:col-span-2` to Product Viewing, `lg:col-span-1` to Product Cart, and `lg:col-span-1` to Payment Settlement.
+  2. Balanced 2-Column Product Viewing: Product viewing now has exactly double the width of single columns, ensuring the internal 2-column card grid (`grid-cols-2`) renders spacious cards with unconstrained titles, pricing, and action buttons.
+  3. Verification: 100% test pass rate across POS test suite (22/22 unit tests), 0 ESLint warnings (`npm run lint`), and `npm run i18n:check` passing.
+
 - Order Detail Return & Exchange Navigation and Item Preselection ✔ 2026-10-19 (Antigravity) Added Return and Exchange action buttons to single orders on the Order Detail Page with automatic item preselection and query handling on the Returns & Exchanges page (`apps/admin`):
   1. Order Detail Actions (`OrderDetailPage.jsx`, `en.json`): Added header-level "Return / Exchange" button linking to `/returns?order=${orderNo}`, and item-level "Return" and "Exchange" buttons for each product line linking to `/returns?order=${orderNo}&mode=${return|exchange}&variantId=${variantId}&qty=${qty}` when order status permits returns.
   2. Returns & Exchanges Query Synchronization (`ReturnsPage.jsx`): Handled URL parameters (`order`, `mode`, `variantId`, `qty`), automatically querying the target order, toggling between return and exchange modes during render, pre-selecting the specified variant line with its quantity, and visually highlighting the selected line.

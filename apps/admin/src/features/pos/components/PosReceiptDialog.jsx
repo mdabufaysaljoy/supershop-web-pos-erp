@@ -74,7 +74,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-md p-0 overflow-hidden rounded-2xl border-slate-200"
+        className="max-w-md p-0 overflow-hidden rounded-lg border-slate-200"
         closeLabel={t('common.close', 'Close')}
       >
         <DialogTitle className="sr-only">Receipt {orderNo}</DialogTitle>
@@ -91,7 +91,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
                 href={onlineReceiptUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 transition"
+                className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 transition"
               >
                 <span>{t('receipt.viewOnline', 'Online')}</span>
                 <ExternalLink className="size-3 text-slate-400" />
@@ -101,7 +101,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
               type="button"
               size="sm"
               onClick={handlePrint}
-              className="h-8 gap-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold px-3 shadow-xs"
+              className="h-8 gap-1.5 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold px-3 shadow-xs"
             >
               <Printer className="size-3.5" />
               <span>{t('receipt.print', 'Print')}</span>
@@ -113,7 +113,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
         <div className="max-h-[75vh] overflow-y-auto p-6 bg-slate-100/50 flex justify-center print:p-0 print:bg-white print:max-h-none print:overflow-visible">
           <div
             id="pos-receipt-printable"
-            className="w-full max-w-[340px] rounded-xl border border-slate-200/90 bg-white p-5 shadow-sm text-slate-900 font-mono text-xs flex flex-col gap-3.5 print:border-none print:shadow-none print:p-0 print:w-[80mm]"
+            className="w-full max-w-[340px] rounded-md border border-slate-200/90 bg-white p-5 shadow-sm text-slate-900 font-mono text-xs flex flex-col gap-3.5 print:border-none print:shadow-none print:p-0 print:w-[80mm]"
           >
             {/* 1. Store Name Big Text */}
             <div className="text-center">
@@ -284,7 +284,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
-            className="text-xs font-semibold rounded-xl"
+            className="text-xs font-semibold rounded-md"
           >
             {t('common.close', 'Close')}
           </Button>
@@ -292,7 +292,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
             type="button"
             size="sm"
             onClick={handlePrint}
-            className="gap-1.5 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 shadow-sm"
+            className="gap-1.5 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 shadow-sm"
           >
             <Printer className="size-3.5" />
             <span>{t('receipt.print', 'Print Receipt')}</span>

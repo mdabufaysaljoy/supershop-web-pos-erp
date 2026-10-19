@@ -10,7 +10,7 @@ export function Badge({ tone = 'muted', children }) {
     info: 'bg-sky-100 text-sky-900',
   };
   return (
-    <span className={cn('inline-flex rounded-full px-2 py-0.5 text-xs font-medium', tones[tone])}>
+    <span className={cn('inline-flex rounded-md px-2 py-0.5 text-xs font-medium', tones[tone])}>
       {children}
     </span>
   );

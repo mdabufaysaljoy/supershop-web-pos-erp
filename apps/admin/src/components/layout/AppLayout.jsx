@@ -26,7 +26,7 @@ export function AppLayout() {
       to="/"
       className="flex items-center gap-3 px-4 py-3.5 transition-opacity hover:opacity-90"
     >
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm">
         <Store className="size-5" />
       </div>
       <div className="flex flex-col min-w-0">

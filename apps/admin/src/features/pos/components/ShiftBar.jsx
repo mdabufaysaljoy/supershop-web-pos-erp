@@ -31,7 +31,7 @@ export function ShiftBar({ branchId }) {
   if (shift) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 shadow-2xs">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 shadow-2xs">
       <div className="flex items-center gap-2.5">
         <Badge tone="warning">{t('shifts.active.noneTitle')}</Badge>
         <span className="text-xs font-medium text-amber-900">
@@ -42,7 +42,7 @@ export function ShiftBar({ branchId }) {
         <Button
           type="button"
           size="sm"
-          className="rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs"
+          className="rounded-md bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs shadow-xs"
           onClick={() => setOpenModal(true)}
         >
           {t('shifts.actions.openShift')}

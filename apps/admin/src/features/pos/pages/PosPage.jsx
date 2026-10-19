@@ -331,12 +331,12 @@ export function PosPage() {
       )}
 
       {!branchId ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4 m-auto">
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4 m-auto">
           <p>{t('pos.chooseBranchFirst')}</p>
           <Select
             id="pos-branch-select"
             value={branchId}
-            className="w-60 h-10 rounded-xl text-xs font-medium"
+            className="w-60 h-10 rounded-md text-xs font-medium"
             onChange={(e) => chooseBranch(e.target.value)}
           >
             <option value="">{t('pos.chooseBranch')}</option>
@@ -357,7 +357,7 @@ export function PosPage() {
           {(showHeld || sale.held.length > 0) && (
             <section
               aria-label="Held sales"
-              className="shrink-0 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-2 flex items-center justify-between gap-3 shadow-2xs"
+              className="shrink-0 rounded-lg border border-amber-200 bg-amber-50/90 px-4 py-2 flex items-center justify-between gap-3 shadow-2xs"
             >
               <div className="flex items-center gap-2 text-xs font-semibold text-amber-900">
                 <span className="font-bold">
@@ -374,7 +374,7 @@ export function PosPage() {
                 <Button
                   type="button"
                   size="sm"
-                  className="h-7 px-3 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
+                  className="h-7 px-3 rounded-md bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
                   onClick={() => sale.resume(sale.held[0].id)}
                 >
                   {t('pos.held.resume', 'Resume')}

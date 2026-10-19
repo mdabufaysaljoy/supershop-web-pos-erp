@@ -24,18 +24,18 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
   const lineCount = sale?.lines?.length ?? 0;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 shadow-2xs">
+    <div className="flex flex-col h-full overflow-hidden rounded-lg border border-slate-200/90 bg-white p-4 shadow-2xs">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-lg bg-blue-50 text-primary">
+          <div className="flex size-7 items-center justify-center rounded-md bg-blue-50 text-primary">
             <ShoppingCart className="size-3.5" />
           </div>
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
             {t('pos.cart.title', 'Cart')}
           </h2>
         </div>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
           {lineCount} line{lineCount !== 1 ? 's' : ''}
         </span>
       </div>
@@ -57,7 +57,7 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value)}
-                className="h-7 rounded-lg border border-slate-200 bg-white px-1.5 text-[11px] font-medium text-slate-700 outline-none"
+                className="h-7 rounded-md border border-slate-200 bg-white px-1.5 text-[11px] font-medium text-slate-700 outline-none"
               >
                 <option value="amount">Amount</option>
                 <option value="percent">Percent</option>
@@ -66,7 +66,7 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
                 value={sale?.orderDiscount?.type === 'amount' ? sale.orderDiscount.value / 100 : ''}
                 aria-label={t('pos.lines.orderDiscount', 'Off the whole basket')}
                 placeholder="0.00"
-                className="h-7 w-20 rounded-lg border border-rose-300 focus:border-rose-500 text-rose-600 text-end text-xs font-semibold px-2 outline-none"
+                className="h-7 w-20 rounded-md border border-rose-300 focus:border-rose-500 text-rose-600 text-end text-xs font-semibold px-2 outline-none"
                 onChange={(e) =>
                   onOrderDiscount(
                     halalas(e.target.value) && {

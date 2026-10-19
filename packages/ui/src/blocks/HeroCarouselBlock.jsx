@@ -31,7 +31,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
   return (
     <section
       aria-roledescription="carousel"
-      className="relative overflow-hidden rounded-3xl bg-linear-to-br from-slate-950 via-indigo-950/90 to-slate-900 text-white shadow-2xl border border-white/10"
+      className="relative overflow-hidden rounded-xl bg-linear-to-br from-slate-950 via-indigo-950/90 to-slate-900 text-white shadow-2xl border border-white/10"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -97,7 +97,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
                     <a
                       href={hrefIn(slide.href, context)}
                       tabIndex={i === active ? undefined : -1}
-                      className="group inline-flex h-12 items-center gap-2.5 rounded-full bg-primary px-8 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:bg-primary/90 transition-all duration-300"
+                      className="group inline-flex h-12 items-center gap-2.5 rounded-md bg-primary px-8 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:bg-primary/90 transition-all duration-300"
                     >
                       <span>{slide.buttonLabel}</span>
                       <svg
@@ -141,7 +141,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
             type="button"
             aria-label={labels.previous ?? 'Previous slide'}
             onClick={() => go(active - 1)}
-            className="absolute start-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md border border-white/20 text-xl transition-all rtl:rotate-180"
+            className="absolute start-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-md bg-white/10 hover:bg-white/25 text-white backdrop-blur-md border border-white/20 text-xl transition-all rtl:rotate-180"
           >
             ‹
           </button>
@@ -149,7 +149,7 @@ export function HeroCarouselBlock({ slides = [], autoplaySeconds = 0, context = 
             type="button"
             aria-label={labels.next ?? 'Next slide'}
             onClick={() => go(active + 1)}
-            className="absolute end-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/10 hover:bg-white/25 text-white backdrop-blur-md border border-white/20 text-xl transition-all rtl:rotate-180"
+            className="absolute end-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-md bg-white/10 hover:bg-white/25 text-white backdrop-blur-md border border-white/20 text-xl transition-all rtl:rotate-180"
           >
             ›
           </button>

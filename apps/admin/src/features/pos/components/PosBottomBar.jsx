@@ -27,14 +27,14 @@ export function PosBottomBar({
   const canComplete = !busy && !blocked && payments.length > 0 && tender.due <= 0;
 
   return (
-    <footer className="w-full shrink-0 rounded-2xl border border-slate-200/90 bg-white px-5 py-3 shadow-sm flex items-center justify-between gap-4">
+    <footer className="w-full shrink-0 rounded-lg border border-slate-200/90 bg-white px-5 py-3 shadow-sm flex items-center justify-between gap-4">
       {/* Left Action Controls: Clear Basket & Hold Sale */}
       <div className="flex items-center gap-2.5">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="h-10 px-4 rounded-xl text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-destructive hover:border-destructive/30 transition-colors"
+          className="h-10 px-4 rounded-md text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-destructive hover:border-destructive/30 transition-colors"
           disabled={!lineCount}
           onClick={onClear}
         >
@@ -46,7 +46,7 @@ export function PosBottomBar({
           type="button"
           variant="outline"
           size="sm"
-          className="h-10 px-4 rounded-xl text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 transition-colors"
+          className="h-10 px-4 rounded-md text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 transition-colors"
           disabled={!lineCount && heldCount === 0}
           onClick={lineCount ? onHold : onToggleHeld}
         >
@@ -73,7 +73,7 @@ export function PosBottomBar({
       {/* Right Action Controls: Change Callout & Complete Sale CTA */}
       <div className="flex items-center gap-3">
         {tender.change > 0 && (
-          <div className="flex items-center gap-1.5 rounded-xl bg-emerald-50 px-3 py-1.5 border border-emerald-200 text-xs font-bold text-emerald-800">
+          <div className="flex items-center gap-1.5 rounded-md bg-emerald-50 px-3 py-1.5 border border-emerald-200 text-xs font-bold text-emerald-800">
             <span>Change to return:</span>
             <span className="tabular-nums font-black text-sm">{fmt.money(tender.change)}</span>
           </div>
@@ -83,7 +83,7 @@ export function PosBottomBar({
           type="button"
           disabled={!canComplete}
           onClick={onComplete}
-          className="h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm shadow-md transition-all disabled:opacity-50 min-w-[200px]"
+          className="h-11 px-6 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm shadow-md transition-all disabled:opacity-50 min-w-[200px]"
         >
           <CheckCircle2 className="size-4 me-1.5" />
           <span>

@@ -32,9 +32,9 @@ export function ProductRailBlock({ id, heading, context = {} }) {
       <ul className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 hide-scrollbar">
         {products.map((product) => (
           <li key={product.id} className="w-56 shrink-0 snap-start sm:w-64">
-            <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card p-3.5 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl">
+            <div className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-border/70 bg-card p-3.5 shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/40 hover:shadow-xl">
               <div>
-                <span className="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-muted/40 p-2 pointer-events-none">
+                <span className="relative mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-md bg-muted/40 p-2 pointer-events-none">
                   {product.image ? (
                     <img
                       src={product.image.url}
@@ -49,7 +49,7 @@ export function ProductRailBlock({ id, heading, context = {} }) {
                   ) : (
                     <span className="text-3xl text-muted-foreground/30">📦</span>
                   )}
-                  <span className="absolute start-2.5 top-2.5 rounded-full bg-emerald-600/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
+                  <span className="absolute start-2.5 top-2.5 rounded-sm bg-emerald-600/90 px-2 py-0.5 text-[10px] font-bold text-white shadow-xs backdrop-blur-xs">
                     In Stock
                   </span>
                 </span>
@@ -77,7 +77,7 @@ export function ProductRailBlock({ id, heading, context = {} }) {
                       context.onAddToCart(product);
                     }
                   }}
-                  className="flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-primary/10 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
+                  className="flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-primary/10 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -152,7 +152,7 @@ export function CategoryGridBlock({ id, heading, columns = '3', context = {} }) 
           <li key={category.id}>
             <a
               href={hrefIn(category.href, context)}
-              className="group relative grid aspect-[4/3] place-items-end overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-muted/50 to-muted p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+              className="group relative grid aspect-[4/3] place-items-end overflow-hidden rounded-lg border border-border/70 bg-gradient-to-br from-muted/50 to-muted p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
             >
               {category.image ? (
                 <img
@@ -176,7 +176,7 @@ export function CategoryGridBlock({ id, heading, columns = '3', context = {} }) 
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
-              <span className="relative rounded-xl bg-background/95 px-3 py-1.5 text-xs sm:text-sm font-bold text-foreground shadow-sm backdrop-blur-md group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+              <span className="relative rounded-md bg-background/95 px-3 py-1.5 text-xs sm:text-sm font-bold text-foreground shadow-sm backdrop-blur-md group-hover:bg-primary group-hover:text-primary-foreground transition-all">
                 {category.name}
               </span>
             </a>
@@ -230,7 +230,7 @@ export function BannerBlock({
   return (
     <section
       className={cn(
-        'relative grid min-h-64 items-center overflow-hidden rounded-3xl p-8 sm:p-12 shadow-2xl border border-border/50',
+        'relative grid min-h-64 items-center overflow-hidden rounded-xl p-8 sm:p-12 shadow-2xl border border-border/50',
         tone === 'dark'
           ? 'bg-linear-to-r from-slate-950 via-indigo-950 to-slate-900 text-white'
           : 'bg-linear-to-r from-primary/10 via-background to-accent/10 text-foreground',
@@ -250,7 +250,7 @@ export function BannerBlock({
         />
       ) : null}
       <div className="relative grid max-w-xl gap-3 sm:gap-4">
-        <span className="w-fit rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-400 backdrop-blur-xs">
+        <span className="w-fit rounded-md bg-amber-500/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-400 backdrop-blur-xs">
           Exclusive Member Deals
         </span>
         {heading ? (
@@ -264,7 +264,7 @@ export function BannerBlock({
         {buttonLabel ? (
           <a
             href={hrefIn(href, context)}
-            className="group inline-flex h-12 w-fit items-center gap-2 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90"
+            className="group inline-flex h-12 w-fit items-center gap-2 rounded-md bg-primary px-7 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90"
           >
             <span>{buttonLabel}</span>
             <svg
@@ -376,9 +376,9 @@ export function FeaturesBlock({ heading, items = [] }) {
         {items.map((item, index) => (
           <li
             key={item.id ?? `${item.title}-${index}`}
-            className="group flex flex-col gap-2 rounded-2xl border border-border/70 bg-card/60 p-5 shadow-xs backdrop-blur-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+            className="group flex flex-col gap-2 rounded-lg border border-border/70 bg-card/60 p-5 shadow-xs backdrop-blur-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
           >
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform group-hover:scale-110">
+            <div className="flex size-11 items-center justify-center rounded-md bg-primary/10 text-primary transition-transform group-hover:scale-110">
               <FeatureIcon name={item.icon} />
             </div>
             <span className="text-sm font-semibold">{item.title}</span>
@@ -397,7 +397,7 @@ export function TestimonialsBlock({ heading, items = [] }) {
     <Section heading={heading}>
       <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {quotes.map((item) => (
-          <li key={item.quote} className="grid gap-2 rounded-xl border p-5">
+          <li key={item.quote} className="grid gap-2 rounded-md border p-5">
             <blockquote className="text-base/7">“{item.quote}”</blockquote>
             {item.author ? (
               <cite className="text-sm text-muted-foreground not-italic">{item.author}</cite>
@@ -420,10 +420,10 @@ export function NewsletterBlock({
   context = {},
 }) {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/40 to-card p-8 sm:p-12 shadow-xl">
+    <section className="relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-card via-muted/40 to-card p-8 sm:p-12 shadow-xl">
       <div className="absolute -start-24 -bottom-24 size-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
       <div className="relative max-w-2xl space-y-4">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
           <span>✨</span> VIP Club
         </span>
         {heading ? (
@@ -446,11 +446,11 @@ export function NewsletterBlock({
             autoComplete="email"
             aria-label={context.emailLabel ?? 'Email address'}
             placeholder={context.emailLabel ?? 'Email address'}
-            className="h-12 min-w-0 flex-1 rounded-full border border-input bg-background px-5 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-12 min-w-0 flex-1 rounded-md border border-input bg-background px-5 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
           />
           <button
             type="submit"
-            className="h-12 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90 cursor-pointer"
+            className="h-12 rounded-md bg-primary px-7 text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90 cursor-pointer"
           >
             {buttonLabel}
           </button>

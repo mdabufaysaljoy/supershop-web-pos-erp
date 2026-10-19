@@ -37,7 +37,7 @@ export function LoyaltyCardModal({ open, onClose, customer, account }) {
       <DialogContent className="max-w-md p-6 sm:max-w-lg">
         <div className="flex items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary">
               <CreditCard className="size-4" />
             </div>
             <div>
@@ -58,7 +58,7 @@ export function LoyaltyCardModal({ open, onClose, customer, account }) {
         <div className="flex justify-center py-2">
           <div
             id="loyalty-card-printable"
-            className="w-full max-w-[340px] rounded-2xl border-2 border-slate-900 bg-white p-5 text-slate-900 shadow-md print:border-black"
+            className="w-full max-w-[340px] rounded-lg border-2 border-slate-900 bg-white p-5 text-slate-900 shadow-md print:border-black"
           >
             {/* Store Brand & Card Title */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-3">
@@ -98,9 +98,9 @@ export function LoyaltyCardModal({ open, onClose, customer, account }) {
             </div>
 
             {/* Barcode & QR Code Section */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 flex flex-col items-center gap-2">
+            <div className="rounded-md border border-slate-200 bg-slate-50/50 p-2.5 flex flex-col items-center gap-2">
               {/* QR Code */}
-              <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-2xs">
+              <div className="bg-white p-1 rounded-md border border-slate-200 shadow-2xs">
                 <QrCode value={cardNumber} size={88} margin={1} title={cardNumber} />
               </div>
 

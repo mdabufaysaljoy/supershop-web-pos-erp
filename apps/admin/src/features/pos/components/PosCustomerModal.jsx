@@ -92,13 +92,13 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
   return (
     <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
       <DialogContent
-        className="max-w-lg p-0 overflow-hidden rounded-2xl border-slate-200 shadow-2xl bg-white"
+        className="max-w-lg p-0 overflow-hidden rounded-lg border-slate-200 shadow-2xl bg-white"
         closeLabel={t('common.close', 'Close')}
       >
         <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-3.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary">
                 <UserCheck className="size-4" />
               </div>
               <div>
@@ -145,7 +145,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                 type="text"
                 value={searchQuery}
                 placeholder="Search by phone number or name..."
-                className="h-9 w-full rounded-xl border border-slate-200 bg-white ps-9 pe-8 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-2xs"
+                className="h-9 w-full rounded-md border border-slate-200 bg-white ps-9 pe-8 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-2xs"
                 onChange={(e) => handleSearchChange(e.target.value)}
               />
               {searchQuery && (
@@ -161,7 +161,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
 
             {/* Suggestions list according to search */}
             {searchQuery && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto shadow-xs">
+              <div className="rounded-md border border-slate-200 bg-slate-50/70 p-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto shadow-xs">
                 {activeLoyaltyMatch?.customer && (
                   <button
                     type="button"
@@ -173,10 +173,10 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                         id: activeLoyaltyMatch.customer.id,
                       })
                     }
-                    className="flex items-center justify-between rounded-lg border-2 border-primary/50 bg-primary/10 p-2 text-start hover:bg-primary/15 transition-all"
+                    className="flex items-center justify-between rounded-md border-2 border-primary/50 bg-primary/10 p-2 text-start hover:bg-primary/15 transition-all"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-white font-bold">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary text-white font-bold">
                         <CreditCard className="size-4" />
                       </div>
                       <div className="flex flex-col min-w-0">
@@ -184,7 +184,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                           <span className="text-xs font-bold text-slate-900 truncate">
                             {activeLoyaltyMatch.customer.name}
                           </span>
-                          <span className="rounded bg-primary/20 px-1 py-0.2 text-[9px] font-mono font-bold text-primary">
+                          <span className="rounded-sm bg-primary/20 px-1 py-0.2 text-[9px] font-mono font-bold text-primary">
                             {activeLoyaltyMatch.cardNumber}
                           </span>
                         </div>
@@ -201,7 +201,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                         </div>
                       </div>
                     </div>
-                    <span className="rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
+                    <span className="rounded-sm bg-primary px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
                       Attach Card
                     </span>
                   </button>
@@ -220,10 +220,10 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                       key={c.id || c._id}
                       type="button"
                       onClick={() => handleSelectCustomer(c)}
-                      className="group flex items-center justify-between rounded-lg border border-slate-100 bg-white p-2 text-start hover:border-primary hover:bg-primary/5 transition-all"
+                      className="group flex items-center justify-between rounded-md border border-slate-100 bg-white p-2 text-start hover:border-primary hover:bg-primary/5 transition-all"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-700 group-hover:bg-primary group-hover:text-white transition-colors">
+                        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-xs font-bold text-slate-700 group-hover:bg-primary group-hover:text-white transition-colors">
                           {c.name ? c.name.slice(0, 2).toUpperCase() : 'CU'}
                         </div>
                         <div className="flex flex-col min-w-0">
@@ -240,7 +240,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                           </div>
                         </div>
                       </div>
-                      <span className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                      <span className="rounded-sm border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold text-primary group-hover:bg-primary group-hover:text-white transition-all">
                         Attach
                       </span>
                     </button>
@@ -266,7 +266,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                   value={nameValue}
                   placeholder="Full Name"
                   aria-label={t('pos.customer.name', 'Name')}
-                  className="h-9 rounded-xl text-xs"
+                  className="h-9 rounded-md text-xs"
                   onChange={(e) =>
                     onCustomerChange({
                       mode: 'contact',
@@ -283,7 +283,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                   value={phoneValue}
                   placeholder="05XXXXXXXX"
                   aria-label={t('pos.customer.phone', 'Phone')}
-                  className="h-9 rounded-xl text-xs"
+                  className="h-9 rounded-md text-xs"
                   onChange={(e) =>
                     onCustomerChange({
                       mode: 'contact',
@@ -314,7 +314,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
               variant="outline"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-xs font-semibold rounded-xl"
+              className="text-xs font-semibold rounded-md"
             >
               Cancel
             </Button>
@@ -331,7 +331,7 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                 }
                 onOpenChange(false);
               }}
-              className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 shadow-sm"
+              className="rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 shadow-sm"
             >
               <Check className="size-3.5 me-1" />
               <span>{nameValue || phoneValue ? 'Attach to Sale' : 'Done'}</span>

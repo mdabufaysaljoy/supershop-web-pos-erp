@@ -66,11 +66,11 @@ export function PosPaymentColumn({
   const customerPhone = customer?.phone ?? '';
 
   return (
-    <div className="flex flex-col h-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-4 shadow-2xs">
+    <div className="flex flex-col h-full overflow-hidden rounded-lg border border-slate-200/90 bg-white p-4 shadow-2xs">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
         <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+          <div className="flex size-7 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
             <CreditCard className="size-3.5" />
           </div>
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
@@ -81,7 +81,7 @@ export function PosPaymentColumn({
 
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pe-1">
         {/* Total to pay Display */}
-        <div className="flex items-baseline justify-between rounded-xl bg-slate-50 p-3 border border-slate-100">
+        <div className="flex items-baseline justify-between rounded-md bg-slate-50 p-3 border border-slate-100">
           <span className="text-xs font-bold text-slate-600">
             {t('pos.payment.total', 'To pay')}
           </span>
@@ -94,11 +94,11 @@ export function PosPaymentColumn({
         </div>
 
         {/* Customer Attachment Section */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-2.5 flex flex-col gap-1.5">
+        <div className="rounded-md border border-slate-200 bg-slate-50/60 p-2.5 flex flex-col gap-1.5">
           {isContact && customerName ? (
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
-                <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <div className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-100 text-emerald-700">
                   <UserCheck className="size-3.5" />
                 </div>
                 <div className="flex flex-col min-w-0">
@@ -107,7 +107,7 @@ export function PosPaymentColumn({
                       {customerName}
                     </span>
                     {customer?.loyalty?.pointsBalance !== undefined && (
-                      <span className="inline-flex items-center rounded px-1 text-[9px] font-bold bg-amber-100 text-amber-800">
+                      <span className="inline-flex items-center rounded-sm px-1 text-[9px] font-bold bg-amber-100 text-amber-800">
                         {customer.loyalty.pointsBalance} pts
                       </span>
                     )}
@@ -146,7 +146,7 @@ export function PosPaymentColumn({
                 variant="outline"
                 size="sm"
                 onClick={onOpenCustomerModal}
-                className="h-7 px-2 text-[11px] font-semibold text-primary border-primary/30 hover:bg-primary/5 rounded-lg"
+                className="h-7 px-2 text-[11px] font-semibold text-primary border-primary/30 hover:bg-primary/5 rounded-md"
               >
                 {t('pos.customer.attach', 'Add a customer')}
               </Button>
@@ -156,7 +156,7 @@ export function PosPaymentColumn({
 
         {/* Tendered Payments List */}
         {payments.length > 0 && (
-          <ul className="rounded-xl border border-slate-100 bg-slate-50/80 p-2 divide-y divide-slate-100 flex flex-col gap-1">
+          <ul className="rounded-md border border-slate-100 bg-slate-50/80 p-2 divide-y divide-slate-100 flex flex-col gap-1">
             {payments.map((payment, index) => (
               <li
                 key={`${payment.method}-${index}`}
@@ -193,7 +193,7 @@ export function PosPaymentColumn({
         <div className="grid grid-cols-[6.5rem_1fr_auto] gap-1.5 items-center">
           <Select
             value={chosen}
-            className="h-8 rounded-lg text-xs font-medium"
+            className="h-8 rounded-md text-xs font-medium"
             onChange={(e) => setMethod(e.target.value)}
           >
             {methods.length > 0
@@ -217,7 +217,7 @@ export function PosPaymentColumn({
             value={amount}
             aria-label={t('pos.payment.amount')}
             placeholder="0.00"
-            className="h-8 rounded-lg border border-rose-300 focus:border-rose-500 text-end text-xs font-semibold px-2"
+            className="h-8 rounded-md border border-rose-300 focus:border-rose-500 text-end text-xs font-semibold px-2"
             onChange={(e) => setAmount(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -231,7 +231,7 @@ export function PosPaymentColumn({
             type="button"
             variant="outline"
             size="sm"
-            className="h-8 px-2.5 rounded-lg text-xs font-semibold"
+            className="h-8 px-2.5 rounded-md text-xs font-semibold"
             onClick={() => add()}
           >
             {t('pos.payment.add', 'Add')}
@@ -243,7 +243,7 @@ export function PosPaymentColumn({
           type="text"
           value={reference}
           placeholder={t('pos.payment.referencePlaceholder', 'Trx ID / Mobile ref (optional)')}
-          className="h-7 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-2.5 text-[11px] text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:bg-white font-mono"
+          className="h-7 w-full rounded-md border border-slate-200 bg-slate-50/50 px-2.5 text-[11px] text-slate-800 placeholder:text-slate-400 outline-none focus:border-primary focus:bg-white font-mono"
           onChange={(e) => setReference(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -274,7 +274,7 @@ export function PosPaymentColumn({
               key={m.key}
               type="button"
               onClick={() => addWithMethod(m.key)}
-              className="flex items-center gap-0.5 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-700 hover:border-primary hover:text-primary transition-colors"
+              className="flex items-center gap-0.5 rounded-sm border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-700 hover:border-primary hover:text-primary transition-colors"
             >
               <Plus className="size-2 text-slate-400" />
               <span>{m.label}</span>

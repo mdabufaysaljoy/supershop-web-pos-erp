@@ -26,7 +26,7 @@ function QtyField({ value, label, onChange }) {
         type="button"
         variant="outline"
         size="icon"
-        className="size-7 rounded-lg text-slate-600"
+        className="size-7 rounded-md text-slate-600"
         disabled={value <= 1}
         onClick={() => onChange(Math.max(1, value - 1))}
       >
@@ -36,7 +36,7 @@ function QtyField({ value, label, onChange }) {
         value={typed ?? String(value)}
         min={1}
         aria-label={label}
-        className="w-12 h-7 rounded-lg text-center px-1 text-xs font-semibold"
+        className="w-12 h-7 rounded-md text-center px-1 text-xs font-semibold"
         onChange={(e) => {
           setTyped(e.target.value);
           if (e.target.value !== '') onChange(Number(e.target.value));
@@ -47,7 +47,7 @@ function QtyField({ value, label, onChange }) {
         type="button"
         variant="outline"
         size="icon"
-        className="size-7 rounded-lg text-slate-600"
+        className="size-7 rounded-md text-slate-600"
         onClick={() => onChange(value + 1)}
       >
         +
@@ -96,7 +96,7 @@ export function SaleLines({ sale, priced, onQty, onDiscount }) {
                 <MoneyInput
                   value={item.discount?.type === 'amount' ? item.discount.value / 100 : ''}
                   aria-label={t('pos.lines.discountFor', { name: item.name })}
-                  className="w-16 h-7 text-xs rounded-lg border-slate-200"
+                  className="w-16 h-7 text-xs rounded-md border-slate-200"
                   onChange={(e) =>
                     onDiscount(
                       item.variantId,
@@ -118,7 +118,7 @@ export function SaleLines({ sale, priced, onQty, onDiscount }) {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-lg"
+              className="size-7 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-md"
               aria-label={t('pos.lines.remove', { name: item.name })}
               onClick={() => onQty(item.variantId, 0)}
             >

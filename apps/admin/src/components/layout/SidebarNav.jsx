@@ -23,7 +23,7 @@ export function SidebarNav({ onNavigate }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  'group flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all',
+                  'group flex items-center gap-3 rounded-md px-3.5 py-2.5 text-xs font-medium transition-all',
                   isActive
                     ? 'bg-primary font-semibold text-primary-foreground shadow-xs'
                     : 'text-slate-300/80 hover:bg-white/5 hover:text-white',

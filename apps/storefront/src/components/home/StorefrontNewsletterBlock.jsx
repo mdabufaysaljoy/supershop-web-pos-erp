@@ -66,11 +66,11 @@ export function StorefrontNewsletterBlock({
   };
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-muted/40 to-card p-8 sm:p-12 shadow-xl">
+    <section className="relative overflow-hidden rounded-xl border border-border/70 bg-gradient-to-br from-card via-muted/40 to-card p-8 sm:p-12 shadow-xl">
       <div className="absolute -start-24 -bottom-24 size-72 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
       <div className="relative max-w-2xl space-y-4">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
           <span>✨</span> VIP Club
         </span>
 
@@ -87,7 +87,7 @@ export function StorefrontNewsletterBlock({
         {status === 'success' ? (
           <div
             role="status"
-            className="flex items-start gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-50/80 dark:bg-emerald-950/30 p-4 text-emerald-900 dark:text-emerald-100 shadow-sm"
+            className="flex items-start gap-3 rounded-lg border border-emerald-500/30 bg-emerald-50/80 dark:bg-emerald-950/30 p-4 text-emerald-900 dark:text-emerald-100 shadow-sm"
           >
             <CheckCircle2 className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
             <div className="space-y-1">
@@ -118,13 +118,13 @@ export function StorefrontNewsletterBlock({
                   autoComplete="email"
                   aria-label={context.emailLabel ?? 'Email address'}
                   placeholder={context.emailLabel ?? 'Email address'}
-                  className="h-12 w-full rounded-full border border-input bg-background px-5 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+                  className="h-12 w-full rounded-md border border-input bg-background px-5 text-sm shadow-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
                 />
               </div>
               <button
                 type="submit"
                 disabled={status === 'loading'}
-                className="h-12 rounded-full bg-primary px-7 text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90 disabled:opacity-60 disabled:hover:scale-100 cursor-pointer inline-flex items-center justify-center gap-2 shrink-0"
+                className="h-12 rounded-md bg-primary px-7 text-sm font-bold text-primary-foreground shadow-md shadow-primary/25 transition-all duration-300 hover:scale-105 hover:bg-primary/90 disabled:opacity-60 disabled:hover:scale-100 cursor-pointer inline-flex items-center justify-center gap-2 shrink-0"
               >
                 {status === 'loading' ? (
                   <>

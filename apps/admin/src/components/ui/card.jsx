@@ -4,12 +4,13 @@ export const Card = ({ className, ...props }) => (
   <div
     data-slot="card"
     className={cn(
-      'flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm',
+      'flex flex-col gap-6 rounded-lg border bg-card py-6 text-card-foreground shadow-sm',
       className,
     )}
     {...props}
   />
 );
+
 export const CardHeader = ({ className, ...props }) => (
   <div data-slot="card-header" className={cn('grid gap-1.5 px-6', className)} {...props} />
 );

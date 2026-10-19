@@ -325,4 +325,27 @@ describe('one order', () => {
     expect(await screen.findByText(/Receipt · ORD-000007/)).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Print/i }).length).toBeGreaterThan(0);
   });
+
+  it('renders return and exchange buttons for the order and line items', async () => {
+    setup(<OrderDetailPage />, {
+      path: '/orders/o1',
+      permissions: ['order.view', 'return.create'],
+    });
+    await screen.findByRole('heading', { name: /ORD-000007/ });
+
+    const orderReturnLink = screen.getByRole('link', { name: /Return \/ Exchange/i });
+    expect(orderReturnLink).toHaveAttribute('href', '/returns?order=ORD-000007');
+
+    const itemReturnLink = screen.getByRole('link', { name: /^Return$/i });
+    expect(itemReturnLink).toHaveAttribute(
+      'href',
+      '/returns?order=ORD-000007&mode=return&variantId=v1&qty=2',
+    );
+
+    const itemExchangeLink = screen.getByRole('link', { name: /^Exchange$/i });
+    expect(itemExchangeLink).toHaveAttribute(
+      'href',
+      '/returns?order=ORD-000007&mode=exchange&variantId=v1&qty=2',
+    );
+  });
 });

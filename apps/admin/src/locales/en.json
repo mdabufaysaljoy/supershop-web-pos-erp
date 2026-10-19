@@ -1531,7 +1531,10 @@
       "cancelTitle": "Cancel this order?",
       "cancelHelp": "The goods go back on the shelf straight away. This cannot be undone.",
       "cancelReason": "Reason (kept with the order)",
-      "cancelConfirm": "Yes, cancel it"
+      "cancelConfirm": "Yes, cancel it",
+      "returnItem": "Return",
+      "exchangeItem": "Exchange",
+      "returnOrExchange": "Return / Exchange"
     },
     "shipments": {
       "title": "Shipments",

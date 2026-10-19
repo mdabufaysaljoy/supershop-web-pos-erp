@@ -7,6 +7,11 @@
 
 
 ## Done tasks
+- Order Detail Return & Exchange Navigation and Item Preselection ✔ 2026-10-19 (Antigravity) Added Return and Exchange action buttons to single orders on the Order Detail Page with automatic item preselection and query handling on the Returns & Exchanges page (`apps/admin`):
+  1. Order Detail Actions (`OrderDetailPage.jsx`, `en.json`): Added header-level "Return / Exchange" button linking to `/returns?order=${orderNo}`, and item-level "Return" and "Exchange" buttons for each product line linking to `/returns?order=${orderNo}&mode=${return|exchange}&variantId=${variantId}&qty=${qty}` when order status permits returns.
+  2. Returns & Exchanges Query Synchronization (`ReturnsPage.jsx`): Handled URL parameters (`order`, `mode`, `variantId`, `qty`), automatically querying the target order, toggling between return and exchange modes during render, pre-selecting the specified variant line with its quantity, and visually highlighting the selected line.
+  3. Verification: 100% test pass rate across all suites (15/15 admin OrdersPage and ReturnsPage tests), 0 ESLint warnings (`npm run lint`), and `npm run i18n:check` passing.
+
 - Shift X-Report / X-Print Crash Bug Fix & Browser Print Support ✔ 2026-10-19 (Antigravity) Fixed uncaught TypeError crash when viewing/printing shift X-reports and Z-reports with recorded tender payments, and enabled browser printing alongside QZ Tray (`apps/admin`):
   1. Tender Breakdown Crash Resolution (`ShiftDialogs.jsx`): Resolved `TypeError: amount must be a safe integer in minor units` thrown by `fmt.money(m.amount)` in `ShiftReportDialog` because `summarizeShift` records `netAmount` and `tendered` on each `byMethod` tender object. Replaced `m.amount` with `m.netAmount ?? m.amount ?? m.tendered ?? 0`, and added safe fallback defaults for all sales counts, subtotal, discount, VAT, and cash drawer reconciliation metrics.
   2. Safe Payment Method Upper-Casing (`ShiftDialogs.jsx`): Protected against undefined tender method identifiers with `(m.label || m.method || 'OTHER').toUpperCase()`.

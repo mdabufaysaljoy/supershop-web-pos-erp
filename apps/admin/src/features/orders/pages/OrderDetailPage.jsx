@@ -1,4 +1,5 @@
-import { Printer, Receipt } from 'lucide-react';
+import { ArrowLeftRight, Printer, Receipt, RotateCcw } from 'lucide-react';
+import { PERMISSIONS as P } from '@supershop/shared';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
@@ -11,6 +12,7 @@ import { PosReceiptDialog } from '@/features/pos/components/PosReceiptDialog';
 import { useSettings } from '@/features/settings/hooks';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
+import { useCan } from '@/lib/permissions';
 import { NotesCard } from '../components/NotesCard';
 import { OrderInvoice } from '../components/OrderInvoice';
 import { ShipmentCard } from '../components/ShipmentCard';
@@ -24,6 +26,8 @@ export function OrderDetailPage() {
   const { id } = useParams();
   const { data: order, isPending, isError, error } = useOrder(id);
   const settings = useSettings('general');
+  const can = useCan();
+  const canReturn = can(P.RETURN_CREATE);
   const [receiptOpen, setReceiptOpen] = useState(false);
 
   if (isError) return <Alert variant="destructive">{errorMessage(t, error)}</Alert>;
@@ -37,6 +41,7 @@ export function OrderDetailPage() {
     ...(settingVat && { vatNumber: settingVat }),
   };
   const address = order.address ?? {};
+  const isReturnable = canReturn && order.status !== 'cancelled' && order.status !== 'refunded';
 
   return (
     <div className="grid gap-6">
@@ -55,7 +60,15 @@ export function OrderDetailPage() {
             {fmt.dateTime(order.placedAt)} · {t(`orders.channels.${order.channel}`)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {isReturnable && (
+            <Button asChild variant="outline" className="gap-1.5">
+              <Link to={`/returns?order=${encodeURIComponent(order.orderNo)}`}>
+                <RotateCcw className="size-4" aria-hidden />
+                {t('orders.actions.returnOrExchange', 'Return / Exchange')}
+              </Link>
+            </Button>
+          )}
           <Button
             type="button"
             variant="outline"
@@ -80,7 +93,7 @@ export function OrderDetailPage() {
       <div className="grid gap-6 print:hidden lg:grid-cols-[1fr_22rem] lg:items-start">
         <div className="grid gap-6">
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle>
                 <h2>{t('orders.items', { count: order.totals.itemCount })}</h2>
               </CardTitle>
@@ -88,19 +101,56 @@ export function OrderDetailPage() {
             <CardContent className="grid gap-3">
               <ul className="grid gap-3">
                 {order.items.map((i) => (
-                  <li key={i.variantId} className="flex items-start justify-between gap-4 text-sm">
-                    <span>
-                      <span className="font-medium">{i.name}</span>
+                  <li
+                    key={i.variantId}
+                    className="flex flex-wrap items-center justify-between gap-3 text-sm py-2 border-b border-border/40 last:border-b-0"
+                  >
+                    <div className="min-w-48 flex-1">
+                      <span className="font-medium text-foreground">{i.name}</span>
                       <span className="block text-xs text-muted-foreground">
                         {i.sku}
-                        {i.options.length > 0 &&
+                        {i.options?.length > 0 &&
                           ` · ${i.options.map((o) => `${o.name}: ${o.value}`).join(' · ')}`}
                       </span>
-                    </span>
-                    <span className="whitespace-nowrap tabular-nums">
-                      {fmt.number(i.qty)} × {fmt.money(i.unitPrice)}
-                    </span>
-                    <span className="tabular-nums">{fmt.money(i.lineTotal)}</span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="whitespace-nowrap tabular-nums text-muted-foreground text-xs">
+                        {fmt.number(i.qty)} × {fmt.money(i.unitPrice)}
+                      </span>
+                      <span className="tabular-nums font-semibold min-w-16 text-end">
+                        {fmt.money(i.lineTotal)}
+                      </span>
+                      {isReturnable && (
+                        <div className="flex items-center gap-1.5 ms-2">
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-xs rounded-md gap-1"
+                          >
+                            <Link
+                              to={`/returns?order=${encodeURIComponent(order.orderNo)}&mode=return&variantId=${encodeURIComponent(i.variantId)}&qty=${i.qty}`}
+                            >
+                              <RotateCcw className="size-3" aria-hidden />
+                              {t('orders.actions.returnItem', 'Return')}
+                            </Link>
+                          </Button>
+                          <Button
+                            asChild
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-xs rounded-md gap-1"
+                          >
+                            <Link
+                              to={`/returns?order=${encodeURIComponent(order.orderNo)}&mode=exchange&variantId=${encodeURIComponent(i.variantId)}&qty=${i.qty}`}
+                            >
+                              <ArrowLeftRight className="size-3" aria-hidden />
+                              {t('orders.actions.exchangeItem', 'Exchange')}
+                            </Link>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </li>
                 ))}
               </ul>

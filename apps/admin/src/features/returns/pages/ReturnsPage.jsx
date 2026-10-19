@@ -45,6 +45,9 @@ export function ReturnsPage() {
   const initialOrderQuery = searchParams[0].get('order') ?? '';
   const filterType = searchParams[0].get('type') ?? '';
   const filterBranch = searchParams[0].get('branchId') ?? '';
+  const modeParam = searchParams[0].get('mode');
+  const variantIdParam = searchParams[0].get('variantId') ?? '';
+  const qtyParam = searchParams[0].get('qty');
 
   const [orderInput, setOrderInput] = useState(initialOrderQuery);
   const [submittedOrderQuery, setSubmittedOrderQuery] = useState(initialOrderQuery);
@@ -52,7 +55,7 @@ export function ReturnsPage() {
     enabled: Boolean(submittedOrderQuery.trim()),
   });
 
-  const [mode, setMode] = useState('return'); // 'return' | 'exchange'
+  const [mode, setMode] = useState(() => (modeParam === 'exchange' ? 'exchange' : 'return'));
   const [selectedLines, setSelectedLines] = useState({}); // { [variantId]: { qty, disposition } }
   const [refundMethod, setRefundMethod] = useState('cash');
   const [reason, setReason] = useState('');
@@ -70,6 +73,49 @@ export function ReturnsPage() {
   const loadedOrder = lookup.data?.order ?? null;
   const orderItems = lookup.data?.items ?? EMPTY_ITEMS;
   const paymentMethods = lookup.data?.methods ?? [{ key: 'cash', label: 'Cash', type: 'cash' }];
+
+  // Sync mode with search param if changed
+  const [prevModeParam, setPrevModeParam] = useState(modeParam);
+  if (modeParam !== prevModeParam) {
+    setPrevModeParam(modeParam);
+    if (modeParam === 'exchange' || modeParam === 'return') {
+      setMode(modeParam);
+    }
+  }
+
+  // Sync order search when navigating with order query
+  const [prevInitialOrder, setPrevInitialOrder] = useState(initialOrderQuery);
+  if (initialOrderQuery !== prevInitialOrder) {
+    setPrevInitialOrder(initialOrderQuery);
+    setOrderInput(initialOrderQuery);
+    setSubmittedOrderQuery(initialOrderQuery);
+    setSelectedLines({});
+    setExchangeItems([]);
+    setTenderAmount('');
+  }
+
+  // Pre-select variant line if specified in URL query params
+  const [autoSelectedKey, setAutoSelectedKey] = useState('');
+  const currentAutoKey = `${submittedOrderQuery}:${variantIdParam}:${orderItems.length}`;
+  if (variantIdParam && orderItems.length && autoSelectedKey !== currentAutoKey) {
+    setAutoSelectedKey(currentAutoKey);
+    const match = orderItems.find((i) => String(i.variantId) === String(variantIdParam));
+    if (match && match.returnableQty > 0) {
+      const defaultQty = qtyParam
+        ? Math.min(Number(qtyParam) || 1, match.returnableQty)
+        : match.returnableQty;
+      setSelectedLines((prev) => {
+        if (prev[match.variantId]?.qty > 0) return prev;
+        return {
+          ...prev,
+          [match.variantId]: {
+            qty: defaultQty,
+            disposition: 'restock',
+          },
+        };
+      });
+    }
+  }
 
   const tillSearch = useTillSearch(productQuery, loadedOrder?.branchId ?? '');
   const createReturn = useCreateReturn();
@@ -342,8 +388,12 @@ export function ReturnsPage() {
                             qty: 0,
                             disposition: 'restock',
                           };
+                          const isTarget = String(item.variantId) === String(variantIdParam);
                           return (
-                            <TableRow key={item.variantId}>
+                            <TableRow
+                              key={item.variantId}
+                              className={isTarget ? 'bg-primary/5 font-medium' : undefined}
+                            >
                               <TableCell>
                                 <div className="font-medium">{item.name}</div>
                                 <div className="text-xs text-muted-foreground font-mono">

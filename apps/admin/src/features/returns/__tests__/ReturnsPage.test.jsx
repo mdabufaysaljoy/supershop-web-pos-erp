@@ -61,6 +61,7 @@ function setup({
   permissions = ['return.create', 'return.approve'],
   returnsList = [],
   routes = {},
+  initialEntries = ['/returns'],
 } = {}) {
   useAuthStore.setState({
     status: 'authenticated',
@@ -158,7 +159,7 @@ function setup({
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
-      <MemoryRouter initialEntries={['/returns']}>
+      <MemoryRouter initialEntries={initialEntries}>
         <ReturnsPage />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -257,5 +258,24 @@ describe('P6.6 ReturnsPage', () => {
       exchangeItems: [{ variantId: 'v-kettle', qty: 1 }],
       payments: [{ method: 'cash', amount: 5_750 }],
     });
+  });
+
+  it('pre-loads order and preselects variant for return or exchange from URL parameters', async () => {
+    setup({
+      initialEntries: ['/returns?order=POS-000001&mode=exchange&variantId=v-coffee&qty=1'],
+    });
+
+    // Automatically loads order from order query parameter
+    await screen.findByText('POS-000001');
+
+    // Exchange mode is active
+    expect(screen.getByRole('button', { name: 'Exchange items' })).toHaveClass('bg-primary');
+
+    // Variant line is pre-selected with quantity 1
+    const qtyInput = await screen.findByLabelText('Return qty for Coffee Beans');
+    expect(qtyInput).toHaveValue(1);
+
+    // Return credit is calculated for the selected item
+    expect(screen.getAllByText(/SAR\s*115\.00/).length).toBeGreaterThanOrEqual(1);
   });
 });

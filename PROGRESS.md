@@ -7,6 +7,20 @@
 
 
 ## Done tasks
+- POS 4-Column Layout, 2-Column Product Grid with 50-Item Pagination, Fixed Bottom Action Bar & Customer Modal ✔ 2026-10-19 (Antigravity) Re-architected POS page into 4 dedicated non-scrollable columns with 2-column product grid, 50-product pagination, fixed bottom action bar, and customer search/suggestion modal (`apps/admin`):
+  1. 4-Column Structured Architecture (`PosPage.jsx`, `PosFilterColumn.jsx`, `PosProductGrid.jsx`, `PosCartColumn.jsx`, `PosPaymentColumn.jsx`): Re-engineered POS workspace into 4 dedicated columns:
+     - Column 1 (Filters): Scan barcode / keyword search input, department filter dropdown, brand filter dropdown, branch switcher, and reset filters button.
+     - Column 2 (Products View): Exactly 2 columns of product cards (`grid grid-cols-2`), thumbnail/initials, stock badge, item title, options/SKU, price, and quick-add button.
+     - Column 3 (Product Cart): Totally separate column for product basket (`SaleLines`), line item quantities, line discounts, subtotal (incl. VAT), and whole-basket discount.
+     - Column 4 (Payment Option): Totally separate column for payment settlement, total due, customer attachment card, payment method selector, amount input, quick Saudi Arabia split tender buttons, tendered list, and tender balance indicators.
+  2. 50 Products Per Page & Pagination (`PosProductGrid.jsx`, `PosPage.test.jsx`): Replaced unbounded product dumping with strict 50-items-per-page pagination (`PAGE_SIZE = 50`), complete with bottom pagination controls, count summary (`Showing 1-50 of N products`), Previous page, Page X of Y, and Next page buttons with boundary disabling.
+  3. Non-Scrollable POS Workspace with Fixed Bottom Action Bar (`PosPage.jsx`, `PosBottomBar.jsx`): Fixed the POS viewport height to `h-[calc(100vh-4.25rem)] overflow-hidden`, eliminating window/page scrollbars while giving each column internal scrollable containers. Pinned a dedicated bottom action bar permanently displaying "Clear basket" and "Hold this sale" on the left, and a prominent "Complete sale" CTA with cash change return indicator on the right.
+  4. Customer Search, Suggestion & Creation Modal (`PosCustomerModal.jsx`, `PosPaymentColumn.jsx`): Added an interactive customer modal opened by clicking "Add a customer":
+     - Search input allows searching existing customers by phone number or name.
+     - Live suggestion list displays matching customers with avatar, name, phone number, loyalty tier & points, and order count with one-click attach.
+     - Add new customer fields (`Name`, `Phone`) with immediate sale linkage.
+     - "Make it a walk-in" action to revert to walk-in customer anytime.
+  5. Verification: 100% test pass rate across all suites (20 admin POS tests including new pagination and customer suggestion tests, 21 API posSale tests, 29 shared printing tests), 0 ESLint warnings, and Prettier formatting verified.
 - POS Thermal Receipt Sequence Redesign & Browser Printing Bug Fix ✔ 2026-10-19 (Antigravity) Fixed receipt printing bug and redesigned receipt layout across ESC/POS thermal template, POS dialog, and print stylesheets to strictly follow the requested 10-step sequence (`packages/shared`, `apps/admin`):
   1. Exact Thermal Layout Sequence (`packages/shared/src/printing/template.js`): Reordered template to strictly match: 1. Big store name on top (`double: true`, `bold: true`), 2. Store address, 3. Contact details (phone & VAT registration), 4. Printing date, time & receipt number, 5. Cashier name ("Served by: ..."), 6. Customer name (immediately following cashier if customer is attached), 7. Product item lines (quantity × name, line total, SKU @ price), 8. Calculation & payment info (subtotal, discount, VAT 15%, total, tendered payments, change given), 9. Dynamic online sales verification QR code, 10. Thank you message.
   2. Walk-in Contact Customer Detection (`template.js`): Fixed customer name detection in `receiptData` so customers attached at the counter (`order.customer?.name` without walk-in placeholder) are retained in both formatted and `raw.customer` metadata instead of requiring an existing customer ID.

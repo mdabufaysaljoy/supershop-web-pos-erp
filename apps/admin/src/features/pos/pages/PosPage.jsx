@@ -1,25 +1,37 @@
-import { useEffect, useMemo, useState } from 'react';
+import { tenderSummary } from '@supershop/shared';
+import { useBarcodeScanner } from '@supershop/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Select } from '@/features/settings/components/controls';
+import { useAuthStore } from '@/features/auth/store';
+import { brands } from '@/features/brands/resource';
+import { useCategories } from '@/features/categories/hooks';
 import { useInventoryBranches } from '@/features/inventory/resource';
 import { usePrintingStatus, usePrintReceipt } from '@/features/printing/resource';
+import { Select } from '@/features/settings/components/controls';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
-import { useAuthStore } from '@/features/auth/store';
-import { PaymentPanel } from '../components/PaymentPanel';
+import { PosBottomBar } from '../components/PosBottomBar';
+import { PosCartColumn } from '../components/PosCartColumn';
+import { PosCustomerModal } from '../components/PosCustomerModal';
+import { PosFilterColumn } from '../components/PosFilterColumn';
+import { PosPaymentColumn } from '../components/PosPaymentColumn';
+import { PosProductGrid } from '../components/PosProductGrid';
 import { PosReceiptDialog } from '../components/PosReceiptDialog';
 import { SaleLines } from '../components/SaleLines';
 import { ShiftBar } from '../components/ShiftBar';
-import { TillSearch } from '../components/TillSearch';
-import { usePosPaymentMethods, useSell } from '../resource';
+import { lookupBarcode, usePosPaymentMethods, useSell, useTillSearch } from '../resource';
 import { useSale } from '../useSale';
 
 /**
- * The till (P6.2): matches modern structured layout with 2-column split,
- * left scan/search catalogue with filters, and right basket + payment panel.
+ * Modern 4-Column POS Workspace (Non-scrollable):
+ * - Column 1: Filters (Barcode/keyword search, department & brand filters, branch switcher)
+ * - Column 2: Products view (2 columns of cards, exactly 50 per page, bottom pagination)
+ * - Column 3: Dedicated Product Cart (Lines, quantity adjust, item/cart discounts, subtotal)
+ * - Column 4: Dedicated Payment Option (To pay, customer modal trigger, methods, change)
+ * - Fixed Bottom Action Bar: Complete sale, Clear basket, Hold sale
  */
 const BRANCH_KEY = 'pos.branch';
 
@@ -27,12 +39,23 @@ export function PosPage() {
   const { t } = useTranslation();
   const branches = useInventoryBranches();
   const cashierName = useAuthStore((s) => s.profile?.name ?? '');
+
   const [receiptOpen, setReceiptOpen] = useState(false);
+  const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [chosenBranch, setChosenBranch] = useState(() => localStorage.getItem(BRANCH_KEY) ?? '');
   const [payments, setPayments] = useState([]);
   const [done, setDone] = useState(null);
   const [online, setOnline] = useState(true);
   const [showHeld, setShowHeld] = useState(false);
+
+  // Search & Filter state
+  const [q, setQ] = useState('');
+  const [department, setDepartment] = useState('');
+  const [selectedBrand, setSelectedBrand] = useState('');
+  const [productPage, setProductPage] = useState(1);
+  const [scanError, setScanError] = useState(null);
+  const searchInputRef = useRef(null);
+
   const sell = useSell();
   const posMethods = usePosPaymentMethods();
   const printing = usePrintingStatus();
@@ -40,6 +63,7 @@ export function PosPage() {
 
   const options = branches.data ?? [];
   const branchId = chosenBranch || (options.length === 1 ? options[0].id : '');
+
   const chooseBranch = (id) => {
     setChosenBranch(id);
     try {
@@ -48,8 +72,23 @@ export function PosPage() {
       // Graceful fallback
     }
   };
+
   const sale = useSale(branchId);
   const [saleKey, setSaleKey] = useState(() => crypto.randomUUID());
+
+  // Till search query
+  const { data: results = [], isFetching } = useTillSearch({
+    q,
+    branchId,
+    categoryId: department,
+    brandId: selectedBrand,
+  });
+
+  const { data: categoriesRaw } = useCategories();
+  const { data: brandListRaw } = brands.useList();
+
+  const categories = categoriesRaw?.data ?? (Array.isArray(categoriesRaw) ? categoriesRaw : []);
+  const brandList = brandListRaw?.data ?? (Array.isArray(brandListRaw) ? brandListRaw : []);
 
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -62,14 +101,65 @@ export function PosPage() {
     };
   }, []);
 
+  /** Barcode Scanner Wedge Hook */
+  useBarcodeScanner({
+    enabled: online && Boolean(branchId),
+    onScan: async (code) => {
+      setScanError(null);
+      try {
+        const { variant, product } = await lookupBarcode(code);
+        sale.addItem({
+          variantId: variant.id,
+          productId: product.id,
+          name: product.name?.en ?? product.name ?? '',
+          sku: variant.sku,
+          price: variant.price,
+          options: variant.options ?? [],
+        });
+      } catch {
+        setScanError(code);
+      }
+    },
+  });
+
   const methods = useMemo(() => {
     if (sale.priced?.methods && sale.priced.methods.length > 0) return sale.priced.methods;
     if (posMethods.data && posMethods.data.length > 0) return posMethods.data;
     return [];
   }, [sale.priced?.methods, posMethods.data]);
+
   const total = sale.totals?.total ?? 0;
   const subtotal = sale.priced?.totals?.subtotal ?? sale.totals?.subtotal ?? total;
   const unsure = sale.stale || !online;
+  const tender = useMemo(() => tenderSummary(total, payments), [total, payments]);
+
+  const handleQChange = (newQ) => {
+    setQ(newQ);
+    setProductPage(1);
+  };
+
+  const handleDepartmentChange = (newDept) => {
+    setDepartment(newDept);
+    setProductPage(1);
+  };
+
+  const handleBrandChange = (newBrand) => {
+    setSelectedBrand(newBrand);
+    setProductPage(1);
+  };
+
+  const handleResetFilters = () => {
+    setQ('');
+    setDepartment('');
+    setSelectedBrand('');
+    setProductPage(1);
+  };
+
+  const handleAddProduct = (item) => {
+    sale.addItem(item);
+    setQ('');
+    searchInputRef.current?.focus();
+  };
 
   const complete = async () => {
     const result = await sell
@@ -90,16 +180,24 @@ export function PosPage() {
   if (branches.isPending) return <Skeleton className="h-96" />;
 
   return (
-    <div className="grid gap-5">
+    <div className="h-[calc(100vh-4.25rem)] flex flex-col justify-between overflow-hidden gap-2 pb-1">
       {/* Network & Pricing Alerts */}
-      {!online && <Alert variant="destructive">{t('pos.offline')}</Alert>}
-      {online && sale.stale && <Alert>{t('pos.pricingFailed')}</Alert>}
-      {sell.isError && <Alert variant="destructive">{errorMessage(t, sell.error)}</Alert>}
+      {!online && (
+        <Alert variant="destructive" className="shrink-0">
+          {t('pos.offline')}
+        </Alert>
+      )}
+      {online && sale.stale && <Alert className="shrink-0">{t('pos.pricingFailed')}</Alert>}
+      {sell.isError && (
+        <Alert variant="destructive" className="shrink-0">
+          {errorMessage(t, sell.error)}
+        </Alert>
+      )}
 
-      {/* Success Notification Alert */}
+      {/* Sale Done Notification Alert */}
       {done && (
-        <Alert className="flex flex-wrap items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-950">
-          <span className="flex-1 font-medium">
+        <Alert className="shrink-0 flex flex-wrap items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-950 py-2">
+          <span className="flex-1 font-medium text-xs">
             {t('pos.done', {
               orderNo: done.orderNo,
               total: fmt.money(done.totals.total),
@@ -111,7 +209,7 @@ export function PosPage() {
             variant="outline"
             size="sm"
             onClick={() => setReceiptOpen(true)}
-            className="bg-white border-emerald-300 text-emerald-900 hover:bg-emerald-100"
+            className="h-7 text-xs bg-white border-emerald-300 text-emerald-900 hover:bg-emerald-100"
           >
             {t('pos.viewReceipt', 'View Receipt')}
           </Button>
@@ -122,7 +220,7 @@ export function PosPage() {
               size="sm"
               disabled={printReceipt.isPending}
               onClick={() => printReceipt.mutate({ orderId: done.id })}
-              className="bg-white border-emerald-300 text-emerald-900 hover:bg-emerald-100"
+              className="h-7 text-xs bg-white border-emerald-300 text-emerald-900 hover:bg-emerald-100"
             >
               {t('pos.printReceipt')}
             </Button>
@@ -131,13 +229,13 @@ export function PosPage() {
       )}
 
       {printReceipt.isError && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="shrink-0 py-2">
           {t('pos.printFailed', { reason: printReceipt.error?.message ?? '' })}
         </Alert>
       )}
 
       {!branchId ? (
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4">
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4 m-auto">
           <p>{t('pos.chooseBranchFirst')}</p>
           <Select
             id="pos-branch-select"
@@ -155,102 +253,147 @@ export function PosPage() {
         </div>
       ) : (
         <>
-          <ShiftBar branchId={branchId} />
+          <div className="shrink-0">
+            <ShiftBar branchId={branchId} />
+          </div>
 
-          {/* Structured Two-Column POS Workspace */}
-          <div className="grid gap-6 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_440px] items-start">
-            {/* Left Column: Scan or search, department & brand filters, products list */}
-            <div className="min-w-0">
-              <TillSearch
+          {/* Held Sales Section */}
+          {(showHeld || sale.held.length > 0) && (
+            <section
+              aria-label="Held sales"
+              className="shrink-0 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-2 flex items-center justify-between gap-3 shadow-2xs"
+            >
+              <div className="flex items-center gap-2 text-xs font-semibold text-amber-900">
+                <span className="font-bold">
+                  {t('pos.held.title')} ({sale.held.length}):
+                </span>
+                <span className="font-medium text-amber-800 text-[11px]">
+                  {t('pos.held.entry', {
+                    count: sale.held[0].sale.lines.length,
+                    time: fmt.dateTime(sale.held[0].at, { timeStyle: 'short' }),
+                  })}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-7 px-3 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
+                  onClick={() => sale.resume(sale.held[0].id)}
+                >
+                  {t('pos.held.resume', 'Resume')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-amber-800 hover:text-destructive hover:bg-amber-100 text-xs"
+                  onClick={() => sale.drop(sale.held[0].id)}
+                >
+                  {t('common.remove', 'Remove')}
+                </Button>
+              </div>
+            </section>
+          )}
+
+          {/* 4-Column Workspace Grid (Fits viewport, no page scroll) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[220px_1fr_300px_320px] xl:grid-cols-[240px_1fr_320px_340px] gap-3 flex-1 min-h-0 items-stretch">
+            {/* Column 1: Filter Options in 1 Column */}
+            <div className="min-w-0 h-full">
+              <PosFilterColumn
+                q={q}
+                onQChange={handleQChange}
+                department={department}
+                onDepartmentChange={handleDepartmentChange}
+                selectedBrand={selectedBrand}
+                onSelectedBrandChange={handleBrandChange}
+                categories={categories}
+                brandList={brandList}
                 branchId={branchId}
-                onAdd={sale.addItem}
-                disabled={!online}
                 branchOptions={options}
                 onSelectBranch={chooseBranch}
                 linesCount={sale.sale.lines.length}
+                disabled={!online}
+                scanError={scanError}
+                inputRef={searchInputRef}
+                onResetFilters={handleResetFilters}
               />
             </div>
 
-            {/* Right Column: Unified Basket, Financial Summary & Saudi Settlement */}
-            <aside role="complementary" className="w-full grid gap-4">
-              <PaymentPanel
-                total={total}
-                subtotal={subtotal}
-                methods={methods}
-                payments={payments}
-                busy={sell.isPending}
-                blocked={unsure || !sale.sale.lines.length}
-                sale={sale.sale}
-                onOrderDiscount={(discount) => sale.patch({ orderDiscount: discount })}
-                onCustomerChange={(customer) => sale.patch({ customer })}
-                onHold={() => sale.hold(t('pos.held.defaultLabel'))}
-                onClear={() => {
-                  sale.clear();
-                  setPayments([]);
-                }}
-                heldCount={sale.held.length}
-                onToggleHeld={() => setShowHeld((v) => !v)}
-                onChange={setPayments}
-                onComplete={complete}
-              >
-                <SaleLines
-                  sale={sale.sale}
-                  priced={sale.priced}
-                  onQty={sale.setQty}
-                  onDiscount={sale.setLineDiscount}
-                />
-              </PaymentPanel>
+            {/* Column 2: Product Showing View (2 Columns of cards with pagination) */}
+            <div className="min-w-0 h-full">
+              <PosProductGrid
+                results={results}
+                isFetching={isFetching}
+                onAdd={handleAddProduct}
+                disabled={!online}
+                page={productPage}
+                onPageChange={setProductPage}
+              />
+            </div>
 
-              {/* Held Sales Section */}
-              {(showHeld || sale.held.length > 0) && (
-                <section className="rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs grid gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      {t('pos.held.title')} ({sale.held.length})
-                    </h2>
-                  </div>
-                  {sale.held.length === 0 ? (
-                    <p className="py-2 text-xs text-slate-400">No held sales right now.</p>
-                  ) : (
-                    <ul className="divide-y divide-slate-100 grid gap-1">
-                      {sale.held.map((entry) => (
-                        <li
-                          key={entry.id}
-                          className="flex items-center justify-between gap-2 py-2 text-xs"
-                        >
-                          <span className="flex-1 font-medium text-slate-700">
-                            {t('pos.held.entry', {
-                              count: entry.sale.lines.length,
-                              time: fmt.dateTime(entry.at, { timeStyle: 'short' }),
-                            })}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              className="font-semibold text-primary hover:underline"
-                              onClick={() => sale.resume(entry.id)}
-                            >
-                              {t('pos.held.resume')}
-                            </button>
-                            <button
-                              type="button"
-                              className="text-slate-400 hover:text-destructive underline"
-                              onClick={() => sale.drop(entry.id)}
-                            >
-                              {t('common.remove')}
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </section>
-              )}
+            {/* Accessible container for Cart & Settlement */}
+            <aside role="complementary" className="contents">
+              {/* Column 3: Totally Separate Column for Product Cart */}
+              <div className="min-w-0 h-full">
+                <PosCartColumn
+                  sale={sale.sale}
+                  subtotal={subtotal}
+                  onOrderDiscount={(discount) => sale.patch({ orderDiscount: discount })}
+                >
+                  <SaleLines
+                    sale={sale.sale}
+                    priced={sale.priced}
+                    onQty={sale.setQty}
+                    onDiscount={sale.setLineDiscount}
+                  />
+                </PosCartColumn>
+              </div>
+
+              {/* Column 4: Totally Separate Column for Payment Option */}
+              <div className="min-w-0 h-full">
+                <PosPaymentColumn
+                  total={total}
+                  tender={tender}
+                  methods={methods}
+                  payments={payments}
+                  onChange={setPayments}
+                  customer={sale.sale.customer}
+                  onCustomerChange={(cust) => sale.patch({ customer: cust })}
+                  onOpenCustomerModal={() => setCustomerModalOpen(true)}
+                />
+              </div>
             </aside>
           </div>
+
+          {/* Fixed Bottom Action Bar: Complete sale, Clear basket, Hold sale */}
+          <PosBottomBar
+            lineCount={sale.sale.lines.length}
+            tender={tender}
+            busy={sell.isPending}
+            blocked={unsure || !sale.sale.lines.length}
+            payments={payments}
+            onClear={() => {
+              sale.clear();
+              setPayments([]);
+            }}
+            onHold={() => sale.hold(t('pos.held.defaultLabel'))}
+            onComplete={complete}
+            heldCount={sale.held.length}
+            onToggleHeld={() => setShowHeld((v) => !v)}
+          />
         </>
       )}
 
+      {/* Modal: Customer Search by number/name, suggestions, and add new */}
+      <PosCustomerModal
+        open={customerModalOpen}
+        onOpenChange={setCustomerModalOpen}
+        customer={sale.sale.customer}
+        onCustomerChange={(cust) => sale.patch({ customer: cust })}
+      />
+
+      {/* Dialog: Printable Thermal Receipt */}
       {done && (
         <PosReceiptDialog
           open={receiptOpen}

@@ -451,4 +451,73 @@ describe('catalogue and filtering', () => {
     expect(screen.queryByRole('button', { name: /Open shift/i })).toBeNull();
     expect(screen.queryByText(/SHF-000001/)).toBeNull();
   });
+
+  it('paginates products with 50 items per page and supports next/previous controls', async () => {
+    const user = userEvent.setup();
+    const sixtyItems = Array.from({ length: 60 }, (_, i) => ({
+      variantId: `v-${i + 1}`,
+      productId: `p-${i + 1}`,
+      name: `Product Item ${i + 1}`,
+      options: [],
+      sku: `SKU-${i + 1}`,
+      price: 1000 + i * 10,
+      image: null,
+      onHand: 10,
+    }));
+
+    setup({
+      routes: {
+        'GET /api/v1/pos/search': json(200, { data: sixtyItems }),
+      },
+    });
+
+    expect(await screen.findByRole('button', { name: /Product Item 1\b/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Product Item 50\b/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Product Item 51\b/ })).toBeNull();
+    expect(screen.getByText('1-50 of 60')).toBeInTheDocument();
+    expect(screen.getByText('1 / 2')).toBeInTheDocument();
+
+    // Click Next page
+    await user.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(await screen.findByRole('button', { name: /Product Item 51\b/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Product Item 60\b/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Product Item 1\b/ })).toBeNull();
+    expect(screen.getByText('51-60 of 60')).toBeInTheDocument();
+    expect(screen.getByText('2 / 2')).toBeInTheDocument();
+  });
+
+  it('searches and suggests existing customer in customer modal', async () => {
+    const user = userEvent.setup();
+    const existingCust = {
+      id: 'c-101',
+      name: 'Zaid Salem',
+      phone: '0511111111',
+      loyaltyTier: 'gold',
+      loyaltyPoints: 350,
+      orderCount: 12,
+    };
+
+    setup({
+      routes: {
+        'GET /api/v1/customers': json(200, { data: [existingCust] }),
+      },
+    });
+
+    await screen.findByRole('button', { name: /Oxford Shirt/ });
+    await user.click(screen.getByRole('button', { name: 'Add a customer' }));
+
+    // Customer modal opens
+    const searchInput = screen.getByPlaceholderText('Search by phone number or name...');
+    expect(searchInput).toBeInTheDocument();
+    await user.type(searchInput, '0511111111');
+
+    // Suggestions list shows matching customer
+    const custSuggestion = await screen.findByRole('button', { name: /Zaid Salem/ });
+    expect(custSuggestion).toBeInTheDocument();
+    expect(screen.getByText('0511111111')).toBeInTheDocument();
+
+    // Click customer suggestion to attach
+    await user.click(custSuggestion);
+    expect(screen.getByText('Zaid Salem')).toBeInTheDocument();
+  });
 });

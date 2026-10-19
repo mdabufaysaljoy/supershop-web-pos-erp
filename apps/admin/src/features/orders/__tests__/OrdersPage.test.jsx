@@ -122,6 +122,7 @@ function setup(
     'GET /api/v1/orders': json(200, { data: [ROW], meta: { total: 1, page: 1, limit: 25 } }),
     'GET /api/v1/orders/o1': () => json(200, { data: current }),
     'GET /api/v1/settings': json(200, { data: SETTINGS }),
+    'GET /api/v1/printing/status': json(200, { data: { enabled: false } }),
     ...routes(update),
   });
   render(
@@ -296,5 +297,32 @@ describe('one order', () => {
     const invoice = within(screen.getByTestId('order-invoice'));
     expect(invoice.getByText('300000000000003')).toBeInTheDocument();
     expect(invoice.getByTestId('zatca-qr').querySelector('svg')).not.toBeNull();
+  });
+
+  it('reprints the receipt directly from the orders list table', async () => {
+    const user = userEvent.setup();
+    const m = setup(<OrdersPage />);
+    await screen.findByText('ORD-000007');
+
+    const receiptButton = screen.getByRole('button', { name: /Receipt/i });
+    expect(receiptButton).toBeInTheDocument();
+
+    await user.click(receiptButton);
+    await waitFor(() => expect(m.count('GET /api/v1/orders/o1')).toBe(1));
+    expect(await screen.findByText(/Receipt · ORD-000007/)).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Print/i }).length).toBeGreaterThan(0);
+  });
+
+  it('allows reprinting the receipt from the order detail page', async () => {
+    const user = userEvent.setup();
+    setup(<OrderDetailPage />, { path: '/orders/o1' });
+    await screen.findByRole('heading', { name: /ORD-000007/ });
+
+    const reprintButton = screen.getByRole('button', { name: /Reprint Receipt/i });
+    expect(reprintButton).toBeInTheDocument();
+
+    await user.click(reprintButton);
+    expect(await screen.findByText(/Receipt · ORD-000007/)).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Print/i }).length).toBeGreaterThan(0);
   });
 });

@@ -668,11 +668,12 @@ const toStaffRow = (o) => ({
   shipped: Boolean(o.shipments?.length),
 });
 
-/** @param {{ page: number, limit: number, sort: object, status?: string, channel?: string, q?: string }} query */
-export async function listOrdersForStaff({ page, limit, sort, status, channel, q }) {
+/** @param {{ page: number, limit: number, sort: object, status?: string, channel?: string, branchId?: string, q?: string }} query */
+export async function listOrdersForStaff({ page, limit, sort, status, channel, branchId, q }) {
   const filter = {
     ...(status && { status }),
     ...(channel && { channel }),
+    ...(branchId && { branchId: oid(branchId) }),
     ...(q && {
       $or: [
         { orderNo: new RegExp(`^${escapeRegExp(normalizeDigits(q).toUpperCase())}`) },

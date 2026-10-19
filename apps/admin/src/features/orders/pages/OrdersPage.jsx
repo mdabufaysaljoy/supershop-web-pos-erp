@@ -1,10 +1,14 @@
 import { ORDER } from '@supershop/shared';
+import { Loader2, Printer } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 import { Pagination } from '@/components/Pagination';
 import { SearchForm } from '@/components/SearchForm';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -16,6 +20,8 @@ import {
 } from '@/components/ui/table';
 import { Select } from '@/features/settings/components/controls';
 import { ExportButton } from '@/features/exports/components/ExportButton';
+import { PosReceiptDialog } from '@/features/pos/components/PosReceiptDialog';
+import { apiData } from '@/lib/apiClient';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useListParams } from '@/lib/useListParams';
@@ -31,6 +37,9 @@ export function OrdersPage() {
   const { page, q, go } = useListParams(searchParams);
   const status = searchParams[0].get('status') ?? '';
   const channel = searchParams[0].get('channel') ?? '';
+  const [receiptOrder, setReceiptOrder] = useState(null);
+  const [loadingReceiptId, setLoadingReceiptId] = useState(null);
+
   const { data, isPending, isError, error } = orders.useList({
     page,
     limit: PAGE_SIZE,
@@ -40,6 +49,18 @@ export function OrdersPage() {
   });
   const items = data?.data ?? [];
   const pages = Math.max(1, Math.ceil((data?.meta?.total ?? 0) / PAGE_SIZE));
+
+  const handleOpenReceipt = async (orderId) => {
+    try {
+      setLoadingReceiptId(orderId);
+      const fullOrder = await apiData(`/api/v1/orders/${orderId}`);
+      setReceiptOrder(fullOrder);
+    } catch (err) {
+      toast.error(errorMessage(t, err));
+    } finally {
+      setLoadingReceiptId(null);
+    }
+  };
 
   return (
     <div className="grid gap-6">
@@ -105,6 +126,7 @@ export function OrdersPage() {
               <TableHead>{t('orders.statusLabel')}</TableHead>
               <TableHead>{t('orders.payment')}</TableHead>
               <TableHead className="text-end">{t('orders.total')}</TableHead>
+              <TableHead className="text-end">{t('common.actions', 'Actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -146,6 +168,24 @@ export function OrdersPage() {
                     {t('orders.items', { count: order.itemCount })}
                   </span>
                 </TableCell>
+                <TableCell className="text-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={loadingReceiptId === order.id}
+                    onClick={() => handleOpenReceipt(order.id)}
+                    className="h-8 gap-1.5 text-xs font-semibold text-slate-700 hover:text-primary"
+                    title={t('orders.receipt.reprint', 'Reprint Receipt')}
+                  >
+                    {loadingReceiptId === order.id ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Printer className="size-3.5" />
+                    )}
+                    <span>{t('orders.receipt.reprintShort', 'Receipt')}</span>
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -153,6 +193,16 @@ export function OrdersPage() {
       )}
 
       <Pagination page={page} pages={pages} onPage={(p) => go({ page: p })} />
+
+      {receiptOrder && (
+        <PosReceiptDialog
+          open={Boolean(receiptOrder)}
+          onOpenChange={(val) => !val && setReceiptOrder(null)}
+          order={receiptOrder}
+          cashierName={receiptOrder.cashierName}
+          branchName={receiptOrder.shop?.name}
+        />
+      )}
     </div>
   );
 }

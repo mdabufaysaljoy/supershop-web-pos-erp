@@ -59,6 +59,12 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
   const onlineReceiptUrl =
     order.onlineReceiptUrl || `${storefrontBase}/en/receipt/${encodeURIComponent(orderNo)}`;
   const qrCodeValue = onlineReceiptUrl;
+  const effectivePayments =
+    order.payments?.length > 0
+      ? order.payments
+      : order.payment
+        ? [{ label: order.payment.label || order.payment.method, amount: order.totals?.total }]
+        : [];
 
   const handlePrint = () => {
     // If thermal printer is enabled, attempt hardware ESC/POS print in background
@@ -230,9 +236,9 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
               </div>
 
               {/* Payments Tendered */}
-              {order.payments?.length > 0 && (
+              {effectivePayments.length > 0 && (
                 <div className="mt-1 pt-1.5 border-t border-slate-100 flex flex-col gap-1 text-[11px]">
-                  {order.payments.map((p, idx) => (
+                  {effectivePayments.map((p, idx) => (
                     <div key={idx} className="flex justify-between text-slate-600">
                       <span className="capitalize">
                         Paid ({p.label || p.method}

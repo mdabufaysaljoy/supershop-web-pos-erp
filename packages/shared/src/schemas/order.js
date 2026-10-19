@@ -169,6 +169,7 @@ export function createCheckoutSchemas({ allowInternationalPhone = false } = {}) 
       .extend({
         status: z.enum(ORDER.STATUSES, { error: V.INVALID_TYPE }).optional(),
         channel: z.enum(ORDER.CHANNELS, { error: V.INVALID_TYPE }).optional(),
+        branchId: objectId.optional(),
         q: plainText({ max: 60 }).optional(),
       })
       .strict(),

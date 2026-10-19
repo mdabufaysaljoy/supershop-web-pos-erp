@@ -551,4 +551,65 @@ describe('catalogue and filtering', () => {
       expect(screen.getByText(/250 pts/)).toBeInTheDocument();
     });
   });
+
+  it('opens recent sales modal and allows reprinting receipt for any previous sale', async () => {
+    const user = userEvent.setup();
+    const pastSale = {
+      id: 'sale-past-1',
+      orderNo: 'POS-000099',
+      status: 'completed',
+      channel: 'pos',
+      placedAt: '2026-10-18T10:00:00.000Z',
+      customer: { name: 'Fahad', phone: '0599999999' },
+      itemCount: 1,
+      total: 11500,
+      currency: 'SAR',
+      payment: { method: 'cash', status: 'paid' },
+    };
+    const fullPastSale = {
+      ...pastSale,
+      items: [
+        {
+          sku: 'OX-RED',
+          name: 'Oxford Shirt',
+          qty: 1,
+          unitPrice: 11500,
+          lineTotal: 11500,
+        },
+      ],
+      totals: {
+        itemCount: 1,
+        subtotal: 11500,
+        vat: 1500,
+        total: 11500,
+      },
+      payments: [{ method: 'cash', label: 'Cash', amount: 11500 }],
+      changeGiven: 0,
+      shop: { name: 'Shop', vatNumber: '300000000000003' },
+    };
+
+    const m = setup({
+      routes: {
+        'GET /api/v1/orders': json(200, { data: [pastSale], meta: { total: 1 } }),
+        'GET /api/v1/orders/sale-past-1': json(200, { data: fullPastSale }),
+      },
+    });
+
+    await screen.findByRole('button', { name: /Oxford Shirt/ });
+    const recentSalesBtn = screen.getByRole('button', { name: /Recent Sales & Receipts/i });
+    expect(recentSalesBtn).toBeInTheDocument();
+
+    await user.click(recentSalesBtn);
+
+    // Modal displays previous sale
+    expect(await screen.findByText('POS-000099')).toBeInTheDocument();
+    expect(screen.getByText('Fahad')).toBeInTheDocument();
+
+    const reprintBtn = screen.getByRole('button', { name: /Reprint/i });
+    await user.click(reprintBtn);
+
+    // Thermal receipt dialog opens
+    await waitFor(() => expect(m.count('GET /api/v1/orders/sale-past-1')).toBe(1));
+    expect(await screen.findByText(/Receipt · POS-000099/)).toBeInTheDocument();
+  });
 });

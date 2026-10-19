@@ -1,4 +1,4 @@
-import { RotateCcw, ScanBarcode, SlidersHorizontal } from 'lucide-react';
+import { Receipt, RotateCcw, ScanBarcode, SlidersHorizontal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +24,7 @@ export function PosFilterColumn({
   scanError = null,
   inputRef,
   onResetFilters,
+  onOpenRecentSales,
 }) {
   const { t } = useTranslation();
   const hasActiveFilters = Boolean(q || department || selectedBrand);
@@ -156,8 +157,8 @@ export function PosFilterColumn({
       </div>
 
       {/* Bottom Info / Clear */}
-      {hasActiveFilters && (
-        <div className="pt-2 border-t border-slate-100">
+      <div className="pt-2 mt-auto border-t border-slate-100 flex flex-col gap-2">
+        {hasActiveFilters && (
           <Button
             type="button"
             variant="outline"
@@ -167,8 +168,21 @@ export function PosFilterColumn({
           >
             Clear All Filters
           </Button>
-        </div>
-      )}
+        )}
+
+        {onOpenRecentSales && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onOpenRecentSales}
+            className="w-full h-8.5 gap-1.5 text-xs font-semibold rounded-md border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-primary transition-colors shadow-2xs"
+          >
+            <Receipt className="size-3.5 text-primary" />
+            <span>{t('pos.recentSales', 'Recent Sales & Receipts')}</span>
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

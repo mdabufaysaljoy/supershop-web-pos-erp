@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { PosPaymentColumn } from '../components/PosPaymentColumn';
 import { PosProductGrid } from '../components/PosProductGrid';
 import { PosReceiptDialog } from '../components/PosReceiptDialog';
+import { PosRecentSalesModal } from '../components/PosRecentSalesModal';
 import { SaleLines } from '../components/SaleLines';
 import { ShiftBar } from '../components/ShiftBar';
 import {
@@ -48,6 +49,8 @@ export function PosPage() {
   const cashierName = useAuthStore((s) => s.profile?.name ?? '');
 
   const [receiptOpen, setReceiptOpen] = useState(false);
+  const [recentSalesOpen, setRecentSalesOpen] = useState(false);
+  const [activeReceiptOrder, setActiveReceiptOrder] = useState(null);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [chosenBranch, setChosenBranch] = useState(() => localStorage.getItem(BRANCH_KEY) ?? '');
   const [payments, setPayments] = useState([]);
@@ -266,6 +269,7 @@ export function PosPage() {
       .catch(() => null);
     if (!result) return;
     setDone(result);
+    setActiveReceiptOrder(result);
     setPayments([]);
     sale.clear();
     setSaleKey(crypto.randomUUID());
@@ -414,6 +418,7 @@ export function PosPage() {
                 scanError={scanError}
                 inputRef={searchInputRef}
                 onResetFilters={handleResetFilters}
+                onOpenRecentSales={() => setRecentSalesOpen(true)}
               />
             </div>
 
@@ -490,12 +495,26 @@ export function PosPage() {
         onCustomerChange={(cust) => sale.patch({ customer: cust })}
       />
 
+      {/* Modal: Recent Sales & Receipts lookup */}
+      <PosRecentSalesModal
+        open={recentSalesOpen}
+        onOpenChange={setRecentSalesOpen}
+        branchId={branchId}
+        onSelectReceiptOrder={(saleOrder) => {
+          setActiveReceiptOrder(saleOrder);
+          setReceiptOpen(true);
+        }}
+      />
+
       {/* Dialog: Printable Thermal Receipt */}
-      {done && (
+      {(activeReceiptOrder || done) && (
         <PosReceiptDialog
           open={receiptOpen}
-          onOpenChange={setReceiptOpen}
-          order={done}
+          onOpenChange={(open) => {
+            setReceiptOpen(open);
+            if (!open && !done) setActiveReceiptOrder(null);
+          }}
+          order={activeReceiptOrder || done}
           cashierName={cashierName}
           branchName={options.find((b) => b.id === branchId)?.name?.en || ''}
         />

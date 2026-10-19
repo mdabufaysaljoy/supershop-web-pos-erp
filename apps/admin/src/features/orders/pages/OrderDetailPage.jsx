@@ -1,4 +1,5 @@
-import { Printer } from 'lucide-react';
+import { Printer, Receipt } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { Alert } from '@/components/ui/alert';
@@ -6,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PosReceiptDialog } from '@/features/pos/components/PosReceiptDialog';
 import { useSettings } from '@/features/settings/hooks';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
@@ -22,6 +24,7 @@ export function OrderDetailPage() {
   const { id } = useParams();
   const { data: order, isPending, isError, error } = useOrder(id);
   const settings = useSettings('general');
+  const [receiptOpen, setReceiptOpen] = useState(false);
 
   if (isError) return <Alert variant="destructive">{errorMessage(t, error)}</Alert>;
   if (isPending) return <Skeleton className="h-96" />;
@@ -52,10 +55,26 @@ export function OrderDetailPage() {
             {fmt.dateTime(order.placedAt)} · {t(`orders.channels.${order.channel}`)}
           </p>
         </div>
-        <Button type="button" variant="outline" onClick={() => window.print()}>
-          <Printer className="size-4" aria-hidden />
-          {t('orders.invoice.print')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setReceiptOpen(true)}
+            className="gap-1.5"
+          >
+            <Receipt className="size-4" aria-hidden />
+            {t('orders.receipt.print', 'Reprint Receipt')}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => window.print()}
+            className="gap-1.5"
+          >
+            <Printer className="size-4" aria-hidden />
+            {t('orders.invoice.print')}
+          </Button>
+        </div>
       </header>
 
       <div className="grid gap-6 print:hidden lg:grid-cols-[1fr_22rem] lg:items-start">
@@ -194,6 +213,16 @@ export function OrderDetailPage() {
       </div>
 
       <OrderInvoice order={order} store={store} />
+
+      {receiptOpen && (
+        <PosReceiptDialog
+          open={receiptOpen}
+          onOpenChange={setReceiptOpen}
+          order={order}
+          cashierName={order.cashierName}
+          branchName={store.name}
+        />
+      )}
     </div>
   );
 }

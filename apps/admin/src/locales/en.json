@@ -1575,6 +1575,12 @@
       "vat": "VAT",
       "total": "Total",
       "paidWith": "Paid with {{method}} — {{status}}"
+    },
+    "receipt": {
+      "print": "Reprint Receipt",
+      "reprint": "Reprint receipt",
+      "reprintShort": "Receipt",
+      "thermal": "Thermal Receipt"
     }
   },
   "customers": {
@@ -2101,6 +2107,16 @@
     "split": "Split:",
     "loyalty": {
       "scannedAttached": "Customer attached: {{name}} ({{points}} pts)"
+    },
+    "recentSales": "Recent Sales & Receipts",
+    "recentSalesModal": {
+      "title": "Recent Sales & Receipts",
+      "description": "Look up any previous sale to view or reprint its thermal receipt.",
+      "searchPlaceholder": "Search receipt # or customer phone...",
+      "search": "Search",
+      "clear": "Clear",
+      "empty": "No recent sales found.",
+      "reprint": "Reprint"
     }
   },
   "receipt": {

@@ -37,3 +37,28 @@ export function useUpdateCustomer(id) {
     onSettled: () => qc.invalidateQueries({ queryKey: ['customers'] }),
   });
 }
+
+export function useIssueLoyaltyCard(customerId) {
+  const qc = useQueryClient();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: (body) =>
+      apiData(`/api/v1/loyalty/customers/${customerId}/issue-card`, {
+        method: 'POST',
+        body,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['customers', 'detail', customerId] });
+      qc.invalidateQueries({ queryKey: ['customers'] });
+      toast.success(
+        t('customers.detail.loyaltyCard.issuedSuccess', 'Loyalty card issued successfully'),
+      );
+    },
+    onError: (err) => {
+      if (!err?.details?.length) toast.error(errorMessage(t, err));
+    },
+  });
+}
+
+export const lookupLoyaltyCard = (q) =>
+  apiData('/api/v1/loyalty/lookup', { query: { q: String(q).trim() } });

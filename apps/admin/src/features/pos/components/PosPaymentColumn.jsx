@@ -102,7 +102,16 @@ export function PosPaymentColumn({
                   <UserCheck className="size-3.5" />
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-bold text-slate-900 truncate">{customerName}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-bold text-slate-900 truncate">
+                      {customerName}
+                    </span>
+                    {customer?.loyalty?.pointsBalance !== undefined && (
+                      <span className="inline-flex items-center rounded px-1 text-[9px] font-bold bg-amber-100 text-amber-800">
+                        {customer.loyalty.pointsBalance} pts
+                      </span>
+                    )}
+                  </div>
                   {customerPhone && (
                     <span className="text-[10px] text-slate-500 font-mono">{customerPhone}</span>
                   )}

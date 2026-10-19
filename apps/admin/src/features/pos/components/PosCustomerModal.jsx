@@ -1,10 +1,11 @@
 import { NameInput, PhoneInput } from '@supershop/ui';
-import { Check, Search, UserCheck, UserPlus, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { Check, CreditCard, Search, UserCheck, UserPlus, X } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { customers } from '@/features/customers/resource';
+import { lookupLoyalty } from '../resource';
 
 /**
  * Customer Selection and Creation Modal for POS:
@@ -16,12 +17,31 @@ import { customers } from '@/features/customers/resource';
 export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChange }) {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [loyaltyMatch, setLoyaltyMatch] = useState(null);
 
   // Live search existing customers by name or number
+  const trimmedQ = searchQuery.trim();
   const { data: searchResults, isFetching } = customers.useList({
-    q: searchQuery.trim(),
+    q: trimmedQ,
     limit: 6,
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    if (trimmedQ.length < 2) return undefined;
+    lookupLoyalty(trimmedQ)
+      .then((res) => {
+        if (!cancelled) setLoyaltyMatch(res?.customer ? res : null);
+      })
+      .catch(() => {
+        if (!cancelled) setLoyaltyMatch(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [trimmedQ]);
+
+  const activeLoyaltyMatch = trimmedQ.length >= 2 ? loyaltyMatch : null;
 
   const customerList = useMemo(() => {
     const raw = searchResults?.data ?? (Array.isArray(searchResults) ? searchResults : []);
@@ -141,12 +161,56 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
 
             {/* Suggestions list according to search */}
             {searchQuery && (
-              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-2 flex flex-col gap-1.5 max-h-44 overflow-y-auto shadow-xs">
-                {isFetching ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-2 flex flex-col gap-1.5 max-h-48 overflow-y-auto shadow-xs">
+                {activeLoyaltyMatch?.customer && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleSelectCustomer({
+                        name: activeLoyaltyMatch.customer.name,
+                        phone: activeLoyaltyMatch.customer.phone,
+                        email: activeLoyaltyMatch.customer.email,
+                        id: activeLoyaltyMatch.customer.id,
+                      })
+                    }
+                    className="flex items-center justify-between rounded-lg border-2 border-primary/50 bg-primary/10 p-2 text-start hover:bg-primary/15 transition-all"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-white font-bold">
+                        <CreditCard className="size-4" />
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-slate-900 truncate">
+                            {activeLoyaltyMatch.customer.name}
+                          </span>
+                          <span className="rounded bg-primary/20 px-1 py-0.2 text-[9px] font-mono font-bold text-primary">
+                            {activeLoyaltyMatch.cardNumber}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-slate-600">
+                          {activeLoyaltyMatch.customer.phone && (
+                            <span>{activeLoyaltyMatch.customer.phone}</span>
+                          )}
+                          <span className="text-amber-700 font-semibold capitalize">
+                            ★ {activeLoyaltyMatch.tier}
+                          </span>
+                          <span className="font-semibold text-primary">
+                            {activeLoyaltyMatch.pointsBalance} pts
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <span className="rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold text-white shadow-2xs">
+                      Attach Card
+                    </span>
+                  </button>
+                )}
+                {isFetching && !activeLoyaltyMatch ? (
                   <div className="py-3 text-center text-xs text-slate-400">
                     Searching customer database...
                   </div>
-                ) : customerList.length === 0 ? (
+                ) : customerList.length === 0 && !activeLoyaltyMatch ? (
                   <div className="py-3 text-center text-xs text-slate-400">
                     No existing customer found. Fill details below to add as new customer.
                   </div>

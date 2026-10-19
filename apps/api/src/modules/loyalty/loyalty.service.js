@@ -29,6 +29,10 @@ export const toLoyaltyAccountDto = (account, customer = null) => ({
   lifetimeRedeemed: account.lifetimeRedeemed ?? 0,
   tier: account.tier ?? LOYALTY.TIERS.BRONZE,
   status: account.status ?? LOYALTY.MEMBERSHIP_STATUSES.ACTIVE,
+  cardNumber: account.cardNumber ?? null,
+  cardIssuedAt: account.cardIssuedAt ?? null,
+  cardFeeHalalas: account.cardFeeHalalas ?? 0,
+  cardStatus: account.cardStatus ?? 'active',
   createdAt: account.createdAt,
   updatedAt: account.updatedAt,
   ...(customer && {
@@ -83,35 +87,122 @@ export async function getOrCreateAccount(customerId, { session } = {}) {
 }
 
 /**
- * Looks up customer membership by phone, email, or customerId.
+ * Looks up customer membership by phone, email, customerId, or scanned loyalty card (barcode/QR).
  * Returns customer profile + loyalty account + balance + tier.
  */
 export async function lookupMembership(query) {
   const raw = String(query ?? '').trim();
   if (!raw) return null;
 
-  let customer = null;
-  if (mongoose.isValidObjectId(raw)) {
-    customer = await findCustomerById(raw);
+  // Extract from potential QR payload (JSON or URL)
+  let candidate = raw;
+  if (candidate.startsWith('{') && candidate.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(candidate);
+      candidate = parsed.cardNumber || parsed.card || parsed.customerId || candidate;
+    } catch {
+      // ignore
+    }
   }
-  if (!customer && raw.includes('@')) {
-    customer = await findCustomerByEmail(raw.toLowerCase());
+  const urlMatch = candidate.match(/\/loyalty\/card\/([A-Za-z0-9_-]+)/i);
+  if (urlMatch) candidate = urlMatch[1];
+
+  // 1. Try card number / barcode direct match
+  const byCard = await repo.findAccountByCardNumber(candidate);
+  if (byCard) {
+    const customer = await findCustomerById(byCard.customerId);
+    if (customer) return toLoyaltyAccountDto(byCard, customer);
+  }
+
+  // 2. Try customer ID, email, phone
+  let customer = null;
+  if (mongoose.isValidObjectId(candidate)) {
+    customer = await findCustomerById(candidate);
+  }
+  if (!customer && candidate.includes('@')) {
+    customer = await findCustomerByEmail(candidate.toLowerCase());
   }
   if (!customer) {
-    const normalized = validators.normalizePhone(raw, { allowInternational: true });
+    const normalized = validators.normalizePhone(candidate, { allowInternational: true });
     if (normalized) {
       customer = await findCustomerByPhone(normalized);
     }
   }
   if (!customer) {
     // Try raw string as phone directly if standard normalizer didn't match
-    customer = await findCustomerByPhone(raw);
+    customer = await findCustomerByPhone(candidate);
   }
 
   if (!customer) return null;
 
   const account = await getOrCreateAccount(customer._id);
   return toLoyaltyAccountDto(account, customer);
+}
+
+/**
+ * Issues a loyalty card to a customer with optional card number and issuance fee.
+ */
+export async function issueCard({
+  customerId,
+  cardNumber = null,
+  feeHalalas = null,
+  actorId = null,
+}) {
+  const customer = await findCustomerById(customerId);
+  if (!customer) throw new NotFoundError('Customer not found');
+
+  const defaultFee = getSetting('loyalty.cardIssuanceFee') ?? 0;
+  const finalFee = feeHalalas != null ? feeHalalas : defaultFee;
+
+  let finalCardNumber = cardNumber ? String(cardNumber).trim().toUpperCase() : null;
+  if (!finalCardNumber) {
+    // Generate barcode-friendly code: LC + 8 digits
+    const rand = Math.floor(10000000 + Math.random() * 90000000);
+    finalCardNumber = `LC${rand}`;
+  }
+
+  // Check if card number already assigned to another customer
+  const existing = await repo.findAccountByCardNumber(finalCardNumber);
+  if (existing && String(existing.customerId) !== String(customerId)) {
+    throw new AppError(ERROR_CODES.CONFLICT, 'Card number already assigned to another customer', {
+      status: 409,
+    });
+  }
+
+  const account = await getOrCreateAccount(customerId);
+
+  const updated = await repo.updateAccountCard(account._id, {
+    cardNumber: finalCardNumber,
+    cardIssuedAt: new Date(),
+    cardFeeHalalas: finalFee,
+    cardStatus: 'active',
+  });
+
+  if (finalFee > 0) {
+    await repo.insertLedgerEntry({
+      accountId: account._id,
+      customerId: oid(customerId),
+      type: LOYALTY.TRANSACTION_TYPES.ADJUST,
+      points: 0,
+      balanceAfter: updated.pointsBalance,
+      source: {
+        type: 'manual',
+        id: finalCardNumber,
+        docNo: 'CARD-ISSUANCE',
+      },
+      reason: `Loyalty card ${finalCardNumber} issued with fee ${finalFee}`,
+      actorId: actorId ? oid(actorId) : null,
+    });
+  }
+
+  void eventBus.emit(EVENTS.LOYALTY_CARD_ISSUED, {
+    customerId: str(customerId),
+    cardNumber: finalCardNumber,
+    feeHalalas: finalFee,
+    actorId: str(actorId),
+  });
+
+  return toLoyaltyAccountDto(updated, customer);
 }
 
 /**

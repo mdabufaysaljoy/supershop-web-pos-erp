@@ -520,4 +520,35 @@ describe('catalogue and filtering', () => {
     await user.click(custSuggestion);
     expect(screen.getByText('Zaid Salem')).toBeInTheDocument();
   });
+
+  it('automatically attaches customer when loyalty card barcode is scanned or submitted in search', async () => {
+    const user = userEvent.setup();
+    const loyaltyCustomer = {
+      customer: {
+        id: 'c-loy-1',
+        name: 'Noura Al-Saud',
+        phone: '0555555555',
+      },
+      pointsBalance: 250,
+      tier: 'gold',
+      cardNumber: 'LC88990011',
+    };
+
+    setup({
+      routes: {
+        'GET /api/v1/loyalty/lookup': json(200, { data: loyaltyCustomer }),
+      },
+    });
+
+    await screen.findByRole('button', { name: /Oxford Shirt/ });
+    expect(screen.getByRole('button', { name: 'Add a customer' })).toBeInTheDocument();
+
+    const searchInput = screen.getByLabelText('Scan or search');
+    await user.type(searchInput, 'LC88990011{Enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Noura Al-Saud')).toBeInTheDocument();
+      expect(screen.getByText(/250 pts/)).toBeInTheDocument();
+    });
+  });
 });

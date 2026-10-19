@@ -60,5 +60,21 @@ export function createLoyaltyRouter({ schemas = defaultSchemas } = {}) {
   // Trigger points expiry sweep
   r.post('/expire', ...requirePermission(P.LOYALTY_ADJUST), c.expire);
 
+  // Issue loyalty card against a customer
+  r.post(
+    '/customers/:customerId/issue-card',
+    ...requireAnyPermission(P.CUSTOMER_MANAGE, P.LOYALTY_ADJUST, P.POS_SELL),
+    validate({ params: schemas.customerParam, body: schemas.issueCard }),
+    c.issueCard,
+  );
+
+  // Card lookup by card number / barcode
+  r.get(
+    '/card/:cardNumber',
+    ...requireAnyPermission(P.LOYALTY_VIEW, P.POS_SELL),
+    validate({ params: schemas.cardParam }),
+    c.getCard,
+  );
+
   return r;
 }

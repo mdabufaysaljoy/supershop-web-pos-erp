@@ -8,6 +8,7 @@ export {
   expirePoints,
   getCustomerLoyaltySummary,
   getOrCreateAccount,
+  issueCard,
   listCustomerLedger,
   lookupMembership,
   quoteRedemption,

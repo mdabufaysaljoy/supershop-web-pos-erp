@@ -17,12 +17,19 @@ import { PosBottomBar } from '../components/PosBottomBar';
 import { PosCartColumn } from '../components/PosCartColumn';
 import { PosCustomerModal } from '../components/PosCustomerModal';
 import { PosFilterColumn } from '../components/PosFilterColumn';
+import { toast } from 'sonner';
 import { PosPaymentColumn } from '../components/PosPaymentColumn';
 import { PosProductGrid } from '../components/PosProductGrid';
 import { PosReceiptDialog } from '../components/PosReceiptDialog';
 import { SaleLines } from '../components/SaleLines';
 import { ShiftBar } from '../components/ShiftBar';
-import { lookupBarcode, usePosPaymentMethods, useSell, useTillSearch } from '../resource';
+import {
+  lookupBarcode,
+  lookupLoyalty,
+  usePosPaymentMethods,
+  useSell,
+  useTillSearch,
+} from '../resource';
 import { useSale } from '../useSale';
 
 /**
@@ -106,6 +113,39 @@ export function PosPage() {
     enabled: online && Boolean(branchId),
     onScan: async (code) => {
       setScanError(null);
+      // 1. Check if the scanned code is a customer loyalty card (barcode or QR)
+      try {
+        const membership = await lookupLoyalty(code);
+        if (membership?.customer) {
+          sale.patch({
+            customer: {
+              mode: 'contact',
+              id: membership.customer.id,
+              customerId: membership.customer.id,
+              name: membership.customer.name,
+              phone: membership.customer.phone || '',
+              email: membership.customer.email || null,
+              loyalty: {
+                pointsBalance: membership.pointsBalance,
+                tier: membership.tier,
+                cardNumber: membership.cardNumber,
+              },
+            },
+          });
+          toast.success(
+            t('pos.loyalty.scannedAttached', {
+              name: membership.customer.name,
+              points: membership.pointsBalance,
+              defaultValue: `Customer attached: ${membership.customer.name} (${membership.pointsBalance} pts)`,
+            }),
+          );
+          return;
+        }
+      } catch {
+        // Not a loyalty card, proceed to product lookup
+      }
+
+      // 2. Product barcode lookup
       try {
         const { variant, product } = await lookupBarcode(code);
         sale.addItem({
@@ -153,6 +193,62 @@ export function PosPage() {
     setDepartment('');
     setSelectedBrand('');
     setProductPage(1);
+  };
+
+  const handleSearchSubmit = async (searchVal) => {
+    if (!searchVal || !searchVal.trim()) return;
+    const trimmed = searchVal.trim();
+
+    // 1. Try loyalty card barcode / QR scan or lookup
+    try {
+      const membership = await lookupLoyalty(trimmed);
+      if (membership?.customer) {
+        sale.patch({
+          customer: {
+            mode: 'contact',
+            id: membership.customer.id,
+            customerId: membership.customer.id,
+            name: membership.customer.name,
+            phone: membership.customer.phone || '',
+            email: membership.customer.email || null,
+            loyalty: {
+              pointsBalance: membership.pointsBalance,
+              tier: membership.tier,
+              cardNumber: membership.cardNumber,
+            },
+          },
+        });
+        setQ('');
+        toast.success(
+          t('pos.loyalty.scannedAttached', {
+            name: membership.customer.name,
+            points: membership.pointsBalance,
+            defaultValue: `Customer attached: ${membership.customer.name} (${membership.pointsBalance} pts)`,
+          }),
+        );
+        return;
+      }
+    } catch {
+      // Not a loyalty card
+    }
+
+    // 2. Try product barcode
+    try {
+      const { variant, product } = await lookupBarcode(trimmed);
+      if (variant && product) {
+        sale.addItem({
+          variantId: variant.id,
+          productId: product.id,
+          name: product.name?.en ?? product.name ?? '',
+          sku: variant.sku,
+          price: variant.price,
+          options: variant.options ?? [],
+        });
+        setQ('');
+      }
+    } catch {
+      // Keep search value as catalogue filter
+    }
   };
 
   const handleAddProduct = (item) => {
@@ -303,6 +399,7 @@ export function PosPage() {
               <PosFilterColumn
                 q={q}
                 onQChange={handleQChange}
+                onSearchSubmit={handleSearchSubmit}
                 department={department}
                 onDepartmentChange={handleDepartmentChange}
                 selectedBrand={selectedBrand}

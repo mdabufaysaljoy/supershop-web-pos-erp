@@ -1,6 +1,7 @@
 import { PERMISSIONS as P } from '@supershop/shared';
-import { Pencil } from 'lucide-react';
+import { CreditCard, Pencil, Printer } from 'lucide-react';
 import { useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router';
 import { Alert } from '@/components/ui/alert';
@@ -17,6 +18,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ORDER_STATUS_TONE } from '@/features/orders/status';
+import { LoyaltyCardModal } from '@/features/loyalty/components/LoyaltyCardModal';
+import { IssueCardDialog } from '@/features/loyalty/components/IssueCardDialog';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
@@ -35,6 +38,8 @@ export function CustomerDetailPage() {
   const can = useCan();
   const canManage = can(P.CUSTOMER_MANAGE);
   const [editing, setEditing] = useState(false);
+  const [cardModalOpen, setCardModalOpen] = useState(false);
+  const [issueModalOpen, setIssueModalOpen] = useState(false);
 
   const { data: customer, isPending, isError, error } = useCustomer(id);
 
@@ -131,32 +136,121 @@ export function CustomerDetailPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Profile Details */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>{t('customers.detail.title')}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4 text-sm">
-            <div>
-              <span className="block text-muted-foreground">{t('customers.name')}</span>
-              <span className="font-medium">{customer.name}</span>
-            </div>
-            <div>
-              <span className="block text-muted-foreground">{t('customers.contact')}</span>
-              <span>{customer.email || '—'}</span>
-              {customer.phone && (
-                <span className="block font-medium" dir="ltr">
-                  {customer.phone}
+        <div className="grid gap-6 lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('customers.detail.title')}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 text-sm">
+              <div>
+                <span className="block text-muted-foreground">{t('customers.name')}</span>
+                <span className="font-medium">{customer.name}</span>
+              </div>
+              <div>
+                <span className="block text-muted-foreground">{t('customers.contact')}</span>
+                <span>{customer.email || '—'}</span>
+                {customer.phone && (
+                  <span className="block font-medium" dir="ltr">
+                    {customer.phone}
+                  </span>
+                )}
+              </div>
+              <div>
+                <span className="block text-muted-foreground">
+                  {t('customers.detail.language')}
                 </span>
+                <span className="font-medium">
+                  {customer.lang === 'ar' ? 'العربية (Arabic)' : 'English'}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Loyalty Card Card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div className="flex items-center gap-2">
+                <CreditCard className="size-4 text-primary" />
+                <CardTitle className="text-base">
+                  {t('customers.detail.loyaltyCard.title', 'Loyalty Card')}
+                </CardTitle>
+              </div>
+              {account.cardNumber && (
+                <Badge tone="success" className="text-[10px] uppercase font-bold">
+                  {t('customers.detail.loyaltyCard.active', 'Active')}
+                </Badge>
               )}
-            </div>
-            <div>
-              <span className="block text-muted-foreground">{t('customers.detail.language')}</span>
-              <span className="font-medium">
-                {customer.lang === 'ar' ? 'العربية (Arabic)' : 'English'}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="grid gap-3 text-sm pt-2">
+              {account.cardNumber ? (
+                <>
+                  <div>
+                    <span className="block text-xs text-muted-foreground">
+                      {t('customers.detail.loyaltyCard.number', 'Card Number')}
+                    </span>
+                    <span className="font-mono text-sm font-bold tracking-wider">
+                      {account.cardNumber}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>
+                      {t('customers.detail.loyaltyCard.issuedDate', 'Issued')}:{' '}
+                      {account.cardIssuedAt ? fmt.date(account.cardIssuedAt) : '—'}
+                    </span>
+                    <span>
+                      {t('customers.detail.loyaltyCard.fee', 'Fee')}:{' '}
+                      {fmt.money(account.cardFeeHalalas || 0)}
+                    </span>
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="flex-1 gap-1.5 text-xs font-semibold"
+                      onClick={() => setCardModalOpen(true)}
+                    >
+                      <Printer className="size-3.5" />
+                      <span>{t('customers.detail.loyaltyCard.print', 'Print Label')}</span>
+                    </Button>
+                    {canManage && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => setIssueModalOpen(true)}
+                      >
+                        {t('customers.detail.loyaltyCard.reissue', 'Re-issue')}
+                      </Button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    {t(
+                      'customers.detail.loyaltyCard.noCard',
+                      'No loyalty card issued for this customer yet.',
+                    )}
+                  </p>
+                  {canManage && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="w-full gap-1.5 text-xs font-semibold"
+                      onClick={() => setIssueModalOpen(true)}
+                    >
+                      <CreditCard className="size-3.5" />
+                      <span>
+                        {t('customers.detail.loyaltyCard.issueNow', 'Issue Loyalty Card')}
+                      </span>
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Addresses */}
         <Card className="lg:col-span-2">
@@ -301,6 +395,21 @@ export function CustomerDetailPage() {
       </Card>
 
       <EditCustomerDialog customer={customer} open={editing} onClose={() => setEditing(false)} />
+      <LoyaltyCardModal
+        open={cardModalOpen}
+        onClose={() => setCardModalOpen(false)}
+        customer={customer}
+        account={account}
+      />
+      <IssueCardDialog
+        open={issueModalOpen}
+        onClose={() => setIssueModalOpen(false)}
+        customer={customer}
+        onCardIssued={() => {
+          setIssueModalOpen(false);
+          setCardModalOpen(true);
+        }}
+      />
     </div>
   );
 }

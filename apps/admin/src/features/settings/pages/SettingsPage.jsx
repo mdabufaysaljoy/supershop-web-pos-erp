@@ -5,6 +5,7 @@ import { PageHeader } from '@/pages/PageHeader';
 import { NotificationsTab } from '@/features/notifications/pages/NotificationsTab';
 import { PaymentsTab } from '@/features/paymentMethods/pages/PaymentsTab';
 import { PrintingTab } from '@/features/printing/pages/PrintingTab';
+import { LoyaltyTab } from '@/features/loyalty/pages/LoyaltyTab';
 import { LanguagesTab } from './LanguagesTab';
 
 /**
@@ -17,6 +18,12 @@ const TABS = [
     label: 'settings.tabs.payments',
     perm: PERMISSIONS.SETTINGS_VIEW,
     Component: PaymentsTab,
+  },
+  {
+    id: 'loyalty',
+    label: 'settings.tabs.loyalty',
+    perm: PERMISSIONS.SETTINGS_VIEW,
+    Component: LoyaltyTab,
   },
   {
     id: 'printing',

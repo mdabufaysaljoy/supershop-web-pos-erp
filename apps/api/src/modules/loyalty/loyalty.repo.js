@@ -14,10 +14,35 @@ export const findAccountById = (id, { session } = {}) =>
     .session(session ?? null)
     .lean();
 
+export const findAccountByCardNumber = (cardNumber, { session } = {}) => {
+  if (!cardNumber) return null;
+  return LoyaltyAccount.findOne({ cardNumber: String(cardNumber).trim() })
+    .session(session ?? null)
+    .lean();
+};
+
 export const createAccount = async (data, { session } = {}) => {
   const [created] = await LoyaltyAccount.create([data], { session, ordered: true });
   return created.toObject();
 };
+
+export const updateAccountCard = async (
+  accountId,
+  { cardNumber, cardIssuedAt, cardFeeHalalas = 0, cardStatus = 'active' },
+  { session } = {},
+) =>
+  LoyaltyAccount.findByIdAndUpdate(
+    oid(accountId),
+    {
+      $set: {
+        cardNumber,
+        cardIssuedAt,
+        cardFeeHalalas,
+        cardStatus,
+      },
+    },
+    { returnDocument: 'after', session: session ?? null },
+  ).lean();
 
 export const updateAccountBalance = async (
   accountId,

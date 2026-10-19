@@ -170,6 +170,7 @@ export const EVENTS = Object.freeze({
   LOYALTY_REVERSED: 'loyalty.reversed',
   LOYALTY_ADJUSTED: 'loyalty.adjusted',
   LOYALTY_EXPIRED: 'loyalty.expired',
+  LOYALTY_CARD_ISSUED: 'loyalty.cardIssued',
   CAMPAIGN_CREATED: 'campaign.created',
   CAMPAIGN_SCHEDULED: 'campaign.scheduled',
   CAMPAIGN_SENT: 'campaign.sent',

@@ -127,8 +127,10 @@ export const customerPrincipal = {
  * It LOOKS UP; it never creates an account from the till — that is the customer's own decision.
  * @returns {Promise<null | { id: string, name: string, phone: string, email: string | null }>}
  */
-export async function findCustomerByContact({ phone, email }) {
+export async function findCustomerByContact({ phone, email, id, customerId } = {}) {
+  const targetId = customerId || id;
   const found =
+    (targetId ? await repo.findCustomerById(targetId) : null) ??
     (phone ? await repo.findCustomerByPhone(phone) : null) ??
     (email ? await repo.findCustomerByEmail(email) : null);
   return found

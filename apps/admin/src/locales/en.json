@@ -645,9 +645,30 @@
     "readOnly": "You can view these settings but not change them.",
     "tabs": {
       "languages": "Languages",
+      "loyalty": "Loyalty & Rewards",
       "payments": "Payments",
       "printing": "Printing",
       "notifications": "Notifications"
+    },
+    "loyalty": {
+      "title": "Loyalty & Rewards Program",
+      "description": "Configure points earn rate, membership card fees, and redemption rules.",
+      "enableProgram": "Enable customer loyalty point system",
+      "enableHint": "Allow customers to earn and redeem reward points online and at the POS counter.",
+      "earnRulesTitle": "Point Earning & Card Issuance",
+      "earnRulesDesc": "Set the amount spent per point and loyalty card issuance fee.",
+      "earnSpendRateLabel": "Spend amount to give 1 point (SAR)",
+      "earnSpendRateHint": "E.g., 100.00 means 100 spent gives 1 loyalty point.",
+      "cardIssuanceFeeLabel": "Loyalty card issuance fee (SAR)",
+      "cardIssuanceFeeHint": "Fee charged to the customer when issuing a loyalty card (0 = free).",
+      "redemptionTitle": "Point Redemption & Expiry",
+      "redemptionDesc": "Control discount value of points and validity duration.",
+      "pointValueLabel": "Discount value per 1 point (SAR)",
+      "pointValueHint": "1.00 = 1 point redeems for 1 SAR discount.",
+      "minPointsLabel": "Minimum points to redeem",
+      "minPointsHint": "Minimum balance required to redeem points.",
+      "expiryDaysLabel": "Points expiry (Days)",
+      "expiryDaysHint": "Days until earned points expire (0 = never expire)."
     }
   },
   "languages": {
@@ -1641,6 +1662,18 @@
         "status": "Account status",
         "save": "Save changes",
         "cancel": "Cancel"
+      },
+      "loyaltyCard": {
+        "title": "Loyalty Card",
+        "active": "Active",
+        "number": "Card Number",
+        "issuedDate": "Issued",
+        "fee": "Fee",
+        "print": "Print Label",
+        "reissue": "Re-issue",
+        "noCard": "No loyalty card issued for this customer yet.",
+        "issueNow": "Issue Loyalty Card",
+        "issuedSuccess": "Loyalty card issued successfully"
       }
     }
   },
@@ -2014,6 +2047,17 @@
       "orderDiscount": "Off the whole basket",
       "remove": "Remove {{name}}"
     },
+    "cart": {
+      "title": "Product Cart",
+      "subtotal": "Subtotal (incl. VAT)"
+    },
+    "filters": {
+      "title": "Filters"
+    },
+    "products": {
+      "title": "Catalogue"
+    },
+    "viewReceipt": "View Receipt",
     "customer": {
       "title": "Customer",
       "walkin": "Walk-in",
@@ -2023,6 +2067,7 @@
       "phone": "Phone"
     },
     "payment": {
+      "title": "Payment Settlement",
       "total": "To pay",
       "method": "Paying with",
       "amount": "Amount",
@@ -2046,12 +2091,42 @@
     "printReceipt": "Print the receipt again",
     "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}",
     "departments": {
+      "label": "Department",
       "all": "All departments"
     },
     "brands": {
+      "label": "Brand",
       "all": "All brands"
     },
-    "split": "Split:"
+    "split": "Split:",
+    "loyalty": {
+      "scannedAttached": "Customer attached: {{name}} ({{points}} pts)"
+    }
+  },
+  "receipt": {
+    "viewOnline": "View Online",
+    "print": "Print Receipt"
+  },
+  "loyalty": {
+    "points": "Points",
+    "card": {
+      "title": "Customer Loyalty Card",
+      "description": "Printable loyalty card label with barcode & QR code",
+      "badge": "Rewards Club",
+      "issued": "Issued",
+      "printLabel": "Print Label",
+      "footerNotice": "Scan barcode or QR at checkout to earn reward points"
+    },
+    "issue": {
+      "title": "Issue Loyalty Card",
+      "description": "Issue a new rewards membership card against this customer",
+      "cardNumberLabel": "Card Number / Barcode (Optional)",
+      "cardNumberPlaceholder": "Leave blank to auto-generate (e.g. LC10001234)",
+      "cardNumberHint": "Can be scanned or entered manually. Code128 and QR format supported.",
+      "feeLabel": "Card Issuance Fee (SAR / Amount)",
+      "feeHint": "Store fee charged for issuing a membership card (0 for free).",
+      "submit": "Issue Card & View Label"
+    }
   },
   "printing": {
     "qz": {

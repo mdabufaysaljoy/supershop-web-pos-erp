@@ -214,9 +214,20 @@ async function resolvePayments(tenders, total, lang) {
 async function attachCustomer(customer) {
   if (customer.mode !== 'contact')
     return { customerId: null, name: 'Walk-in customer', phone: '', email: null };
-  const found = await findCustomerByContact({ phone: customer.phone, email: customer.email });
+  const found = await findCustomerByContact({
+    phone: customer.phone,
+    email: customer.email,
+    id: customer.id,
+    customerId: customer.customerId,
+  });
   return {
-    customerId: found ? oid(found.id) : null,
+    customerId: found
+      ? oid(found.id)
+      : customer.customerId
+        ? oid(customer.customerId)
+        : customer.id
+          ? oid(customer.id)
+          : null,
     name: customer.name ?? found?.name ?? 'Walk-in customer',
     phone: customer.phone ?? found?.phone ?? '',
     email: customer.email ?? found?.email ?? null,

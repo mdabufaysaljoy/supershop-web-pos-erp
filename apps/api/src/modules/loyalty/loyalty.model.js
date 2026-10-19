@@ -25,6 +25,21 @@ const loyaltyAccountSchema = new Schema(
       enum: Object.values(LOYALTY.MEMBERSHIP_STATUSES),
       default: LOYALTY.MEMBERSHIP_STATUSES.ACTIVE,
     },
+    cardNumber: {
+      type: String,
+      sparse: true,
+      unique: true,
+      trim: true,
+      index: true,
+      default: null,
+    },
+    cardIssuedAt: { type: Date, default: null },
+    cardFeeHalalas: { type: Number, default: 0, min: 0 },
+    cardStatus: {
+      type: String,
+      enum: ['active', 'inactive', 'lost'],
+      default: 'active',
+    },
   },
   { collection: 'loyalty_accounts', timestamps: true },
 );

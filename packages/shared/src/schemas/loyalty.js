@@ -52,6 +52,15 @@ export function createLoyaltySchemas() {
     customerId: objectId,
   });
 
+  const issueCard = z.object({
+    cardNumber: plainText({ min: 3, max: 64 }).optional(),
+    feeHalalas: int(0, 100_000_000).optional(),
+  });
+
+  const cardParam = z.object({
+    cardNumber: plainText({ min: 1, max: 64 }),
+  });
+
   return {
     adjustPoints,
     redeemPoints,
@@ -59,5 +68,7 @@ export function createLoyaltySchemas() {
     lookupQuery,
     ledgerQuery,
     customerParam,
+    issueCard,
+    cardParam,
   };
 }

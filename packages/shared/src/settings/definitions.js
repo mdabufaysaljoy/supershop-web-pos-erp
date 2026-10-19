@@ -199,6 +199,13 @@ const DEFINITIONS = [
     default: 365,
     public: true,
   },
+  {
+    key: 'loyalty.cardIssuanceFee',
+    group: 'customers',
+    schema: int(0, 10_000_000),
+    default: 0,
+    public: true,
+  },
   // ---------- notifications (P4.5) ----------
   // What the shop may send, and through what. Providers are adapters: switching one is a setting.
   { key: 'notifications.email', group: 'notifications', schema: bool(), default: true },

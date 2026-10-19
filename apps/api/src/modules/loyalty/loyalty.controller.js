@@ -66,3 +66,20 @@ export const expire = async (req, res) => {
   const result = await service.expirePoints(req.valid.body ?? {});
   return sendData(res, result);
 };
+
+export const issueCard = async (req, res) => {
+  const { customerId } = req.valid.params;
+  const { cardNumber, feeHalalas } = req.valid.body ?? {};
+  const result = await service.issueCard({
+    customerId,
+    cardNumber,
+    feeHalalas,
+    actorId: req.access?.staffId ?? null,
+  });
+  return sendCreated(res, result);
+};
+
+export const getCard = async (req, res) => {
+  const result = await service.lookupMembership(req.valid.params.cardNumber);
+  return sendData(res, result);
+};

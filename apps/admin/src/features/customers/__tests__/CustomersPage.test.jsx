@@ -134,6 +134,24 @@ function setup(
     }),
     'GET /api/v1/customers/segments': json(200, { data: SEGMENTS_SUMMARY }),
     'GET /api/v1/customers/c1': () => json(200, { data: current }),
+    'GET /api/v1/settings': json(200, { data: [] }),
+    'POST /api/v1/loyalty/customers/c1/issue-card': ({ init }) => {
+      const body = init?.body ? JSON.parse(init.body) : {};
+      const cardNumber = body.cardNumber || 'LC99887766';
+      current.loyalty.account.cardNumber = cardNumber;
+      current.loyalty.account.cardIssuedAt = new Date().toISOString();
+      current.loyalty.account.cardFeeHalalas = body.feeHalalas || 0;
+      return json(201, {
+        data: {
+          id: 'acc1',
+          customerId: 'c1',
+          cardNumber,
+          pointsBalance: 120,
+          tier: 'gold',
+          cardFeeHalalas: body.feeHalalas || 0,
+        },
+      });
+    },
     'PATCH /api/v1/customers/c1': ({ init }) => {
       const body = JSON.parse(init.body);
       return update(body);
@@ -218,5 +236,30 @@ describe('CustomersPage', () => {
 
     const saveBtn = screen.getByRole('button', { name: /Save changes/i });
     await user.click(saveBtn);
+  });
+
+  it('allows issuing a loyalty card and viewing the printable card label', async () => {
+    const user = userEvent.setup();
+    setup(<CustomerDetailPage />, { path: '/customers/c1' });
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Lina Al-Mansour');
+    });
+
+    // Check loyalty card section
+    expect(screen.getByText('Loyalty Card')).toBeInTheDocument();
+    expect(screen.getByText('No loyalty card issued for this customer yet.')).toBeInTheDocument();
+
+    const issueBtn = screen.getByRole('button', { name: /Issue Loyalty Card/i });
+    await user.click(issueBtn);
+
+    expect(screen.getByRole('heading', { name: 'Issue Loyalty Card' })).toBeInTheDocument();
+    const submitBtn = screen.getByRole('button', { name: /Issue Card & View Label/i });
+    await user.click(submitBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Customer Loyalty Card' })).toBeInTheDocument();
+      expect(screen.getAllByText('Print Label').length).toBeGreaterThanOrEqual(1);
+    });
   });
 });

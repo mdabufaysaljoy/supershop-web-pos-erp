@@ -51,6 +51,10 @@ export const useSell = () => {
 /** One variant by its exact barcode — what a scanner sends. */
 export const lookupBarcode = (code) => api('/api/v1/products/lookup', { query: { code } });
 
+/** Look up loyalty customer by card barcode or QR code (or phone/email). */
+export const lookupLoyalty = (code) =>
+  apiData('/api/v1/loyalty/lookup', { query: { q: String(code).trim() } });
+
 /** Payment methods offered for POS sales and walk-in customers (P6.1, P6.2). */
 export const usePosPaymentMethods = () =>
   useQuery({

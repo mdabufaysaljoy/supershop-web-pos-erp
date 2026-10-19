@@ -376,4 +376,34 @@ describe('P7.1 Loyalty Engine', () => {
     account = await LoyaltyAccount.findOne({ customerId: customerUser.id }).lean();
     expect(account.pointsBalance).toBe(3); // 5 - 2 = 3
   });
+
+  it('issues a loyalty card with fee and finds customer by card number or QR code scan', async () => {
+    // 1. Issue card with card fee 2500 halalas (25 SAR)
+    const cardRes = await ok(
+      await as('root').post(`/api/v1/loyalty/customers/${customerUser.id}/issue-card`, {
+        cardNumber: 'LOY-99887766',
+        feeHalalas: 2500,
+      }),
+      201,
+    );
+    expect(cardRes.cardNumber).toBe('LOY-99887766');
+    expect(cardRes.cardFeeHalalas).toBe(2500);
+    expect(cardRes.cardStatus).toBe('active');
+
+    // 2. Lookup by card number
+    const lookupDirect = await ok(await as('cara').get('/api/v1/loyalty/lookup?q=LOY-99887766'));
+    expect(lookupDirect.customer.id).toBe(customerUser.id);
+    expect(lookupDirect.cardNumber).toBe('LOY-99887766');
+
+    // 3. Lookup by QR code JSON payload
+    const qrPayload = JSON.stringify({ type: 'loyalty_card', cardNumber: 'LOY-99887766' });
+    const lookupQr = await ok(
+      await as('cara').get(`/api/v1/loyalty/lookup?q=${encodeURIComponent(qrPayload)}`),
+    );
+    expect(lookupQr.customer.id).toBe(customerUser.id);
+
+    // 4. Lookup by card route GET /api/v1/loyalty/card/:cardNumber
+    const cardRoute = await ok(await as('cara').get('/api/v1/loyalty/card/LOY-99887766'));
+    expect(cardRoute.customer.id).toBe(customerUser.id);
+  });
 });

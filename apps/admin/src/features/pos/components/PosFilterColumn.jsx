@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 export function PosFilterColumn({
   q,
   onQChange,
+  onSearchSubmit,
   department,
   onDepartmentChange,
   selectedBrand,
@@ -97,6 +98,10 @@ export function PosFilterColumn({
               onChange={(e) => onQChange(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Escape') onQChange('');
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  onSearchSubmit?.(q);
+                }
               }}
             />
           </div>

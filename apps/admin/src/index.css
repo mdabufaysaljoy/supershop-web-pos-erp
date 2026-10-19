@@ -77,3 +77,30 @@
     @apply bg-background text-foreground antialiased;
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #pos-receipt-printable,
+  #pos-receipt-printable * {
+    visibility: visible;
+  }
+  #pos-receipt-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    padding: 4mm !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: white !important;
+    color: black !important;
+  }
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+}

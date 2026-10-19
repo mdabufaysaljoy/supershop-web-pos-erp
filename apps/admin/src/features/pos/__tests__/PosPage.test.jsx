@@ -375,6 +375,20 @@ describe('printing the receipt', () => {
     await user.click(screen.getByRole('button', { name: 'Print the receipt again' }));
     await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(2));
   });
+
+  it('opens printable receipt dialog when View Receipt button is clicked', async () => {
+    const user = userEvent.setup();
+    setup({ routes: printingOn });
+    await sell(user);
+    await screen.findByText(/POS-000001/);
+
+    const viewBtn = screen.getByRole('button', { name: 'View Receipt' });
+    expect(viewBtn).toBeInTheDocument();
+    await user.click(viewBtn);
+
+    expect(screen.getByText('Served by:')).toBeInTheDocument();
+    expect(screen.getByText('Thank you for your purchase!')).toBeInTheDocument();
+  });
 });
 
 describe('catalogue and filtering', () => {

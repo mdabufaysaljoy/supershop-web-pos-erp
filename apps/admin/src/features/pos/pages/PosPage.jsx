@@ -8,7 +8,9 @@ import { useInventoryBranches } from '@/features/inventory/resource';
 import { usePrintingStatus, usePrintReceipt } from '@/features/printing/resource';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
+import { useAuthStore } from '@/features/auth/store';
 import { PaymentPanel } from '../components/PaymentPanel';
+import { PosReceiptDialog } from '../components/PosReceiptDialog';
 import { SaleLines } from '../components/SaleLines';
 import { ShiftBar } from '../components/ShiftBar';
 import { TillSearch } from '../components/TillSearch';
@@ -24,6 +26,8 @@ const BRANCH_KEY = 'pos.branch';
 export function PosPage() {
   const { t } = useTranslation();
   const branches = useInventoryBranches();
+  const cashierName = useAuthStore((s) => s.profile?.name ?? '');
+  const [receiptOpen, setReceiptOpen] = useState(false);
   const [chosenBranch, setChosenBranch] = useState(() => localStorage.getItem(BRANCH_KEY) ?? '');
   const [payments, setPayments] = useState([]);
   const [done, setDone] = useState(null);
@@ -102,6 +106,15 @@ export function PosPage() {
               change: fmt.money(done.changeGiven),
             })}
           </span>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setReceiptOpen(true)}
+            className="bg-white border-emerald-300 text-emerald-900 hover:bg-emerald-100"
+          >
+            {t('pos.viewReceipt', 'View Receipt')}
+          </Button>
           {printing.data?.enabled && (
             <Button
               type="button"
@@ -236,6 +249,16 @@ export function PosPage() {
             </aside>
           </div>
         </>
+      )}
+
+      {done && (
+        <PosReceiptDialog
+          open={receiptOpen}
+          onOpenChange={setReceiptOpen}
+          order={done}
+          cashierName={cashierName}
+          branchName={options.find((b) => b.id === branchId)?.name?.en || ''}
+        />
       )}
     </div>
   );

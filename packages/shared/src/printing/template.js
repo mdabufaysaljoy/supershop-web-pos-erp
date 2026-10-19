@@ -49,6 +49,10 @@ export function receiptData(
     order.onlineReceiptUrl ||
     (baseUrl && order.orderNo ? `${baseUrl}/${lang}/receipt/${order.orderNo}` : '');
 
+  const isWalkInName = (name) => !name || /^(walk-?in(\s+customer)?)$/i.test(String(name).trim());
+  const hasCustomer = Boolean(order.customer?.name && !isWalkInName(order.customer.name));
+  const customerName = hasCustomer ? String(order.customer.name).trim() : '';
+
   return {
     shop: {
       name: shop.name ?? '',
@@ -65,7 +69,7 @@ export function receiptData(
       onlineReceiptUrl,
     },
     customer: {
-      name: order.customer?.name ?? '',
+      name: customerName,
       phone: order.customer?.phone ?? '',
     },
     totals: {
@@ -101,7 +105,7 @@ export function receiptData(
       vat: order.totals?.vat ?? 0,
       change: order.changeGiven ?? 0,
       note: order.note ?? '',
-      customer: order.customer?.customerId ? order.customer?.name : '',
+      customer: customerName,
       onlineReceiptUrl,
     },
   };
@@ -168,7 +172,6 @@ export const renderTemplate = (template, data, { widthMm = 80 } = {}) =>
 /** What a shop starts with: a plain, complete receipt it can then reword (P6.4). */
 export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'text', value: '{{shop.name}}', align: 'center', bold: true, double: true },
-  { type: 'text', value: 'SIMPLIFIED TAX INVOICE', align: 'center', bold: true },
   { type: 'text', value: '{{shop.address}}', align: 'center' },
   { type: 'text', value: '{{shop.phone}}', align: 'center' },
   { type: 'text', value: 'VAT {{shop.vatNumber}}', align: 'center', showIf: 'shop.vatNumber' },
@@ -176,6 +179,7 @@ export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'row', left: 'Receipt', right: '{{order.number}}' },
   { type: 'row', left: 'Date', right: '{{order.at}}' },
   { type: 'row', left: 'Served by', right: '{{order.cashier}}' },
+  { type: 'row', left: 'Customer', right: '{{customer.name}}', showIf: 'raw.customer' },
   { type: 'line' },
   {
     type: 'items',
@@ -189,7 +193,6 @@ export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'row', left: 'Total', right: '{{totals.total}}', bold: true },
   { type: 'payments', line: { type: 'row', left: '{{label}}', right: '{{amount}}' } },
   { type: 'row', left: 'Change', right: '{{totals.change}}', showIf: 'raw.change' },
-  { type: 'row', left: 'Customer', right: '{{customer.name}}', showIf: 'raw.customer' },
   { type: 'feed', lines: 1 },
   { type: 'qr', value: '{{qr}}' },
   { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
@@ -324,7 +327,6 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
 
   const blocks = [
     { type: 'text', value: '{{shop.name}}', align: 'center', bold: true, double: true },
-    { type: 'text', value: lbl('taxInvoice'), align: 'center', bold: true },
   ];
   if (fields.showAddress) blocks.push({ type: 'text', value: '{{shop.address}}', align: 'center' });
   if (fields.showPhone) blocks.push({ type: 'text', value: '{{shop.phone}}', align: 'center' });
@@ -351,6 +353,14 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
   if (fields.showCashier) {
     blocks.push({ type: 'row', left: lbl('cashier'), right: '{{order.cashier}}' });
   }
+  if (fields.showCustomer) {
+    blocks.push({
+      type: 'row',
+      left: lbl('customer'),
+      right: '{{customer.name}}',
+      showIf: 'raw.customer',
+    });
+  }
   blocks.push({ type: 'line' });
   blocks.push({
     type: 'items',
@@ -376,14 +386,6 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
     right: '{{totals.change}}',
     showIf: 'raw.change',
   });
-  if (fields.showCustomer) {
-    blocks.push({
-      type: 'row',
-      left: lbl('customer'),
-      right: '{{customer.name}}',
-      showIf: 'raw.customer',
-    });
-  }
   blocks.push({ type: 'feed', lines: 1 });
   if (fields.showQr) blocks.push({ type: 'qr', value: '{{qr}}' });
   if (fields.showOnlineReceipt) {

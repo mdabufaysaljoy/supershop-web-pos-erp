@@ -1020,7 +1020,11 @@
         "code128": "Code 128"
       },
       "notFound": "No product with barcode or SKU {{code}}.",
-      "scanHint": "Tip: scan a barcode on this page to open its product."
+      "scanHint": "Tip: scan a barcode on this page to open its product.",
+      "print": "Print",
+      "pieces": "Pieces to print",
+      "labelTitle": "Barcode Label",
+      "product": "Product"
     }
   },
   "customFields": {

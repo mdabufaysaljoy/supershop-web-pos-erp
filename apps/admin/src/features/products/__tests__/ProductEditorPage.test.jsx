@@ -231,6 +231,15 @@ describe('Product editor', () => {
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText('EAN-13')).toBeInTheDocument();
     expect(within(dialog).getByRole('img', { name: '2000000000015' })).toBeInTheDocument();
+    expect(within(dialog).queryByText('Download SVG')).not.toBeInTheDocument();
+    expect(within(dialog).getAllByText('Supershop')[0]).toBeInTheDocument();
+    expect(within(dialog).getAllByText('Cotton Tee')[0]).toBeInTheDocument();
+    expect(within(dialog).getAllByText(/SAR\s*49\.00/)[0]).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Print' })).toBeInTheDocument();
+    const piecesInput = within(dialog).getByLabelText('Pieces to print');
+    expect(piecesInput).toHaveValue(1);
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Increase pieces' }));
+    expect(piecesInput).toHaveValue(2);
     await userEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
 
     // Scanner workflow: scan into M's barcode → Enter → focus jumps to L's barcode, no submit.

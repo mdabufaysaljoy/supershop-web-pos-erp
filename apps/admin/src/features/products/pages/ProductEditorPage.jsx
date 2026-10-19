@@ -294,6 +294,7 @@ function ProductForm({ product }) {
                 canViewCost={canViewCost}
                 disabled={!canEdit}
                 currency="SAR"
+                productName={form.name}
                 onGenerateBarcodes={canEdit ? generateBarcodes : undefined}
                 onChange={(variants) => patch({ variants })}
               />

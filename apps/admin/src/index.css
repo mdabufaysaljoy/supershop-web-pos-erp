@@ -90,7 +90,9 @@
   #loyalty-card-printable,
   #loyalty-card-printable *,
   #shift-report-printable,
-  #shift-report-printable * {
+  #shift-report-printable *,
+  #product-label-printable,
+  #product-label-printable * {
     visibility: visible;
   }
   #pos-receipt-printable,
@@ -120,6 +122,27 @@
     box-shadow: none !important;
     background: white !important;
     color: black !important;
+  }
+  #product-label-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+  }
+  .product-label-page {
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0 auto;
+    background: white;
+    color: black;
   }
   @page {
     size: auto;

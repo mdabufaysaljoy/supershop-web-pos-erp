@@ -30,6 +30,7 @@ export function VariantTable({
   canViewCost,
   disabled,
   currency,
+  productName = '',
   onGenerateBarcodes,
 }) {
   const { t } = useTranslation();
@@ -257,7 +258,11 @@ export function VariantTable({
       </Dialog>
       <BarcodePreviewDialog
         code={previewFor != null ? variants[previewFor]?.barcode : null}
-        label={previewFor != null ? rowLabel(previewFor) : ''}
+        variantLabel={previewFor != null ? rowLabel(previewFor) : ''}
+        productName={productName}
+        sku={previewFor != null ? variants[previewFor]?.sku : ''}
+        price={previewFor != null ? variants[previewFor]?.price : ''}
+        currency={currency}
         onClose={() => setPreviewFor(null)}
       />
     </div>

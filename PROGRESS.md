@@ -7,6 +7,12 @@
 
 
 ## Done tasks
+- Product Variant Barcode Label Printing with Pieces Selector & Template Settings ✔ 2026-10-19 (Antigravity) Replaced the download-only barcode modal with a full label printing dialog that renders store name, product name, variant, price, barcode, pieces selector, and prints according to settings configuration (`apps/admin`):
+  1. Barcode Label Print Dialog (`BarcodePreviewDialog.jsx`, `VariantTable.jsx`, `ProductEditorPage.jsx`): Replaced the "Download SVG" button with a dedicated "Print" action button that sends ESC/POS label jobs to QZ Tray hardware label printers when enabled and triggers browser printing.
+  2. Label Content & Settings Configuration (`BarcodePreviewDialog.jsx`, `index.css`): Visual preview and printable output render store name (from store settings), product name, variant label, formatted price, barcode SVG/text, and SKU based on the printing template dimensions (`widthMm` × `heightMm`).
+  3. Pieces Quantity Selector (`BarcodePreviewDialog.jsx`): Added an interactive pieces selector with decrement/increment controls and numeric input to print 1 to 500 copies (passed to `usePrintLabel` job and repeated in `@media print` `#product-label-printable` pages).
+  4. Verification: 100% test pass rate across admin product, printing, and POS test suites (33 tests), 0 ESLint warnings (`npm run lint`), and `npm run i18n:check` passing.
+
 - POS Layout Proportions: 1-Column Filter/Search and 2-Column Product Viewing ✔ 2026-10-19 (Antigravity) Re-proportioned the POS workspace grid into a balanced 5-column layout where filter and search occupy 1 column and product viewing occupies 2 columns right after filters, providing ample space for 2-column product display (`apps/admin`):
   1. 5-Column POS Grid Architecture (`PosPage.jsx`): Replaced narrow fractional layout with `grid-cols-1 md:grid-cols-2 lg:grid-cols-5`, assigning `lg:col-span-1` to Filters & Search, `lg:col-span-2` to Product Viewing, `lg:col-span-1` to Product Cart, and `lg:col-span-1` to Payment Settlement.
   2. Balanced 2-Column Product Viewing: Product viewing now has exactly double the width of single columns, ensuring the internal 2-column card grid (`grid-cols-2`) renders spacious cards with unconstrained titles, pricing, and action buttons.

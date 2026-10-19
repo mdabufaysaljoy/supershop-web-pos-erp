@@ -24,3 +24,9 @@ export async function getStockoutForecast(req, res) {
   const prediction = await s.getStockoutForecast({ actor, ...req.valid.query });
   sendData(res, prediction);
 }
+
+export async function getReturnsReport(req, res) {
+  const actor = req.access;
+  const report = await s.getReturnsReport(actor, req.valid.query);
+  sendData(res, report);
+}

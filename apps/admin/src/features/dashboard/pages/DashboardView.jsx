@@ -8,6 +8,7 @@ import { ChannelBreakdownCard } from '../components/ChannelBreakdownCard';
 import { DashboardFilters } from '../components/DashboardFilters';
 import { DashboardKpis } from '../components/DashboardKpis';
 import { RecentOrdersCard } from '../components/RecentOrdersCard';
+import { ReturnExchangeStatsCard } from '../components/ReturnExchangeStatsCard';
 import { SalesOverTimeChart } from '../components/SalesOverTimeChart';
 import { TopProductsCard } from '../components/TopProductsCard';
 import { useDashboardOverview } from '../resource';
@@ -71,6 +72,8 @@ export function DashboardView() {
                 <RecentOrdersCard orders={data.recentOrders} />
               </div>
             </div>
+
+            <ReturnExchangeStatsCard returnsOverview={data.returnsOverview} />
           </div>
         )
       )}

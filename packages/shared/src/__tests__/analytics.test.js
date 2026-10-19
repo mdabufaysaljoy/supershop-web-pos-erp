@@ -84,4 +84,35 @@ describe('Analytics Shared Contracts (P8.1)', () => {
     expect(calculateDeltaPercent(0, 0)).toBe(0);
     expect(calculateDeltaPercent(105.6, 100)).toBe(5.6);
   });
+
+  it('validates returnsReportQuery schema with defaults and valid parameters', () => {
+    const { returnsReportQuery } = createAnalyticsSchemas();
+
+    const empty = returnsReportQuery.parse({});
+    expect(empty.dimension).toBe('all');
+    expect(empty.range).toBe('7d');
+    expect(empty.channel).toBe('all');
+    expect(empty.limit).toBe(50);
+    expect(empty.sortBy).toBe('refundAmount');
+    expect(empty.sortDir).toBe('desc');
+
+    const custom = returnsReportQuery.parse({
+      dimension: 'product',
+      range: '30d',
+      channel: 'online',
+      branchId: 'b-99',
+      sortBy: 'returnedUnits',
+      sortDir: 'asc',
+      limit: 25,
+    });
+    expect(custom.dimension).toBe('product');
+    expect(custom.range).toBe('30d');
+    expect(custom.channel).toBe('online');
+    expect(custom.branchId).toBe('b-99');
+    expect(custom.sortBy).toBe('returnedUnits');
+    expect(custom.sortDir).toBe('asc');
+    expect(custom.limit).toBe(25);
+
+    expect(() => returnsReportQuery.parse({ dimension: 'nonexistent' })).toThrow();
+  });
 });

@@ -188,13 +188,65 @@ const MOCK_STOCKOUT_FORECAST = {
   },
 };
 
-describe('ReportsPage Admin UI (P8.2, P8.3)', () => {
+const MOCK_RETURNS_DATA = {
+  dimension: 'all',
+  range: '7d',
+  channel: 'all',
+  summary: {
+    totalReturns: 5,
+    totalExchanges: 2,
+    totalCount: 7,
+    refundAmount: 25000,
+    differenceDue: 3500,
+    returnedUnits: 9,
+    exchangedUnits: 3,
+    averageRefund: 5000,
+  },
+  items: [
+    {
+      rank: 1,
+      id: 'ret-1',
+      name: 'RET-000101',
+      orderNo: 'ORD-5001',
+      type: 'return',
+      channel: 'pos',
+      customerName: 'Ahmad Salem',
+      returnedUnits: 4,
+      refundAmount: 12000,
+      differenceDue: 0,
+      branchName: 'Main Store',
+      branchCode: 'MAIN',
+      staffName: 'Cashier One',
+      sharePercent: 48,
+    },
+    {
+      rank: 2,
+      id: 'exc-1',
+      name: 'EXC-000102',
+      orderNo: 'ORD-5002',
+      type: 'exchange',
+      channel: 'online',
+      customerName: 'Fatima Omar',
+      returnedUnits: 2,
+      refundAmount: 0,
+      differenceDue: 3500,
+      branchName: 'Main Store',
+      branchCode: 'MAIN',
+      staffName: 'Online / System',
+      sharePercent: 0,
+    },
+  ],
+  chart: [{ name: 'RET-000101', refundAmount: 12000, returnedUnits: 4, sharePercent: 48 }],
+};
+
+describe('ReportsPage Admin UI (P8.2, P8.3, P8.4)', () => {
   beforeEach(() => {
     setupAuth();
 
     mockFetch({
       'GET /api/v1/inventory/branches': json(200, { data: MOCK_BRANCHES }),
       'GET /api/v1/analytics/performance': json(200, { data: MOCK_PERFORMANCE_DATA }),
+      'GET /api/v1/analytics/returns': json(200, { data: MOCK_RETURNS_DATA }),
       'GET /api/v1/analytics/forecast/sales': json(200, { data: MOCK_SALES_FORECAST }),
       'GET /api/v1/analytics/forecast/stockout': json(200, { data: MOCK_STOCKOUT_FORECAST }),
       'GET /api/v1/exports/resources': json(200, {
@@ -330,5 +382,37 @@ describe('ReportsPage Admin UI (P8.2, P8.3)', () => {
     expect(screen.getByText('Orders')).toBeInTheDocument();
     expect(screen.getByText('Order Number')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Generate & Export/i })).toBeInTheDocument();
+  });
+
+  it('switches to Returns & Exchanges tab and displays returns KPIs, dimensions, and data table', async () => {
+    const user = userEvent.setup();
+    renderReportsPage();
+
+    await screen.findByRole('heading', { name: /Performance Reports/i });
+
+    const returnsTab = screen.getByRole('button', { name: /Returns & Exchanges/i });
+    expect(returnsTab).toBeInTheDocument();
+    await user.click(returnsTab);
+
+    // Verify Summary KPIs
+    expect(await screen.findByText('Total Returns')).toBeInTheDocument();
+    expect(screen.getByText('Total Exchanges')).toBeInTheDocument();
+    expect(screen.getAllByText('Refunded Amount').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('Exchange Value')).toBeInTheDocument();
+    expect(screen.getAllByText('Units Returned').length).toBeGreaterThanOrEqual(1);
+
+    // Verify dimension buttons
+    expect(screen.getByRole('button', { name: /All Records/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Product/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Category/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Staff/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Branch/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Online vs POS/i })).toBeInTheDocument();
+
+    // Verify table records
+    expect(await screen.findByText('RET-000101')).toBeInTheDocument();
+    expect(screen.getByText('ORD-5001')).toBeInTheDocument();
+    expect(screen.getByText('EXC-000102')).toBeInTheDocument();
+    expect(screen.getByText('ORD-5002')).toBeInTheDocument();
   });
 });

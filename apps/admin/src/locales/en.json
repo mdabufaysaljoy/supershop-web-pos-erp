@@ -238,6 +238,7 @@
     "loadFailed": "Failed to load",
     "actions": "Actions",
     "view": "View",
+    "recent": "Recent",
     "moveUp": "Move up",
     "remove": "Remove"
   },
@@ -258,6 +259,9 @@
       "aov": "Average order value",
       "itemsSold": "Items sold",
       "newCustomers": "New customers",
+      "returns": "Returns & Exchanges",
+      "refunds": "Refunds",
+      "returnRate": "Return rate",
       "lowStock": "Low stock alert",
       "outOfStock": "Out of stock",
       "vsPrevious": "vs previous period"
@@ -295,6 +299,19 @@
       "total": "Total",
       "date": "Date",
       "empty": "No recent orders"
+    },
+    "returnsCard": {
+      "title": "Returns & Exchanges",
+      "viewReport": "View Returns Report",
+      "returns": "Returns",
+      "exchanges": "Exchanges",
+      "totalRefunded": "Total Refunded",
+      "exchangeDifference": "Exchange Value",
+      "unitsReturned": "Units Returned",
+      "returnRate": "Return Rate",
+      "posChannel": "POS Till",
+      "onlineChannel": "Online Store",
+      "empty": "No returns or exchanges recorded in this period"
     }
   },
   "reports": {
@@ -311,8 +328,60 @@
     "retry": "Retry",
     "tabs": {
       "performance": "Performance Analysis",
+      "returns": "Returns & Exchanges",
       "forecasting": "Forecast & Stock-out",
       "builder": "Report Builder"
+    },
+    "returns": {
+      "title": "Returns & Exchanges Analysis",
+      "subtitle": "Track returns, exchanges, refunds, and restocked units across products, categories, staff, branches, and online vs POS.",
+      "exportCsv": "Export Returns CSV",
+      "chartTitle": "Top Returns & Refunds by {{dimension}}",
+      "tableTitle": "Returns Breakdown: {{dimension}}",
+      "noData": "No return or exchange records found for the selected filters",
+      "errorLoading": "Failed to load returns and exchanges metrics",
+      "dimensions": {
+        "all": "All Records",
+        "product": "Product",
+        "category": "Category",
+        "staff": "Staff",
+        "branch": "Branch",
+        "online": "Online vs POS"
+      },
+      "channels": {
+        "all": "All Channels",
+        "pos": "POS",
+        "online": "Online"
+      },
+      "kpis": {
+        "totalReturns": "Total Returns",
+        "totalExchanges": "Total Exchanges",
+        "totalCount": "Total Transactions",
+        "refundAmount": "Refunded Amount",
+        "differenceDue": "Exchange Value",
+        "returnedUnits": "Units Returned",
+        "exchangedUnits": "Units Exchanged",
+        "returnRate": "Return Rate",
+        "averageRefund": "Avg. Refund"
+      },
+      "columns": {
+        "rank": "#",
+        "name": "Name",
+        "secondary": "Details",
+        "type": "Type",
+        "channel": "Channel",
+        "order": "Order",
+        "returnsCount": "Returns",
+        "exchangesCount": "Exchanges",
+        "totalCount": "Total",
+        "returnedUnits": "Units Returned",
+        "exchangedUnits": "Units Exchanged",
+        "refundAmount": "Refund (SAR)",
+        "differenceDue": "Diff / Total (SAR)",
+        "sharePercent": "Share %",
+        "reason": "Reason",
+        "date": "Date"
+      }
     },
     "filters": {
       "branch": "Branch",

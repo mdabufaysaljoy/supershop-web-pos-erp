@@ -19,6 +19,7 @@ import {
   getVariantSalesVelocity,
 } from '../orders/index.js';
 import { getVariantSummaries } from '../products/index.js';
+import { getDashboardReturnStats, getReturnsReportStats } from '../returns/index.js';
 
 /**
  * Fills zero-order buckets in time-series data so charts have an unbroken axis.
@@ -118,18 +119,38 @@ export async function getDashboardOverview(actor, { range = '7d', branchId = nul
     ...branchFilter,
   };
 
-  const [ordersData, inventoryHealth, newCustomers, previousNewCustomers] = await Promise.all([
-    getDashboardOrderStats({
-      currentFilter,
-      previousFilter,
-      recentFilter,
-      groupBy,
-      topLimit: 5,
-    }),
-    getInventoryHealth(actor, branchId ?? null),
-    countNewCustomers(start, end),
-    countNewCustomers(previousStart, previousEnd),
-  ]);
+  const returnCurrentFilter = {
+    ...branchFilter,
+    createdAt: { $gte: start, $lte: end },
+  };
+
+  const returnPreviousFilter = {
+    ...branchFilter,
+    createdAt: { $gte: previousStart, $lte: previousEnd },
+  };
+
+  const returnRecentFilter = {
+    ...branchFilter,
+  };
+
+  const [ordersData, inventoryHealth, newCustomers, previousNewCustomers, returnsData] =
+    await Promise.all([
+      getDashboardOrderStats({
+        currentFilter,
+        previousFilter,
+        recentFilter,
+        groupBy,
+        topLimit: 5,
+      }),
+      getInventoryHealth(actor, branchId ?? null),
+      countNewCustomers(start, end),
+      countNewCustomers(previousStart, previousEnd),
+      getDashboardReturnStats({
+        currentFilter: returnCurrentFilter,
+        previousFilter: returnPreviousFilter,
+        recentFilter: returnRecentFilter,
+      }),
+    ]);
 
   const { current, previous } = ordersData;
 
@@ -137,6 +158,15 @@ export async function getDashboardOverview(actor, { range = '7d', branchId = nul
     current.ordersCount > 0 ? Math.round(current.totalSales / current.ordersCount) : 0;
   const previousAov =
     previous.ordersCount > 0 ? Math.round(previous.totalSales / previous.ordersCount) : 0;
+
+  const currentReturnRate =
+    current.ordersCount > 0
+      ? Number(((returnsData.current.totalCount / current.ordersCount) * 100).toFixed(1))
+      : 0;
+  const previousReturnRate =
+    previous.ordersCount > 0
+      ? Number(((returnsData.previous.totalCount / previous.ordersCount) * 100).toFixed(1))
+      : 0;
 
   const kpis = {
     totalSales: {
@@ -169,6 +199,61 @@ export async function getDashboardOverview(actor, { range = '7d', branchId = nul
       previous: previousNewCustomers,
       changePercent: calculateDeltaPercent(newCustomers, previousNewCustomers),
     },
+    returns: {
+      returnsCount: {
+        current: returnsData.current.returnsCount,
+        previous: returnsData.previous.returnsCount,
+        changePercent: calculateDeltaPercent(
+          returnsData.current.returnsCount,
+          returnsData.previous.returnsCount,
+        ),
+      },
+      exchangesCount: {
+        current: returnsData.current.exchangesCount,
+        previous: returnsData.previous.exchangesCount,
+        changePercent: calculateDeltaPercent(
+          returnsData.current.exchangesCount,
+          returnsData.previous.exchangesCount,
+        ),
+      },
+      totalCount: {
+        current: returnsData.current.totalCount,
+        previous: returnsData.previous.totalCount,
+        changePercent: calculateDeltaPercent(
+          returnsData.current.totalCount,
+          returnsData.previous.totalCount,
+        ),
+      },
+      refundAmount: {
+        current: returnsData.current.refundAmount,
+        previous: returnsData.previous.refundAmount,
+        changePercent: calculateDeltaPercent(
+          returnsData.current.refundAmount,
+          returnsData.previous.refundAmount,
+        ),
+      },
+      differenceDue: {
+        current: returnsData.current.differenceDue,
+        previous: returnsData.previous.differenceDue,
+        changePercent: calculateDeltaPercent(
+          returnsData.current.differenceDue,
+          returnsData.previous.differenceDue,
+        ),
+      },
+      returnedUnits: {
+        current: returnsData.current.returnedUnits,
+        previous: returnsData.previous.returnedUnits,
+        changePercent: calculateDeltaPercent(
+          returnsData.current.returnedUnits,
+          returnsData.previous.returnedUnits,
+        ),
+      },
+      returnRate: {
+        current: currentReturnRate,
+        previous: previousReturnRate,
+        changePercent: calculateDeltaPercent(currentReturnRate, previousReturnRate),
+      },
+    },
     inventory: inventoryHealth,
   };
 
@@ -193,6 +278,105 @@ export async function getDashboardOverview(actor, { range = '7d', branchId = nul
     topProducts: ordersData.topProducts,
     recentOrders: ordersData.recentOrders,
     paymentMethods: ordersData.paymentMethods,
+    returnsOverview: {
+      summary: {
+        ...returnsData.current,
+        returnRate: currentReturnRate,
+      },
+      byChannel: returnsData.byChannel,
+      recentReturns: returnsData.recentReturns,
+    },
+  };
+}
+
+/**
+ * Generates a returns and exchanges report breakdown by dimension.
+ */
+export async function getReturnsReport(
+  actor,
+  {
+    dimension = 'all',
+    range = '7d',
+    branchId = null,
+    channel = 'all',
+    limit = 50,
+    sortBy = 'refundAmount',
+    sortDir = 'desc',
+    now,
+  } = {},
+) {
+  if (branchId) {
+    actor.assertBranch(branchId);
+  }
+
+  let effectiveBranchId = branchId;
+  if (!effectiveBranchId && !actor.allBranches) {
+    effectiveBranchId = actor.branchIds?.[0] ?? null;
+  }
+
+  const period = resolveAnalyticsPeriod({ range, now });
+  const { start, end } = period;
+
+  const stats = await getReturnsReportStats({
+    dimension,
+    start,
+    end,
+    branchId: effectiveBranchId,
+    channel,
+    limit,
+    sortBy,
+    sortDir,
+  });
+
+  const { items, totals } = stats;
+  const totalRefund = totals.refundAmount ?? 0;
+  const totalUnits = totals.returnedUnits ?? 0;
+  const totalReturns = totals.returnsCount ?? 0;
+  const totalExchanges = totals.exchangesCount ?? 0;
+  const totalCount = totals.totalCount ?? totalReturns + totalExchanges;
+
+  const enrichedItems = items.map((item, index) => {
+    const sharePercent =
+      totalRefund > 0 ? Number(((item.refundAmount / totalRefund) * 100).toFixed(1)) : 0;
+    return {
+      rank: index + 1,
+      ...item,
+      sharePercent,
+    };
+  });
+
+  const summary = {
+    totalReturns,
+    totalExchanges,
+    totalCount,
+    refundAmount: totalRefund,
+    differenceDue: totals.differenceDue ?? 0,
+    returnedUnits: totalUnits,
+    exchangedUnits: totals.exchangedUnits ?? 0,
+    averageRefund: totalReturns > 0 ? Math.round(totalRefund / totalReturns) : 0,
+  };
+
+  const chart = enrichedItems.slice(0, 10).map((i) => ({
+    name: i.name,
+    refundAmount: i.refundAmount,
+    returnedUnits: i.returnedUnits,
+    returnsCount: i.returnsCount,
+    exchangesCount: i.exchangesCount,
+    sharePercent: i.sharePercent,
+  }));
+
+  return {
+    dimension,
+    range,
+    channel,
+    period: {
+      start,
+      end,
+    },
+    branchId: effectiveBranchId,
+    summary,
+    items: enrichedItems,
+    chart,
   };
 }
 

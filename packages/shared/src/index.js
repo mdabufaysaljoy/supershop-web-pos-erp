@@ -190,6 +190,7 @@ export {
   parseHorizonDays,
   parseLookbackDays,
   resolveAnalyticsPeriod,
+  RETURNS_ANALYTICS,
 } from './schemas/analytics.js';
 export {
   calculateStockoutRisk,

@@ -81,3 +81,37 @@ export function useStockoutForecast({
     staleTime: 60_000,
   });
 }
+
+const RETURNS_BASE = '/api/v1/analytics/returns';
+
+/**
+ * Loads returns and exchanges report metrics across dimensions (P8.4).
+ *
+ * @param {{
+ *   dimension?: 'all' | 'product' | 'category' | 'staff' | 'branch' | 'online' | 'channel',
+ *   range?: 'today' | '7d' | '30d' | '90d' | 'year',
+ *   branchId?: string | null,
+ *   channel?: 'all' | 'pos' | 'online',
+ *   limit?: number,
+ *   sortBy?: string,
+ *   sortDir?: 'asc' | 'desc',
+ * }} [params]
+ */
+export function useReturnsReport({
+  dimension = 'all',
+  range = '7d',
+  branchId = null,
+  channel = 'all',
+  limit = 50,
+  sortBy = 'refundAmount',
+  sortDir = 'desc',
+} = {}) {
+  const query = { dimension, range, channel, limit, sortBy, sortDir };
+  if (branchId) query.branchId = branchId;
+
+  return useQuery({
+    queryKey: ['analytics', 'returns', query],
+    queryFn: () => apiData(RETURNS_BASE, { query }),
+    staleTime: 30_000,
+  });
+}

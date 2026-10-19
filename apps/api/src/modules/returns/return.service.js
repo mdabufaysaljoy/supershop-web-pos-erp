@@ -804,3 +804,79 @@ async function toReturnDto(doc) {
     receiptLines: receipt.lines,
   };
 }
+
+/**
+ * Returns dashboard return and exchange aggregations for overview.
+ */
+export async function getDashboardReturnStats({ currentFilter, previousFilter, recentFilter }) {
+  const [current, previous, byChannel, recentReturns] = await Promise.all([
+    repo.getReturnExchangeAggregate(currentFilter),
+    repo.getReturnExchangeAggregate(previousFilter),
+    repo.getReturnChannelBreakdown(currentFilter),
+    repo.getRecentReturns(recentFilter, 5),
+  ]);
+
+  return {
+    current,
+    previous,
+    byChannel,
+    recentReturns,
+  };
+}
+
+/**
+ * Generates returns and exchanges report statistics by dimension.
+ */
+export async function getReturnsReportStats({
+  dimension = 'all',
+  start,
+  end,
+  branchId = null,
+  channel = 'all',
+  limit = 50,
+  sortBy = 'refundAmount',
+  sortDir = 'desc',
+}) {
+  const matchFilter = {
+    createdAt: { $gte: start, $lte: end },
+  };
+
+  if (branchId) {
+    matchFilter.branchId = oid(branchId);
+  }
+
+  if (channel && channel !== 'all') {
+    matchFilter.channel = channel;
+  }
+
+  let items = [];
+  switch (dimension) {
+    case 'product':
+      items = await repo.getReturnStatsByProduct(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'category':
+      items = await repo.getReturnStatsByCategory(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'staff':
+      items = await repo.getReturnStatsByStaff(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'branch':
+      items = await repo.getReturnStatsByBranch(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'online':
+    case 'channel':
+      items = await repo.getReturnStatsByChannel(matchFilter, { limit, sortBy, sortDir });
+      break;
+    case 'all':
+    default:
+      items = await repo.getReturnStatsAll(matchFilter, { limit, sortBy, sortDir });
+      break;
+  }
+
+  const totals = await repo.getReturnExchangeAggregate(matchFilter);
+
+  return {
+    items,
+    totals,
+  };
+}

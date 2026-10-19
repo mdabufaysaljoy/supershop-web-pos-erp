@@ -4,12 +4,14 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import { useMemoryMongo } from '../../../../test/mongo.js';
 import { createApp } from '../../../app.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
+import { Branch } from '../../branches/branch.model.js';
 import { Brand } from '../../brands/brand.model.js';
 import { Category } from '../../categories/category.model.js';
 import { Customer } from '../../customers/customer.model.js';
 import { Order } from '../../orders/order.model.js';
 import { Product, Variant } from '../../products/product.model.js';
 import { findSystemRoleId, seedDefaultRoles } from '../../rbac/index.js';
+import { ReturnExchange } from '../../returns/return.model.js';
 import { loadSettings } from '../../settings/index.js';
 import { createStaff, ensureSuperAdmin } from '../../staff/index.js';
 
@@ -33,6 +35,8 @@ beforeEach(async () => {
     Category.init(),
     Brand.init(),
     Customer.init(),
+    Branch.init(),
+    ReturnExchange.init(),
   ]);
   app = createApp({ checks: { db: () => true, redis: async () => true } });
 
@@ -300,5 +304,193 @@ describe('Performance Analytics API Module (P8.2)', () => {
     expect(resChannel.body.data.items.length).toBe(1);
     expect(resChannel.body.data.items[0].channel).toBe('pos');
     expect(resChannel.body.data.items[0].revenue).toBe(16000);
+  });
+
+  it('provides returns and exchanges statistics across dimensions and on dashboard', async () => {
+    const RETURNS_BASE = '/api/v1/analytics/returns';
+
+    // 1. Authorization check
+    const unauth = await request(app)
+      .get(RETURNS_BASE)
+      .set('Authorization', `Bearer ${cashierToken}`);
+    expect(unauth.status).toBe(403);
+
+    const now = new Date();
+    const prodId = new mongoose.Types.ObjectId();
+    const varId = new mongoose.Types.ObjectId();
+    const catId = new mongoose.Types.ObjectId();
+    const orderId1 = new mongoose.Types.ObjectId();
+    const orderId2 = new mongoose.Types.ObjectId();
+
+    await Branch.create({
+      _id: branch1,
+      name: { en: 'Downtown Flagship', ar: 'فرع وسط المدينة' },
+      code: 'DT01',
+      active: true,
+    });
+
+    await Category.create({
+      _id: catId,
+      name: { en: 'Electronics', ar: 'إلكترونيات' },
+      slug: 'electronics',
+      active: true,
+    });
+
+    await Product.create({
+      _id: prodId,
+      name: { en: 'Wireless Headset', ar: 'سماعة لاسلكية' },
+      slug: 'wireless-headset',
+      categoryIds: [catId],
+      status: 'active',
+    });
+
+    // Seed ReturnExchange records: 1 return from POS, 1 exchange from Online
+    await ReturnExchange.create([
+      {
+        returnNo: 'RET-000001',
+        type: 'return',
+        orderId: orderId1,
+        orderNo: 'ORD-1001',
+        channel: 'pos',
+        branchId: branch1,
+        customer: { name: 'Ali Ahmed', phone: '+966500000001' },
+        returnLines: [
+          {
+            productId: prodId,
+            variantId: varId,
+            sku: 'WH-01',
+            name: 'Wireless Headset - Black',
+            unitPrice: 5000,
+            qty: 2,
+            subtotal: 10000,
+            lineTotal: 10000,
+            net: 8696,
+            vat: 1304,
+          },
+        ],
+        returnTotals: {
+          itemCount: 2,
+          subtotal: 10000,
+          net: 8696,
+          vat: 1304,
+          total: 10000,
+        },
+        refundMethod: 'cash',
+        refundAmount: 10000,
+        createdAt: now,
+      },
+      {
+        returnNo: 'EXC-000001',
+        type: 'exchange',
+        orderId: orderId2,
+        orderNo: 'ORD-1002',
+        channel: 'online',
+        branchId: branch1,
+        customer: { name: 'Sara Khan', phone: '+966500000002' },
+        returnLines: [
+          {
+            productId: prodId,
+            variantId: varId,
+            sku: 'WH-01',
+            name: 'Wireless Headset - Black',
+            unitPrice: 5000,
+            qty: 1,
+            subtotal: 5000,
+            lineTotal: 5000,
+            net: 4348,
+            vat: 652,
+          },
+        ],
+        returnTotals: {
+          itemCount: 1,
+          subtotal: 5000,
+          net: 4348,
+          vat: 652,
+          total: 5000,
+        },
+        exchangeLines: [
+          {
+            productId: prodId,
+            variantId: varId,
+            sku: 'WH-01',
+            name: 'Wireless Headset - White',
+            unitPrice: 6000,
+            qty: 1,
+            lineTotal: 6000,
+            net: 5217,
+            vat: 783,
+          },
+        ],
+        exchangeTotals: {
+          itemCount: 1,
+          subtotal: 6000,
+          net: 5217,
+          vat: 783,
+          total: 6000,
+        },
+        refundAmount: 0,
+        differenceDue: 1000,
+        createdAt: now,
+      },
+    ]);
+
+    // Test dimension: 'all'
+    const resAll = await request(app)
+      .get(`${RETURNS_BASE}?dimension=all&range=7d`)
+      .set('Authorization', `Bearer ${rootToken}`);
+    expect(resAll.status).toBe(200);
+    expect(resAll.body.data.summary.totalReturns).toBe(1);
+    expect(resAll.body.data.summary.totalExchanges).toBe(1);
+    expect(resAll.body.data.summary.totalCount).toBe(2);
+    expect(resAll.body.data.summary.returnedUnits).toBe(3);
+    expect(resAll.body.data.summary.refundAmount).toBe(10000);
+    expect(resAll.body.data.summary.differenceDue).toBe(1000);
+    expect(resAll.body.data.items.length).toBe(2);
+
+    // Test dimension: 'product'
+    const resProd = await request(app)
+      .get(`${RETURNS_BASE}?dimension=product&range=7d`)
+      .set('Authorization', `Bearer ${rootToken}`);
+    expect(resProd.status).toBe(200);
+    expect(resProd.body.data.items.length).toBe(1);
+    expect(resProd.body.data.items[0].name).toBe('Wireless Headset - Black');
+    expect(resProd.body.data.items[0].returnedUnits).toBe(3);
+    expect(resProd.body.data.items[0].refundAmount).toBe(15000);
+
+    // Test dimension: 'category'
+    const resCat = await request(app)
+      .get(`${RETURNS_BASE}?dimension=category&range=7d`)
+      .set('Authorization', `Bearer ${rootToken}`);
+    expect(resCat.status).toBe(200);
+    expect(resCat.body.data.items.length).toBe(1);
+    expect(resCat.body.data.items[0].name).toBe('Electronics');
+    expect(resCat.body.data.items[0].returnedUnits).toBe(3);
+
+    // Test dimension: 'branch'
+    const resBranch = await request(app)
+      .get(`${RETURNS_BASE}?dimension=branch&range=7d`)
+      .set('Authorization', `Bearer ${rootToken}`);
+    expect(resBranch.status).toBe(200);
+    expect(resBranch.body.data.items.length).toBe(1);
+    expect(resBranch.body.data.items[0].name).toBe('Downtown Flagship');
+
+    // Test dimension: 'online' / channel
+    const resOnline = await request(app)
+      .get(`${RETURNS_BASE}?dimension=online&range=7d`)
+      .set('Authorization', `Bearer ${rootToken}`);
+    expect(resOnline.status).toBe(200);
+    expect(resOnline.body.data.items.length).toBe(2);
+
+    // Test dashboard includes return stats
+    const dashRes = await request(app)
+      .get('/api/v1/analytics/dashboard?range=7d')
+      .set('Authorization', `Bearer ${rootToken}`);
+    expect(dashRes.status).toBe(200);
+    expect(dashRes.body.data.kpis.returns).toBeDefined();
+    expect(dashRes.body.data.kpis.returns.returnsCount.current).toBe(1);
+    expect(dashRes.body.data.kpis.returns.exchangesCount.current).toBe(1);
+    expect(dashRes.body.data.kpis.returns.refundAmount.current).toBe(10000);
+    expect(dashRes.body.data.returnsOverview.byChannel.pos.returnsCount).toBe(1);
+    expect(dashRes.body.data.returnsOverview.byChannel.online.exchangesCount).toBe(1);
   });
 });

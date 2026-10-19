@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router';
 import { ForecastView } from '../components/ForecastView';
 import { ReportBuilderView } from '../components/ReportBuilderView';
+import { ReturnsReportView } from '../components/ReturnsReportView';
 import { PerformanceChart } from '../components/PerformanceChart';
 import { PerformanceFilters } from '../components/PerformanceFilters';
 import { PerformanceSummaryKpis } from '../components/PerformanceSummaryKpis';
@@ -11,7 +13,13 @@ import { usePerformanceReport } from '../resource';
 
 export function ReportsPage() {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState('performance'); // 'performance' | 'forecasting'
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    tabParam && ['performance', 'returns', 'forecasting', 'builder'].includes(tabParam)
+      ? tabParam
+      : 'performance',
+  );
   const [dimension, setDimension] = useState('product');
   const [range, setRange] = useState('7d');
   const [branchId, setBranchId] = useState(null);
@@ -100,11 +108,14 @@ export function ReportsPage() {
         <p className="text-xs text-muted-foreground mt-1">{t('reports.subtitle')}</p>
       </div>
 
-      {/* Primary Section Tabs: Performance vs Forecasting */}
+      {/* Primary Section Tabs: Performance vs Returns vs Forecasting vs Builder */}
       <div className="flex border-b border-border">
         <button
           type="button"
-          onClick={() => setActiveTab('performance')}
+          onClick={() => {
+            setActiveTab('performance');
+            setSearchParams({});
+          }}
           className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'performance'
               ? 'border-primary text-foreground'
@@ -115,7 +126,24 @@ export function ReportsPage() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('forecasting')}
+          onClick={() => {
+            setActiveTab('returns');
+            setSearchParams({ tab: 'returns' });
+          }}
+          className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
+            activeTab === 'returns'
+              ? 'border-primary text-foreground'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          {t('reports.tabs.returns')}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setActiveTab('forecasting');
+            setSearchParams({ tab: 'forecasting' });
+          }}
           className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'forecasting'
               ? 'border-primary text-foreground'
@@ -126,7 +154,10 @@ export function ReportsPage() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab('builder')}
+          onClick={() => {
+            setActiveTab('builder');
+            setSearchParams({ tab: 'builder' });
+          }}
           className={`border-b-2 px-4 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'builder'
               ? 'border-primary text-foreground'
@@ -137,7 +168,9 @@ export function ReportsPage() {
         </button>
       </div>
 
-      {activeTab === 'forecasting' ? (
+      {activeTab === 'returns' ? (
+        <ReturnsReportView />
+      ) : activeTab === 'forecasting' ? (
         <ForecastView />
       ) : activeTab === 'builder' ? (
         <ReportBuilderView />

@@ -44,5 +44,12 @@ export function createAnalyticsRouter({ schemas = defaultSchemas } = {}) {
     c.getStockoutForecast,
   );
 
+  r.get(
+    '/returns',
+    requirePermission(P.REPORT_VIEW),
+    validate({ query: schemas.returnsReportQuery }),
+    c.getReturnsReport,
+  );
+
   return r;
 }

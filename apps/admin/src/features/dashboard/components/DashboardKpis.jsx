@@ -1,10 +1,12 @@
 import {
   AlertTriangle,
   ArrowDownRight,
+  ArrowLeftRight,
   ArrowUpRight,
   DollarSign,
   PackageCheck,
   PackageX,
+  RotateCcw,
   ShoppingBag,
   TrendingUp,
   Users,
@@ -46,6 +48,7 @@ export function DashboardKpis({ kpis }) {
     averageOrderValue = {},
     itemsSold = {},
     newCustomers = {},
+    returns = {},
     inventory = {},
   } = kpis;
 
@@ -91,6 +94,20 @@ export function DashboardKpis({ kpis }) {
       value: fmt.number(newCustomers.current ?? 0),
       delta: newCustomers.changePercent,
       icon: Users,
+    },
+    {
+      id: 'returns',
+      title: t('dashboard.kpis.returns'),
+      value: fmt.number(returns.totalCount?.current ?? 0),
+      delta: returns.totalCount?.changePercent,
+      icon: RotateCcw,
+    },
+    {
+      id: 'refunds',
+      title: t('dashboard.kpis.refunds'),
+      value: fmt.money(returns.refundAmount?.current ?? 0),
+      delta: returns.refundAmount?.changePercent,
+      icon: ArrowLeftRight,
     },
   ];
 

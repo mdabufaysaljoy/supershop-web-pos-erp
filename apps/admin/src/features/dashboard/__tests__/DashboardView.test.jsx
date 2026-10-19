@@ -26,6 +26,15 @@ const MOCK_DASHBOARD_DATA = {
     averageOrderValue: { current: 35714, previous: 33333, changePercent: 7.1 },
     itemsSold: { current: 98, previous: 70, changePercent: 40 },
     newCustomers: { current: 15, previous: 10, changePercent: 50 },
+    returns: {
+      returnsCount: { current: 4, previous: 2, changePercent: 100 },
+      exchangesCount: { current: 2, previous: 1, changePercent: 100 },
+      totalCount: { current: 6, previous: 3, changePercent: 100 },
+      refundAmount: { current: 18000, previous: 9000, changePercent: 100 },
+      differenceDue: { current: 2000, previous: 1000, changePercent: 100 },
+      returnedUnits: { current: 8, previous: 4, changePercent: 100 },
+      returnRate: { current: 14.3, previous: 10, changePercent: 43 },
+    },
     inventory: { lowStockCount: 3, outOfStockCount: 1 },
   },
   salesOverTime: [
@@ -88,6 +97,35 @@ const MOCK_DASHBOARD_DATA = {
     { method: 'cash', methodType: 'offline', label: 'Cash', count: 25, total: 800000 },
     { method: 'card', methodType: 'gateway', label: 'Mada / Visa', count: 17, total: 700000 },
   ],
+  returnsOverview: {
+    summary: {
+      returnsCount: 4,
+      exchangesCount: 2,
+      totalCount: 6,
+      refundAmount: 18000,
+      differenceDue: 2000,
+      returnedUnits: 8,
+      exchangedUnits: 2,
+      returnRate: 14.3,
+    },
+    byChannel: {
+      pos: { returnsCount: 3, exchangesCount: 1, refundAmount: 12000 },
+      online: { returnsCount: 1, exchangesCount: 1, refundAmount: 6000 },
+    },
+    recentReturns: [
+      {
+        id: 'ret-101',
+        returnNo: 'RET-000101',
+        orderNo: 'POS-000102',
+        type: 'return',
+        channel: 'pos',
+        customerName: 'Khalid Al-Mansour',
+        refundAmount: 12000,
+        differenceDue: 0,
+        returnedUnits: 4,
+      },
+    ],
+  },
 };
 
 function setupAuth() {
@@ -172,6 +210,13 @@ describe('DashboardView Admin UI (P8.1)', () => {
     expect(screen.getByText('Recent orders')).toBeInTheDocument();
     expect(screen.getByText('POS-000101')).toBeInTheDocument();
     expect(screen.getByText('Khalid Al-Mansour')).toBeInTheDocument();
+
+    // Returns & exchanges card
+    expect(screen.getAllByText('Returns & Exchanges').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText('View Returns Report')).toBeInTheDocument();
+    expect(screen.getByText('POS Till')).toBeInTheDocument();
+    expect(screen.getByText('Online Store')).toBeInTheDocument();
+    expect(screen.getByText('RET-000101')).toBeInTheDocument();
   });
 
   it('supports date range selection and branch filtering', async () => {

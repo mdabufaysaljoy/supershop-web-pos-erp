@@ -6,6 +6,21 @@ export const ANALYTICS = Object.freeze({
   SORT_FIELDS: Object.freeze(['revenue', 'quantity', 'orders', 'name', 'profit']),
 });
 
+export const RETURNS_ANALYTICS = Object.freeze({
+  DIMENSIONS: Object.freeze(['all', 'product', 'category', 'staff', 'branch', 'online', 'channel']),
+  SORT_FIELDS: Object.freeze([
+    'refundAmount',
+    'differenceDue',
+    'returnedUnits',
+    'exchangedUnits',
+    'returnsCount',
+    'exchangesCount',
+    'totalCount',
+    'name',
+  ]),
+  CHANNELS: Object.freeze(['all', 'pos', 'online']),
+});
+
 export const FORECAST = Object.freeze({
   STRATEGIES: Object.freeze(['moving_average', 'seasonality']),
   HORIZONS: Object.freeze(['7d', '14d', '30d']),
@@ -167,10 +182,21 @@ export function createAnalyticsSchemas() {
     sortDir: z.enum(['asc', 'desc']).default('asc'),
   });
 
+  const returnsReportQuery = z.object({
+    dimension: z.enum(RETURNS_ANALYTICS.DIMENSIONS).default('all'),
+    range: z.enum(ANALYTICS.RANGES).default('7d'),
+    branchId: z.string().trim().optional().nullable(),
+    channel: z.enum(RETURNS_ANALYTICS.CHANNELS).default('all'),
+    limit: z.coerce.number().int().min(1).max(200).default(50),
+    sortBy: z.enum(RETURNS_ANALYTICS.SORT_FIELDS).default('refundAmount'),
+    sortDir: z.enum(['asc', 'desc']).default('desc'),
+  });
+
   return {
     dashboardQuery,
     performanceQuery,
     salesForecastQuery,
     stockoutForecastQuery,
+    returnsReportQuery,
   };
 }

@@ -54,7 +54,7 @@ export function FlashDealsBanner({ lang, t: propT }) {
   const pad = (n) => String(n).padStart(2, '0');
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 p-6 sm:p-10 shadow-sm">
+    <section className="relative overflow-hidden rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 p-6 sm:p-10 shadow-sm">
       <div className="relative z-10 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
         <div className="grid gap-2">
           <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ export function FlashDealsBanner({ lang, t: propT }) {
 
         {/* Action Link & Active Ticking Countdown Badge */}
         <div className="flex flex-col items-start sm:items-end gap-3 shrink-0">
-          <div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold shadow-xs backdrop-blur-md">
+          <div className="flex items-center gap-2 rounded-md border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold shadow-xs backdrop-blur-md">
             <span className="text-muted-foreground">Ends In:</span>
             <div className="flex items-center gap-1 font-mono text-sm font-bold text-foreground tabular-nums">
               {timeLeft.days > 0 && (
@@ -95,7 +95,7 @@ export function FlashDealsBanner({ lang, t: propT }) {
 
           <Link
             href={`${localizePath('/search', lang)}?sort=price_asc`}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-foreground px-6 text-xs font-semibold text-background shadow-md transition-all hover:opacity-90 hover:scale-[1.02]"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-foreground px-6 text-xs font-semibold text-background shadow-md transition-all hover:opacity-90 hover:scale-[1.02]"
           >
             <span>{t ? t('home.shopAll') : 'Shop Super Deals'}</span>
             <span aria-hidden="true">→</span>

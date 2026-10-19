@@ -41,7 +41,7 @@ export function PagePreview({
             type="button"
             aria-pressed={option.code === active.code}
             onClick={() => setLang(option.code)}
-            className="rounded-full border px-3 py-1 text-xs aria-pressed:bg-primary aria-pressed:text-primary-foreground"
+            className="rounded-md border px-3 py-1 text-xs aria-pressed:bg-primary aria-pressed:text-primary-foreground"
           >
             {option.label}
           </button>

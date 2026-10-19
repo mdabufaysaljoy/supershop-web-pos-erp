@@ -244,14 +244,14 @@ export function MethodRow({ method, canEdit, first, last, onMove }) {
               type="button"
               disabled={!canEdit || update.isPending || !draft}
               onClick={save}
-              className="h-10 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              className="h-10 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60"
             >
               {t('common.save')}
             </button>
             {draft && (
               <button
                 type="button"
-                className="h-10 rounded-full border px-5 text-sm"
+                className="h-10 rounded-md border px-5 text-sm"
                 onClick={() => setDraft(null)}
               >
                 {t('common.cancel')}
@@ -267,7 +267,7 @@ export function MethodRow({ method, canEdit, first, last, onMove }) {
                   )
                     remove.mutate(method.id);
                 }}
-                className="ms-auto flex h-10 items-center gap-2 rounded-full border border-destructive/40 px-5 text-sm text-destructive"
+                className="ms-auto flex h-10 items-center gap-2 rounded-md border border-destructive/40 px-5 text-sm text-destructive"
               >
                 <Trash2 className="size-4" aria-hidden />
                 {t('common.delete')}

@@ -71,7 +71,7 @@ export function CountdownBlock({ heading, endsAt, buttonLabel, href, context = {
       {buttonLabel && !over ? (
         <a
           href={hrefIn(href, context)}
-          className="inline-flex h-12 items-center gap-2 rounded-full bg-foreground px-8 text-sm font-bold text-background shadow-lg transition-transform hover:scale-105 active:scale-95"
+          className="inline-flex h-12 items-center gap-2 rounded-md bg-foreground px-8 text-sm font-bold text-background shadow-lg transition-transform hover:scale-105 active:scale-95"
         >
           <span>{buttonLabel}</span>
           <span aria-hidden="true">→</span>

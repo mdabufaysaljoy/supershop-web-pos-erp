@@ -9,7 +9,7 @@
  * Directional icons (arrows, chevrons) must mirror in RTL: use Tailwind's `rtl:-scale-x-100`.
  */
 :root {
-  --radius: 0.375rem;
+  --radius: 0.625rem;
   --background: oklch(0.99 0.002 260);
   --foreground: oklch(0.16 0.02 260);
   --muted: oklch(0.965 0.006 260);

@@ -47,7 +47,7 @@ export function SubmitButton({ busy, label, busyLabel, disabled, className }) {
       disabled={busy || disabled}
       className={
         className ||
-        'h-11 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 disabled:opacity-60 transition-all'
+        'h-11 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/25 hover:bg-primary/90 disabled:opacity-60 transition-all'
       }
     >
       {busy ? busyLabel : label}
@@ -69,7 +69,7 @@ export function GoogleButton({ href, label, or }) {
       </div>
       <a
         href={href}
-        className="flex h-11 items-center justify-center gap-2 rounded-full border text-sm font-medium hover:bg-muted"
+        className="flex h-11 items-center justify-center gap-2 rounded-md border text-sm font-medium hover:bg-muted"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-4">
           <path

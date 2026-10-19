@@ -336,7 +336,7 @@ export function SiteNav({
           <li className="ms-auto">
             <Link
               href={localizePath('/track', lang)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border/80 bg-muted/50 px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all hover:bg-primary hover:text-primary-foreground hover:border-primary shadow-2xs"
             >
               <span aria-hidden="true">📦</span>
               <span>{trackLabel}</span>

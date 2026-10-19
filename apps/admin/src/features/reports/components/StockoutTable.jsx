@@ -122,14 +122,14 @@ export function StockoutTable({
     switch (item.riskLevel) {
       case 'out_of_stock':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-400">
+          <span className="inline-flex items-center gap-1 rounded-md bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-400">
             <PackageX className="h-3 w-3" />
             {t('reports.stockout.badges.outOfStock')}
           </span>
         );
       case 'critical':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-400">
+          <span className="inline-flex items-center gap-1 rounded-md bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-400">
             <AlertCircle className="h-3 w-3" />
             {item.daysRemaining != null ? `${item.daysRemaining}d` : ''}{' '}
             {t('reports.stockout.badges.critical')}
@@ -137,7 +137,7 @@ export function StockoutTable({
         );
       case 'warning':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+          <span className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
             <AlertTriangle className="h-3 w-3" />
             {item.daysRemaining != null ? `${item.daysRemaining}d` : ''}{' '}
             {t('reports.stockout.badges.warning')}
@@ -146,7 +146,7 @@ export function StockoutTable({
       case 'healthy':
       default:
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
             <CheckCircle2 className="h-3 w-3" />
             {item.daysRemaining != null
               ? `${item.daysRemaining}d`
@@ -210,7 +210,7 @@ export function StockoutTable({
             >
               <span>{rf.label}</span>
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
+                className={`rounded-md px-1.5 py-0.2 text-[10px] font-bold ${
                   risk === rf.id
                     ? 'bg-primary-foreground/20 text-primary-foreground'
                     : rf.color || 'bg-background text-foreground'

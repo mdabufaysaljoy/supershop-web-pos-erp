@@ -176,12 +176,12 @@ export function CheckoutForm({ fields, methods = [], method = null, onMethodChan
   };
 
   const section =
-    'grid gap-5 rounded-2xl border border-border/80 bg-card/95 p-5 sm:p-6 shadow-md backdrop-blur-xs transition-all';
+    'grid gap-5 rounded-lg border border-border/80 bg-card/95 p-5 sm:p-6 shadow-md backdrop-blur-xs transition-all';
 
   return (
     <form className="grid gap-6" onSubmit={submit} noValidate>
       {/* 2-Step Progress Stepper */}
-      <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-border/80 bg-card/80 shadow-xs backdrop-blur-xs">
+      <div className="flex items-center justify-between gap-4 p-4 rounded-lg border border-border/80 bg-card/80 shadow-xs backdrop-blur-xs">
         <button
           type="button"
           onClick={() => setStep(1)}
@@ -306,7 +306,7 @@ export function CheckoutForm({ fields, methods = [], method = null, onMethodChan
           <button
             type="button"
             onClick={handleContinueToStep2}
-            className="h-12 w-full flex items-center justify-center gap-2 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/95 hover:shadow-lg transition-all cursor-pointer"
+            className="h-12 w-full flex items-center justify-center gap-2 rounded-md bg-primary text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/95 hover:shadow-lg transition-all cursor-pointer"
           >
             <span>{t('checkout.continueToStep2')}</span>
             <svg
@@ -324,7 +324,7 @@ export function CheckoutForm({ fields, methods = [], method = null, onMethodChan
       ) : (
         <div className="grid gap-6">
           {/* Step 1 Compact Contact Summary Card */}
-          <div className="flex items-center justify-between p-4 rounded-2xl border border-border/80 bg-muted/40 shadow-xs">
+          <div className="flex items-center justify-between p-4 rounded-lg border border-border/80 bg-muted/40 shadow-xs">
             <div className="flex items-center gap-3">
               <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary text-base select-none">
                 👤
@@ -399,7 +399,7 @@ export function CheckoutForm({ fields, methods = [], method = null, onMethodChan
               {methods.map((m) => (
                 <label
                   key={m.key}
-                  className={`flex items-start gap-3.5 rounded-2xl border p-4 text-sm transition-all cursor-pointer ${
+                  className={`flex items-start gap-3.5 rounded-lg border p-4 text-sm transition-all cursor-pointer ${
                     form.paymentMethod === m.key
                       ? 'border-primary bg-primary/[0.04] ring-2 ring-primary/20 shadow-xs'
                       : 'border-border/70 hover:border-foreground/30 hover:bg-muted/30'
@@ -465,14 +465,14 @@ export function CheckoutForm({ fields, methods = [], method = null, onMethodChan
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="h-12 w-full sm:w-auto px-6 rounded-full border border-border/80 bg-background text-sm font-semibold hover:bg-muted transition-all cursor-pointer"
+              className="h-12 w-full sm:w-auto px-6 rounded-md border border-border/80 bg-background text-sm font-semibold hover:bg-muted transition-all cursor-pointer"
             >
               ← {t('checkout.backToStep1')}
             </button>
             <button
               type="submit"
               disabled={busy || !cart?.items.length}
-              className="h-12 w-full sm:flex-1 rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/95 transition-all disabled:opacity-60 cursor-pointer"
+              className="h-12 w-full sm:flex-1 rounded-md bg-primary text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/95 transition-all disabled:opacity-60 cursor-pointer"
             >
               {busy ? t('checkout.placing') : t('checkout.placeOrder')}
             </button>

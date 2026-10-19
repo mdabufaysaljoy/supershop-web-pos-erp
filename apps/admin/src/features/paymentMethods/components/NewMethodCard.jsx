@@ -199,7 +199,7 @@ export function NewMethodCard({ canEdit }) {
             <button
               type="submit"
               disabled={!canEdit || create.isPending || !form.label}
-              className="h-10 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60 transition-colors"
+              className="h-10 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60 transition-colors"
             >
               {create.isPending ? t('common.saving') : t('payments.methods.add')}
             </button>

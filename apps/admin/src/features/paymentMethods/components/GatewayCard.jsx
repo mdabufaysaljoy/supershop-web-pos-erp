@@ -82,7 +82,7 @@ export function GatewayCard({ settings, canEdit }) {
                 />
                 <button
                   type="button"
-                  className="h-9 shrink-0 rounded-full border px-4 text-sm"
+                  className="h-9 shrink-0 rounded-md border px-4 text-sm"
                   disabled={!canEdit || !secrets[key] || save.isPending}
                   onClick={() => saveSecret(key)}
                 >

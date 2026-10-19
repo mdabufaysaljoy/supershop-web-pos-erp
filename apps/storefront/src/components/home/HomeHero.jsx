@@ -119,7 +119,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
   return (
     <section
       aria-label="Featured Hero Slider"
-      className="relative overflow-hidden rounded-3xl border border-indigo-900/40 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-6 py-12 text-white shadow-2xl sm:px-12 sm:py-20 select-none"
+      className="relative overflow-hidden rounded-xl border border-indigo-900/40 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-6 py-12 text-white shadow-2xl sm:px-12 sm:py-20 select-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
@@ -166,7 +166,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
                   href={s.ctaPrimary.href}
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span>{s.ctaPrimary.label}</span>
                   <svg
@@ -186,7 +186,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
 
                 <Link
                   href={s.ctaSecondary.href}
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/30"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/20 bg-white/5 px-6 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/30"
                 >
                   <span>{s.ctaSecondary.label}</span>
                   <span aria-hidden="true">✨</span>
@@ -212,7 +212,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
 
             {/* Right Column: Interactive Deal Spotlight Card */}
             <div className="hidden lg:col-span-5 lg:block">
-              <div className="relative rounded-2xl border border-white/15 bg-white/5 p-6 shadow-2xl backdrop-blur-xl">
+              <div className="relative rounded-lg border border-white/15 bg-white/5 p-6 shadow-2xl backdrop-blur-xl">
                 <div className="flex items-center justify-between pb-4 border-b border-white/10">
                   <div className="flex items-center gap-2">
                     <span className="flex size-3 rounded-full bg-rose-500 animate-pulse-subtle" />
@@ -226,7 +226,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
                 </div>
 
                 <div className="py-6 text-center">
-                  <div className="mx-auto mb-4 flex size-28 items-center justify-center rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-blue-500/20 text-5xl shadow-inner">
+                  <div className="mx-auto mb-4 flex size-28 items-center justify-center rounded-md bg-gradient-to-tr from-indigo-500/20 to-blue-500/20 text-5xl shadow-inner">
                     {s.card.icon}
                   </div>
                   <p className="text-xs font-semibold text-indigo-300 uppercase tracking-widest">
@@ -246,7 +246,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
 
                 <Link
                   href={s.card.href}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 font-semibold text-white shadow-md transition-all hover:opacity-95"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 font-semibold text-white shadow-md transition-all hover:opacity-95"
                 >
                   <span>{s.card.buttonLabel}</span>
                   <span aria-hidden="true">→</span>
@@ -278,7 +278,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
             type="button"
             aria-label="Previous slide"
             onClick={() => go(index - 1)}
-            className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/5 hover:bg-white/20 text-white backdrop-blur-md transition-all rtl:rotate-180"
+            className="grid size-9 place-items-center rounded-md border border-white/20 bg-white/5 hover:bg-white/20 text-white backdrop-blur-md transition-all rtl:rotate-180"
           >
             ‹
           </button>
@@ -286,7 +286,7 @@ export function HomeHero({ lang, storeName, t: propT }) {
             type="button"
             aria-label="Next slide"
             onClick={() => go(index + 1)}
-            className="grid size-9 place-items-center rounded-full border border-white/20 bg-white/5 hover:bg-white/20 text-white backdrop-blur-md transition-all rtl:rotate-180"
+            className="grid size-9 place-items-center rounded-md border border-white/20 bg-white/5 hover:bg-white/20 text-white backdrop-blur-md transition-all rtl:rotate-180"
           >
             ›
           </button>

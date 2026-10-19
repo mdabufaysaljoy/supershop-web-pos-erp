@@ -114,7 +114,7 @@ export function TrackOrderView() {
         <button
           type="submit"
           disabled={state.busy}
-          className="h-11 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground disabled:opacity-60 sm:col-span-2 sm:justify-self-start"
+          className="h-11 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground disabled:opacity-60 sm:col-span-2 sm:justify-self-start"
         >
           {state.busy ? t('track.searching') : t('track.submit')}
         </button>

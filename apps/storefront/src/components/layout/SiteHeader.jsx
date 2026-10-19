@@ -101,7 +101,7 @@ export function SiteHeader({
               <li>
                 <Link
                   href={localizePath('/search', lang)}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3.5 py-1.5 font-semibold text-primary transition-all hover:bg-primary hover:text-primary-foreground"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-3.5 py-1.5 font-semibold text-primary transition-all hover:bg-primary hover:text-primary-foreground"
                 >
                   <span aria-hidden="true">⚡</span>
                   {t('nav.allProducts')}
@@ -112,7 +112,7 @@ export function SiteHeader({
                   <li key={c.id}>
                     <Link
                       href={localizePath(categoryPath(c.slug), lang)}
-                      className="inline-flex items-center rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       {c.name}
                     </Link>
@@ -123,7 +123,7 @@ export function SiteHeader({
                   <li>
                     <Link
                       href={`${localizePath('/search', lang)}?q=mobile`}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       <span aria-hidden="true">📱</span>
                       Mobiles & Gadgets
@@ -132,7 +132,7 @@ export function SiteHeader({
                   <li>
                     <Link
                       href={`${localizePath('/search', lang)}?q=audio`}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       <span aria-hidden="true">🎧</span>
                       Audio & Sound
@@ -141,7 +141,7 @@ export function SiteHeader({
                   <li>
                     <Link
                       href={`${localizePath('/search', lang)}?q=laptop`}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       <span aria-hidden="true">💻</span>
                       Computing & Tech
@@ -150,7 +150,7 @@ export function SiteHeader({
                   <li>
                     <Link
                       href={`${localizePath('/search', lang)}?q=clothing`}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       <span aria-hidden="true">👕</span>
                       Fashion & Apparel
@@ -159,7 +159,7 @@ export function SiteHeader({
                   <li>
                     <Link
                       href={`${localizePath('/search', lang)}?q=home`}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       <span aria-hidden="true">🏠</span>
                       Smart Home
@@ -168,7 +168,7 @@ export function SiteHeader({
                   <li>
                     <Link
                       href={`${localizePath('/search', lang)}?q=power`}
-                      className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
+                      className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
                     >
                       <span aria-hidden="true">⚡</span>
                       Power & Charging

@@ -59,12 +59,12 @@ export function ProductCard({ product: p, priority = false }) {
 
   return (
     <m.article
-      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/70 bg-card p-3 shadow-xs transition-all duration-300 hover:border-primary/40 hover:shadow-xl"
+      className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-border/70 bg-card p-3 shadow-xs transition-all duration-300 hover:border-primary/40 hover:shadow-xl"
       whileHover={{ y: -4 }}
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
     >
       <div>
-        <div className="relative aspect-square overflow-hidden rounded-xl bg-muted/50">
+        <div className="relative aspect-square overflow-hidden rounded-md bg-muted/50">
           <AnimatePresence initial={false} mode="popLayout">
             <m.div
               key={image?.id ?? 'none'}
@@ -173,7 +173,7 @@ export function ProductCard({ product: p, priority = false }) {
                 disabled={busy || out}
                 onClick={() => quickAdd(false)}
                 aria-label={t('catalog.addNamed', { name: p.name })}
-                className="flex h-9 items-center justify-center gap-1.5 rounded-xl bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/95 hover:shadow-md disabled:opacity-50"
+                className="flex h-9 items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:bg-primary/95 hover:shadow-md disabled:opacity-50"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -194,7 +194,7 @@ export function ProductCard({ product: p, priority = false }) {
                 disabled={busy || out}
                 onClick={() => quickAdd(true)}
                 aria-label={t('catalog.buyNamed', { name: p.name })}
-                className="flex h-9 items-center justify-center gap-1 rounded-xl border border-border/80 bg-background px-3 text-xs font-semibold transition-all hover:bg-muted hover:border-foreground/30 disabled:opacity-50"
+                className="flex h-9 items-center justify-center gap-1 rounded-md border border-border/80 bg-background px-3 text-xs font-semibold transition-all hover:bg-muted hover:border-foreground/30 disabled:opacity-50"
               >
                 <span aria-hidden="true">⚡</span>
                 {t('cart.buyNow')}
@@ -205,7 +205,7 @@ export function ProductCard({ product: p, priority = false }) {
               type="button"
               onClick={choose}
               aria-label={t('catalog.chooseNamed', { name: p.name })}
-              className="col-span-2 flex h-9 items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-background px-3 text-xs font-semibold transition-all hover:bg-muted hover:border-foreground/30"
+              className="col-span-2 flex h-9 items-center justify-center gap-1.5 rounded-md border border-border/80 bg-background px-3 text-xs font-semibold transition-all hover:bg-muted hover:border-foreground/30"
             >
               <svg
                 viewBox="0 0 24 24"

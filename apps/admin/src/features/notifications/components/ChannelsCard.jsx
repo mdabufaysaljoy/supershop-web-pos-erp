@@ -95,7 +95,7 @@ export function ChannelsCard({ settings, canEdit }) {
               </FormField>
               <button
                 type="button"
-                className="h-9 rounded-full border px-4 text-sm"
+                className="h-9 rounded-md border px-4 text-sm"
                 disabled={!canEdit || !to[channel] || test.isPending}
                 onClick={() => test.mutate({ channel, to: to[channel] })}
               >
@@ -126,7 +126,7 @@ export function ChannelsCard({ settings, canEdit }) {
               />
               <button
                 type="button"
-                className="h-9 shrink-0 rounded-full border px-4 text-sm"
+                className="h-9 shrink-0 rounded-md border px-4 text-sm"
                 disabled={!canEdit || !secrets[key] || save.isPending}
                 onClick={() => {
                   set(key, secrets[key]);

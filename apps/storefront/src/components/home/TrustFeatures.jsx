@@ -94,9 +94,9 @@ export function TrustFeatures() {
       {features.map((f, i) => (
         <div
           key={i}
-          className="group flex items-start gap-3.5 rounded-2xl border border-border/70 bg-card p-5 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+          className="group flex items-start gap-3.5 rounded-lg border border-border/70 bg-card p-5 shadow-xs transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
         >
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted/80 shadow-xs transition-transform group-hover:scale-110">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-md bg-muted/80 shadow-xs transition-transform group-hover:scale-110">
             {f.icon}
           </div>
           <div className="grid gap-0.5">

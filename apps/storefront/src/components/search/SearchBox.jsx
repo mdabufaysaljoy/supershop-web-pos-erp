@@ -104,7 +104,7 @@ export function SearchBox({ initialQuery = '' }) {
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={onKeyDown}
-        className="h-10 w-full rounded-full border bg-muted/50 px-4 text-sm outline-none focus:bg-background focus:ring-2 focus:ring-ring/50"
+        className="h-10 w-full rounded-md border bg-muted/50 px-4 text-sm outline-none focus:bg-background focus:ring-2 focus:ring-ring/50"
       />
       <ul
         id={`${id}-list`}

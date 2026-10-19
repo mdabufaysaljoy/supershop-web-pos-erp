@@ -102,7 +102,7 @@ export function TestimonialWall() {
           {looped.map((r, i) => (
             <div
               key={i}
-              className="flex w-[320px] sm:w-[360px] shrink-0 flex-col justify-between rounded-2xl border border-border/80 bg-card p-5 shadow-xs transition-transform duration-300 hover:scale-[1.02] hover:shadow-md select-none"
+              className="flex w-[320px] sm:w-[360px] shrink-0 flex-col justify-between rounded-lg border border-border/80 bg-card p-5 shadow-xs transition-transform duration-300 hover:scale-[1.02] hover:shadow-md select-none"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">

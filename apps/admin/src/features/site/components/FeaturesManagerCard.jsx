@@ -268,8 +268,8 @@ export function FeaturesManagerCard({ disabled }) {
 
       <CardContent className="grid gap-6 pt-6">
         {isDeleted ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed p-10 text-center bg-muted/20">
-            <div className="mb-3 flex size-12 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-10 text-center bg-muted/20">
+            <div className="mb-3 flex size-12 items-center justify-center rounded-md bg-muted text-muted-foreground">
               <ShieldCheck className="size-6" />
             </div>
             <h3 className="text-base font-semibold">Section Currently Removed</h3>

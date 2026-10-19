@@ -69,7 +69,7 @@ export function ButtonLinkBlock({ label, href, variant = 'primary', context = {}
     <a
       href={hrefIn(href, context)}
       className={cn(
-        'inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-medium',
+        'inline-flex h-11 items-center justify-center rounded-md px-6 text-sm font-medium',
         variant === 'primary' ? 'bg-primary text-primary-foreground' : 'border',
       )}
     >

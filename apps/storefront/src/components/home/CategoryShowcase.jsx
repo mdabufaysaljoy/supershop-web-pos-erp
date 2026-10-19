@@ -98,9 +98,9 @@ export function CategoryShowcase({ categories = [], lang, t }) {
           <li key={c.id}>
             <Link
               href={localizePath(categoryPath(c.slug), lang)}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-lg border border-border/80 bg-card p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
             >
-              <div className="relative aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-muted/60 to-muted/20">
+              <div className="relative aspect-square overflow-hidden rounded-md bg-gradient-to-br from-muted/60 to-muted/20">
                 {c.image ? (
                   <MediaImage
                     image={c.image}

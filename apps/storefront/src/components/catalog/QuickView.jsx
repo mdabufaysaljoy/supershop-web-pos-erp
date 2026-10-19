@@ -43,7 +43,7 @@ export function QuickView({ slug, name, start, open, onOpenChange }) {
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="dialog-pop fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[90svh] max-w-3xl -translate-y-1/2 overflow-y-auto rounded-2xl bg-background p-5 shadow-xl outline-none sm:p-6"
+          className="dialog-pop fixed inset-x-4 top-1/2 z-50 mx-auto max-h-[90svh] max-w-3xl -translate-y-1/2 overflow-y-auto rounded-xl bg-background p-5 shadow-xl outline-none sm:p-6"
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <Dialog.Title className="text-lg font-semibold">

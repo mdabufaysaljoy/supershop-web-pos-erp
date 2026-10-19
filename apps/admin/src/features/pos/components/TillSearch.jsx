@@ -72,7 +72,7 @@ export function TillSearch({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col gap-4">
+    <div className="rounded-lg border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col gap-4">
       {/* Header: Scan or search title & optional compact branch switcher */}
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-base font-bold text-slate-900">{t('pos.search.label')}</h2>

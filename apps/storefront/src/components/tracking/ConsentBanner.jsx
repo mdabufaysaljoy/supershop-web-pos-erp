@@ -111,21 +111,21 @@ export function ConsentBanner({ config = {}, consent, onSave, isOpen, onClose })
               <button
                 type="button"
                 onClick={handleAcceptAll}
-                className="h-8 sm:h-9 px-4 sm:px-5 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary/90 shadow-xs shadow-primary/25 transition-all cursor-pointer active:scale-95"
+                className="h-8 sm:h-9 px-4 sm:px-5 rounded-md bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary/90 shadow-xs shadow-primary/25 transition-all cursor-pointer active:scale-95"
               >
                 {t('consent.acceptAll')}
               </button>
               <button
                 type="button"
                 onClick={handleNecessaryOnly}
-                className="h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border border-border bg-background hover:bg-accent hover:text-accent-foreground text-xs sm:text-sm font-medium transition-colors cursor-pointer active:scale-95"
+                className="h-8 sm:h-9 px-3.5 sm:px-4 rounded-md border border-border bg-background hover:bg-accent hover:text-accent-foreground text-xs sm:text-sm font-medium transition-colors cursor-pointer active:scale-95"
               >
                 {t('consent.necessaryOnly')}
               </button>
               <button
                 type="button"
                 onClick={() => setIsCustomizing(true)}
-                className="h-8 sm:h-9 px-3 rounded-full text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="h-8 sm:h-9 px-3 rounded-md text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 {t('consent.customize')}
               </button>
@@ -208,7 +208,7 @@ export function ConsentBanner({ config = {}, consent, onSave, isOpen, onClose })
               <button
                 type="button"
                 onClick={handleSavePreferences}
-                className="h-8 px-4 rounded-full bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors cursor-pointer active:scale-95"
+                className="h-8 px-4 rounded-md bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors cursor-pointer active:scale-95"
               >
                 {t('consent.savePreferences')}
               </button>

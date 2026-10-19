@@ -87,7 +87,7 @@ export function PaymentPanel({
   return (
     <div className="flex flex-col gap-4">
       {/* 1. Cart / Basket Card (Positioned Above Payment Section) */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white shadow-xs flex flex-col overflow-hidden">
+      <div className="rounded-lg border border-slate-200/90 bg-white shadow-xs flex flex-col overflow-hidden">
         {/* Basket Header */}
         <div className="flex items-center justify-between border-b border-slate-100 p-4 bg-slate-50/50">
           <h2 className="text-sm font-bold text-slate-900">Basket · {lineCount} line(s)</h2>
@@ -161,7 +161,7 @@ export function PaymentPanel({
       </div>
 
       {/* 2. Payment Section Card (Positioned Below Cart) */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col gap-3.5">
+      <div className="rounded-lg border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col gap-3.5">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Payment</h3>
 
         {/* Total */}

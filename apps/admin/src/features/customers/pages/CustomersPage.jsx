@@ -87,7 +87,7 @@ export function CustomersPage() {
             >
               <span>{t(`customers.segments.${seg}`)}</span>
               {count !== undefined && (
-                <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                   {count}
                 </span>
               )}

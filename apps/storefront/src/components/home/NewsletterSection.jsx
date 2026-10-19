@@ -3,7 +3,7 @@
  */
 export function NewsletterSection() {
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-indigo-900/30 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-8 text-white shadow-xl sm:p-12">
+    <section className="relative overflow-hidden rounded-xl border border-indigo-900/30 bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-8 text-white shadow-xl sm:p-12">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -end-16 -top-16 size-72 rounded-full bg-blue-500/20 blur-3xl"
@@ -59,11 +59,11 @@ export function NewsletterSection() {
             required
             autoComplete="email"
             placeholder="Enter your email address"
-            className="h-12 w-full rounded-full border border-white/20 bg-white/10 px-5 text-sm text-white placeholder:text-slate-400 outline-none backdrop-blur-md focus:border-white focus:bg-white/15"
+            className="h-12 w-full rounded-md border border-white/20 bg-white/10 px-5 text-sm text-white placeholder:text-slate-400 outline-none backdrop-blur-md focus:border-white focus:bg-white/15"
           />
           <button
             type="submit"
-            className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-white px-7 text-xs font-bold text-slate-950 shadow-md transition-all hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex h-12 shrink-0 items-center justify-center rounded-md bg-white px-7 text-xs font-bold text-slate-950 shadow-md transition-all hover:bg-slate-100 hover:scale-[1.02] active:scale-[0.98]"
           >
             Claim 10% Off
           </button>

@@ -155,7 +155,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
           >
             {t('export.tabs.history')}
             {jobs.length > 0 && (
-              <span className="ms-2 px-1.5 py-0.5 text-xs rounded-full bg-muted text-muted-foreground">
+              <span className="ms-2 px-1.5 py-0.5 text-xs rounded-md bg-muted text-muted-foreground">
                 {jobs.length}
               </span>
             )}

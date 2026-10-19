@@ -201,7 +201,7 @@ export function HeroSliderCard({ disabled }) {
             {slides.map((slide, index) => (
               <fieldset
                 key={index}
-                className="relative grid gap-4 rounded-2xl border border-border/80 bg-card/60 p-5 shadow-xs"
+                className="relative grid gap-4 rounded-lg border border-border/80 bg-card/60 p-5 shadow-xs"
               >
                 <div className="flex items-center justify-between border-b pb-3">
                   <div className="flex items-center gap-2">

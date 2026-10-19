@@ -74,7 +74,7 @@ export function AddToCart({ variant, productName, buyNow = false, onAdded, showQ
           onClick={() => submit(false)}
           disabled={disabled}
           whileTap={disabled ? undefined : { scale: 0.97 }}
-          className="relative h-11 flex-1 overflow-hidden rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground disabled:opacity-50 sm:flex-none"
+          className="relative h-11 flex-1 overflow-hidden rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground disabled:opacity-50 sm:flex-none"
         >
           <AnimatePresence mode="wait" initial={false}>
             <m.span
@@ -106,7 +106,7 @@ export function AddToCart({ variant, productName, buyNow = false, onAdded, showQ
             type="button"
             onClick={() => submit(true)}
             disabled={disabled}
-            className="h-11 flex-1 rounded-full border border-primary px-6 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50 sm:flex-none"
+            className="h-11 flex-1 rounded-md border border-primary px-6 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50 sm:flex-none"
           >
             {t('cart.buyNow')}
           </button>

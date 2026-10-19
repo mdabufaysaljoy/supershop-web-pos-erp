@@ -109,14 +109,14 @@ export function TemplateRow({ template, canEdit }) {
               type="button"
               disabled={!canEdit || !draft || update.isPending}
               onClick={save}
-              className="h-10 rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              className="h-10 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60"
             >
               {t('common.save')}
             </button>
             {draft && (
               <button
                 type="button"
-                className="h-10 rounded-full border px-5 text-sm"
+                className="h-10 rounded-md border px-5 text-sm"
                 onClick={() => setDraft(null)}
               >
                 {t('common.cancel')}

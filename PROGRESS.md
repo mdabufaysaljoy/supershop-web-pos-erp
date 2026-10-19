@@ -7,6 +7,11 @@
 
 
 ## Done tasks
+- Reports KPI Box Design Enhancement & Curve Reduction ✔ 2026-10-19 (Antigravity) Upgraded the Performance Reports and Forecast KPI summary cards with reduced curves (`rounded-md`), colored top accent indicators, themed badge icons, and refined typography (`apps/admin`):
+  1. Performance Summary KPI Cards (`PerformanceSummaryKpis.jsx`): Replaced generic, bubbly rounded cards with sleek `rounded-md` executive containers with crisp borders (`border-slate-200/90`), colored top accent lines (blue for Revenue, indigo for Net Sales, violet for Units, amber for Orders, sky for AOV, emerald for Profit), themed icon badge containers, high-contrast tabular typography, and emerald margin pill badges.
+  2. Forecast KPI Cards (`ForecastKpis.jsx`): Applied the same cohesive `rounded-md` geometry, top accent lines, and styled badge icons across projected revenue, units, historical rate, and dynamic positive/negative growth indicators.
+  3. Verification: 100% test pass rate across reports test suite (4/4 tests), 0 ESLint warnings (`npm run lint`), and `npm run i18n:check` passing.
+
 - Product Variant Barcode Label Printing with Pieces Selector & Template Settings ✔ 2026-10-19 (Antigravity) Replaced the download-only barcode modal with a full label printing dialog that renders store name, product name, variant, price, barcode, pieces selector, and prints according to settings configuration (`apps/admin`):
   1. Barcode Label Print Dialog (`BarcodePreviewDialog.jsx`, `VariantTable.jsx`, `ProductEditorPage.jsx`): Replaced the "Download SVG" button with a dedicated "Print" action button that sends ESC/POS label jobs to QZ Tray hardware label printers when enabled and triggers browser printing.
   2. Label Content & Settings Configuration (`BarcodePreviewDialog.jsx`, `index.css`): Visual preview and printable output render store name (from store settings), product name, variant label, formatted price, barcode SVG/text, and SKU based on the printing template dimensions (`widthMm` × `heightMm`).

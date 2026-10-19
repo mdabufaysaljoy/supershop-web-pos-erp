@@ -88,14 +88,16 @@ export function createPosSchemas({
   return {
     /** Scan or type at the till (P6.2). */
     search: z.object({
-      q: plainText({ min: 1, max: 60 }),
+      q: plainText({ min: 0, max: 60 }).optional(),
       branchId: objectId,
+      categoryId: objectId.optional(),
+      brandId: objectId.optional(),
       limit: z.coerce
         .number({ error: V.INVALID_TYPE })
         .int({ error: V.INVALID_TYPE })
         .min(1, { error: V.INVALID_TYPE })
-        .max(25, { error: V.TOO_LONG })
-        .default(10),
+        .max(100, { error: V.TOO_LONG })
+        .default(50),
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
     }),
     sale,

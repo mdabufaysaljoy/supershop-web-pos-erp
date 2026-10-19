@@ -155,26 +155,41 @@ export const findProductsByIds = (ids) =>
  * Ids of active variants matching a staff search: SKU prefix, exact barcode, or product name
  * (English or Arabic) containing the text. Bounded (`limit`).
  */
-export async function matchVariantIds(q, limit = 1000) {
-  const code = q.trim().toUpperCase();
-  const rx = new RegExp(escapeRegex(q.trim()), 'i');
-  const productIds = await Product.distinct('_id', {
-    ...ACTIVE,
-    $or: [{ 'name.en': rx }, { 'name.ar': rx }],
-  });
-  const variants = await Variant.find(
-    {
-      ...ACTIVE,
-      $or: [
-        { sku: { $regex: `^${escapeRegex(code)}` } },
-        { barcode: code },
-        { productId: { $in: productIds.slice(0, limit) } },
-      ],
-    },
-    { _id: 1 },
-  )
-    .limit(limit)
-    .lean();
+export async function matchVariantIds(filter = '', limit = 1000) {
+  const q = typeof filter === 'string' ? filter : (filter?.q ?? '');
+  const categoryId = typeof filter === 'object' ? filter?.categoryId : null;
+  const brandId = typeof filter === 'object' ? filter?.brandId : null;
+  const status = typeof filter === 'object' ? filter?.status : null;
+
+  const productFilter = { ...ACTIVE };
+  if (status) productFilter.status = status;
+  if (categoryId) productFilter.categoryIds = categoryId;
+  if (brandId) productFilter.brandId = brandId;
+
+  const text = q ? q.trim() : '';
+  let productIds = null;
+
+  if (text) {
+    const rx = new RegExp(escapeRegex(text), 'i');
+    productFilter.$or = [{ 'name.en': rx }, { 'name.ar': rx }];
+    productIds = await Product.distinct('_id', productFilter);
+  } else if (categoryId || brandId || status) {
+    productIds = await Product.distinct('_id', productFilter);
+  }
+
+  const variantFilter = { ...ACTIVE };
+  if (text) {
+    const code = text.toUpperCase();
+    variantFilter.$or = [
+      { sku: { $regex: `^${escapeRegex(code)}` } },
+      { barcode: code },
+      ...(productIds ? [{ productId: { $in: productIds.slice(0, limit) } }] : []),
+    ];
+  } else if (productIds) {
+    variantFilter.productId = { $in: productIds.slice(0, limit) };
+  }
+
+  const variants = await Variant.find(variantFilter, { _id: 1 }).limit(limit).lean();
   return variants.map((v) => v._id);
 }
 

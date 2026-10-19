@@ -8,13 +8,25 @@ import { api, apiData } from '@/lib/apiClient';
 const BASE = '/api/v1/pos';
 
 /** Scan or type: sellable variants, priced, with what is on this branch's shelf. */
-export const useTillSearch = (q, branchId) =>
-  useQuery({
-    queryKey: ['pos', 'search', branchId, q],
-    queryFn: () => apiData(`${BASE}/search`, { query: { q, branchId } }),
-    enabled: Boolean(branchId && q.trim().length >= 2),
+export const useTillSearch = (arg1, arg2) => {
+  const params =
+    typeof arg1 === 'object' && arg1 !== null ? arg1 : { q: arg1 ?? '', branchId: arg2 ?? '' };
+  const { q = '', branchId = '', categoryId = '', brandId = '' } = params;
+  return useQuery({
+    queryKey: ['pos', 'search', branchId, q, categoryId, brandId],
+    queryFn: () =>
+      apiData(`${BASE}/search`, {
+        query: {
+          branchId,
+          ...(q && String(q).trim() ? { q: String(q).trim() } : {}),
+          ...(categoryId ? { categoryId } : {}),
+          ...(brandId ? { brandId } : {}),
+        },
+      }),
+    enabled: Boolean(branchId),
     staleTime: 15_000,
   });
+};
 
 /** What the basket comes to — the server prices it, the till never adds up money itself. */
 export const useQuote = () =>

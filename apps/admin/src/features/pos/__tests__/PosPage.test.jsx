@@ -376,3 +376,65 @@ describe('printing the receipt', () => {
     await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(2));
   });
 });
+
+describe('catalogue and filtering', () => {
+  it('displays products in catalogue grid and filters by brand', async () => {
+    const user = userEvent.setup();
+    const BRAND = { id: 'br1', name: { en: 'Nike' } };
+    const NIKE_SHOE = {
+      variantId: 'v2',
+      productId: 'p2',
+      name: 'Nike Runner',
+      options: [],
+      sku: 'NK-RUN',
+      price: 25_000,
+      image: null,
+      onHand: 10,
+    };
+    setup({
+      routes: {
+        'GET /api/v1/brands': json(200, { data: [BRAND] }),
+        'GET /api/v1/pos/search': ({ url }) => {
+          if (url.searchParams.get('brandId') === 'br1') {
+            return json(200, { data: [NIKE_SHOE] });
+          }
+          return json(200, { data: [SHIRT] });
+        },
+      },
+    });
+
+    expect(await screen.findByRole('button', { name: /Oxford Shirt/ })).toBeInTheDocument();
+
+    const brandSelect = await screen.findByRole('combobox', { name: /All brands/i });
+    await user.selectOptions(brandSelect, 'br1');
+
+    expect(await screen.findByRole('button', { name: /Nike Runner/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Oxford Shirt/ })).toBeNull();
+  });
+
+  it('renders open shift button when shift is not open', async () => {
+    setup({
+      routes: {
+        'GET /api/v1/shifts/current': json(200, { data: null }),
+      },
+      permissions: ['pos.sell', 'shift.open', 'shift.view'],
+    });
+
+    expect(await screen.findByRole('button', { name: /Open shift/i })).toBeInTheDocument();
+  });
+
+  it('does not display shift bar when shift is already open', async () => {
+    setup({
+      routes: {
+        'GET /api/v1/shifts/current': json(200, {
+          data: { id: 's1', shiftNo: 'SHF-000001', status: 'open' },
+        }),
+      },
+      permissions: ['pos.sell', 'shift.open', 'shift.view'],
+    });
+
+    await screen.findByRole('button', { name: /Oxford Shirt/ });
+    expect(screen.queryByRole('button', { name: /Open shift/i })).toBeNull();
+    expect(screen.queryByText(/SHF-000001/)).toBeNull();
+  });
+});

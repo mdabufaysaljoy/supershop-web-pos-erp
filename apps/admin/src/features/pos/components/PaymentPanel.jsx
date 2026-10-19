@@ -85,63 +85,84 @@ export function PaymentPanel({
   const lineCount = sale?.lines?.length ?? 0;
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white shadow-xs flex flex-col overflow-hidden">
-      {/* Basket Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 p-4">
-        <h2 className="text-sm font-bold text-slate-900">Basket · {lineCount} line(s)</h2>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100"
-          onClick={onToggleHeld}
-        >
-          <Pause className="size-3.5" />
-          <span>Held{heldCount > 0 ? ` (${heldCount})` : ''}</span>
-        </Button>
-      </div>
-
-      {/* Basket Items List */}
-      <div className="flex-1 min-h-[140px]">{children}</div>
-
-      {/* Financial Summary & Settlement Section */}
-      <div className="border-t border-slate-100 bg-white p-5 flex flex-col gap-3.5">
-        {/* Subtotal */}
-        <div className="flex items-center justify-between text-xs text-slate-600">
-          <span>Subtotal (incl. VAT)</span>
-          <span className="font-semibold text-slate-800 tabular-nums">{fmt.money(subtotal)}</span>
+    <div className="flex flex-col gap-4">
+      {/* 1. Cart / Basket Card (Positioned Above Payment Section) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white shadow-xs flex flex-col overflow-hidden">
+        {/* Basket Header */}
+        <div className="flex items-center justify-between border-b border-slate-100 p-4 bg-slate-50/50">
+          <h2 className="text-sm font-bold text-slate-900">Basket · {lineCount} line(s)</h2>
+          <div className="flex items-center gap-1.5">
+            {lineCount > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 rounded-lg text-xs font-medium text-slate-400 hover:text-destructive hover:bg-destructive/10"
+                onClick={onClear}
+              >
+                {t('pos.clear', 'Clear')}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100"
+              onClick={onToggleHeld}
+            >
+              <Pause className="size-3.5" />
+              <span>Held{heldCount > 0 ? ` (${heldCount})` : ''}</span>
+            </Button>
+          </div>
         </div>
 
-        {/* Discount */}
-        {mayDiscount && (
+        {/* Basket Items List */}
+        <div className="flex-1 min-h-[130px] max-h-[300px] overflow-y-auto">{children}</div>
+
+        {/* Cart Financial Summary (Subtotal & Discount) */}
+        <div className="border-t border-slate-100 bg-slate-50/30 p-4 flex flex-col gap-2.5">
           <div className="flex items-center justify-between text-xs text-slate-600">
-            <span>Discount</span>
-            <div className="flex items-center gap-2">
-              <select
-                value={discountType}
-                onChange={(e) => setDiscountType(e.target.value)}
-                className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none"
-              >
-                <option value="amount">Amount</option>
-                <option value="percent">Percent</option>
-              </select>
-              <MoneyInput
-                value={sale?.orderDiscount?.type === 'amount' ? sale.orderDiscount.value / 100 : ''}
-                aria-label={t('pos.lines.orderDiscount', 'Off the whole basket')}
-                placeholder="0.00"
-                className="h-8 w-24 rounded-lg border border-rose-300 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 text-rose-600 text-end text-xs font-semibold px-2 outline-none"
-                onChange={(e) =>
-                  onOrderDiscount(
-                    halalas(e.target.value) && {
-                      type: 'amount',
-                      value: halalas(e.target.value),
-                    },
-                  )
-                }
-              />
-            </div>
+            <span>Subtotal (incl. VAT)</span>
+            <span className="font-semibold text-slate-800 tabular-nums">{fmt.money(subtotal)}</span>
           </div>
-        )}
+
+          {mayDiscount && (
+            <div className="flex items-center justify-between text-xs text-slate-600">
+              <span>Discount</span>
+              <div className="flex items-center gap-2">
+                <select
+                  value={discountType}
+                  onChange={(e) => setDiscountType(e.target.value)}
+                  className="h-8 rounded-lg border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none"
+                >
+                  <option value="amount">Amount</option>
+                  <option value="percent">Percent</option>
+                </select>
+                <MoneyInput
+                  value={
+                    sale?.orderDiscount?.type === 'amount' ? sale.orderDiscount.value / 100 : ''
+                  }
+                  aria-label={t('pos.lines.orderDiscount', 'Off the whole basket')}
+                  placeholder="0.00"
+                  className="h-8 w-24 rounded-lg border border-rose-300 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/20 text-rose-600 text-end text-xs font-semibold px-2 outline-none"
+                  onChange={(e) =>
+                    onOrderDiscount(
+                      halalas(e.target.value) && {
+                        type: 'amount',
+                        value: halalas(e.target.value),
+                      },
+                    )
+                  }
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 2. Payment Section Card (Positioned Below Cart) */}
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs flex flex-col gap-3.5">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Payment</h3>
 
         {/* Total */}
         <div className="flex items-baseline justify-between pt-1 border-t border-slate-100/80">

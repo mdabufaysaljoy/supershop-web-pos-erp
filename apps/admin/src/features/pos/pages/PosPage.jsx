@@ -87,33 +87,6 @@ export function PosPage() {
 
   return (
     <div className="grid gap-5">
-      {/* Top Header Strip: Title, Description, and Branch Selector */}
-      <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4 border border-slate-200/80 shadow-2xs">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 leading-tight">{t('pos.title')}</h1>
-          <p className="text-xs text-slate-500">{t('pos.description')}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <label htmlFor="pos-branch-select" className="text-xs font-semibold text-slate-600">
-            {t('pos.branch')}:
-          </label>
-          <Select
-            id="pos-branch-select"
-            value={branchId}
-            className="w-52 h-9 rounded-xl text-xs font-medium"
-            onChange={(e) => chooseBranch(e.target.value)}
-            disabled={sale.sale.lines.length > 0}
-          >
-            <option value="">{t('pos.chooseBranch')}</option>
-            {options.map((branch) => (
-              <option key={branch.id} value={branch.id}>
-                {branch.name?.en ?? branch.code}
-              </option>
-            ))}
-          </Select>
-        </div>
-      </header>
-
       {/* Network & Pricing Alerts */}
       {!online && <Alert variant="destructive">{t('pos.offline')}</Alert>}
       {online && sale.stale && <Alert>{t('pos.pricingFailed')}</Alert>}
@@ -151,9 +124,22 @@ export function PosPage() {
       )}
 
       {!branchId ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500">
-          {t('pos.chooseBranchFirst')}
-        </p>
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4">
+          <p>{t('pos.chooseBranchFirst')}</p>
+          <Select
+            id="pos-branch-select"
+            value={branchId}
+            className="w-60 h-10 rounded-xl text-xs font-medium"
+            onChange={(e) => chooseBranch(e.target.value)}
+          >
+            <option value="">{t('pos.chooseBranch')}</option>
+            {options.map((branch) => (
+              <option key={branch.id} value={branch.id}>
+                {branch.name?.en ?? branch.code}
+              </option>
+            ))}
+          </Select>
+        </div>
       ) : (
         <>
           <ShiftBar branchId={branchId} />
@@ -162,7 +148,14 @@ export function PosPage() {
           <div className="grid gap-6 lg:grid-cols-[1fr_420px] xl:grid-cols-[1fr_440px] items-start">
             {/* Left Column: Scan or search, department & brand filters, products list */}
             <div className="min-w-0">
-              <TillSearch branchId={branchId} onAdd={sale.addItem} disabled={!online} />
+              <TillSearch
+                branchId={branchId}
+                onAdd={sale.addItem}
+                disabled={!online}
+                branchOptions={options}
+                onSelectBranch={chooseBranch}
+                linesCount={sale.sale.lines.length}
+              />
             </div>
 
             {/* Right Column: Unified Basket, Financial Summary & Saudi Settlement */}

@@ -228,9 +228,13 @@ async function attachCustomer(customer) {
  * with what is on this branch's shelf. One request, and it needs only `pos.sell` — a cashier is
  * not given the run of the catalogue to be able to sell.
  */
-export async function searchForTill(actor, { q, branchId, limit = 10 }, lang = SOURCE_LANGUAGE) {
+export async function searchForTill(
+  actor,
+  { q, branchId, categoryId, brandId, limit = 50 },
+  lang = SOURCE_LANGUAGE,
+) {
   actor.assertBranch(branchId);
-  const ids = await matchVariantIds(q, limit);
+  const ids = await matchVariantIds({ q, categoryId, brandId, status: 'active' }, limit);
   if (!ids.length) return [];
   const [variants, onHand] = await Promise.all([
     getCartVariants(ids.map(String), lang),
@@ -248,6 +252,8 @@ export async function searchForTill(actor, { q, branchId, limit = 10 }, lang = S
       price: v.price,
       image: v.image ? { url: v.image.thumbUrl ?? v.image.url } : null,
       onHand: onHand.get(String(v.variantId)) ?? 0,
+      brandId: v.brandId ?? null,
+      categoryIds: v.categoryIds ?? [],
     }));
 }
 

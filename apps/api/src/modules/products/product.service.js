@@ -884,6 +884,8 @@ export async function getCartVariants(variantIds, lang) {
           price: v.price,
           compareAtPrice: v.compareAtPrice ?? null,
           taxCategory: p?.taxCategory ?? 'standard',
+          brandId: p?.brandId ? String(p.brandId) : null,
+          categoryIds: (p?.categoryIds ?? []).map(String),
           sellable: Boolean(
             p && !p.deletedAt && p.status === 'active' && !v.deletedAt && v.isActive,
           ),

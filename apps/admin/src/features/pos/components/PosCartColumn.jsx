@@ -26,7 +26,7 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
   return (
     <div className="flex flex-col h-full overflow-hidden rounded-lg border border-slate-200/90 bg-white p-4 shadow-2xs">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
+      <div className="flex shrink-0 items-center justify-between border-b border-slate-100 pb-3 mb-2">
         <div className="flex items-center gap-2">
           <div className="flex size-7 items-center justify-center rounded-md bg-blue-50 text-primary">
             <ShoppingCart className="size-3.5" />
@@ -44,7 +44,7 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
       <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
 
       {/* Cart Financial Breakdown (Subtotal & Whole Basket Discount) */}
-      <div className="border-t border-slate-100 pt-3 mt-2 flex flex-col gap-2">
+      <div className="shrink-0 border-t border-slate-100 pt-3 mt-2 flex flex-col gap-2">
         <div className="flex items-center justify-between text-xs text-slate-600">
           <span>{t('pos.cart.subtotal', 'Subtotal (incl. VAT)')}</span>
           <span className="font-bold text-slate-800 tabular-nums">{fmt.money(subtotal)}</span>

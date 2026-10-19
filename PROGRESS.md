@@ -7,6 +7,11 @@
 
 
 ## Done tasks
+- Full Height Product Display in POS Cart ✔ 2026-10-19 (Antigravity) Removed artificial max-height constraints to allow cart basket line items to display across the full available column height (`apps/admin`):
+  1. SaleLines Height Utilization (`SaleLines.jsx`): Removed `max-h-[300px] overflow-y-auto` from the lines list `<ul>`, allowing line items to expand and fill the available vertical space inside `PosCartColumn` rather than prematurely scrolling and cutting off items when space is available. Optimized padding to `px-1 py-1` to maximize horizontal layout width.
+  2. Cart Column Layout Geometry (`PosCartColumn.jsx`): Added `shrink-0` to the cart header and financial breakdown footer to ensure they never collapse when the line items expand, while preserving `flex-1 min-h-0 overflow-y-auto` as the single unified scrollable container for long baskets.
+  3. Verification: 100% test pass rate across admin POS test suite (22/22 unit tests) and full admin suite (35/35 test files, 224 passed), 0 ESLint warnings (`npm run lint`), and `npm run i18n:check` passing.
+
 - Standardized UI Radius Curvature Across Buttons, Inputs, Cards & Boxes ✔ 2026-10-19 (Antigravity) Applied the exact modern 10px (`0.625rem`) curvature from user reference across all buttons, input fields, cards, boxes, and shapes on both Storefront and Admin Panel (`apps/admin`, `apps/storefront`, `packages/ui`):
   1. Base Design Token Calibration (`apps/admin/src/index.css`, `apps/storefront/src/app/globals.css`): Updated base `--radius` token to `0.625rem` (10px) to match the reference button geometry. Calibrated inline theme variables: `--radius-sm` (8px), `--radius-md` (10px — matching buttons, inputs, selects, badges), `--radius-lg` (12px — matching cards and boxes), and `--radius-xl` (14px).
   2. Storefront Actions & Elements (`apps/storefront`): Replaced pill-shaped `rounded-full` buttons and inputs with cohesive `rounded-md` (10px) across Add to Cart, Buy Now, Auth Submit & Google buttons, Checkout multi-step buttons, search input, track order submit, newsletter inputs/buttons, promo banner CTAs, hero slider buttons, navigation category pills, and consent banner actions. Replaced bulky `rounded-2xl` and `rounded-3xl` cards/sections with sleek `rounded-lg` (12px) and `rounded-xl`.

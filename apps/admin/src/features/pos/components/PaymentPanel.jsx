@@ -117,7 +117,7 @@ export function PaymentPanel({
         </div>
 
         {/* Basket Items List */}
-        <div className="flex-1 min-h-[130px] max-h-[300px] overflow-y-auto">{children}</div>
+        <div className="flex-1 min-h-[130px] overflow-y-auto">{children}</div>
 
         {/* Cart Financial Summary (Subtotal & Discount) */}
         <div className="border-t border-slate-100 bg-slate-50/30 p-4 flex flex-col gap-2.5">

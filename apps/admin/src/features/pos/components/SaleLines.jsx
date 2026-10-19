@@ -73,7 +73,7 @@ export function SaleLines({ sale, priced, onQty, onDiscount }) {
     );
 
   return (
-    <ul className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto px-4 py-2">
+    <ul className="divide-y divide-slate-100 px-1 py-1">
       {sale.lines.map((item) => (
         <li key={item.variantId} className="flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex min-w-0 flex-1 flex-col">

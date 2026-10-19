@@ -2348,6 +2348,8 @@
       "zTitle": "Z-report · {{number}}",
       "zDescription": "Immutable end-of-shift closing report.",
       "print": "Print on thermal printer",
+      "browserPrint": "Print",
+      "thermalPrint": "Thermal (QZ)",
       "salesSection": "Sales summary",
       "drawerSection": "Cash drawer reconciliation",
       "tendersSection": "By payment method",

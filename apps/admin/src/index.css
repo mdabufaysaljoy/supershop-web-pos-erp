@@ -88,10 +88,13 @@
   #pos-receipt-printable,
   #pos-receipt-printable *,
   #loyalty-card-printable,
-  #loyalty-card-printable * {
+  #loyalty-card-printable *,
+  #shift-report-printable,
+  #shift-report-printable * {
     visibility: visible;
   }
-  #pos-receipt-printable {
+  #pos-receipt-printable,
+  #shift-report-printable {
     position: absolute;
     left: 0;
     top: 0;

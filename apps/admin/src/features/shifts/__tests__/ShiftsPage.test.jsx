@@ -41,7 +41,7 @@ const makeSummary = ({
       vat: 750,
       total: 5_750,
     },
-    byMethod: [{ method: 'cash', amount: 5_750, count: 1 }],
+    byMethod: [{ method: 'cash', netAmount: 5_750, count: 1 }],
   };
 };
 

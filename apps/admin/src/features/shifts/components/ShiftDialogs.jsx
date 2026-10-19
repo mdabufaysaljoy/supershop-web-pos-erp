@@ -291,7 +291,7 @@ export function ShiftReportDialog({ open, onOpenChange, shiftId, kind = 'x' }) {
 
   const shift = query.data?.shift;
   const zReport = query.data?.zReport;
-  const summary = zReport?.summary ?? shift?.summary;
+  const summary = zReport?.summary ?? query.data?.summary ?? shift?.summary;
   const lines = query.data?.lines ?? [];
 
   return (
@@ -308,18 +308,30 @@ export function ShiftReportDialog({ open, onOpenChange, shiftId, kind = 'x' }) {
               {isZ ? t('shifts.report.zDescription') : t('shifts.report.xDescription')}
             </DialogDescription>
           </div>
-          {printing.data?.enabled && shiftId && (
+          <div className="flex items-center gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={printReport.isPending || query.isPending}
-              onClick={() => printReport.mutate({ id: shiftId, kind })}
+              disabled={query.isPending}
+              onClick={() => window.print()}
             >
               <Printer className="size-4" aria-hidden />
-              {t('shifts.report.print')}
+              {t('shifts.report.browserPrint', 'Print')}
             </Button>
-          )}
+            {printing.data?.enabled && shiftId && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={printReport.isPending || query.isPending}
+                onClick={() => printReport.mutate({ id: shiftId, kind })}
+              >
+                <Printer className="size-4" aria-hidden />
+                {t('shifts.report.print')}
+              </Button>
+            )}
+          </div>
         </div>
 
         {query.isError && <Alert variant="destructive">{errorMessage(t, query.error)}</Alert>}
@@ -332,24 +344,24 @@ export function ShiftReportDialog({ open, onOpenChange, shiftId, kind = 'x' }) {
                 <h3 className="font-semibold">{t('shifts.report.salesSection')}</h3>
                 <Row
                   label={t('shifts.fields.ordersCount')}
-                  value={fmt.number(summary.sales.count)}
+                  value={fmt.number(summary.sales?.count ?? 0)}
                 />
                 <Row
                   label={t('shifts.fields.itemsCount')}
-                  value={fmt.number(summary.sales.itemCount)}
+                  value={fmt.number(summary.sales?.itemCount ?? 0)}
                 />
                 <Row
                   label={t('shifts.fields.subtotal')}
-                  value={fmt.money(summary.sales.subtotal)}
+                  value={fmt.money(summary.sales?.subtotal ?? 0)}
                 />
                 <Row
                   label={t('shifts.fields.discounts')}
-                  value={fmt.money(summary.sales.discountTotal)}
+                  value={fmt.money(summary.sales?.discountTotal ?? 0)}
                 />
-                <Row label={t('shifts.fields.vat')} value={fmt.money(summary.sales.vat)} />
+                <Row label={t('shifts.fields.vat')} value={fmt.money(summary.sales?.vat ?? 0)} />
                 <Row
                   label={t('shifts.fields.totalSales')}
-                  value={fmt.money(summary.sales.total)}
+                  value={fmt.money(summary.sales?.total ?? 0)}
                   strong
                 />
               </section>
@@ -358,14 +370,17 @@ export function ShiftReportDialog({ open, onOpenChange, shiftId, kind = 'x' }) {
                 <h3 className="font-semibold">{t('shifts.report.drawerSection')}</h3>
                 <Row
                   label={t('shifts.fields.openingCash')}
-                  value={fmt.money(summary.openingCash)}
+                  value={fmt.money(summary.openingCash ?? 0)}
                 />
-                <Row label={t('shifts.fields.cashSales')} value={fmt.money(summary.cashSales)} />
-                <Row label={t('shifts.fields.cashIn')} value={fmt.money(summary.cashIn)} />
-                <Row label={t('shifts.fields.cashOut')} value={fmt.money(summary.cashOut)} />
+                <Row
+                  label={t('shifts.fields.cashSales')}
+                  value={fmt.money(summary.cashSales ?? 0)}
+                />
+                <Row label={t('shifts.fields.cashIn')} value={fmt.money(summary.cashIn ?? 0)} />
+                <Row label={t('shifts.fields.cashOut')} value={fmt.money(summary.cashOut ?? 0)} />
                 <Row
                   label={t('shifts.fields.expectedCash')}
-                  value={fmt.money(summary.expectedCash)}
+                  value={fmt.money(summary.expectedCash ?? 0)}
                   strong
                 />
                 {isZ && (
@@ -386,22 +401,24 @@ export function ShiftReportDialog({ open, onOpenChange, shiftId, kind = 'x' }) {
               {summary.byMethod?.length > 0 && (
                 <section className="grid gap-1.5 rounded-lg border p-3 text-sm">
                   <h3 className="font-semibold">{t('shifts.report.tendersSection')}</h3>
-                  {summary.byMethod.map((m) => (
+                  {summary.byMethod.map((m, idx) => (
                     <Row
-                      key={m.method}
-                      label={`${m.method.toUpperCase()} (${fmt.number(m.count)})`}
-                      value={fmt.money(m.amount)}
+                      key={m.method || idx}
+                      label={`${(m.label || m.method || 'OTHER').toUpperCase()} (${fmt.number(m.count ?? 0)})`}
+                      value={fmt.money(m.netAmount ?? m.amount ?? m.tendered ?? 0)}
                     />
                   ))}
                 </section>
               )}
             </div>
 
-            <section className="grid gap-2 content-start">
-              <h3 className="text-sm font-semibold">{t('shifts.report.thermalPreview')}</h3>
+            <section id="shift-report-printable" className="grid gap-2 content-start">
+              <h3 className="text-sm font-semibold print:hidden">
+                {t('shifts.report.thermalPreview')}
+              </h3>
               <pre
                 dir="ltr"
-                className="max-h-96 overflow-auto rounded-lg border bg-muted/40 p-3 font-mono text-xs leading-relaxed"
+                className="max-h-96 overflow-auto rounded-lg border bg-muted/40 p-3 font-mono text-xs leading-relaxed print:max-h-none print:border-none print:bg-white print:p-0 print:text-black"
               >
                 {lines.join('\n')}
               </pre>

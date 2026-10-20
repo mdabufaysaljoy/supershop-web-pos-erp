@@ -1,4 +1,17 @@
-import { ChevronLeft, ChevronRight, Package, Plus } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ImageOff,
+  Layers,
+  Receipt,
+  RotateCcw,
+  Scan,
+  Search,
+  SlidersHorizontal,
+  Store,
+  Tag,
+} from 'lucide-react';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -8,18 +21,45 @@ import { fmt } from '@/lib/format';
 const PAGE_SIZE = 50;
 
 /**
- * POS Column 2: Product Showing View (2 Columns of cards)
- * Displays products in a 2-column grid with exactly 50 items per page and bottom pagination.
+ * POS Search, Filter & 3-Column Products Section
+ * Renders the top search bar with F2 shortcut & Scan button,
+ * category & brand filters, and 3-column product cards grid.
  */
 export function PosProductGrid({
+  // Search & Filter props
+  q = '',
+  onQChange,
+  onSearchSubmit,
+  department = '',
+  onDepartmentChange,
+  selectedBrand = '',
+  onSelectedBrandChange,
+  categories = [],
+  brandList = [],
+  branchId,
+  branchOptions = [],
+  onSelectBranch,
+  linesCount = 0,
+  disabled = false,
+  scanError = null,
+  inputRef,
+  onResetFilters,
+  onOpenRecentSales,
+
+  // Products props
   results = [],
   isFetching = false,
   onAdd,
-  disabled = false,
   page = 1,
   onPageChange,
 }) {
   const { t } = useTranslation();
+
+  const brandMap = useMemo(() => {
+    return new Map(brandList.map((b) => [String(b.id || b._id), b.name?.en ?? b.name]));
+  }, [brandList]);
+
+  const hasActiveFilters = Boolean(q || department || selectedBrand);
 
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const currentPage = Math.min(Math.max(1, page), totalPages);
@@ -34,104 +74,274 @@ export function PosProductGrid({
 
   return (
     <div className="flex flex-col h-full overflow-hidden rounded-lg border border-slate-200/90 bg-white p-4 shadow-2xs">
-      {/* Header with Item Count */}
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-2">
-        <div className="flex items-center gap-2">
-          <div className="flex size-7 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
-            <Package className="size-3.5" />
+      {/* Row 1: Search Input + Scan Button */}
+      <div className="flex items-center gap-2 w-full shrink-0">
+        <div className="relative flex-1">
+          <label htmlFor="till-search" className="sr-only">
+            {t('pos.search.label', 'Scan or search')}
+          </label>
+          <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5 text-slate-400">
+            <Search className="size-4" />
           </div>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-            {t('pos.products.title', 'Products')}
-          </h2>
+          <input
+            id="till-search"
+            ref={inputRef}
+            value={q}
+            disabled={disabled}
+            autoComplete="off"
+            aria-label={t('pos.search.label', 'Scan or search')}
+            placeholder={t(
+              'pos.search.placeholderF2',
+              'Search by name, SKU or scan a barcode... (F2)',
+            )}
+            className="h-11 w-full rounded-lg border border-blue-500 bg-white ps-10 pe-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
+            onChange={(e) => onQChange?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') onQChange?.('');
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                onSearchSubmit?.(q);
+              }
+            }}
+          />
         </div>
-        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
-          {results.length} item{results.length !== 1 ? 's' : ''}
-        </span>
+
+        {/* Scan Action Button */}
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => {
+            if (q?.trim()) {
+              onSearchSubmit?.(q);
+            } else {
+              inputRef?.current?.focus();
+            }
+          }}
+          className="h-11 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm flex items-center gap-2 shrink-0 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+        >
+          <Scan className="size-4" />
+          <span>{t('pos.search.scan', 'Scan')}</span>
+        </button>
       </div>
 
-      {/* 2-Column Product Grid Area */}
+      {/* Row 2: Category Dropdown & Filters */}
+      <div className="flex flex-wrap items-center gap-2 mt-3 shrink-0">
+        {/* All Categories Dropdown */}
+        <div className="relative inline-flex items-center">
+          <label htmlFor="filter-department" className="sr-only">
+            {t('pos.categories.all', 'All categories')}
+          </label>
+          <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-2.5 text-slate-500">
+            <Tag className="size-3.5" />
+          </div>
+          <select
+            id="filter-department"
+            value={department}
+            aria-label={t('pos.departments.all', 'All categories')}
+            onChange={(e) => onDepartmentChange?.(e.target.value)}
+            className="h-9 appearance-none rounded-lg border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
+          >
+            <option value="">{t('pos.categories.all', 'All categories')}</option>
+            {categories.map((c) => (
+              <option key={c.id || c._id} value={c.id || c._id}>
+                {c.name?.en ?? c.name}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2.5 text-slate-400">
+            <ChevronDown className="size-3.5" />
+          </div>
+        </div>
+
+        {/* All Brands Dropdown (accessible for filter/test) */}
+        {brandList.length > 0 && (
+          <div className="relative inline-flex items-center">
+            <label htmlFor="filter-brand" className="sr-only">
+              {t('pos.brands.all', 'All brands')}
+            </label>
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-2.5 text-slate-500">
+              <SlidersHorizontal className="size-3.5" />
+            </div>
+            <select
+              id="filter-brand"
+              value={selectedBrand}
+              aria-label={t('pos.brands.all', 'All brands')}
+              onChange={(e) => onSelectedBrandChange?.(e.target.value)}
+              className="h-9 appearance-none rounded-lg border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
+            >
+              <option value="">{t('pos.brands.all', 'All brands')}</option>
+              {brandList.map((b) => (
+                <option key={b.id || b._id} value={b.id || b._id}>
+                  {b.name?.en ?? b.name}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2.5 text-slate-400">
+              <ChevronDown className="size-3.5" />
+            </div>
+          </div>
+        )}
+
+        {/* Branch Switcher (if multiple branches available) */}
+        {branchOptions.length > 1 && onSelectBranch && (
+          <div className="relative inline-flex items-center">
+            <label htmlFor="pos-branch-switcher" className="sr-only">
+              {t('pos.branch', 'Branch')}
+            </label>
+            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-2.5 text-slate-500">
+              <Store className="size-3.5" />
+            </div>
+            <select
+              id="pos-branch-switcher"
+              value={branchId}
+              disabled={linesCount > 0}
+              onChange={(e) => onSelectBranch(e.target.value)}
+              className="h-9 appearance-none rounded-lg border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
+            >
+              {branchOptions.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name?.en ?? b.code}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-2.5 text-slate-400">
+              <ChevronDown className="size-3.5" />
+            </div>
+          </div>
+        )}
+
+        {/* Reset active filters */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onResetFilters}
+            className="flex items-center gap-1 text-xs font-semibold text-slate-500 hover:text-primary transition-colors px-2 py-1 cursor-pointer"
+          >
+            <RotateCcw className="size-3" />
+            <span>{t('common.reset', 'Reset')}</span>
+          </button>
+        )}
+
+        {/* Recent sales modal launcher */}
+        {onOpenRecentSales && (
+          <button
+            type="button"
+            onClick={onOpenRecentSales}
+            className="ms-auto flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-primary transition-colors py-1 cursor-pointer"
+          >
+            <Receipt className="size-3.5 text-slate-500" />
+            <span>{t('pos.recentSales', 'Recent Sales')}</span>
+          </button>
+        )}
+      </div>
+
+      {scanError && (
+        <p role="alert" className="text-xs font-medium text-destructive mt-1.5 shrink-0">
+          {t('pos.search.unknownCode', { code: scanError })}
+        </p>
+      )}
+
+      {/* Subtle Horizontal Divider */}
+      <div className="border-b border-slate-100 my-3 shrink-0" />
+
+      {/* 3-Column Product Grid Area */}
       <div className="flex-1 min-h-0 overflow-y-auto pe-1">
         {isFetching && !results.length ? (
-          <div className="grid grid-cols-2 gap-2.5 p-0.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-0.5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-44 rounded-md" />
+              <Skeleton key={i} className="h-64 rounded-2xl" />
             ))}
           </div>
         ) : results.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full py-16 text-center text-slate-400">
-            <Package className="size-10 stroke-1 text-slate-300 mb-2" />
+            <ImageOff className="size-12 stroke-1 text-slate-300 mb-2" />
             <p className="text-xs font-medium">{t('pos.search.nothing', 'No products found.')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2.5 p-0.5">
-            {paginatedItems.map((item) => (
-              <button
-                key={item.variantId}
-                type="button"
-                disabled={disabled}
-                onClick={() => onAdd(item)}
-                className="group flex flex-col justify-between rounded-md border border-slate-200/90 bg-white p-3 text-start transition-all hover:border-primary/60 hover:shadow-md active:scale-[0.98] cursor-pointer"
-              >
-                <div>
-                  {/* Thumbnail / Initials Placeholder */}
-                  <div className="relative aspect-square w-full mb-2 overflow-hidden rounded-md bg-slate-100 flex items-center justify-center">
-                    {item.image?.url ? (
-                      <img
-                        src={item.image.url}
-                        alt={item.name}
-                        className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="text-xl font-bold uppercase text-slate-300">
-                        {item.name?.slice(0, 2) || 'PR'}
-                      </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-0.5">
+            {paginatedItems.map((item) => {
+              const brandName =
+                brandMap.get(String(item.brandId)) || item.brandName || item.brand || '';
+              const variantCount = item.variantCount ?? (item.options?.length || 1);
+              const displayOptions =
+                item.optionValues?.length > 0
+                  ? item.optionValues.slice(0, 3)
+                  : item.options?.length > 0
+                    ? item.options.map((o) => o.value || o).slice(0, 3)
+                    : [];
+
+              return (
+                <button
+                  key={item.variantId}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => onAdd(item)}
+                  className="group flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-3 text-start transition-all hover:border-slate-300 hover:shadow-xs active:scale-[0.99] cursor-pointer"
+                >
+                  <div>
+                    {/* Top Square Image Box */}
+                    <div className="relative aspect-square w-full rounded-xl bg-slate-100/90 flex items-center justify-center overflow-hidden">
+                      {item.image?.url ? (
+                        <img
+                          src={item.image.url}
+                          alt={item.name}
+                          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <ImageOff className="size-10 text-slate-300 stroke-[1.2]" />
+                      )}
+
+                      {/* Top Right Layers Badge */}
+                      <div className="absolute top-2.5 end-2.5 flex items-center gap-1 text-xs font-semibold text-slate-700">
+                        <Layers className="size-3.5 stroke-[2.2]" />
+                        <span>{variantCount}</span>
+                      </div>
+                    </div>
+
+                    {/* Product Name */}
+                    <h3 className="mt-2.5 text-sm font-semibold text-slate-900 line-clamp-1 group-hover:text-primary transition-colors">
+                      {item.name}
+                    </h3>
+
+                    {/* Brand / Subtitle */}
+                    {brandName && (
+                      <p className="mt-0.5 text-xs text-slate-500 line-clamp-1">{brandName}</p>
                     )}
-                    <span
-                      className={`absolute top-1.5 end-1.5 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold ${
-                        (item.onHand ?? 0) > 0
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-rose-100 text-rose-800'
-                      }`}
-                    >
-                      {(item.onHand ?? 0) > 0 ? `${item.onHand}` : '0'}
+
+                    {/* Variant Option Pills */}
+                    {displayOptions.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {displayOptions.map((opt, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium text-slate-600 border border-slate-200 bg-white"
+                          >
+                            {opt}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bottom Row: Price & Stock */}
+                  <div className="mt-3 pt-2 flex items-center justify-between">
+                    <span className="text-sm font-bold text-slate-900 tabular-nums">
+                      {fmt.money(item.price)}
+                    </span>
+                    <span className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 tabular-nums">
+                      {item.onHand ?? 0}
                     </span>
                   </div>
-
-                  {/* Product Name */}
-                  <h3 className="line-clamp-2 text-xs font-bold text-slate-900 group-hover:text-primary transition-colors">
-                    {item.name}
-                  </h3>
-
-                  {/* Options or SKU */}
-                  <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-slate-500">
-                    {item.options?.length > 0 ? (
-                      <span className="rounded-sm bg-slate-100 px-1.5 py-0.5 font-medium text-slate-700 truncate max-w-full">
-                        {item.options.map((o) => o.value || o).join(', ')}
-                      </span>
-                    ) : (
-                      <span className="truncate font-mono text-slate-400">{item.sku}</span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Price & Quick Add */}
-                <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-extrabold text-slate-900 tabular-nums">
-                    {fmt.money(item.price)}
-                  </span>
-                  <span className="rounded-sm bg-primary/10 p-1 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
-                    <Plus className="size-3.5" />
-                  </span>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* Bottom Pagination Controls (50 items per page) */}
-      <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-2">
+      <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-2 shrink-0">
         <span className="text-[11px] text-slate-500 tabular-nums">
           {results.length ? `${startCount}-${endCount} of ${results.length}` : '0 products'}
         </span>

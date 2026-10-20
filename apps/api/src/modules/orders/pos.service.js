@@ -265,6 +265,8 @@ export async function searchForTill(
       onHand: onHand.get(String(v.variantId)) ?? 0,
       brandId: v.brandId ?? null,
       categoryIds: v.categoryIds ?? [],
+      variantCount: v.variantCount ?? 1,
+      optionValues: v.optionValues ?? [],
     }));
 }
 

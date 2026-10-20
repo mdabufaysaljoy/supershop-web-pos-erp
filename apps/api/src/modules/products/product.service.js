@@ -886,6 +886,10 @@ export async function getCartVariants(variantIds, lang) {
           taxCategory: p?.taxCategory ?? 'standard',
           brandId: p?.brandId ? String(p.brandId) : null,
           categoryIds: (p?.categoryIds ?? []).map(String),
+          variantCount: p?.variantCount || 1,
+          optionValues: (r?.options ?? []).flatMap((o) =>
+            (o.values ?? []).map((val) => val.label || val.key),
+          ),
           sellable: Boolean(
             p && !p.deletedAt && p.status === 'active' && !v.deletedAt && v.isActive,
           ),

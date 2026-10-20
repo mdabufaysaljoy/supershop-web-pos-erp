@@ -16,7 +16,6 @@ import { errorMessage } from '@/lib/i18n';
 import { PosBottomBar } from '../components/PosBottomBar';
 import { PosCartColumn } from '../components/PosCartColumn';
 import { PosCustomerModal } from '../components/PosCustomerModal';
-import { PosFilterColumn } from '../components/PosFilterColumn';
 import { toast } from 'sonner';
 import { PosPaymentColumn } from '../components/PosPaymentColumn';
 import { PosProductGrid } from '../components/PosProductGrid';
@@ -109,6 +108,18 @@ export function PosPage() {
       window.removeEventListener('online', update);
       window.removeEventListener('offline', update);
     };
+  }, []);
+
+  // Keyboard shortcut (F2) to focus till search input
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'F2') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   /** Barcode Scanner Wedge Hook */
@@ -396,11 +407,11 @@ export function PosPage() {
             </section>
           )}
 
-          {/* 5-Column Workspace Grid: Filters & search (1 col), Products viewing (2 cols), Cart (1 col), Payment (1 col) */}
+          {/* 5-Column Workspace Grid: Search, Filter & Products (3 cols), Cart (1 col), Payment (1 col) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 flex-1 min-h-0 items-stretch">
-            {/* Column 1: Filter Options & Search in 1 Column */}
-            <div className="min-w-0 h-full lg:col-span-1">
-              <PosFilterColumn
+            {/* Column 1, 2, 3: Search, Filter & 3-Column Products Section */}
+            <div className="min-w-0 h-full lg:col-span-3">
+              <PosProductGrid
                 q={q}
                 onQChange={handleQChange}
                 onSearchSubmit={handleSearchSubmit}
@@ -419,16 +430,9 @@ export function PosPage() {
                 inputRef={searchInputRef}
                 onResetFilters={handleResetFilters}
                 onOpenRecentSales={() => setRecentSalesOpen(true)}
-              />
-            </div>
-
-            {/* Column 2 & 3: Product Showing View (2 Columns right after filters & search) */}
-            <div className="min-w-0 h-full lg:col-span-2">
-              <PosProductGrid
                 results={results}
                 isFetching={isFetching}
                 onAdd={handleAddProduct}
-                disabled={!online}
                 page={productPage}
                 onPageChange={setProductPage}
               />

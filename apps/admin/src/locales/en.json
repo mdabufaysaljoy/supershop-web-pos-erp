@@ -237,6 +237,7 @@
     "loading": "Loading…",
     "loadFailed": "Failed to load",
     "actions": "Actions",
+    "reset": "Reset",
     "view": "View",
     "recent": "Recent",
     "moveUp": "Move up",
@@ -2116,10 +2117,15 @@
     "search": {
       "label": "Scan or search",
       "placeholder": "Barcode, SKU or product name",
+      "placeholderF2": "Search by name, SKU or scan a barcode... (F2)",
+      "scan": "Scan",
       "nothing": "Nothing matches that.",
       "unknownCode": "No product with the barcode {{code}}.",
       "onHand_one": "{{count}} on the shelf",
       "onHand_other": "{{count}} on the shelf"
+    },
+    "categories": {
+      "all": "All categories"
     },
     "lines": {
       "empty": "Nothing in the basket yet. Scan something.",

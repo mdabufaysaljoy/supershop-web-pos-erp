@@ -21,9 +21,10 @@ import { fmt } from '@/lib/format';
 const PAGE_SIZE = 50;
 
 /**
- * POS Search, Filter & 3-Column Products Section
+ * POS Search, Filter & 2-Column Products Section
  * Renders the top search bar with F2 shortcut & Scan button,
- * category & brand filters, and 3-column product cards grid.
+ * category & brand filters, and 2-column scrollable product cards grid
+ * with dynamic pagination when items exceed 50.
  */
 export function PosProductGrid({
   // Search & Filter props
@@ -71,6 +72,19 @@ export function PosProductGrid({
 
   const startCount = results.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0;
   const endCount = Math.min(currentPage * PAGE_SIZE, results.length);
+
+  const pageNumbers = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage <= 3) {
+      return [1, 2, 3, 4, '...', totalPages];
+    }
+    if (currentPage >= totalPages - 2) {
+      return [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+  }, [totalPages, currentPage]);
 
   return (
     <div className="flex flex-col h-full overflow-hidden rounded-lg border border-slate-200/90 bg-white p-4 shadow-2xs">
@@ -244,10 +258,10 @@ export function PosProductGrid({
       {/* Subtle Horizontal Divider */}
       <div className="border-b border-slate-100 my-3 shrink-0" />
 
-      {/* 3-Column Product Grid Area */}
+      {/* 2-Column Product Grid Area (Scrollable) */}
       <div className="flex-1 min-h-0 overflow-y-auto pe-1">
         {isFetching && !results.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-0.5">
+          <div className="grid grid-cols-2 gap-3 p-0.5">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-64 rounded-2xl" />
             ))}
@@ -258,7 +272,7 @@ export function PosProductGrid({
             <p className="text-xs font-medium">{t('pos.search.nothing', 'No products found.')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-0.5">
+          <div className="grid grid-cols-2 gap-3 p-0.5">
             {paginatedItems.map((item) => {
               const brandName =
                 brandMap.get(String(item.brandId)) || item.brandName || item.brand || '';
@@ -340,39 +354,71 @@ export function PosProductGrid({
         )}
       </div>
 
-      {/* Bottom Pagination Controls (50 items per page) */}
-      <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-2 shrink-0">
-        <span className="text-[11px] text-slate-500 tabular-nums">
-          {results.length ? `${startCount}-${endCount} of ${results.length}` : '0 products'}
-        </span>
-        <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={currentPage <= 1}
-            onClick={() => onPageChange(currentPage - 1)}
-            className="size-7 p-0 rounded-md text-slate-600"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="size-3.5" />
-          </Button>
-          <span className="px-2 text-xs font-bold text-slate-700 tabular-nums">
-            {currentPage} / {totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={currentPage >= totalPages}
-            onClick={() => onPageChange(currentPage + 1)}
-            className="size-7 p-0 rounded-md text-slate-600"
-            aria-label="Next page"
-          >
-            <ChevronRight className="size-3.5" />
-          </Button>
+      {/* Bottom Dynamic Pagination Controls (Shown only if products > 50) */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-2 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-medium text-slate-500 tabular-nums">
+              {startCount}-{endCount} of {results.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => onPageChange(currentPage - 1)}
+              className="size-7 p-0 rounded-md text-slate-600 disabled:opacity-40"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="size-3.5" />
+            </Button>
+
+            {pageNumbers.map((p, idx) =>
+              p === '...' ? (
+                <span key={`dots-${idx}`} className="px-1 text-xs text-slate-400">
+                  …
+                </span>
+              ) : (
+                <Button
+                  key={p}
+                  type="button"
+                  variant={p === currentPage ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => onPageChange(p)}
+                  className={`size-7 p-0 rounded-md text-xs font-semibold tabular-nums ${
+                    p === currentPage
+                      ? 'bg-primary text-white hover:bg-primary/90'
+                      : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                  aria-label={`Page ${p}`}
+                  aria-current={p === currentPage ? 'page' : undefined}
+                >
+                  {p}
+                </Button>
+              ),
+            )}
+
+            <span className="px-1.5 text-xs font-bold text-slate-700 tabular-nums">
+              {currentPage} / {totalPages}
+            </span>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => onPageChange(currentPage + 1)}
+              className="size-7 p-0 rounded-md text-slate-600 disabled:opacity-40"
+              aria-label="Next page"
+            >
+              <ChevronRight className="size-3.5" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

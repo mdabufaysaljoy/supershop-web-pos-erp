@@ -291,7 +291,7 @@ export function PosPage() {
   if (branches.isPending) return <Skeleton className="h-96" />;
 
   return (
-    <div className="h-[calc(100vh-4.25rem)] flex flex-col justify-between overflow-hidden gap-2 pb-1">
+    <div className="h-[calc(100vh-7.5rem)] md:h-[calc(100vh-8rem)] flex flex-col overflow-hidden gap-2 pb-0.5">
       {/* Network & Pricing Alerts */}
       {!online && (
         <Alert variant="destructive" className="shrink-0">
@@ -407,10 +407,10 @@ export function PosPage() {
             </section>
           )}
 
-          {/* 5-Column Workspace Grid: Search, Filter & Products (3 cols), Cart (1 col), Payment (1 col) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 flex-1 min-h-0 items-stretch">
-            {/* Column 1, 2, 3: Search, Filter & 3-Column Products Section */}
-            <div className="min-w-0 h-full lg:col-span-3">
+          {/* 12-Column Workspace Grid: Products (6 cols = 50%), Cart (3 cols = 25%), Payment (3 cols = 25%) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 flex-1 min-h-0 items-stretch">
+            {/* Column 1: Search, Filter & 2-Column Products Section (6 cols) */}
+            <div className="min-w-0 min-h-0 h-full lg:col-span-6 flex flex-col">
               <PosProductGrid
                 q={q}
                 onQChange={handleQChange}
@@ -440,8 +440,8 @@ export function PosPage() {
 
             {/* Accessible container for Cart & Settlement */}
             <aside role="complementary" className="contents">
-              {/* Column 4: Totally Separate Column for Product Cart (1 Column) */}
-              <div className="min-w-0 h-full lg:col-span-1">
+              {/* Column 2: Product Cart (3 cols) */}
+              <div className="min-w-0 min-h-0 h-full lg:col-span-3 flex flex-col">
                 <PosCartColumn
                   sale={sale.sale}
                   subtotal={subtotal}
@@ -456,8 +456,8 @@ export function PosPage() {
                 </PosCartColumn>
               </div>
 
-              {/* Column 5: Totally Separate Column for Payment Option (1 Column) */}
-              <div className="min-w-0 h-full lg:col-span-1">
+              {/* Column 3: Payment Option (3 cols) */}
+              <div className="min-w-0 min-h-0 h-full lg:col-span-3 flex flex-col">
                 <PosPaymentColumn
                   total={total}
                   tender={tender}

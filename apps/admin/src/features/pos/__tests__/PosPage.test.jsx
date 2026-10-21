@@ -1,5 +1,5 @@
 import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -888,5 +888,117 @@ describe('splitting the money', () => {
     expect(screen.getByLabelText('Paying with')).toBeDisabled();
     expect(screen.getByLabelText('Amount')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Complete sale' })).toBeDisabled();
+  });
+});
+
+describe('scanning at the counter', () => {
+  const scanned = {
+    'GET /api/v1/products/lookup': json(200, {
+      data: {
+        matchedBy: 'barcode',
+        product: { id: 'p1', name: { en: 'Oxford Shirt' } },
+        variant: { id: 'v1', sku: 'OX-RED', price: 11_500, options: [] },
+      },
+    }),
+  };
+
+  /** What a barcode scanner is: a keyboard that types fast and presses Enter. */
+  const scan = async (code) => {
+    const field = await screen.findByLabelText('Scan or search');
+    field.focus();
+    for (const char of code) {
+      fireEvent.keyDown(field, { key: char });
+      fireEvent.change(field, { target: { value: field.value + char } });
+    }
+    fireEvent.keyDown(field, { key: 'Enter' });
+  };
+
+  it('puts a scanned product in the basket with nobody clicking anything', async () => {
+    setup({ routes: scanned });
+    await screen.findByLabelText('Scan or search');
+
+    await scan('6281000000017');
+
+    expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
+    // And the code it typed on its way through is cleared, ready for the next one.
+    await waitFor(() => expect(screen.getByLabelText('Scan or search')).toHaveValue(''));
+  });
+
+  it('adds the one thing a typed code names, without a click', async () => {
+    const user = userEvent.setup();
+    setup({
+      routes: {
+        'GET /api/v1/products/lookup': json(404, {
+          error: { code: 'NOT_FOUND', message: 'No product with this barcode or SKU' },
+        }),
+      },
+    });
+    const field = await screen.findByLabelText('Scan or search');
+    await user.type(field, 'OX-RED');
+    await screen.findByRole('button', { name: /Oxford Shirt/ });
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
+  });
+
+  it('says so when a scanned code is nothing the shop sells', async () => {
+    setup({
+      routes: {
+        'GET /api/v1/products/lookup': json(404, {
+          error: { code: 'NOT_FOUND', message: 'No product with this barcode or SKU' },
+        }),
+        'GET /api/v1/pos/search': json(200, { data: [] }),
+      },
+    });
+    await screen.findByLabelText('Scan or search');
+    await scan('0000000000000');
+    expect(await screen.findByText(/0000000000000/)).toBeInTheDocument();
+  });
+});
+
+describe('splitting the money, method after method', () => {
+  const twoWays = {
+    'GET /api/v1/payment-methods/public': json(200, {
+      data: [
+        { key: 'cash', type: 'cash', label: 'Cash' },
+        { key: 'card', type: 'offline', label: 'Card terminal' },
+      ],
+    }),
+    'POST /api/v1/pos/quote': ({ init }) => {
+      const qty = JSON.parse(init.body).items.reduce((n, i) => n + i.qty, 0);
+      return json(200, {
+        data: {
+          ...quoteFor(qty, 11_500 * qty),
+          methods: [
+            { key: 'cash', type: 'cash', label: 'Cash' },
+            { key: 'card', type: 'offline', label: 'Card terminal' },
+          ],
+        },
+      });
+    },
+  };
+
+  it('offers what is still due as the next amount, tender after tender', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoWays });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    // The box starts on the whole sale…
+    expect(screen.getByLabelText('Amount')).toHaveValue('115.00');
+
+    // …take 50 on the card, and it follows the balance down by itself.
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
+    await user.clear(screen.getByLabelText('Amount'));
+    await user.type(screen.getByLabelText('Amount'), '50');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(till().getByLabelText('Still to pay')).toHaveTextContent('SAR 65.00');
+    expect(screen.getByLabelText('Amount')).toHaveValue('65.00');
+
+    // One more tender clears it, and the box has nothing left to offer.
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    expect(till().getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    expect(screen.getByLabelText('Amount')).toHaveValue('');
   });
 });

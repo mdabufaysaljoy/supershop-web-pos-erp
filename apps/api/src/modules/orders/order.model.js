@@ -105,6 +105,8 @@ const orderSchema = new mongoose.Schema(
     changeGiven: { type: Number, default: 0 },
     /** The cashier who rang the sale up (POS only). */
     staffId: { type: ObjectId, default: null },
+    /** Their name AS IT WAS: a receipt reprinted next year still says who served (D-093). */
+    staffName: { type: String, default: null },
     /** The open shift this counter sale was rung up in (P6.5). */
     shiftId: { type: ObjectId, default: null },
     /** Values of admin-defined `checkout` custom fields. */

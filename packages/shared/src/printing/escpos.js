@@ -83,7 +83,7 @@ export function columns(left, right, width) {
 }
 
 /** QR payload → the three GS ( k calls that store and print it (model 2). */
-function qrBytes(payload, { size = 6 } = {}) {
+function qrBytes(payload, { size = 8 } = {}) {
   const data = encodeTextRaw(payload);
   const len = data.length + 3;
   return [
@@ -111,7 +111,7 @@ function qrBytes(payload, { size = 6 } = {}) {
     0x00,
     0x31,
     0x45,
-    0x31, // error correction L
+    0x33, // error correction Q — a smudged or lightly printed code still scans
     GS,
     0x28,
     0x6b,
@@ -180,12 +180,17 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         if (command.bold) out.push(ESC, 0x45, 0);
         break;
       }
-      case 'row':
+      case 'row': {
+        // A double-width row (the total a customer looks for) fits half the characters.
+        const room = command.double ? Math.floor(width / 2) : width;
         out.push(ESC, 0x61, 0);
         if (command.bold) out.push(ESC, 0x45, 1);
-        line(columns(command.left, command.right, width));
+        if (command.double) out.push(GS, 0x21, 0x11);
+        line(columns(command.left, command.right, room));
+        if (command.double) out.push(GS, 0x21, 0x00);
         if (command.bold) out.push(ESC, 0x45, 0);
         break;
+      }
       case 'line':
         out.push(ESC, 0x61, 0);
         line((command.char ?? '-').repeat(width));

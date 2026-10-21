@@ -185,19 +185,16 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
                     key={`${item.sku || item.name}-${idx}`}
                     className="pt-1 flex flex-col gap-0.5"
                   >
-                    <div className="flex justify-between items-baseline text-xs">
-                      <span className="font-bold text-slate-900">
-                        {item.qty} × {item.name}
+                    {/* As it prints: the product on its own line, the arithmetic under it. */}
+                    <div className="text-xs font-bold text-slate-900">{item.name}</div>
+                    <div className="flex items-baseline justify-between text-[11px] text-slate-600">
+                      <span>
+                        {item.qty} × {fmt.money(item.unitPrice)}
                       </span>
                       <span className="font-bold tabular-nums text-slate-900">
                         {fmt.money(item.lineTotal)}
                       </span>
                     </div>
-                    {item.sku && (
-                      <div className="text-[10px] text-slate-400">
-                        {item.sku} @ {fmt.money(item.unitPrice)}
-                      </div>
-                    )}
                   </li>
                 ))}
               </ul>
@@ -267,7 +264,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
             {qrCodeValue && (
               <div className="flex flex-col items-center gap-1.5 py-1 text-center">
                 <div className="p-1 rounded-lg border border-slate-200 bg-white">
-                  <QrCode value={qrCodeValue} size={110} />
+                  <QrCode value={qrCodeValue} size={160} />
                 </div>
                 <span className="text-[10px] text-slate-400">
                   Scan to verify & check sale details online

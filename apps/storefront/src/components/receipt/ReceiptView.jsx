@@ -205,12 +205,8 @@ export function ReceiptView({ orderNo }) {
                 {(receipt.items ?? []).map((item, idx) => (
                   <tr key={`${item.sku || item.name}-${idx}`} className="group">
                     <td className="py-3 pr-2">
+                      {/* A customer's receipt names the product, not the shop's own code. */}
                       <div className="font-medium text-neutral-900">{item.name}</div>
-                      {item.sku && (
-                        <div className="mt-0.5 font-mono text-[11px] text-neutral-400">
-                          SKU: {item.sku}
-                        </div>
-                      )}
                     </td>
                     <td className="py-3 text-center font-medium text-neutral-700">{item.qty}</td>
                     <td className="py-3 text-right text-neutral-600">{money(item.unitPrice)}</td>
@@ -292,7 +288,7 @@ export function ReceiptView({ orderNo }) {
           <div className="border-t border-neutral-100 bg-neutral-50/50 p-6 text-center sm:px-8">
             <div className="mx-auto flex flex-col items-center gap-2">
               <div className="rounded-xl border border-neutral-200 bg-white p-2 shadow-xs">
-                <QrCode value={receipt.zatcaQr} size={130} title={t('receipt.zatcaTitle')} />
+                <QrCode value={receipt.zatcaQr} size={170} title={t('receipt.zatcaTitle')} />
               </div>
               <div className="text-xs font-semibold text-neutral-800">
                 {t('receipt.zatcaTitle')}

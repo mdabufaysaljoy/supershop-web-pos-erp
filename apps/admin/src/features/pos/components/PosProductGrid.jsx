@@ -103,6 +103,12 @@ export function PosProductGrid({
             value={q}
             disabled={disabled}
             autoComplete="off"
+            /**
+             * A scanner types into whichever field has focus, and this one always does. Marking it
+             * `data-scan-global` lets the page-level wedge read the scan from here too, so a
+             * scanned barcode goes straight into the basket without anyone clicking a result.
+             */
+            data-scan-global="true"
             aria-label={t('pos.search.label', 'Scan or search')}
             placeholder={t(
               'pos.search.placeholderF2',
@@ -113,8 +119,13 @@ export function PosProductGrid({
             onKeyDown={(e) => {
               if (e.key === 'Escape') onQChange?.('');
               if (e.key === 'Enter') {
+                // The page-level scanner wedge gets a fast scan first and swallows its Enter;
+                // taking it again here would ring the same item up twice.
+                if (e.defaultPrevented) return;
                 e.preventDefault();
-                onSearchSubmit?.(q);
+                // The field's own value, not the prop: a scanner finishes typing before React
+                // has re-rendered, and a half-read code looks up nothing.
+                onSearchSubmit?.(e.currentTarget.value);
               }
             }}
           />

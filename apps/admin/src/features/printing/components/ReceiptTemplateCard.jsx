@@ -309,7 +309,7 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
                   data-testid="receipt-preview-qr"
                   className="mt-3 flex flex-col items-center gap-1"
                 >
-                  <QrCode value={qr} size={120} title={t('printing.receipt.zatcaQrCaption')} />
+                  <QrCode value={qr} size={160} title={t('printing.receipt.zatcaQrCaption')} />
                   <span className="text-[10px] text-neutral-500">
                     {t('printing.receipt.zatcaQrCaption')}
                   </span>

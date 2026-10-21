@@ -85,7 +85,8 @@ describe('Digital Sales Receipt View', () => {
     expect(await screen.findByText('Wafa Supershop')).toBeInTheDocument();
     expect(screen.getByText('POS-000042')).toBeInTheDocument();
     expect(screen.getByText('Oxford Shirt')).toBeInTheDocument();
-    expect(screen.getByText('SKU: OX-RED-L')).toBeInTheDocument();
+    // A customer's receipt names the product, not the shop's own stock code.
+    expect(screen.queryByText(/OX-RED-L/)).toBeNull();
     expect(screen.getByText('Official Receipt · Verified')).toBeInTheDocument();
     expect(screen.getByText('Simplified Tax Invoice')).toBeInTheDocument();
     expect(screen.getByText(/300000000000003/)).toBeInTheDocument();

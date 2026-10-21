@@ -129,6 +129,31 @@ describe('ESC/POS', () => {
     expect(barcode).toEqual(expect.arrayContaining([0x1d, 0x6b, 0x49])); // GS k 73 (Code 128)
   });
 
+  it('gives a double-width row half the characters, so it still fits the paper', () => {
+    const [line] = (() => {
+      const bytes = renderEscPos([{ type: 'row', left: 'Total', right: '345.00', double: true }], {
+        width: 32,
+      });
+      return previewLines(bytes);
+    })();
+    expect(line).toHaveLength(16);
+    expect(line.endsWith('345.00')).toBe(true);
+  });
+
+  it('prints a QR big enough and robust enough to scan off thermal paper', () => {
+    const bytes = [...renderEscPos([{ type: 'qr', value: 'AQ==' }])];
+    // GS ( k … 1C n — the module size, in dots.
+    const sizeAt = bytes.findIndex(
+      (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x43,
+    );
+    expect(bytes[sizeAt + 7]).toBeGreaterThanOrEqual(8);
+    // GS ( k … 1E n — error correction; 0x33 is level Q.
+    const eccAt = bytes.findIndex(
+      (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x45,
+    );
+    expect(bytes[eccAt + 7]).toBe(0x33);
+  });
+
   it('skips an instruction it does not know rather than guessing', () => {
     expect([...renderEscPos([{ type: 'hologram' }])]).toEqual([0x1b, 0x40]);
   });
@@ -164,8 +189,8 @@ describe('a receipt', () => {
     const rows = expand(DEFAULT_RECEIPT_TEMPLATE, data).filter((b) => b.type === 'row');
     expect(rows.map((r) => [plain(r.left), plain(r.right)])).toEqual(
       expect.arrayContaining([
-        ['2 x Oxford Shirt', 'SAR 220.00'],
-        ['1 x Basmati Rice', 'SAR 34.50'],
+        ['  2 x SAR 115.00', 'SAR 220.00'],
+        ['  1 x SAR 34.50', 'SAR 34.50'],
         ['Cash', 'SAR 300.00'],
         ['Total', 'SAR 254.50'],
         ['Change', 'SAR 45.50'],
@@ -191,6 +216,46 @@ describe('a receipt', () => {
     expect(expand(DEFAULT_RECEIPT_TEMPLATE, data).some((b) => b.type === 'qr')).toBe(false);
     const taxed = receiptData({ ...SALE, zatcaQr: 'AQZTdXBlcg==' }, { shop: SHOP });
     expect(expand(DEFAULT_RECEIPT_TEMPLATE, taxed).some((b) => b.type === 'qr')).toBe(true);
+  });
+
+  it('reads as a receipt a customer can check: name, then quantity at a price', () => {
+    const lines = textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, data, { widthMm: 58 }));
+    const shirt = lines.indexOf('Oxford Shirt');
+    expect(shirt).toBeGreaterThan(-1);
+    expect(lines[shirt + 1]).toMatch(/^2 x SAR 115\.00\s+SAR 220\.00$/);
+    // A till receipt is for the customer: the shop's own codes stay off it.
+    expect(lines.some((l) => l.includes('OX-RED'))).toBe(false);
+  });
+
+  it('says it is a simplified tax invoice once the shop has a VAT number', () => {
+    expect(textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, data, { widthMm: 80 }))).toContain(
+      'SIMPLIFIED TAX INVOICE',
+    );
+    const noVat = receiptData(SALE, { shop: { ...SHOP, vatNumber: '' } });
+    expect(textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, noVat, { widthMm: 80 }))).not.toContain(
+      'SIMPLIFIED TAX INVOICE',
+    );
+  });
+
+  it('names the cashier and the customer when the sale knows them', () => {
+    const lines = textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, data, { widthMm: 80 }));
+    expect(lines.some((l) => l.startsWith('Served by') && l.includes('Cassy'))).toBe(true);
+    expect(lines.some((l) => l.startsWith('Customer') && l.includes('Walk-in'))).toBe(false);
+    const named = receiptData({ ...SALE, customer: { name: 'Nora Said' } }, { shop: SHOP });
+    expect(
+      textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, named, { widthMm: 80 })).some((l) =>
+        l.includes('Nora Said'),
+      ),
+    ).toBe(true);
+  });
+
+  it('wastes no paper after the cut, which feeds clear of the blade itself', () => {
+    expect(DEFAULT_RECEIPT_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
+    expect(DEFAULT_LABEL_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
+    // What the printer is actually told at the end: three lines to clear the blade, then cut.
+    expect([...renderEscPos([{ type: 'cut' }])].slice(-7)).toEqual([
+      0x1b, 0x64, 3, 0x1d, 0x56, 66, 0,
+    ]);
   });
 
   it('fits the paper it is printed on', () => {
@@ -230,8 +295,9 @@ describe('a receipt', () => {
       true,
     );
     const lines = textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, online, { widthMm: 80 }));
-    expect(lines).toContain('https://supershop.com/en/receipt/POS-000001');
-    expect(lines.some((l) => l.includes('Scan to verify & view receipt online'))).toBe(true);
+    expect(lines.some((l) => l.includes('Scan for your e-receipt'))).toBe(true);
+    // The QR carries the link; printing it as text as well only fills the paper.
+    expect(lines).not.toContain('https://supershop.com/en/receipt/POS-000001');
     expect(lines.at(-1)).toBe('Thank you');
   });
 });

@@ -33,8 +33,17 @@ export function PosPaymentColumn({
 }) {
   const { t } = useTranslation();
   const [method, setMethod] = useState(null);
-  const [amount, setAmount] = useState('');
+  /** `null` = follow what is still due; a string = an amount the cashier typed over it. */
+  const [typedAmount, setTypedAmount] = useState(null);
   const [reference, setReference] = useState('');
+
+  /**
+   * The amount box always offers what is STILL DUE: take 50 in cash on a 115 sale and the next
+   * method is offered the 65 that is left, which is how a split is actually worked at a counter.
+   */
+  const dueText = tender.due > 0 ? (tender.due / 100).toFixed(2) : '';
+  const amount = typedAmount ?? dueText;
+  const setAmount = (value) => setTypedAmount(value);
 
   const known = methods.find((m) => m.key === method);
   const chosen = known?.key ?? methods[0]?.key ?? '';
@@ -58,7 +67,8 @@ export function PosPaymentColumn({
     const item = { method: methodKey, amount: paid };
     if (reference.trim()) item.reference = reference.trim();
     onChange([...payments, item]);
-    setAmount('');
+    // Back to following the balance, which the tender just reduced.
+    setTypedAmount(null);
     setReference('');
   };
 
@@ -227,6 +237,8 @@ export function PosPaymentColumn({
             placeholder="0.00"
             disabled={!canTender}
             className="h-8 rounded border border-slate-200 focus:border-primary text-end text-xs font-semibold px-2"
+            // The box offers the balance: typing replaces it, as every till does.
+            onFocus={(e) => e.target.select()}
             onChange={(e) => setAmount(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {

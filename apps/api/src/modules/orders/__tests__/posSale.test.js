@@ -257,6 +257,15 @@ describe('ringing a sale up', () => {
   });
 });
 
+describe('who served', () => {
+  it("keeps the cashier's name with the sale, so a receipt can say who rang it up", async () => {
+    const sale = await ok(await till().sell(basket()), 201);
+    expect(sale.cashierName).toBe('Root Admin');
+    const stored = await Order.findOne({ orderNo: sale.orderNo }).lean();
+    expect(stored.staffName).toBe('Root Admin');
+  });
+});
+
 describe('finding something to sell', () => {
   it('finds it by SKU, priced, with what is on this shelf', async () => {
     const found = await ok(

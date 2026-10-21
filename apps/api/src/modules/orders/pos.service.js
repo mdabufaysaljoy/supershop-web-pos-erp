@@ -21,6 +21,7 @@ import { applyStockOperation, getOnHand, publishStockResult } from '../inventory
 import { availableMethods, resolveForCheckout } from '../paymentMethods/index.js';
 import { getCartVariants, matchVariantIds } from '../products/index.js';
 import { getSetting } from '../settings/index.js';
+import { getStaffNames } from '../staff/index.js';
 import * as repo from './order.repo.js';
 import { toStaffOrderDto } from './order.service.js';
 
@@ -319,6 +320,11 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
     ]);
 
   const customer = await attachCustomer(input.customer ?? { mode: 'walkin' });
+  // Snapshotted with the sale, so the receipt can name who served without a second lookup.
+  const cashierName =
+    (actor.staffId
+      ? (await getStaffNames([actor.staffId])).get(String(actor.staffId))?.name
+      : '') ?? '';
   const openShift = await findOpenShiftForSale({
     branchId: input.branchId,
     staffId: actor.staffId,
@@ -381,6 +387,7 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
           payments,
           changeGiven: tender.change,
           staffId: actor.staffId ? oid(actor.staffId) : null,
+          staffName: cashierName,
           shiftId: openShift ? oid(openShift.id) : null,
           note: input.note ?? '',
           fulfillment: [

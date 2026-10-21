@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, apiData } from '@/lib/apiClient';
+import { apiData } from '@/lib/apiClient';
 
 /**
  * The till's calls (P6.2). Three, and no more: find something, ask what it comes to, ring it up.
@@ -48,8 +48,11 @@ export const useSell = () => {
   });
 };
 
-/** One variant by its exact barcode — what a scanner sends. */
-export const lookupBarcode = (code) => api('/api/v1/products/lookup', { query: { code } });
+/**
+ * One variant by its exact barcode — what a scanner sends. Answers `{ matchedBy, product,
+ * variant }`: the envelope is unwrapped here so callers can read the match straight away.
+ */
+export const lookupBarcode = (code) => apiData('/api/v1/products/lookup', { query: { code } });
 
 /** Look up loyalty customer by card barcode or QR code (or phone/email). */
 export const lookupLoyalty = (code) =>

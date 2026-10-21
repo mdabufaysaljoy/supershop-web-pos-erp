@@ -125,6 +125,50 @@ export function PosPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  /**
+   * A code the till was given — scanned anywhere on the page, or typed into the search box and
+   * entered. It is a barcode if the catalogue knows one; otherwise the one thing on the shelf it
+   * names; otherwise nothing the shop sells, and the cashier is told so.
+   */
+  const clearSearch = () => {
+    setQ('');
+    setScanError(null);
+    searchInputRef.current?.focus();
+  };
+
+  const addByCode = async (code) => {
+    const trimmed = String(code ?? '').trim();
+    if (!trimmed) return false;
+    try {
+      const { variant, product } = await lookupBarcode(trimmed);
+      if (variant && product) {
+        sale.addItem({
+          variantId: variant.id,
+          productId: product.id,
+          name: product.name?.en ?? product.name ?? '',
+          sku: variant.sku,
+          price: variant.price,
+          options: variant.options ?? [],
+        });
+        clearSearch();
+        return true;
+      }
+    } catch {
+      // Not a barcode — it may still name exactly one thing on the shelf.
+    }
+    const matches = results ?? [];
+    const exact =
+      matches.find((item) => item.sku?.toLowerCase() === trimmed.toLowerCase()) ??
+      (matches.length === 1 ? matches[0] : null);
+    if (exact) {
+      sale.addItem(exact);
+      clearSearch();
+      return true;
+    }
+    setScanError(trimmed);
+    return false;
+  };
+
   /** Barcode Scanner Wedge Hook */
   useBarcodeScanner({
     enabled: online && Boolean(branchId),
@@ -162,20 +206,8 @@ export function PosPage() {
         // Not a loyalty card, proceed to product lookup
       }
 
-      // 2. Product barcode lookup
-      try {
-        const { variant, product } = await lookupBarcode(code);
-        sale.addItem({
-          variantId: variant.id,
-          productId: product.id,
-          name: product.name?.en ?? product.name ?? '',
-          sku: variant.sku,
-          price: variant.price,
-          options: variant.options ?? [],
-        });
-      } catch {
-        setScanError(code);
-      }
+      // 2. A product: straight into the basket, with no click anywhere.
+      await addByCode(code);
     },
   });
 
@@ -249,23 +281,8 @@ export function PosPage() {
       // Not a loyalty card
     }
 
-    // 2. Try product barcode
-    try {
-      const { variant, product } = await lookupBarcode(trimmed);
-      if (variant && product) {
-        sale.addItem({
-          variantId: variant.id,
-          productId: product.id,
-          name: product.name?.en ?? product.name ?? '',
-          sku: variant.sku,
-          price: variant.price,
-          options: variant.options ?? [],
-        });
-        setQ('');
-      }
-    } catch {
-      // Keep search value as catalogue filter
-    }
+    // 2. A product code, or the one thing the typed text names.
+    await addByCode(trimmed);
   };
 
   const handleAddProduct = (item) => {

@@ -525,7 +525,7 @@ export const toPublicReceiptDto = (o, shop = defaultShop()) => {
     status: o.status,
     channel: o.channel,
     placedAt: o.placedAt ?? o.createdAt,
-    cashierName: o.cashierName ?? null,
+    cashierName: o.staffName ?? o.cashierName ?? null,
     branchName: o.branchName ?? null,
     customerName: o.customer?.mode === 'walkin' ? null : (o.customer?.name ?? null),
     currency: o.currency ?? 'SAR',
@@ -608,6 +608,8 @@ export const toStaffOrderDto = (o, shop = defaultShop()) => {
     channel: o.channel,
     branchId: str(o.branchId),
     staffId: str(o.staffId),
+    /** Who rang it up, as it was at the time — printed on the receipt (P6.4). */
+    cashierName: o.staffName ?? null,
     shiftId: str(o.shiftId),
     /** How it was actually paid (one tender online, possibly several at the counter — P6.1). */
     payments: (o.payments ?? []).map((p) => ({

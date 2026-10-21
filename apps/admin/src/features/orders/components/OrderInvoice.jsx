@@ -126,7 +126,7 @@ export function OrderInvoice({ order, store }) {
         </p>
         {qr && (
           <div data-testid="zatca-qr">
-            <QrCode value={qr} size={112} title={t('orders.invoice.zatcaQr')} />
+            <QrCode value={qr} size={160} title={t('orders.invoice.zatcaQr')} />
           </div>
         )}
       </div>

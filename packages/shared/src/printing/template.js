@@ -124,11 +124,14 @@ export function expand(template, data) {
   for (const block of template ?? []) {
     if (block.showIf && !readPath(data, block.showIf)) continue;
     if (block.type === 'items') {
+      // `lines` is the general form (as many blocks per item as the layout needs); `line`/`sub`
+      // remain for templates written before it.
+      const perItem = block.lines ?? [
+        block.line ?? { type: 'row', left: '{{name}}', right: '{{lineTotal}}' },
+        ...(block.sub ? [block.sub] : []),
+      ];
       for (const item of data.items ?? []) {
-        out.push(
-          fillBlock(block.line ?? { type: 'row', left: '{{name}}', right: '{{lineTotal}}' }, item),
-        );
-        if (block.sub) out.push(fillBlock(block.sub, item));
+        for (const line of perItem) out.push(fillBlock(line, item));
       }
     } else if (block.type === 'payments') {
       for (const payment of data.payments ?? [])
@@ -175,43 +178,47 @@ export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'text', value: '{{shop.address}}', align: 'center' },
   { type: 'text', value: '{{shop.phone}}', align: 'center' },
   { type: 'text', value: 'VAT {{shop.vatNumber}}', align: 'center', showIf: 'shop.vatNumber' },
-  { type: 'feed', lines: 1 },
+  // A sale with VAT on it IS a simplified tax invoice (ZATCA): the paper has to say so.
+  {
+    type: 'text',
+    value: 'SIMPLIFIED TAX INVOICE',
+    align: 'center',
+    bold: true,
+    showIf: 'shop.vatNumber',
+  },
+  { type: 'line' },
   { type: 'row', left: 'Receipt', right: '{{order.number}}' },
   { type: 'row', left: 'Date', right: '{{order.at}}' },
   { type: 'row', left: 'Served by', right: '{{order.cashier}}' },
   { type: 'row', left: 'Customer', right: '{{customer.name}}', showIf: 'raw.customer' },
   { type: 'line' },
+  // The product reads on its own line; the arithmetic sits under it with the line's total.
   {
     type: 'items',
-    line: { type: 'row', left: '{{qty}} x {{name}}', right: '{{lineTotal}}' },
-    sub: { type: 'text', value: '   {{sku}} @ {{unitPrice}}' },
+    lines: [
+      { type: 'text', value: '{{name}}' },
+      { type: 'row', left: '  {{qty}} x {{unitPrice}}', right: '{{lineTotal}}' },
+    ],
   },
   { type: 'line' },
   { type: 'row', left: 'Subtotal', right: '{{totals.subtotal}}' },
   { type: 'row', left: 'Discount', right: '-{{totals.discount}}', showIf: 'raw.discount' },
   { type: 'row', left: 'VAT', right: '{{totals.vat}}' },
   { type: 'row', left: 'Total', right: '{{totals.total}}', bold: true },
+  { type: 'line' },
   { type: 'payments', line: { type: 'row', left: '{{label}}', right: '{{amount}}' } },
   { type: 'row', left: 'Change', right: '{{totals.change}}', showIf: 'raw.change' },
-  { type: 'feed', lines: 1 },
   { type: 'qr', value: '{{qr}}' },
-  { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
   {
     type: 'text',
-    value: 'Scan to verify & view receipt online:',
+    value: 'Scan for your e-receipt',
     align: 'center',
     showIf: 'raw.onlineReceiptUrl',
   },
   { type: 'qr', value: '{{order.onlineReceiptUrl}}', showIf: 'raw.onlineReceiptUrl' },
-  {
-    type: 'text',
-    value: '{{order.onlineReceiptUrl}}',
-    align: 'center',
-    showIf: 'raw.onlineReceiptUrl',
-  },
-  { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
   { type: 'text', value: 'Thank you', align: 'center' },
-  { type: 'feed', lines: 2 },
+  // No feed of our own: the cut already runs the paper clear of the blade, and a till prints
+  // hundreds of these a day.
   { type: 'cut' },
 ]);
 
@@ -220,7 +227,6 @@ export const DEFAULT_LABEL_TEMPLATE = Object.freeze([
   { type: 'text', value: '{{name}}', align: 'center', bold: true },
   { type: 'text', value: '{{price}}', align: 'center', double: true },
   { type: 'barcode', value: '{{barcode}}' },
-  { type: 'feed', lines: 1 },
   { type: 'cut' },
 ]);
 
@@ -245,7 +251,7 @@ export const DEFAULT_RECEIPT_CONFIG = Object.freeze({
     showBranch: false,
     showCashier: true,
     showCustomer: true,
-    showSku: true,
+    showSku: false,
     showVatBreakdown: true,
     showQr: true,
     showOnlineReceipt: true,
@@ -262,7 +268,7 @@ export const DEFAULT_RECEIPT_CONFIG = Object.freeze({
     change: Object.freeze({ en: 'Change' }),
     customer: Object.freeze({ en: 'Customer' }),
     taxInvoice: Object.freeze({ en: 'SIMPLIFIED TAX INVOICE' }),
-    scanOnline: Object.freeze({ en: 'Scan to verify & view receipt online:' }),
+    scanOnline: Object.freeze({ en: 'Scan for your e-receipt' }),
   }),
 });
 
@@ -339,7 +345,15 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
     });
   }
   blocks.push(...centeredTextBlocks(config?.headerText, '', lang));
-  blocks.push({ type: 'feed', lines: 1 });
+  // A sale with VAT on it IS a simplified tax invoice (ZATCA): the paper has to say so.
+  blocks.push({
+    type: 'text',
+    value: lbl('taxInvoice'),
+    align: 'center',
+    bold: true,
+    showIf: 'shop.vatNumber',
+  });
+  blocks.push({ type: 'line' });
   blocks.push({ type: 'row', left: lbl('receipt'), right: '{{order.number}}' });
   blocks.push({ type: 'row', left: lbl('date'), right: '{{order.at}}' });
   if (fields.showBranch) {
@@ -362,10 +376,15 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
     });
   }
   blocks.push({ type: 'line' });
+  // The product reads on its own line, and the arithmetic sits under it with the line's total:
+  // a long name is never cut to make room for money, and the column of totals stays straight.
   blocks.push({
     type: 'items',
-    line: { type: 'row', left: '{{qty}} x {{name}}', right: '{{lineTotal}}' },
-    ...(fields.showSku ? { sub: { type: 'text', value: '   {{sku}} @ {{unitPrice}}' } } : {}),
+    lines: [
+      { type: 'text', value: '{{name}}' },
+      ...(fields.showSku ? [{ type: 'text', value: '  {{sku}}' }] : []),
+      { type: 'row', left: '  {{qty}} x {{unitPrice}}', right: '{{lineTotal}}' },
+    ],
   });
   blocks.push({ type: 'line' });
   blocks.push({ type: 'row', left: lbl('subtotal'), right: '{{totals.subtotal}}' });
@@ -379,6 +398,7 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
     blocks.push({ type: 'row', left: lbl('vat'), right: '{{totals.vat}}' });
   }
   blocks.push({ type: 'row', left: lbl('total'), right: '{{totals.total}}', bold: true });
+  blocks.push({ type: 'line' });
   blocks.push({ type: 'payments', line: { type: 'row', left: '{{label}}', right: '{{amount}}' } });
   blocks.push({
     type: 'row',
@@ -386,11 +406,9 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
     right: '{{totals.change}}',
     showIf: 'raw.change',
   });
-  blocks.push({ type: 'feed', lines: 1 });
   if (fields.showQr) blocks.push({ type: 'qr', value: '{{qr}}' });
   if (fields.showOnlineReceipt) {
     blocks.push(
-      { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
       {
         type: 'text',
         value: lbl('scanOnline'),
@@ -398,13 +416,6 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
         showIf: 'raw.onlineReceiptUrl',
       },
       { type: 'qr', value: '{{order.onlineReceiptUrl}}', showIf: 'raw.onlineReceiptUrl' },
-      {
-        type: 'text',
-        value: '{{order.onlineReceiptUrl}}',
-        align: 'center',
-        showIf: 'raw.onlineReceiptUrl',
-      },
-      { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
     );
   }
   blocks.push(
@@ -414,7 +425,6 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
       lang,
     ),
   );
-  blocks.push({ type: 'feed', lines: 2 });
   blocks.push({ type: 'cut' });
   return blocks;
 }
@@ -448,7 +458,7 @@ export function buildLabelTemplate(config = {}) {
   if (fields.showSku) {
     blocks.push({ type: 'text', value: 'SKU: {{sku}}', align: 'center', showIf: 'sku' });
   }
-  blocks.push({ type: 'feed', lines: 1 });
+  // The cut feeds the label clear of the blade; anything more is a wasted label.
   blocks.push({ type: 'cut' });
   return blocks;
 }

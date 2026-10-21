@@ -351,16 +351,18 @@ export function qrMatrix(value) {
  * @param {{ size?: number, margin?: number }} [opts]
  * @returns {string}
  */
-export function qrSvg(value, { size = 120, margin = 2 } = {}) {
+export function qrSvg(value, { size = 160, margin = 4 } = {}) {
   const text = String(value ?? '').trim();
   if (!text) return '';
   const matrix = qrMatrix(text);
   const dim = matrix.length + margin * 2;
+  // Whole pixels per module: a QR drawn on half a pixel is what a scanner gives up on.
+  const crisp = Math.max(dim, Math.round(size / dim) * dim);
   let path = '';
   for (let r = 0; r < matrix.length; r += 1) {
     for (let c = 0; c < matrix.length; c += 1) {
       if (matrix[r][c]) path += `M${c + margin} ${r + margin}h1v1h-1z`;
     }
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="QR code"><rect width="${dim}" height="${dim}" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${dim} ${dim}" width="${crisp}" height="${crisp}" shape-rendering="crispEdges" role="img" aria-label="QR code"><rect width="${dim}" height="${dim}" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
 }

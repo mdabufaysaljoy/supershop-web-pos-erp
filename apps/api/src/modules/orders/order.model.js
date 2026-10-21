@@ -107,6 +107,8 @@ const orderSchema = new mongoose.Schema(
     staffId: { type: ObjectId, default: null },
     /** Their name AS IT WAS: a receipt reprinted next year still says who served (D-093). */
     staffName: { type: String, default: null },
+    /** The branch as it was named when the sale was rung up — printed on the receipt (P6.4). */
+    branchName: { type: String, default: null },
     /** The open shift this counter sale was rung up in (P6.5). */
     shiftId: { type: ObjectId, default: null },
     /** Values of admin-defined `checkout` custom fields. */

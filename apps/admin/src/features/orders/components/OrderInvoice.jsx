@@ -34,6 +34,7 @@ export function OrderInvoice({ order, store }) {
   return (
     <section
       aria-label={t('orders.invoice.title')}
+      id="order-invoice-printable"
       className="hidden print:block print:text-black"
       data-testid="order-invoice"
     >

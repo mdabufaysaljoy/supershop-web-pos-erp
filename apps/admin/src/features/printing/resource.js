@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { api, apiData } from '@/lib/apiClient';
@@ -86,24 +86,30 @@ export const useUpdateLabelTemplate = () =>
     success: 'common.saved',
   });
 
-/** Fetches an order's receipt and sends it to its printer. */
+/**
+ * Fetches an order's receipt and sends it to its printer. A thermal slip never goes through the
+ * browser's print dialog — the printer takes raw bytes — so a failure is reported, not papered
+ * over with `window.print()`.
+ */
 export const usePrintReceipt = () =>
-  useMutation({
-    mutationFn: async ({ orderId, profileId }) => {
+  usePrintingAction(
+    async ({ orderId, profileId }) => {
       const job = await apiData(`${BASE}/receipt/${orderId}`, {
         query: profileId ? { profileId } : undefined,
       });
       await printRaw(job);
       return job;
     },
-  });
+    { success: 'printing.sent' },
+  );
 
 /** Builds a barcode label job and sends it to the label printer. */
 export const usePrintLabel = () =>
-  useMutation({
-    mutationFn: async (body) => {
+  usePrintingAction(
+    async (body) => {
       const job = await apiData(`${BASE}/label`, { method: 'POST', body });
       await printRaw(job);
       return job;
     },
-  });
+    { success: 'printing.sent' },
+  );

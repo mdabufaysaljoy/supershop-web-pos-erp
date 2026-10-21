@@ -200,7 +200,7 @@ export function OrdersPage() {
           onOpenChange={(val) => !val && setReceiptOrder(null)}
           order={receiptOrder}
           cashierName={receiptOrder.cashierName}
-          branchName={receiptOrder.shop?.name}
+          branchName={receiptOrder.branchName}
         />
       )}
     </div>

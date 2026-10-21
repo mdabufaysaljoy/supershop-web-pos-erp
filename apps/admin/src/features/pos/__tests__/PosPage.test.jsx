@@ -466,6 +466,18 @@ describe('printing the receipt', () => {
     await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(1));
   });
 
+  it('never opens the browser print dialog — a thermal slip takes raw bytes', async () => {
+    const user = userEvent.setup();
+    const browserPrint = vi.fn();
+    vi.spyOn(window, 'print').mockImplementation(browserPrint);
+    const m = setup({ routes: printingOn });
+    await sell(user);
+    await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(1));
+    await user.click((await screen.findAllByRole('button', { name: /Print/ }))[0]);
+    await waitFor(() => expect(m.count('GET /api/v1/printing/receipt/o1')).toBe(2));
+    expect(browserPrint).not.toHaveBeenCalled();
+  });
+
   it('prints nothing when the shop has not set printing up', async () => {
     const user = userEvent.setup();
     const m = setup({
@@ -922,6 +934,32 @@ describe('scanning at the counter', () => {
     expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
     // And the code it typed on its way through is cleared, ready for the next one.
     await waitFor(() => expect(screen.getByLabelText('Scan or search')).toHaveValue(''));
+  });
+
+  it("counts a scanner's second terminator as part of the same scan, not another item", async () => {
+    setup({ routes: scanned });
+    const field = await screen.findByLabelText('Scan or search');
+
+    // Plenty of scanners send CR *and* LF after the code.
+    await scan('6281000000017');
+    fireEvent.keyDown(field, { key: 'Enter' });
+
+    expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
+  });
+
+  it('rings up one more when the same item is scanned again a moment later', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    setup({ routes: scanned });
+    await screen.findByLabelText('Scan or search');
+
+    await scan('6281000000017');
+    expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
+
+    // Far enough apart to be a hand reaching for the next item.
+    vi.advanceTimersByTime(600);
+    await scan('6281000000017');
+    await waitFor(() => expect(screen.getByLabelText('Quantity of Oxford Shirt')).toHaveValue('2'));
+    vi.useRealTimers();
   });
 
   it('adds the one thing a typed code names, without a click', async () => {

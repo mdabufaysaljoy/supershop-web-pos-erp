@@ -19,6 +19,7 @@ import {
 import { useInventoryBranches } from '@/features/inventory/resource';
 import { usePrintingStatus } from '@/features/printing/resource';
 import { Select } from '@/features/settings/components/controls';
+import { useActiveBranchStore } from '@/features/branches/activeBranch';
 import { fmt } from '@/lib/format';
 import { errorMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
@@ -32,8 +33,6 @@ import {
 import { useCurrentShift, useOpenCashDrawer, useShifts } from '../resource';
 
 const PAGE_SIZE = 20;
-const BRANCH_KEY = 'pos.branch';
-
 export function ShiftsPage() {
   const { t } = useTranslation();
   const can = useCan();
@@ -44,18 +43,10 @@ export function ShiftsPage() {
   const { page, go } = useListParams(searchParams);
   const status = searchParams[0].get('status') ?? '';
 
-  const [chosenBranch, setChosenBranch] = useState(() => localStorage.getItem(BRANCH_KEY) ?? '');
+  const chosenBranch = useActiveBranchStore((s) => s.branchId);
+  const chooseBranch = useActiveBranchStore((s) => s.setBranchId);
   const options = branches.data ?? [];
   const branchId = chosenBranch || (options.length === 1 ? options[0].id : '');
-
-  const chooseBranch = (id) => {
-    setChosenBranch(id);
-    try {
-      localStorage.setItem(BRANCH_KEY, id);
-    } catch {
-      // Ignore storage failures
-    }
-  };
 
   const canView = can(P.SHIFT_VIEW);
   const canOpen = can(P.SHIFT_OPEN);

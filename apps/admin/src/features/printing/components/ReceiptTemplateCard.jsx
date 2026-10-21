@@ -19,6 +19,12 @@ import { MediaPickerDialog } from '@/features/media/components/MediaPickerDialog
 import { Checkbox, Select } from '@/features/settings/components/controls';
 import { useUpdateReceiptTemplate } from '../resource';
 
+/** How big a QR prints on the narrowest paper this preview shows, in CSS pixels. */
+const QR_PREVIEW_PX = 150;
+
+/** The paper's own margin, in millimetres, as a thermal printer leaves it. */
+const PAPER_PADDING_MM = 3;
+
 const FIELD_KEYS = [
   'showAddress',
   'showPhone',
@@ -123,6 +129,7 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
     },
     { lang },
   );
+  const chars = charsForWidth(widthMm);
   const lines = previewLines(renderTemplate(compiled, data, { widthMm }));
 
   const toggleField = (key, checked) =>
@@ -286,11 +293,18 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="font-medium">{t('printing.receipt.previewTitle')}</span>
               <span>
-                {t('printing.profiles.mm', { mm: widthMm })} · {charsForWidth(widthMm)}{' '}
-                {t('printing.receipt.chars')}
+                {t('printing.profiles.mm', { mm: widthMm })} · {chars} {t('printing.receipt.chars')}
               </span>
             </div>
-            <div className="mx-auto w-full max-w-xs rounded border bg-white p-4 text-black shadow-xs">
+            {/*
+              A thermal slip is a fixed number of monospace characters on a fixed paper width, so
+              the preview is sized in millimetres and the font is scaled to fit exactly that many
+              characters. Anything else clips the rules and the totals column.
+            */}
+            <div
+              className="mx-auto overflow-hidden rounded border bg-white text-black shadow-xs"
+              style={{ width: `${widthMm}mm`, maxWidth: '100%', padding: `${PAPER_PADDING_MM}mm` }}
+            >
               {logo?.url && (
                 <img
                   src={logo.url}
@@ -300,7 +314,10 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
               )}
               <pre
                 dir="ltr"
-                className="overflow-x-auto font-mono text-[11px] leading-snug whitespace-pre"
+                className="font-mono leading-snug whitespace-pre"
+                style={{
+                  fontSize: `calc((${widthMm}mm - ${PAPER_PADDING_MM * 2}mm) / ${chars} / 0.6)`,
+                }}
               >
                 {lines.join('\n')}
               </pre>
@@ -309,7 +326,11 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
                   data-testid="receipt-preview-qr"
                   className="mt-3 flex flex-col items-center gap-1"
                 >
-                  <QrCode value={qr} size={160} title={t('printing.receipt.zatcaQrCaption')} />
+                  <QrCode
+                    value={qr}
+                    size={QR_PREVIEW_PX}
+                    title={t('printing.receipt.zatcaQrCaption')}
+                  />
                   <span className="text-[10px] text-neutral-500">
                     {t('printing.receipt.zatcaQrCaption')}
                   </span>
@@ -322,7 +343,7 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
                 >
                   <QrCode
                     value={onlineReceiptUrl}
-                    size={120}
+                    size={QR_PREVIEW_PX}
                     title={t('printing.receipt.onlineReceiptQrCaption')}
                   />
                   <span className="text-center text-[10px] font-semibold text-emerald-700">

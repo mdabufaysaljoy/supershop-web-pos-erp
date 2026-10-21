@@ -52,6 +52,19 @@ describe('route guards', () => {
     expect(nav[0]).not.toHaveTextContent('Dashboard');
   });
 
+  it('names the shop and the branch this terminal works in, above the menu', async () => {
+    mockFetch({
+      'GET /api/v1/staff/me/access': () => json(200, { data: useAuthStore.getState().access }),
+      'GET /api/v1/site/layout': () => json(200, { data: { brand: { name: 'Al Noor Market' } } }),
+      'GET /api/v1/branches/mine': () =>
+        json(200, { data: [{ id: 'b1', code: 'RYD-1', name: { en: 'Riyadh Olaya' } }] }),
+    });
+    signIn(['order.view']);
+    renderAt('/orders');
+    expect(await screen.findByText('Al Noor Market')).toBeInTheDocument();
+    expect(await screen.findByText('Riyadh Olaya')).toBeInTheDocument();
+  });
+
   it('a route without permission shows Access denied (even via direct URL)', async () => {
     signIn(['pos.sell']);
     renderAt('/settings');

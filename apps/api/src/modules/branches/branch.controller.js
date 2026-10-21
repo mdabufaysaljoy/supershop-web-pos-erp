@@ -3,6 +3,8 @@ import { requestLanguage } from '../i18n/index.js';
 import * as service from './branch.service.js';
 
 export const list = async (req, res) => sendData(res, await service.listBranches(req.access));
+/** The branches this staff member works in — every signed-in user may read their own. */
+export const mine = async (req, res) => sendData(res, await service.listBranchOptions(req.access));
 export const get = async (req, res) =>
   sendData(res, await service.getBranch(req.access, req.valid.params.id));
 export const create = async (req, res) =>

@@ -17,6 +17,7 @@ import { withTransaction } from '../../core/db.js';
 import { AppError, ForbiddenError, ValidationError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { isDuplicateKey } from '../../core/slug.js';
+import { getBranchSummaries } from '../branches/index.js';
 import { applyStockOperation, getOnHand, publishStockResult } from '../inventory/index.js';
 import { availableMethods, resolveForCheckout } from '../paymentMethods/index.js';
 import { getCartVariants, matchVariantIds } from '../products/index.js';
@@ -325,6 +326,8 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
     (actor.staffId
       ? (await getStaffNames([actor.staffId])).get(String(actor.staffId))?.name
       : '') ?? '';
+  const branchName =
+    (await getBranchSummaries([input.branchId])).get(String(input.branchId))?.name?.en ?? '';
   const openShift = await findOpenShiftForSale({
     branchId: input.branchId,
     staffId: actor.staffId,
@@ -388,6 +391,7 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
           changeGiven: tender.change,
           staffId: actor.staffId ? oid(actor.staffId) : null,
           staffName: cashierName,
+          branchName: branchName || null,
           shiftId: openShift ? oid(openShift.id) : null,
           note: input.note ?? '',
           fulfillment: [

@@ -208,14 +208,18 @@ export const DEFAULT_RECEIPT_TEMPLATE = Object.freeze([
   { type: 'line' },
   { type: 'payments', line: { type: 'row', left: '{{label}}', right: '{{amount}}' } },
   { type: 'row', left: 'Change', right: '{{totals.change}}', showIf: 'raw.change' },
+  { type: 'feed', lines: 1, showIf: 'qr' },
   { type: 'qr', value: '{{qr}}' },
+  { type: 'feed', lines: 1, showIf: 'qr' },
   {
     type: 'text',
     value: 'Scan for your e-receipt',
     align: 'center',
     showIf: 'raw.onlineReceiptUrl',
   },
+  { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
   { type: 'qr', value: '{{order.onlineReceiptUrl}}', showIf: 'raw.onlineReceiptUrl' },
+  { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
   { type: 'text', value: 'Thank you', align: 'center' },
   // No feed of our own: the cut already runs the paper clear of the blade, and a till prints
   // hundreds of these a day.
@@ -406,7 +410,12 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
     right: '{{totals.change}}',
     showIf: 'raw.change',
   });
-  if (fields.showQr) blocks.push({ type: 'qr', value: '{{qr}}' });
+  if (fields.showQr) {
+    // A line of air either side: a QR crowded by text is harder for a phone to lock onto.
+    blocks.push({ type: 'feed', lines: 1, showIf: 'qr' });
+    blocks.push({ type: 'qr', value: '{{qr}}' });
+    blocks.push({ type: 'feed', lines: 1, showIf: 'qr' });
+  }
   if (fields.showOnlineReceipt) {
     blocks.push(
       {
@@ -415,7 +424,9 @@ export function buildReceiptTemplate(config = {}, opts = {}) {
         align: 'center',
         showIf: 'raw.onlineReceiptUrl',
       },
+      { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
       { type: 'qr', value: '{{order.onlineReceiptUrl}}', showIf: 'raw.onlineReceiptUrl' },
+      { type: 'feed', lines: 1, showIf: 'raw.onlineReceiptUrl' },
     );
   }
   blocks.push(

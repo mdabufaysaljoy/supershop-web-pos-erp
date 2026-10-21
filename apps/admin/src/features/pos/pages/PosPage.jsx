@@ -31,6 +31,7 @@ import {
   useSell,
   useTillSearch,
 } from '../resource';
+import { useActiveBranchStore } from '@/features/branches/activeBranch';
 import { customerPayload } from '../saleStorage';
 import { useSale } from '../useSale';
 
@@ -42,8 +43,6 @@ import { useSale } from '../useSale';
  * - Column 4: Dedicated Payment Option (To pay, customer modal trigger, methods, change)
  * - Fixed Bottom Action Bar: Complete sale, Clear basket, Hold sale
  */
-const BRANCH_KEY = 'pos.branch';
-
 export function PosPage() {
   const { t } = useTranslation();
   const branches = useInventoryBranches();
@@ -54,7 +53,8 @@ export function PosPage() {
   const [recentSalesOpen, setRecentSalesOpen] = useState(false);
   const [activeReceiptOrder, setActiveReceiptOrder] = useState(null);
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
-  const [chosenBranch, setChosenBranch] = useState(() => localStorage.getItem(BRANCH_KEY) ?? '');
+  const chosenBranch = useActiveBranchStore((s) => s.branchId);
+  const chooseBranch = useActiveBranchStore((s) => s.setBranchId);
   const [payments, setPayments] = useState([]);
   const [done, setDone] = useState(null);
   const [online, setOnline] = useState(true);
@@ -75,15 +75,6 @@ export function PosPage() {
 
   const options = branches.data ?? [];
   const branchId = chosenBranch || (options.length === 1 ? options[0].id : '');
-
-  const chooseBranch = (id) => {
-    setChosenBranch(id);
-    try {
-      localStorage.setItem(BRANCH_KEY, id);
-    } catch {
-      // Graceful fallback
-    }
-  };
 
   const sale = useSale(branchId, { staffId });
   const [saleKey, setSaleKey] = useState(() => crypto.randomUUID());
@@ -130,6 +121,20 @@ export function PosPage() {
    * entered. It is a barcode if the catalogue knows one; otherwise the one thing on the shelf it
    * names; otherwise nothing the shop sells, and the cashier is told so.
    */
+  /**
+   * A scanner sends its code and then a terminator — and plenty of them send CR *and* LF. The
+   * second one arrives with nothing buffered, so the wedge lets it through to the search box,
+   * which would ring the same item up twice. One code within half a second is ONE scan: no hand
+   * can rescan that fast, and a cashier who wants two of something scans twice over.
+   */
+  const lastScan = useRef({ code: '', at: 0 });
+  const alreadyHandled = (code) => {
+    const now = Date.now();
+    const repeat = lastScan.current.code === code && now - lastScan.current.at < 500;
+    lastScan.current = { code, at: now };
+    return repeat;
+  };
+
   const clearSearch = () => {
     setQ('');
     setScanError(null);
@@ -138,7 +143,7 @@ export function PosPage() {
 
   const addByCode = async (code) => {
     const trimmed = String(code ?? '').trim();
-    if (!trimmed) return false;
+    if (!trimmed || alreadyHandled(trimmed)) return false;
     try {
       const { variant, product } = await lookupBarcode(trimmed);
       if (variant && product) {

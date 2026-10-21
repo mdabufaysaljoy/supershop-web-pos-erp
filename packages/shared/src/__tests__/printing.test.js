@@ -115,8 +115,9 @@ describe('ESC/POS', () => {
   });
 
   it('cuts the paper and kicks the drawer with the right codes', () => {
+    // `GS V 66 n` feeds n dots and cuts in one command — no separate feed to waste paper.
     const cut = [...renderEscPos([{ type: 'cut' }])];
-    expect(cut.slice(-4)).toEqual([0x1d, 0x56, 66, 0]);
+    expect(cut.slice(-4)).toEqual([0x1d, 0x56, 66, 0x32]);
     expect([...renderEscPos([{ type: 'drawer' }])].slice(-5)).toEqual([
       0x1b, 0x70, 0x00, 0x19, 0xfa,
     ]);
@@ -250,12 +251,14 @@ describe('a receipt', () => {
   });
 
   it('wastes no paper after the cut, which feeds clear of the blade itself', () => {
-    expect(DEFAULT_RECEIPT_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
-    expect(DEFAULT_LABEL_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
-    // What the printer is actually told at the end: three lines to clear the blade, then cut.
-    expect([...renderEscPos([{ type: 'cut' }])].slice(-7)).toEqual([
-      0x1b, 0x64, 3, 0x1d, 0x56, 66, 0,
+    // The only feeds left are the line of air either side of a QR.
+    expect(DEFAULT_RECEIPT_TEMPLATE.filter((b) => b.type === 'feed').map((b) => b.lines)).toEqual([
+      1, 1, 1, 1,
     ]);
+    expect(DEFAULT_RECEIPT_TEMPLATE.at(-1)).toEqual({ type: 'cut' });
+    expect(DEFAULT_LABEL_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
+    // What the printer is told at the end: cut, feeding only the dots that clear the blade.
+    expect([...renderEscPos([{ type: 'cut' }])].slice(-4)).toEqual([0x1d, 0x56, 66, 0x32]);
   });
 
   it('fits the paper it is printed on', () => {

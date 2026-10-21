@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { HelpDrawer } from '@/components/help/HelpDrawer';
 import { useAccessSync } from '@/features/auth/hooks';
+import { useActiveBranch } from '@/features/branches/activeBranch';
 import { useLayout } from '@/features/site/resource';
 import { SidebarNav } from './SidebarNav';
 import { UserMenu } from './UserMenu';
@@ -20,6 +21,10 @@ export function AppLayout() {
 
   const themeVars = layout.data?.theme ? themeCssVars(layout.data.theme) : undefined;
   const storeName = layout.data?.brand?.name || t('app.name');
+  // The shop above, the branch this terminal is working in below — both as the shop named them.
+  const { branch, options } = useActiveBranch();
+  const branchLine =
+    branch?.name?.en || (options.length > 1 ? t('nav.allBranches') : t('nav.noBranch'));
 
   const brand = (
     <Link
@@ -31,9 +36,7 @@ export function AppLayout() {
       </div>
       <div className="flex flex-col min-w-0">
         <span className="truncate text-sm font-bold text-white leading-tight">{storeName}</span>
-        <span className="truncate text-xs text-slate-400 leading-tight">
-          {`${storeName} - Main`}
-        </span>
+        <span className="truncate text-xs text-slate-400 leading-tight">{branchLine}</span>
       </div>
     </Link>
   );

@@ -14,7 +14,6 @@ import {
 } from '@/features/printing/resource';
 import { useSettings } from '@/features/settings/hooks';
 import { fmt } from '@/lib/format';
-import { errorMessage } from '@/lib/i18n';
 
 /**
  * Barcode & Shelf Label Print Dialog:
@@ -63,35 +62,24 @@ export function BarcodePreviewDialog({
     const labelName =
       productName || activeVariantLabel || t('products.barcodes.product', 'Product');
 
-    if (canUseHardware) {
-      try {
-        await printLabel.mutateAsync({
-          name: labelName,
-          variant: activeVariantLabel || undefined,
-          sku: sku || undefined,
-          barcode: code,
-          price: priceMinor,
-          copies,
-          profileId: selectedProfileId || undefined,
-        });
-        toast.success(t('printing.label.printSuccess', 'Barcode label sent to printer'));
-        onClose?.();
-        return;
-      } catch (err) {
-        toast.error(errorMessage(t, err));
-        return;
-      }
+    if (!canUseHardware) {
+      toast.error(t('printing.notConfigured'));
+      return;
     }
 
-    // Fallback to browser print dialog when hardware printing is not configured
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
-  };
-
-  const handleBrowserPrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print();
+    try {
+      await printLabel.mutateAsync({
+        name: labelName,
+        variant: activeVariantLabel || undefined,
+        sku: sku || undefined,
+        barcode: code,
+        price: priceMinor,
+        copies,
+        profileId: selectedProfileId || undefined,
+      });
+      onClose?.();
+    } catch {
+      // `usePrintLabel` reported it already.
     }
   };
 
@@ -235,19 +223,7 @@ export function BarcodePreviewDialog({
 
             {/* Dialog Footer Actions */}
             <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-              <div>
-                {canUseHardware && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-muted-foreground"
-                    onClick={handleBrowserPrint}
-                  >
-                    {t('printing.label.printBrowser', 'Print via browser')}
-                  </Button>
-                )}
-              </div>
+              <div />
               <div className="flex items-center gap-2">
                 <Button
                   type="button"

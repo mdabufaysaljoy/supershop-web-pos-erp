@@ -197,7 +197,9 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         break;
       case 'qr':
         out.push(ESC, 0x61, ALIGN[command.align ?? 'center']);
-        out.push(...qrBytes(command.value, { size: command.size }));
+        // Wider paper takes bigger modules; 58 mm cannot hold more than 8 dots each without the
+        // code running off the edge.
+        out.push(...qrBytes(command.value, { size: command.size ?? (width >= 42 ? 10 : 8) }));
         out.push(0x0a);
         break;
       case 'barcode':
@@ -209,7 +211,9 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         out.push(ESC, 0x64, command.lines ?? 1);
         break;
       case 'cut':
-        out.push(ESC, 0x64, 3, GS, 0x56, 66, 0); // feed clear of the blade, then partial cut
+        // `GS V 66 n` feeds n DOTS and cuts in one go: just enough to clear the blade (~1½ lines
+        // at 203 dpi) instead of the three whole lines a separate feed would waste per sale.
+        out.push(GS, 0x56, 66, 0x32);
         break;
       case 'drawer':
         out.push(ESC, 0x70, 0x00, 0x19, 0xfa); // kick pin 2

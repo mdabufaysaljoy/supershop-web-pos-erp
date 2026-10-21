@@ -72,7 +72,9 @@
     "purchaseOrders": "Import products",
     "appearance": "Appearance",
     "tracking": "Tracking",
-    "userProfile": "User profile"
+    "userProfile": "User profile",
+    "allBranches": "All branches",
+    "noBranch": "No branch selected"
   },
   "pages": {
     "dashboard": {
@@ -2237,6 +2239,8 @@
     }
   },
   "printing": {
+    "notConfigured": "No printer is set up yet. Open Settings → Printing to add one.",
+    "sent": "Sent to the printer.",
     "qz": {
       "title": "QZ Tray & tax details",
       "description": "Connects the till in your browser to thermal receipt and label printers on that machine. Your private key stays encrypted on the server.",

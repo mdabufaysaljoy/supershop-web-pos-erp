@@ -270,7 +270,7 @@ export function OrderDetailPage() {
           onOpenChange={setReceiptOpen}
           order={order}
           cashierName={order.cashierName}
-          branchName={store.name}
+          branchName={order.branchName}
         />
       )}
     </div>

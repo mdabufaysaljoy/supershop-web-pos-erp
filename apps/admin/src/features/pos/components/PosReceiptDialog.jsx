@@ -1,6 +1,7 @@
 import { QrCode } from '@supershop/ui';
 import { ExternalLink, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { usePrintingStatus, usePrintReceipt } from '@/features/printing/resource';
@@ -66,15 +67,17 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
         ? [{ label: order.payment.label || order.payment.method, amount: order.totals?.total }]
         : [];
 
+  /**
+   * The slip goes to the thermal printer as raw bytes via QZ Tray. The browser's own print dialog
+   * is never opened: it cannot drive a thermal printer, and its A4 rendering of a 80 mm slip is
+   * the "broken view" it used to produce.
+   */
   const handlePrint = () => {
-    // If thermal printer is enabled, attempt hardware ESC/POS print in background
-    if (printing.data?.enabled && order.id) {
-      printReceipt.mutate({ orderId: order.id });
+    if (!printing.data?.enabled || !order.id) {
+      toast.error(t('printing.notConfigured'));
+      return;
     }
-    // Always trigger browser print as guaranteed immediate printing fallback
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
+    printReceipt.mutate({ orderId: order.id });
   };
 
   return (
@@ -107,6 +110,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
               type="button"
               size="sm"
               onClick={handlePrint}
+              disabled={printReceipt.isPending}
               className="h-8 gap-1.5 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold px-3 shadow-xs"
             >
               <Printer className="size-3.5" />
@@ -295,6 +299,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
             type="button"
             size="sm"
             onClick={handlePrint}
+            disabled={printReceipt.isPending}
             className="gap-1.5 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold px-4 shadow-sm"
           >
             <Printer className="size-3.5" />

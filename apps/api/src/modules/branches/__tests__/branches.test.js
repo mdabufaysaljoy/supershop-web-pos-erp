@@ -147,6 +147,16 @@ describe('branches', () => {
     expect((await request(app).get('/api/v1/branches')).status).toBe(401);
   });
 
+  it("names the actor's own branches to any signed-in staff, so the shell can show them", async () => {
+    // A cashier has no branch.view, but the app shell still has to name the till's branch.
+    const cashier = await as('cashier').get('/api/v1/branches/mine');
+    expect(cashier.status).toBe(200);
+    expect(cashier.body.data.map((b) => b.code)).toEqual(['RYD-1']);
+    expect(cashier.body.data[0].name.en).toBeTruthy();
+    expect((await as('root').get('/api/v1/branches/mine')).body.data.length).toBeGreaterThan(1);
+    expect((await request(app).get('/api/v1/branches/mine')).status).toBe(401);
+  });
+
   it('only HQ creates/deletes; scoped managers edit their own branch', async () => {
     const created = await as('manager').post('/api/v1/branches', { code: 'NEW-1', name: 'New' });
     expect(created.status).toBe(403);

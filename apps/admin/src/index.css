@@ -92,8 +92,16 @@
   #shift-report-printable,
   #shift-report-printable *,
   #product-label-printable,
-  #product-label-printable * {
+  #product-label-printable *,
+  #order-invoice-printable,
+  #order-invoice-printable * {
     visibility: visible;
+  }
+  /* The A4 invoice is a full page, not a slip: it keeps the flow it has on screen. */
+  #order-invoice-printable {
+    position: static;
+    color: black !important;
+    background: white !important;
   }
   #pos-receipt-printable,
   #shift-report-printable {

@@ -1,12 +1,13 @@
 import express from 'express';
 import { createBranchSchemas, createCategorySchemas, PERMISSIONS as P } from '@supershop/shared';
-import { requirePermission } from '../../middleware/authorize.js';
+import { requirePermission, requireStaff } from '../../middleware/authorize.js';
 import { validate } from '../../middleware/validate.js';
 import * as c from './branch.controller.js';
 
 /**
  * Mounted at `/api/v1/branches`. Branch-scoped staff only ever see their own branches.
  *  GET    /public                 PUBLIC — active stores (store locator / pick-up), names per language
+ *  GET    /mine                   any active staff — the actor's own branches, for the app shell
  *  GET    /                       branch.view — branches in the actor's scope (+ staffCount)
  *  GET    /:id                    branch.view
  *  POST   /                       branch.manage — HQ staff only (role covers all branches)
@@ -24,6 +25,7 @@ export function createBranchRouter({ schemas = createBranchSchemas() } = {}) {
   const manageStaff = requirePermission(P.BRANCH_MANAGE, P.STAFF_MANAGE);
 
   r.get('/public', validate({ query: createCategorySchemas().publicQuery }), c.publicList);
+  r.get('/mine', requireStaff(), c.mine);
   r.get('/', view, c.list);
   r.get('/:id', view, id, c.get);
   r.post('/', manage, validate({ body: schemas.create }), c.create);

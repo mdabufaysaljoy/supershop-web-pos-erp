@@ -264,6 +264,13 @@ describe('who served', () => {
     const stored = await Order.findOne({ orderNo: sale.orderNo }).lean();
     expect(stored.staffName).toBe('Root Admin');
   });
+
+  it('keeps the branch name too, so the receipt names the shop that sold it', async () => {
+    const sale = await ok(await till().sell(basket()), 201);
+    expect(sale.branchName).toBeTruthy();
+    const stored = await Order.findOne({ orderNo: sale.orderNo }).lean();
+    expect(stored.branchName).toBe(sale.branchName);
+  });
 });
 
 describe('finding something to sell', () => {

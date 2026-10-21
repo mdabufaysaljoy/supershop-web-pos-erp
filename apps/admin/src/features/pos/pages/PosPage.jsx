@@ -467,27 +467,27 @@ export function PosPage() {
                   customer={sale.sale.customer}
                   onCustomerChange={(cust) => sale.patch({ customer: cust })}
                   onOpenCustomerModal={() => setCustomerModalOpen(true)}
+                  actions={
+                    <PosBottomBar
+                      lineCount={sale.sale.lines.length}
+                      tender={tender}
+                      busy={sell.isPending}
+                      blocked={unsure || !sale.sale.lines.length}
+                      payments={payments}
+                      onClear={() => {
+                        sale.clear();
+                        setPayments([]);
+                      }}
+                      onHold={() => sale.hold(t('pos.held.defaultLabel'))}
+                      onComplete={complete}
+                      heldCount={sale.held.length}
+                      onToggleHeld={() => setShowHeld((v) => !v)}
+                    />
+                  }
                 />
               </div>
             </aside>
           </div>
-
-          {/* Fixed Bottom Action Bar: Complete sale, Clear basket, Hold sale */}
-          <PosBottomBar
-            lineCount={sale.sale.lines.length}
-            tender={tender}
-            busy={sell.isPending}
-            blocked={unsure || !sale.sale.lines.length}
-            payments={payments}
-            onClear={() => {
-              sale.clear();
-              setPayments([]);
-            }}
-            onHold={() => sale.hold(t('pos.held.defaultLabel'))}
-            onComplete={complete}
-            heldCount={sale.held.length}
-            onToggleHeld={() => setShowHeld((v) => !v)}
-          />
         </>
       )}
 

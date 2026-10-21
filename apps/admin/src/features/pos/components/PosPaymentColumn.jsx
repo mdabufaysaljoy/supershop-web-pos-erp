@@ -33,6 +33,7 @@ export function PosPaymentColumn({
   customer,
   onCustomerChange,
   onOpenCustomerModal,
+  actions = null,
 }) {
   const { t } = useTranslation();
   const [method, setMethod] = useState(null);
@@ -284,7 +285,7 @@ export function PosPaymentColumn({
       </div>
 
       {/* Tender Balance Indicators (Paid / Due / Change) */}
-      <dl className="grid gap-1 text-xs pt-2.5 border-t border-slate-100 mt-2">
+      <dl className="shrink-0 grid gap-1 text-xs pt-2.5 border-t border-slate-100 mt-2">
         <div className="flex justify-between text-slate-500 text-[11px]">
           <dt>{t('pos.payment.paid', 'Paid')}</dt>
           <dd className="tabular-nums font-medium text-slate-700">{fmt.money(tender.paid)}</dd>
@@ -303,6 +304,9 @@ export function PosPaymentColumn({
           </dd>
         </div>
       </dl>
+
+      {/* Sale actions: Complete sale, Clear basket & Hold */}
+      {actions}
     </div>
   );
 }

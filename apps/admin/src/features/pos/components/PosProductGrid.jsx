@@ -261,9 +261,9 @@ export function PosProductGrid({
       {/* 2-Column Product Grid Area (Scrollable) */}
       <div className="flex-1 min-h-0 overflow-y-auto pe-1">
         {isFetching && !results.length ? (
-          <div className="grid grid-cols-2 gap-3 p-0.5">
+          <div className="grid grid-cols-2 gap-2 p-0.5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-2xl" />
+              <Skeleton key={i} className="h-44 rounded-xl" />
             ))}
           </div>
         ) : results.length === 0 ? (
@@ -272,7 +272,7 @@ export function PosProductGrid({
             <p className="text-xs font-medium">{t('pos.search.nothing', 'No products found.')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 p-0.5">
+          <div className="grid grid-cols-2 gap-2 p-0.5">
             {paginatedItems.map((item) => {
               const brandName =
                 brandMap.get(String(item.brandId)) || item.brandName || item.brand || '';
@@ -290,11 +290,11 @@ export function PosProductGrid({
                   type="button"
                   disabled={disabled}
                   onClick={() => onAdd(item)}
-                  className="group flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-3 text-start transition-all hover:border-slate-300 hover:shadow-xs active:scale-[0.99] cursor-pointer"
+                  className="group flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-2 text-start transition-all hover:border-slate-300 hover:shadow-xs active:scale-[0.99] cursor-pointer"
                 >
                   <div>
-                    {/* Top Square Image Box */}
-                    <div className="relative aspect-square w-full rounded-xl bg-slate-100/90 flex items-center justify-center overflow-hidden">
+                    {/* Compact Image Box */}
+                    <div className="relative h-24 w-full rounded-lg bg-slate-100/90 flex items-center justify-center overflow-hidden">
                       {item.image?.url ? (
                         <img
                           src={item.image.url}
@@ -303,33 +303,33 @@ export function PosProductGrid({
                           loading="lazy"
                         />
                       ) : (
-                        <ImageOff className="size-10 text-slate-300 stroke-[1.2]" />
+                        <ImageOff className="size-7 text-slate-300 stroke-[1.2]" />
                       )}
 
                       {/* Top Right Layers Badge */}
-                      <div className="absolute top-2.5 end-2.5 flex items-center gap-1 text-xs font-semibold text-slate-700">
-                        <Layers className="size-3.5 stroke-[2.2]" />
+                      <div className="absolute top-1.5 end-1.5 flex items-center gap-1 rounded bg-white/80 px-1 text-[11px] font-semibold text-slate-700">
+                        <Layers className="size-3 stroke-[2.2]" />
                         <span>{variantCount}</span>
                       </div>
                     </div>
 
                     {/* Product Name */}
-                    <h3 className="mt-2.5 text-sm font-semibold text-slate-900 line-clamp-1 group-hover:text-primary transition-colors">
+                    <h3 className="mt-1.5 text-xs font-semibold text-slate-900 line-clamp-1 group-hover:text-primary transition-colors">
                       {item.name}
                     </h3>
 
                     {/* Brand / Subtitle */}
                     {brandName && (
-                      <p className="mt-0.5 text-xs text-slate-500 line-clamp-1">{brandName}</p>
+                      <p className="text-[11px] text-slate-500 line-clamp-1">{brandName}</p>
                     )}
 
                     {/* Variant Option Pills */}
                     {displayOptions.length > 0 && (
-                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                      <div className="mt-1 flex flex-wrap items-center gap-1">
                         {displayOptions.map((opt, idx) => (
                           <span
                             key={idx}
-                            className="inline-flex items-center rounded px-2 py-0.5 text-[11px] font-medium text-slate-600 border border-slate-200 bg-white"
+                            className="inline-flex items-center rounded px-1.5 text-[10px] font-medium text-slate-600 border border-slate-200 bg-white"
                           >
                             {opt}
                           </span>
@@ -339,11 +339,11 @@ export function PosProductGrid({
                   </div>
 
                   {/* Bottom Row: Price & Stock */}
-                  <div className="mt-3 pt-2 flex items-center justify-between">
-                    <span className="text-sm font-bold text-slate-900 tabular-nums">
+                  <div className="mt-1.5 flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 tabular-nums">
                       {fmt.money(item.price)}
                     </span>
-                    <span className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 tabular-nums">
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-700 tabular-nums">
                       {item.onHand ?? 0}
                     </span>
                   </div>

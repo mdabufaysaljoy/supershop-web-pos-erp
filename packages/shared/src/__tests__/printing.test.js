@@ -13,6 +13,7 @@ import {
   fill,
   labelData,
   previewLines,
+  qrMatrix,
   qrSvg,
   receiptData,
   renderEscPos,
@@ -117,7 +118,7 @@ describe('ESC/POS', () => {
   it('cuts the paper and kicks the drawer with the right codes', () => {
     // `GS V 66 n` feeds n dots and cuts in one command — no separate feed to waste paper.
     const cut = [...renderEscPos([{ type: 'cut' }])];
-    expect(cut.slice(-4)).toEqual([0x1d, 0x56, 66, 0x32]);
+    expect(cut.slice(-4)).toEqual([0x1d, 0x56, 66, 0x10]);
     expect([...renderEscPos([{ type: 'drawer' }])].slice(-5)).toEqual([
       0x1b, 0x70, 0x00, 0x19, 0xfa,
     ]);
@@ -153,6 +154,31 @@ describe('ESC/POS', () => {
       (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x45,
     );
     expect(bytes[eccAt + 7]).toBe(0x33);
+  });
+
+  it('prints the QR as large as the paper allows, and never off the edge', () => {
+    const value = zatcaQr({
+      sellerName: 'Al Noor Market',
+      vatNumber: '300000000000003',
+      timestamp: '2026-10-14T14:30:00.000Z',
+      total: 21_500,
+      vat: 2804,
+    });
+    const modules = qrMatrix(value).length;
+    const moduleSize = (width) => {
+      const bytes = [...renderEscPos([{ type: 'qr', value }], { width })];
+      const at = bytes.findIndex(
+        (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x43,
+      );
+      return bytes[at + 7];
+    };
+    for (const width of [32, 42, 48]) {
+      // 12 dots per character is what a 203 dpi head prints; the code must leave quiet paper.
+      expect(modules * moduleSize(width)).toBeLessThan(width * 12);
+    }
+    // Wider paper is spent on a bigger code, not on margins.
+    expect(moduleSize(48)).toBeGreaterThan(moduleSize(32));
+    expect(modules * moduleSize(32)).toBeGreaterThan(32 * 12 * 0.8);
   });
 
   it('skips an instruction it does not know rather than guessing', () => {
@@ -258,7 +284,7 @@ describe('a receipt', () => {
     expect(DEFAULT_RECEIPT_TEMPLATE.at(-1)).toEqual({ type: 'cut' });
     expect(DEFAULT_LABEL_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
     // What the printer is told at the end: cut, feeding only the dots that clear the blade.
-    expect([...renderEscPos([{ type: 'cut' }])].slice(-4)).toEqual([0x1d, 0x56, 66, 0x32]);
+    expect([...renderEscPos([{ type: 'cut' }])].slice(-4)).toEqual([0x1d, 0x56, 66, 0x10]);
   });
 
   it('fits the paper it is printed on', () => {

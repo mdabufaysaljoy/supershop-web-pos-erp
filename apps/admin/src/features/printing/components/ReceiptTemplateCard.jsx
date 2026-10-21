@@ -20,7 +20,7 @@ import { Checkbox, Select } from '@/features/settings/components/controls';
 import { useUpdateReceiptTemplate } from '../resource';
 
 /** How big a QR prints on the narrowest paper this preview shows, in CSS pixels. */
-const QR_PREVIEW_PX = 150;
+const QR_PREVIEW_PX = 180;
 
 /** The paper's own margin, in millimetres, as a thermal printer leaves it. */
 const PAPER_PADDING_MM = 3;

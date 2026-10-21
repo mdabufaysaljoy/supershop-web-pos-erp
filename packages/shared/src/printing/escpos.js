@@ -1,3 +1,4 @@
+import { qrMatrix } from './qr.js';
 /**
  * ESC/POS (P6.3): the command language every thermal receipt printer understands. Pure — it turns
  * a list of instructions into bytes, so receipts can be unit-tested byte for byte instead of
@@ -7,6 +8,10 @@
  */
 const ESC = 0x1b;
 const GS = 0x1d;
+/** A 203 dpi thermal head prints a character 12 dots wide. */
+const DOTS_PER_CHAR = 12;
+/** Quiet paper either side of a printed QR, in dots (~3 mm). */
+const QR_QUIET_DOTS = 24;
 
 export const ALIGN = Object.freeze({ start: 0, center: 1, end: 2 });
 
@@ -80,6 +85,21 @@ export function columns(left, right, width) {
     .replace(SPACES, ' ')
     .slice(0, room);
   return `${name}${' '.repeat(Math.max(1, width - name.length - amount.length))}${amount}`;
+}
+
+/** Dots of paper past the cutting position, so the slip can be torn off without tearing text. */
+const CUT_FEED_DOTS = 0x10;
+
+/**
+ * The biggest module size this QR can print at without running off the paper. A thermal head puts
+ * 12 dots under every character, and the code keeps ~3 mm of quiet paper either side; sizing from
+ * the code's real module count makes a 58 mm ZATCA QR as large as the paper allows instead of
+ * assuming the worst case.
+ */
+function qrModuleSize(value, widthChars) {
+  const modules = qrMatrix(value).length;
+  const usableDots = widthChars * DOTS_PER_CHAR - QR_QUIET_DOTS * 2;
+  return Math.max(4, Math.min(16, Math.floor(usableDots / modules)));
 }
 
 /** QR payload → the three GS ( k calls that store and print it (model 2). */
@@ -197,9 +217,9 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         break;
       case 'qr':
         out.push(ESC, 0x61, ALIGN[command.align ?? 'center']);
-        // Wider paper takes bigger modules; 58 mm cannot hold more than 8 dots each without the
-        // code running off the edge.
-        out.push(...qrBytes(command.value, { size: command.size ?? (width >= 42 ? 10 : 8) }));
+        out.push(
+          ...qrBytes(command.value, { size: command.size ?? qrModuleSize(command.value, width) }),
+        );
         out.push(0x0a);
         break;
       case 'barcode':
@@ -211,9 +231,10 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         out.push(ESC, 0x64, command.lines ?? 1);
         break;
       case 'cut':
-        // `GS V 66 n` feeds n DOTS and cuts in one go: just enough to clear the blade (~1½ lines
-        // at 203 dpi) instead of the three whole lines a separate feed would waste per sale.
-        out.push(GS, 0x56, 66, 0x32);
+        // `GS V 66 n` cuts at the printer's own cutting position, feeding n DOTS past it. The
+        // firmware already runs the paper clear of the blade, so n only buys a hand-hold: 16 dots
+        // (2 mm at 203 dpi) instead of the three whole lines a separate feed would waste per sale.
+        out.push(GS, 0x56, 66, CUT_FEED_DOTS);
         break;
       case 'drawer':
         out.push(ESC, 0x70, 0x00, 0x19, 0xfa); // kick pin 2

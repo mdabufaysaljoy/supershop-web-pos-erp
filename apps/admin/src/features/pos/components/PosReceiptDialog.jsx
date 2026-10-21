@@ -268,7 +268,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
             {qrCodeValue && (
               <div className="flex flex-col items-center gap-1.5 py-1 text-center">
                 <div className="p-1 rounded-lg border border-slate-200 bg-white">
-                  <QrCode value={qrCodeValue} size={160} />
+                  <QrCode value={qrCodeValue} size={220} />
                 </div>
                 <span className="text-[10px] text-slate-400">
                   Scan to verify & check sale details online

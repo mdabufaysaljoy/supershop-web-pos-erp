@@ -101,8 +101,8 @@ const CUT_FEED_DOTS = 12;
  * prints is what the screen shows), with its quiet zone as real white pixels.
  */
 
-/** How wide a printed QR aims to be, in dots: 288 at 203 dpi is ~36 mm. */
-const QR_TARGET_DOTS = 288;
+/** How wide a printed QR aims to be, in dots: 216 at 203 dpi is ~27 mm. */
+const QR_TARGET_DOTS = 216;
 
 /**
  * A QR is printed as a BITMAP (`GS v 0`), not with the printer's own QR command (`GS ( k`).

@@ -5,6 +5,7 @@ import {
   previewLines,
   PRINTING,
   receiptData,
+  receiptUrl,
   RECEIPT_LANGUAGES,
   renderTemplate,
   zatcaQr,
@@ -107,7 +108,7 @@ export function ReceiptTemplateCard({ template, shopName, vatNumber, canEdit }) 
       })
     : '';
   const onlineReceiptUrl = fields.showOnlineReceipt
-    ? `http://localhost:3000/${lang === 'ar' ? 'ar' : 'en'}/receipt/${SAMPLE_SALE.orderNo}`
+    ? receiptUrl('http://localhost:3000', SAMPLE_SALE.orderNo, lang)
     : '';
   const data = receiptData(
     { ...SAMPLE_SALE, zatcaQr: qr, onlineReceiptUrl },

@@ -1,5 +1,6 @@
 import { formatMoney } from '../money.js';
 import { charsForWidth, renderEscPos } from './escpos.js';
+import { receiptUrl } from './receiptUrl.js';
 
 /**
  * Receipt and label templates (P6.3). A template is a list of instructions with `{{fields}}` in
@@ -47,7 +48,7 @@ export function receiptData(
   );
   const onlineReceiptUrl =
     order.onlineReceiptUrl ||
-    (baseUrl && order.orderNo ? `${baseUrl}/${lang}/receipt/${order.orderNo}` : '');
+    (baseUrl && order.orderNo ? receiptUrl(baseUrl, order.orderNo, lang) : '');
 
   const isWalkInName = (name) => !name || /^(walk-?in(\s+customer)?)$/i.test(String(name).trim());
   const hasCustomer = Boolean(order.customer?.name && !isWalkInName(order.customer.name));

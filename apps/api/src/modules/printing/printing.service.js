@@ -11,6 +11,7 @@ import {
   labelData,
   previewLines,
   receiptData,
+  receiptUrl,
   renderEscPos,
   renderTemplate,
   returnReceiptData,
@@ -226,7 +227,7 @@ async function toReceiptTemplateDto(doc) {
     getSetting('store.url') ||
     'http://localhost:3000'
   ).replace(/\/+$/, '');
-  const onlineReceiptUrl = `${storefrontBase}/${lang === 'ar' ? 'ar' : 'en'}/receipt/${SAMPLE_SALE.orderNo}`;
+  const onlineReceiptUrl = receiptUrl(storefrontBase, SAMPLE_SALE.orderNo, lang);
   const data = receiptData(
     { ...SAMPLE_SALE, zatcaQr: qr, onlineReceiptUrl },
     {
@@ -376,8 +377,7 @@ export async function buildReceiptJob(order, { profileId, shop = {}, lang = 'en'
     'http://localhost:3000'
   ).replace(/\/+$/, '');
   const onlineReceiptUrl =
-    order.onlineReceiptUrl ||
-    `${storefrontBase}/${tplLang === 'ar' ? 'ar' : 'en'}/receipt/${order.orderNo}`;
+    order.onlineReceiptUrl || receiptUrl(storefrontBase, order.orderNo, tplLang);
   const qr =
     order.zatcaQr ||
     (fields.showQr

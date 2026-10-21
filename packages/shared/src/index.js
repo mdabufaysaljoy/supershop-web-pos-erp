@@ -41,6 +41,7 @@ export {
   toBase64,
   wrap,
 } from './printing/escpos.js';
+export { receiptUrl } from './printing/receiptUrl.js';
 export {
   buildLabelTemplate,
   buildReceiptTemplate,

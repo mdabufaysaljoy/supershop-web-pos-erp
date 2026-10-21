@@ -1,3 +1,4 @@
+import { receiptUrl } from '@supershop/shared';
 import { QrCode } from '@supershop/ui';
 import { ExternalLink, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -57,8 +58,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
     typeof window !== 'undefined'
       ? `${window.location.protocol}//${window.location.hostname}:3000`
       : 'http://localhost:3000';
-  const onlineReceiptUrl =
-    order.onlineReceiptUrl || `${storefrontBase}/en/receipt/${encodeURIComponent(orderNo)}`;
+  const onlineReceiptUrl = order.onlineReceiptUrl || receiptUrl(storefrontBase, orderNo);
   const qrCodeValue = onlineReceiptUrl;
   const effectivePayments =
     order.payments?.length > 0

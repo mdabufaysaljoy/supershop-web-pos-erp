@@ -167,7 +167,7 @@ describe('ESC/POS', () => {
     expect(bytes.length - (at + 8)).toBe(rowBytes * heightDots + 1); // + the newline after it
   });
 
-  it('prints the QR about 36 mm across, the size the shop asked for', () => {
+  it('prints the QR about 27 mm across, the size the shop asked for', () => {
     const value = zatcaQr({
       sellerName: 'Al Noor Market',
       vatNumber: '300000000000003',
@@ -182,14 +182,45 @@ describe('ESC/POS', () => {
       expect(heightDots % modules).toBe(0);
       expect(heightDots).toBeLessThanOrEqual(widthDots);
       // 58 mm is the narrowest paper a shop may set and the one a cashier scans from most.
-      expect(mm(heightDots)).toBeGreaterThanOrEqual(34);
-      expect(mm(heightDots)).toBeLessThanOrEqual(38);
+      expect(mm(heightDots)).toBeGreaterThanOrEqual(24);
+      expect(mm(heightDots)).toBeLessThanOrEqual(29);
+    }
+  });
+
+  it('prints a bitmap a scanner can read back, module for module', () => {
+    // The dots that reach the paper, read back as modules: what is printed IS the QR, not a
+    // picture of one that drifted half a dot and stopped scanning.
+    const value = 'http://192.168.1.10:3000/en/receipt/POS-000042';
+    const expected = qrMatrix(value);
+    const { bytes, rowBytes, heightDots, widthDots } = qrRaster(value, 32);
+    const at = bytes.findIndex(
+      (b, i) => b === 0x1d && bytes[i + 1] === 0x76 && bytes[i + 2] === 0x30,
+    );
+    const bitmap = bytes.slice(at + 8, at + 8 + rowBytes * heightDots);
+    const dot = (x, y) => (bitmap[y * rowBytes + (x >> 3)] >> (7 - (x & 7))) & 1;
+    const scale = heightDots / expected.length;
+    const left = Math.floor((widthDots - expected.length * scale) / 2);
+    for (let r = 0; r < expected.length; r += 1) {
+      for (let c = 0; c < expected.length; c += 1) {
+        // Sample the middle of the module, and check its corners are the same colour.
+        const x = left + c * scale;
+        const y = r * scale;
+        const want = expected[r][c] ? 1 : 0;
+        expect(dot(x + (scale >> 1), y + (scale >> 1))).toBe(want);
+        expect(dot(x, y)).toBe(want);
+        expect(dot(x + scale - 1, y + scale - 1)).toBe(want);
+      }
+    }
+    // And the paper either side of it is blank: the quiet zone a scanner looks for.
+    for (let y = 0; y < heightDots; y += 7) {
+      expect(dot(left - 1, y)).toBe(0);
+      expect(dot(left + expected.length * scale, y)).toBe(0);
     }
   });
 
   it('keeps a short code as big as a long one — the paper decides, not the payload', () => {
     const url = qrRaster('http://192.168.1.10:3000/en/receipt/POS-000042', 32);
-    expect(mm(url.heightDots)).toBeGreaterThanOrEqual(34);
+    expect(mm(url.heightDots)).toBeGreaterThanOrEqual(24);
   });
 
   it('skips an instruction it does not know rather than guessing', () => {
@@ -328,16 +359,21 @@ describe('a receipt', () => {
       shop: SHOP,
       storefrontUrl: 'https://supershop.com',
     });
-    expect(online.order.onlineReceiptUrl).toBe('https://supershop.com/en/receipt/POS-000001');
+    // English is the storefront's default language and has NO path prefix: a printed `/en/…`
+    // link sends every scan through a redirect.
+    expect(online.order.onlineReceiptUrl).toBe('https://supershop.com/receipt/POS-000001');
     const expanded = expand(DEFAULT_RECEIPT_TEMPLATE, online);
     const qrBlocks = expanded.filter((b) => b.type === 'qr');
-    expect(qrBlocks.some((b) => b.value === 'https://supershop.com/en/receipt/POS-000001')).toBe(
-      true,
-    );
+    expect(qrBlocks.some((b) => b.value === 'https://supershop.com/receipt/POS-000001')).toBe(true);
     const lines = textOf(renderTemplate(DEFAULT_RECEIPT_TEMPLATE, online, { widthMm: 80 }));
     expect(lines.some((l) => l.includes('Scan for your e-receipt'))).toBe(true);
     // The QR carries the link; printing it as text as well only fills the paper.
-    expect(lines).not.toContain('https://supershop.com/en/receipt/POS-000001');
+    expect(lines).not.toContain('https://supershop.com/receipt/POS-000001');
+    // Arabic keeps its prefix, since `/ar` is how the storefront serves it.
+    expect(
+      receiptData(SALE, { shop: SHOP, storefrontUrl: 'https://supershop.com', lang: 'ar' }).order
+        .onlineReceiptUrl,
+    ).toBe('https://supershop.com/ar/receipt/POS-000001');
     expect(lines.at(-1)).toBe('Thank you');
   });
 });

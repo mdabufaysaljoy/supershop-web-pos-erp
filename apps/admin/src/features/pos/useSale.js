@@ -85,17 +85,19 @@ export function useSale(branchId, { staffId = '' } = {}) {
     return () => clearTimeout(timer.current);
   }, [askForQuote, body, branchId, empty]);
 
-  /** Every change to the basket is written through, so a reload never loses one. */
-  const commit = useCallback(
-    (next) => {
-      setSale(next);
-      if (next.lines.length || next.customer?.mode === 'contact') writeJson(key, next);
-      else removeKey(key);
-      return next;
-    },
-    [key],
-  );
-  const update = useCallback((fn) => setSale((current) => commit(fn(current))), [commit]);
+  /**
+   * Every change to the basket is written through, so a reload never loses one. It is done in an
+   * effect, not inside the state updater: React invokes an updater twice in StrictMode, so an
+   * updater that does anything besides return the next state — writing storage, or setting state
+   * again — applies its change twice, and the first scan of an item used to ring up two of it.
+   */
+  useEffect(() => {
+    if (restoredFor !== key) return;
+    if (sale.lines.length || sale.customer?.mode === 'contact') writeJson(key, sale);
+    else removeKey(key);
+  }, [key, restoredFor, sale]);
+
+  const update = useCallback((fn) => setSale(fn), []);
 
   const addItem = useCallback(
     (variant) =>
@@ -135,8 +137,7 @@ export function useSale(branchId, { staffId = '' } = {}) {
   const clear = useCallback(() => {
     setSale(emptySale());
     setQuoted(null);
-    removeKey(key);
-  }, [key]);
+  }, []);
 
   const saveHeld = useCallback(
     (list) => {
@@ -189,9 +190,9 @@ export function useSale(branchId, { staffId = '' } = {}) {
         : rest;
       saveHeld(parked);
       setQuoted(null);
-      commit(restoreSale(entry.sale));
+      setSale(restoreSale(entry.sale));
     },
-    [branchId, commit, held, quoted, sale, saveHeld],
+    [branchId, held, quoted, sale, saveHeld],
   );
 
   const drop = useCallback((id) => saveHeld(held.filter((h) => h.id !== id)), [held, saveHeld]);

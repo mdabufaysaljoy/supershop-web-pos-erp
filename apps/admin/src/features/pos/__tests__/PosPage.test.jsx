@@ -1,4 +1,5 @@
 import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StrictMode } from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
@@ -73,15 +74,18 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
     },
     ...routes,
   });
-  const view = render(
+  const tree = (
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
       <MemoryRouter initialEntries={['/pos']}>
         <PosPage />
       </MemoryRouter>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+  // As the app runs it: <StrictMode> double-invokes renders and state updaters, and a basket that
+  // only counts right outside it is a basket that overcharges the customer.
+  const view = render(<StrictMode>{tree}</StrictMode>);
   return Object.assign(m, { view });
 }
 
@@ -89,13 +93,15 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
 const reopenTill = (m) => {
   m.view.unmount();
   render(
-    <QueryClientProvider
-      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-    >
-      <MemoryRouter initialEntries={['/pos']}>
-        <PosPage />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <StrictMode>
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <MemoryRouter initialEntries={['/pos']}>
+          <PosPage />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </StrictMode>,
   );
 };
 
@@ -934,6 +940,13 @@ describe('scanning at the counter', () => {
     expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
     // And the code it typed on its way through is cleared, ready for the next one.
     await waitFor(() => expect(screen.getByLabelText('Scan or search')).toHaveValue(''));
+  });
+
+  it('rings up exactly one of the first item scanned, never two', async () => {
+    setup({ routes: scanned });
+    await screen.findByLabelText('Scan or search');
+    await scan('6281000000017');
+    expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
   });
 
   it("counts a scanner's second terminator as part of the same scan, not another item", async () => {

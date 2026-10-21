@@ -87,7 +87,7 @@ export function PosProductGrid({
   }, [totalPages, currentPage]);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden rounded-lg border border-slate-200/90 bg-white p-4 shadow-2xs">
+    <div className="flex flex-col h-full overflow-hidden rounded border border-slate-200/90 bg-white p-4 shadow-2xs">
       {/* Row 1: Search Input + Scan Button */}
       <div className="flex items-center gap-2 w-full shrink-0">
         <div className="relative flex-1">
@@ -108,7 +108,7 @@ export function PosProductGrid({
               'pos.search.placeholderF2',
               'Search by name, SKU or scan a barcode... (F2)',
             )}
-            className="h-11 w-full rounded-lg border border-blue-500 bg-white ps-10 pe-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
+            className="h-11 w-full rounded border border-blue-500 bg-white ps-10 pe-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 shadow-2xs"
             onChange={(e) => onQChange?.(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Escape') onQChange?.('');
@@ -131,7 +131,7 @@ export function PosProductGrid({
               inputRef?.current?.focus();
             }
           }}
-          className="h-11 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm flex items-center gap-2 shrink-0 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+          className="h-11 px-5 rounded bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm flex items-center gap-2 shrink-0 shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
         >
           <Scan className="size-4" />
           <span>{t('pos.search.scan', 'Scan')}</span>
@@ -153,7 +153,7 @@ export function PosProductGrid({
             value={department}
             aria-label={t('pos.departments.all', 'All categories')}
             onChange={(e) => onDepartmentChange?.(e.target.value)}
-            className="h-9 appearance-none rounded-lg border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
+            className="h-9 appearance-none rounded border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
           >
             <option value="">{t('pos.categories.all', 'All categories')}</option>
             {categories.map((c) => (
@@ -181,7 +181,7 @@ export function PosProductGrid({
               value={selectedBrand}
               aria-label={t('pos.brands.all', 'All brands')}
               onChange={(e) => onSelectedBrandChange?.(e.target.value)}
-              className="h-9 appearance-none rounded-lg border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
+              className="h-9 appearance-none rounded border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
             >
               <option value="">{t('pos.brands.all', 'All brands')}</option>
               {brandList.map((b) => (
@@ -210,7 +210,7 @@ export function PosProductGrid({
               value={branchId}
               disabled={linesCount > 0}
               onChange={(e) => onSelectBranch(e.target.value)}
-              className="h-9 appearance-none rounded-lg border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
+              className="h-9 appearance-none rounded border border-slate-200/90 bg-white ps-8 pe-8 text-xs font-medium text-slate-700 outline-none hover:border-slate-300 focus:border-primary focus:ring-1 focus:ring-primary/20 shadow-2xs cursor-pointer"
             >
               {branchOptions.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -263,7 +263,7 @@ export function PosProductGrid({
         {isFetching && !results.length ? (
           <div className="grid grid-cols-2 gap-2.5 p-0.5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-52 rounded-xl" />
+              <Skeleton key={i} className="h-52 rounded" />
             ))}
           </div>
         ) : results.length === 0 ? (
@@ -290,11 +290,11 @@ export function PosProductGrid({
                   type="button"
                   disabled={disabled}
                   onClick={() => onAdd(item)}
-                  className="group flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-2.5 text-start transition-all hover:border-slate-300 hover:shadow-xs active:scale-[0.99] cursor-pointer"
+                  className="group flex flex-col justify-between rounded border border-slate-200/90 bg-white p-2.5 text-start transition-all hover:border-slate-300 hover:shadow-xs active:scale-[0.99] cursor-pointer"
                 >
                   <div>
                     {/* Balanced Image Box */}
-                    <div className="relative h-36 w-full rounded-lg bg-slate-100/90 flex items-center justify-center overflow-hidden">
+                    <div className="relative h-46 w-full rounded bg-slate-100/90 flex items-center justify-center overflow-hidden">
                       {item.image?.url ? (
                         <img
                           src={item.image.url}
@@ -343,7 +343,7 @@ export function PosProductGrid({
                     <span className="text-xs font-bold text-slate-900 tabular-nums">
                       {fmt.money(item.price)}
                     </span>
-                    <span className="rounded-md bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 tabular-nums">
+                    <span className="rounded bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 tabular-nums">
                       {item.onHand ?? 0}
                     </span>
                   </div>
@@ -370,7 +370,7 @@ export function PosProductGrid({
               size="sm"
               disabled={currentPage <= 1}
               onClick={() => onPageChange(currentPage - 1)}
-              className="size-7 p-0 rounded-md text-slate-600 disabled:opacity-40"
+              className="size-7 p-0 rounded text-slate-600 disabled:opacity-40"
               aria-label="Previous page"
             >
               <ChevronLeft className="size-3.5" />
@@ -388,7 +388,7 @@ export function PosProductGrid({
                   variant={p === currentPage ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => onPageChange(p)}
-                  className={`size-7 p-0 rounded-md text-xs font-semibold tabular-nums ${
+                  className={`size-7 p-0 rounded text-xs font-semibold tabular-nums ${
                     p === currentPage
                       ? 'bg-primary text-white hover:bg-primary/90'
                       : 'text-slate-700 hover:bg-slate-100'
@@ -411,7 +411,7 @@ export function PosProductGrid({
               size="sm"
               disabled={currentPage >= totalPages}
               onClick={() => onPageChange(currentPage + 1)}
-              className="size-7 p-0 rounded-md text-slate-600 disabled:opacity-40"
+              className="size-7 p-0 rounded text-slate-600 disabled:opacity-40"
               aria-label="Next page"
             >
               <ChevronRight className="size-3.5" />

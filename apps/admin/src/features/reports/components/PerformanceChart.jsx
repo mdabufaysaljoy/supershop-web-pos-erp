@@ -31,7 +31,7 @@ function PerformanceTooltip({ active, payload, label, metric }) {
   if (!active || !payload?.length) return null;
   const item = payload[0];
   return (
-    <div className="rounded-lg border bg-background p-3 text-xs shadow-md">
+    <div className="rounded border bg-background p-3 text-xs shadow-md">
       <p className="font-semibold text-foreground mb-1">{label}</p>
       <div className="flex items-center justify-between gap-4">
         <span className="text-muted-foreground">{metric === 'revenue' ? 'Revenue' : 'Units'}:</span>
@@ -67,7 +67,7 @@ export function PerformanceChart({ chartData = [], dimension = 'product' }) {
         <CardTitle className="text-base font-semibold">
           {t('reports.topPerformers', { dimension: t(`reports.dimensions.${dimension}`) })}
         </CardTitle>
-        <div className="flex items-center gap-1 rounded-lg border bg-muted/40 p-1">
+        <div className="flex items-center gap-1 rounded border bg-muted/40 p-1">
           <Button
             type="button"
             size="sm"

@@ -348,9 +348,10 @@ export async function updateLabelTemplate(actor, patch) {
 
 /** Where an order should print: what the till asked for, else the branch's default. */
 async function profileFor(kind, { profileId, branchId }) {
-  const profile = profileId
-    ? await repo.findById(profileId)
-    : await repo.findDefault(kind, branchId);
+  let profile = profileId ? await repo.findById(profileId) : await repo.findDefault(kind, branchId);
+  if (!profile && kind === 'label') {
+    profile = await repo.findDefault('receipt', branchId);
+  }
   if (!profile) throw new ConflictError('No printer is set up for this branch');
   return profile;
 }

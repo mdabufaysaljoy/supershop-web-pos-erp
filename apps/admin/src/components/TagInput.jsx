@@ -33,12 +33,12 @@ export function TagInput({
           {value.map((item) => (
             <li
               key={item}
-              className="flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-sm"
+              className="flex items-center gap-1 rounded bg-muted px-2.5 py-0.5 text-sm"
             >
               {item}
               <button
                 type="button"
-                className="rounded-full text-muted-foreground hover:text-foreground"
+                className="rounded text-muted-foreground hover:text-foreground"
                 aria-label={removeLabel(item)}
                 onClick={() => onChange(value.filter((v) => v !== item))}
               >

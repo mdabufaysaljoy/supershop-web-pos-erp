@@ -1,23 +1,26 @@
 import { barcodeType, DEFAULT_LABEL_CONFIG } from '@supershop/shared';
 import { Barcode } from '@supershop/ui';
-import { Minus, Plus, Printer, Tag } from 'lucide-react';
+import { Loader2, Minus, Plus, Printer, Tag } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import {
+  usePrinters,
   usePrintingStatus,
   usePrintingTemplates,
   usePrintLabel,
 } from '@/features/printing/resource';
 import { useSettings } from '@/features/settings/hooks';
 import { fmt } from '@/lib/format';
+import { errorMessage } from '@/lib/i18n';
 
 /**
  * Barcode & Shelf Label Print Dialog:
  * Displays product variant barcode label preview with store name, product name, variant, price,
  * and barcode. Allows cashier/manager to specify number of pieces to print and triggers printing
- * according to settings configuration (QZ hardware label printer and browser printing).
+ * directly via QZ Tray hardware thermal printer, with browser print fallback when unconfigured.
  */
 export function BarcodePreviewDialog({
   code,
@@ -31,9 +34,11 @@ export function BarcodePreviewDialog({
 }) {
   const { t } = useTranslation();
   const [pieces, setPieces] = useState(1);
+  const [selectedProfileId, setSelectedProfileId] = useState('');
   const { data: generalSettings } = useSettings('general');
   const { data: templates } = usePrintingTemplates();
   const printingStatus = usePrintingStatus();
+  const printers = usePrinters();
   const printLabel = usePrintLabel();
 
   const activeVariantLabel = variantLabel || label || '';
@@ -49,22 +54,42 @@ export function BarcodePreviewDialog({
 
   const formattedPrice = priceMinor > 0 ? fmt.money(priceMinor, { currency }) : '';
 
-  const handlePrint = () => {
-    const copies = Math.max(1, Math.min(500, Number(pieces) || 1));
+  const printerList = printers.data ?? [];
+  const hasHardwarePrinters = printerList.length > 0;
+  const canUseHardware = printingStatus.data?.enabled || hasHardwarePrinters;
 
-    // If QZ Tray / hardware printing is enabled, send label job to configured label printer
-    if (printingStatus.data?.enabled) {
-      printLabel.mutate({
-        name: productName || activeVariantLabel || t('products.barcodes.product', 'Product'),
-        variant: activeVariantLabel,
-        sku: sku || undefined,
-        barcode: code,
-        price: priceMinor,
-        copies,
-      });
+  const handlePrint = async () => {
+    const copies = Math.max(1, Math.min(500, Number(pieces) || 1));
+    const labelName =
+      productName || activeVariantLabel || t('products.barcodes.product', 'Product');
+
+    if (canUseHardware) {
+      try {
+        await printLabel.mutateAsync({
+          name: labelName,
+          variant: activeVariantLabel || undefined,
+          sku: sku || undefined,
+          barcode: code,
+          price: priceMinor,
+          copies,
+          profileId: selectedProfileId || undefined,
+        });
+        toast.success(t('printing.label.printSuccess', 'Barcode label sent to printer'));
+        onClose?.();
+        return;
+      } catch (err) {
+        toast.error(errorMessage(t, err));
+        return;
+      }
     }
 
-    // Trigger browser print for immediate printout
+    // Fallback to browser print dialog when hardware printing is not configured
+    if (typeof window !== 'undefined') {
+      window.print();
+    }
+  };
+
+  const handleBrowserPrint = () => {
     if (typeof window !== 'undefined') {
       window.print();
     }
@@ -186,15 +211,68 @@ export function BarcodePreviewDialog({
               </div>
             </div>
 
-            {/* Dialog Footer Actions: Print & Cancel (No Download button!) */}
-            <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
-              <Button type="button" variant="outline" size="sm" onClick={onClose}>
-                {t('common.cancel', 'Cancel')}
-              </Button>
-              <Button type="button" size="sm" className="gap-1.5 font-bold" onClick={handlePrint}>
-                <Printer className="size-4" aria-hidden />
-                {t('products.barcodes.print', 'Print')}
-              </Button>
+            {/* Optional Printer Profile Selection if multiple printers configured */}
+            {printerList.length > 1 && (
+              <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+                <label htmlFor="printer-select" className="text-xs font-semibold text-slate-700">
+                  {t('printing.label.selectPrinter', 'Select thermal printer')}
+                </label>
+                <select
+                  id="printer-select"
+                  value={selectedProfileId}
+                  onChange={(e) => setSelectedProfileId(e.target.value)}
+                  className="h-8 max-w-[200px] rounded-md border border-slate-200 px-2 text-xs font-medium text-slate-800 outline-none focus:border-primary"
+                >
+                  <option value="">{t('printing.profiles.default', 'Default')}</option>
+                  {printerList.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.printer})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Dialog Footer Actions */}
+            <div className="flex items-center justify-between border-t border-slate-100 pt-3">
+              <div>
+                {canUseHardware && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-muted-foreground"
+                    onClick={handleBrowserPrint}
+                  >
+                    {t('printing.label.printBrowser', 'Print via browser')}
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={printLabel.isPending}
+                  onClick={onClose}
+                >
+                  {t('common.cancel', 'Cancel')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="gap-1.5 font-bold"
+                  disabled={printLabel.isPending}
+                  onClick={handlePrint}
+                >
+                  {printLabel.isPending ? (
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                  ) : (
+                    <Printer className="size-4" aria-hidden />
+                  )}
+                  {t('products.barcodes.print', 'Print')}
+                </Button>
+              </div>
             </div>
 
             {/* Hidden Printable Container for Browser Print (N label pages) */}

@@ -56,7 +56,7 @@ export function QtyInput({
   };
 
   const btn =
-    'inline-flex size-9 items-center justify-center rounded-md border border-input text-base disabled:opacity-50 hover:bg-muted';
+    'inline-flex size-9 items-center justify-center rounded border border-input text-base disabled:opacity-50 hover:bg-muted';
   return (
     <div className="inline-flex items-center gap-1" dir="ltr">
       <button

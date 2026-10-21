@@ -2330,7 +2330,10 @@
       },
       "saveButton": "Save label template",
       "testPrint": "Print test label",
-      "previewTitle": "Live label preview"
+      "previewTitle": "Live label preview",
+      "printSuccess": "Barcode label sent to printer",
+      "printBrowser": "Print via browser",
+      "selectPrinter": "Select thermal printer"
     }
   },
   "shifts": {

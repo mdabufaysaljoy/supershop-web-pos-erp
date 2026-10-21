@@ -22,12 +22,16 @@ export const clearDefault = (kind, branchId, exceptId) =>
 
 /** The default for this branch, or the shop-wide one, or whatever there is. */
 export async function findDefault(kind, branchId) {
-  const candidates = await PrinterProfile.find({
-    kind,
-    $or: [{ branchId: branchId ?? null }, { branchId: null }],
-  })
+  const query = { kind };
+  if (branchId) {
+    query.$or = [{ branchId }, { branchId: null }];
+  }
+  let candidates = await PrinterProfile.find(query)
     .sort({ isDefault: -1, branchId: -1, name: 1 })
     .lean();
+  if (candidates.length === 0) {
+    candidates = await PrinterProfile.find({ kind }).sort({ isDefault: -1, name: 1 }).lean();
+  }
   return candidates[0] ?? null;
 }
 

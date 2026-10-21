@@ -196,22 +196,22 @@ export function ReportsPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="h-20 rounded-lg bg-muted/40 animate-pulse" />
+                  <div key={i} className="h-20 rounded bg-muted/40 animate-pulse" />
                 ))}
               </div>
-              <div className="h-72 rounded-lg bg-muted/40 animate-pulse" />
-              <div className="h-80 rounded-lg bg-muted/40 animate-pulse" />
+              <div className="h-72 rounded bg-muted/40 animate-pulse" />
+              <div className="h-80 rounded bg-muted/40 animate-pulse" />
             </div>
           )}
 
           {/* Error state */}
           {isError && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6 text-center text-xs">
+            <div className="rounded border border-destructive/20 bg-destructive/5 p-6 text-center text-xs">
               <p className="font-semibold text-destructive">{t('reports.errorLoading')}</p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-2 rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground"
+                className="mt-2 rounded bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground"
               >
                 {t('reports.retry')}
               </button>

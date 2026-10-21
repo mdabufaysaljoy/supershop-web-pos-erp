@@ -1,17 +1,17 @@
-import { PERMISSIONS as P } from '@supershop/shared';
-import { IntegerInput, MoneyInput } from '@supershop/ui';
+// import { PERMISSIONS as P } from '@supershop/shared';
+import { IntegerInput } from '@supershop/ui';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { fmt } from '@/lib/format';
-import { useCan } from '@/lib/permissions';
+// import { useCan } from '@/lib/permissions';
 
 /** "5.00" → 500 halalas; anything that is not a number clears the discount. */
-const halalas = (value) => {
-  const n = Number(value);
-  return value !== '' && Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
-};
+// const halalas = (value) => {
+//   const n = Number(value);
+//   return value !== '' && Number.isFinite(n) && n > 0 ? Math.round(n * 100) : null;
+// };
 
 /**
  * The quantity keeps its own text while it is being typed: a cashier who clears the field to put
@@ -26,7 +26,7 @@ function QtyField({ value, label, onChange }) {
         type="button"
         variant="outline"
         size="icon"
-        className="size-7 rounded-md text-slate-600"
+        className="size-7 rounded text-slate-600"
         disabled={value <= 1}
         onClick={() => onChange(Math.max(1, value - 1))}
       >
@@ -36,7 +36,7 @@ function QtyField({ value, label, onChange }) {
         value={typed ?? String(value)}
         min={1}
         aria-label={label}
-        className="w-12 h-7 rounded-md text-center px-1 text-xs font-semibold"
+        className="w-12 h-7 rounded text-center px-1 text-xs font-semibold"
         onChange={(e) => {
           setTyped(e.target.value);
           if (e.target.value !== '') onChange(Number(e.target.value));
@@ -47,7 +47,7 @@ function QtyField({ value, label, onChange }) {
         type="button"
         variant="outline"
         size="icon"
-        className="size-7 rounded-md text-slate-600"
+        className="size-7 rounded text-slate-600"
         onClick={() => onChange(value + 1)}
       >
         +
@@ -59,10 +59,10 @@ function QtyField({ value, label, onChange }) {
 /**
  * The basket lines: clean row per scanned product with in-place steppers, discounts, and line totals.
  */
-export function SaleLines({ sale, priced, onQty, onDiscount }) {
+export function SaleLines({ sale, priced, onQty }) {
   const { t } = useTranslation();
-  const can = useCan();
-  const mayDiscount = can(P.POS_DISCOUNT);
+  // const can = useCan();
+  // const mayDiscount = can(P.POS_DISCOUNT);
   const line = (variantId) => priced?.items?.find((i) => i.variantId === variantId);
 
   if (!sale.lines.length)
@@ -83,13 +83,13 @@ export function SaleLines({ sale, priced, onQty, onDiscount }) {
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="grid grid-cols-3 items-center gap-2">
             <QtyField
               value={item.qty}
               label={t('pos.lines.qty', { name: item.name })}
               onChange={(qty) => onQty(item.variantId, qty)}
             />
-
+            {/*
             {mayDiscount && (
               <label className="flex items-center gap-1.5 text-xs">
                 <span className="text-slate-500">{t('pos.lines.discount')}</span>
@@ -108,7 +108,7 @@ export function SaleLines({ sale, priced, onQty, onDiscount }) {
                   }
                 />
               </label>
-            )}
+            )} */}
 
             <span className="w-20 text-end text-sm font-bold text-slate-900 tabular-nums">
               {fmt.money(line(item.variantId)?.lineTotal ?? item.price * item.qty)}
@@ -118,7 +118,7 @@ export function SaleLines({ sale, priced, onQty, onDiscount }) {
               type="button"
               variant="ghost"
               size="icon"
-              className="size-7 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded-md"
+              className="size-7 text-slate-400 hover:text-destructive hover:bg-destructive/10 rounded bg-blue-700 w-full text-white"
               aria-label={t('pos.lines.remove', { name: item.name })}
               onClick={() => onQty(item.variantId, 0)}
             >

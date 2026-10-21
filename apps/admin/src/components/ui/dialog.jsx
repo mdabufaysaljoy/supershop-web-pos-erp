@@ -20,14 +20,14 @@ export function DialogContent({ className, children, closeLabel, ...props }) {
       <D.Overlay className="fixed inset-0 z-50 bg-black/50" />
       <D.Content
         className={cn(
-          'fixed start-1/2 top-1/2 z-50 grid max-h-[90svh] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-lg border bg-background p-6 shadow-lg outline-none rtl:translate-x-1/2',
+          'fixed start-1/2 top-1/2 z-50 grid max-h-[90svh] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded border bg-background p-6 shadow-lg outline-none rtl:translate-x-1/2',
           className,
         )}
         {...props}
       >
         {children}
         <D.Close
-          className="absolute end-4 top-4 rounded-sm opacity-70 hover:opacity-100"
+          className="absolute end-4 top-4 rounded opacity-70 hover:opacity-100"
           aria-label={closeLabel}
         >
           <XIcon className="size-4" />

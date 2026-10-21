@@ -15,14 +15,16 @@ async function load() {
   if (qz) return qz;
   const mod = await import('qz-tray');
   qz = mod.default ?? mod;
-  qz.security.setCertificatePromise((resolve, reject) => {
-    api('/api/v1/printing/certificate', { responseType: 'text' }).then(resolve, reject);
+  qz.security.setCertificatePromise((resolve) => {
+    api('/api/v1/printing/certificate', { responseType: 'text' })
+      .then(resolve)
+      .catch(() => resolve());
   });
   qz.security.setSignatureAlgorithm('SHA512');
-  qz.security.setSignaturePromise((data) => (resolve, reject) => {
+  qz.security.setSignaturePromise((data) => (resolve) => {
     apiData('/api/v1/printing/sign', { method: 'POST', body: { data } })
       .then((result) => resolve(result.signature))
-      .catch(reject);
+      .catch(() => resolve(''));
   });
   return qz;
 }

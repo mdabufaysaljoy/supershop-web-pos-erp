@@ -72,7 +72,7 @@ export function PerformanceSummaryKpis({ summary = {} }) {
         return (
           <Card
             key={c.title}
-            className={`group relative overflow-hidden rounded-md border border-slate-200/90 bg-white p-3.5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 border-t-2 ${c.accent}`}
+            className={`group relative overflow-hidden rounded border border-slate-200/90 bg-white p-3.5 shadow-2xs transition-all hover:border-slate-300 hover:shadow-xs dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 border-t-2 ${c.accent}`}
           >
             <CardContent className="p-0 flex flex-col justify-between h-full">
               <div className="flex items-center justify-between gap-2">
@@ -80,7 +80,7 @@ export function PerformanceSummaryKpis({ summary = {} }) {
                   {c.title}
                 </span>
                 <div
-                  className={`flex size-6 shrink-0 items-center justify-center rounded-sm transition-transform group-hover:scale-105 ${c.badgeClass}`}
+                  className={`flex size-6 shrink-0 items-center justify-center rounded transition-transform group-hover:scale-105 ${c.badgeClass}`}
                 >
                   <Icon className="size-3.5" />
                 </div>
@@ -91,7 +91,7 @@ export function PerformanceSummaryKpis({ summary = {} }) {
                 </div>
                 {c.subtitle && (
                   <div className="mt-1 flex items-center">
-                    <span className="inline-flex items-center rounded-sm bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                    <span className="inline-flex items-center rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                       {c.subtitle}
                     </span>
                   </div>

@@ -121,7 +121,7 @@ export function HelpDrawer() {
         className="w-full sm:max-w-md md:max-w-lg lg:max-w-xl flex flex-col p-0 bg-background"
       >
         <div className="flex items-center gap-3 border-b px-6 py-4">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="flex size-9 items-center justify-center rounded bg-primary/10 text-primary">
             <BookOpen className="size-5" />
           </div>
           <div>
@@ -181,12 +181,12 @@ export function HelpDrawer() {
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           {(activeFilter === 'all' || activeFilter === 'pos') && filteredShortcuts.length > 0 && (
-            <div className="space-y-3 rounded-lg border p-4 bg-card shadow-sm">
+            <div className="space-y-3 rounded border p-4 bg-card shadow-sm">
               <div className="flex items-center gap-2 font-medium text-sm">
                 <Keyboard className="size-4 text-primary" />
                 <span>{t('help.topics.pos.title')}</span>
               </div>
-              <div className="overflow-hidden rounded-md border text-xs">
+              <div className="overflow-hidden rounded border text-xs">
                 <table className="w-full text-start">
                   <thead className="bg-muted/50 border-b">
                     <tr>
@@ -225,11 +225,11 @@ export function HelpDrawer() {
               return (
                 <div
                   key={topic.id}
-                  className="rounded-lg border p-4 bg-card space-y-2.5 shadow-sm hover:border-primary/40 transition-colors"
+                  className="rounded border p-4 bg-card space-y-2.5 shadow-sm hover:border-primary/40 transition-colors"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <div className="flex size-7 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                      <div className="flex size-7 items-center justify-center rounded bg-muted text-muted-foreground">
                         <Icon className="size-4" />
                       </div>
                       <h4 className="font-semibold text-sm leading-none">{topic.title}</h4>
@@ -263,7 +263,7 @@ export function HelpDrawer() {
             })
           )}
 
-          <div className="rounded-lg border border-dashed p-4 text-xs space-y-1.5 bg-muted/10">
+          <div className="rounded border border-dashed p-4 text-xs space-y-1.5 bg-muted/10">
             <div className="font-medium flex items-center gap-2">
               <BookOpen className="size-4 text-primary" />
               <span>{t('help.openUserGuide')}</span>

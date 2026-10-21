@@ -136,7 +136,7 @@ export function ReportBuilderView({ branchOptions = [] }) {
                   <button
                     key={resKey}
                     type="button"
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                    className={`px-3.5 py-1.5 rounded text-xs font-medium border transition-colors ${
                       isSelected
                         ? 'border-primary bg-primary text-primary-foreground font-semibold shadow-sm'
                         : 'border-border bg-card text-foreground hover:bg-muted'
@@ -155,7 +155,7 @@ export function ReportBuilderView({ branchOptions = [] }) {
 
           {/* Presets Bar */}
           {presets.length > 0 && (
-            <div className="flex items-center gap-2 p-2.5 rounded-lg bg-muted/40 text-xs border">
+            <div className="flex items-center gap-2 p-2.5 rounded bg-muted/40 text-xs border">
               <span className="font-semibold text-muted-foreground uppercase">
                 {t('export.presets.label')}:
               </span>
@@ -208,7 +208,7 @@ export function ReportBuilderView({ branchOptions = [] }) {
                 {t('common.loading')}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-3 border rounded-lg bg-card">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 p-3 border rounded bg-card">
                 {availableColumns.map((col) => {
                   const isChecked = selectedColumns.includes(col.key);
                   const isPermitted = col.permitted;
@@ -216,7 +216,7 @@ export function ReportBuilderView({ branchOptions = [] }) {
                   return (
                     <label
                       key={col.key}
-                      className={`flex items-center gap-2.5 p-2 rounded-md text-xs cursor-pointer select-none transition-colors ${
+                      className={`flex items-center gap-2.5 p-2 rounded text-xs cursor-pointer select-none transition-colors ${
                         !isPermitted
                           ? 'opacity-40 cursor-not-allowed bg-muted/20'
                           : isChecked
@@ -307,7 +307,7 @@ export function ReportBuilderView({ branchOptions = [] }) {
                   id="builder-branch"
                   value={branchId}
                   onChange={(e) => setBranchId(e.target.value)}
-                  className="w-full h-9 rounded-md border border-input bg-card px-3 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="w-full h-9 rounded border border-input bg-card px-3 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <option value="">{t('reports.filters.allBranches')}</option>
                   {branchOptions.map((b) => (
@@ -381,7 +381,7 @@ export function ReportBuilderView({ branchOptions = [] }) {
               {t('export.history.empty')}
             </div>
           ) : (
-            <div className="divide-y divide-border border rounded-lg overflow-hidden">
+            <div className="divide-y divide-border border rounded overflow-hidden">
               {jobs.map((job) => (
                 <div
                   key={job.id}

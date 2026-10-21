@@ -346,12 +346,12 @@ export function PosPage() {
       )}
 
       {!branchId ? (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4 m-auto">
+        <div className="rounded border border-dashed border-slate-300 bg-white p-12 text-center text-sm font-medium text-slate-500 flex flex-col items-center gap-4 m-auto">
           <p>{t('pos.chooseBranchFirst')}</p>
           <Select
             id="pos-branch-select"
             value={branchId}
-            className="w-60 h-10 rounded-md text-xs font-medium"
+            className="w-60 h-10 rounded text-xs font-medium"
             onChange={(e) => chooseBranch(e.target.value)}
           >
             <option value="">{t('pos.chooseBranch')}</option>
@@ -372,7 +372,7 @@ export function PosPage() {
           {(showHeld || sale.held.length > 0) && (
             <section
               aria-label="Held sales"
-              className="shrink-0 rounded-lg border border-amber-200 bg-amber-50/90 px-4 py-2 flex items-center justify-between gap-3 shadow-2xs"
+              className="shrink-0 rounded border border-amber-200 bg-amber-50/90 px-4 py-2 flex items-center justify-between gap-3 shadow-2xs"
             >
               <div className="flex items-center gap-2 text-xs font-semibold text-amber-900">
                 <span className="font-bold">
@@ -389,7 +389,7 @@ export function PosPage() {
                 <Button
                   type="button"
                   size="sm"
-                  className="h-7 px-3 rounded-md bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
+                  className="h-7 px-3 rounded bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
                   onClick={() => sale.resume(sale.held[0].id)}
                 >
                   {t('pos.held.resume', 'Resume')}
@@ -408,9 +408,9 @@ export function PosPage() {
           )}
 
           {/* 11-Column Workspace Grid: Products (5 cols = ~45%), Cart (3 cols = ~27.5%), Payment (3 cols = ~27.5%) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-11 gap-3 flex-1 min-h-0 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 flex-1 min-h-0 items-stretch">
             {/* Column 1: Search, Filter & 2-Column Products Section (5 cols) */}
-            <div className="min-w-0 min-h-0 h-full lg:col-span-5 flex flex-col">
+            <div className="min-w-0 min-h-0 h-full lg:col-span-4 flex flex-col">
               <PosProductGrid
                 q={q}
                 onQChange={handleQChange}
@@ -441,7 +441,7 @@ export function PosPage() {
             {/* Accessible container for Cart & Settlement */}
             <aside role="complementary" className="contents">
               {/* Column 2: Product Cart (3 cols) */}
-              <div className="min-w-0 min-h-0 h-full lg:col-span-3 flex flex-col">
+              <div className="min-w-0 min-h-0 h-full lg:col-span-4 flex flex-col">
                 <PosCartColumn
                   sale={sale.sale}
                   subtotal={subtotal}
@@ -457,7 +457,7 @@ export function PosPage() {
               </div>
 
               {/* Column 3: Payment Option (3 cols) */}
-              <div className="min-w-0 min-h-0 h-full lg:col-span-3 flex flex-col">
+              <div className="min-w-0 min-h-0 h-full lg:col-span-4 flex flex-col">
                 <PosPaymentColumn
                   total={total}
                   tender={tender}

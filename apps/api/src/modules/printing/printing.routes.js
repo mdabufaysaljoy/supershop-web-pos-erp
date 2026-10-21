@@ -19,7 +19,12 @@ import * as c from './printing.controller.js';
  */
 export function createPrintingRouter({ schemas = createPrintingSchemas() } = {}) {
   const r = express.Router();
-  const print = requireAnyPermission(P.POS_SELL, P.SETTINGS_PRINTING);
+  const print = requireAnyPermission(
+    P.POS_SELL,
+    P.SETTINGS_PRINTING,
+    P.PRODUCT_VIEW,
+    P.PRODUCT_UPDATE,
+  );
   const manage = requirePermission(P.SETTINGS_PRINTING);
   const id = validate({ params: schemas.idParam });
 

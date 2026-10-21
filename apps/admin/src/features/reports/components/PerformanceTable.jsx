@@ -159,9 +159,9 @@ export function PerformanceTable({
                       </td>
                       <td className="py-2.5 px-3 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <div className="h-1.5 w-12 rounded-full bg-muted overflow-hidden">
+                          <div className="h-1.5 w-12 rounded bg-muted overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-primary"
+                              className="h-full rounded bg-primary"
                               style={{ width: `${Math.min(100, item.sharePercent ?? 0)}%` }}
                             />
                           </div>

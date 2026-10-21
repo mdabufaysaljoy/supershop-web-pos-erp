@@ -42,7 +42,7 @@ export function VariantPicker({ excludeIds, onAdd }) {
         ) : results.length === 0 ? (
           <p className="text-sm text-muted-foreground">{t('variantPicker.noMatches')}</p>
         ) : (
-          <ul className="grid max-h-64 gap-1 overflow-y-auto rounded-md border p-1">
+          <ul className="grid max-h-64 gap-1 overflow-y-auto rounded border p-1">
             {results.map((v) => (
               <li key={v.id} className="flex items-center gap-2 rounded px-2 py-1 hover:bg-muted">
                 <span className="min-w-0 flex-1">

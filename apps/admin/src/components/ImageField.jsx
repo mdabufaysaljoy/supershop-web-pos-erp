@@ -20,9 +20,9 @@ export function ImageField({ label, value, onChange, error }) {
       <span className="text-sm font-medium">{label}</span>
       <div className="flex flex-wrap items-center gap-3">
         {value ? (
-          <img src={value.thumbUrl} alt="" className="size-16 rounded-md object-contain" />
+          <img src={value.thumbUrl} alt="" className="size-16 rounded object-contain" />
         ) : (
-          <span className="flex size-16 items-center justify-center rounded-md bg-muted">
+          <span className="flex size-16 items-center justify-center rounded bg-muted">
             <ImageIcon className="size-6 text-muted-foreground" aria-hidden />
           </span>
         )}

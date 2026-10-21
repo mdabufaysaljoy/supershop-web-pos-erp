@@ -27,7 +27,7 @@ export function PosBottomBar({
   return (
     <div className="shrink-0 flex flex-col gap-2 pt-3 mt-2 border-t border-slate-100">
       {tender.change > 0 && (
-        <div className="flex items-center justify-between rounded-md bg-emerald-50 px-3 py-1.5 border border-emerald-200 text-xs font-bold text-emerald-800">
+        <div className="flex items-center justify-between rounded bg-emerald-50 px-3 py-1.5 border border-emerald-200 text-xs font-bold text-emerald-800">
           <span>{t('pos.payment.change', 'Change')}</span>
           <span className="tabular-nums font-black text-sm">{fmt.money(tender.change)}</span>
         </div>
@@ -37,7 +37,7 @@ export function PosBottomBar({
         type="button"
         disabled={!canComplete}
         onClick={onComplete}
-        className="h-11 w-full rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm shadow-md transition-all disabled:opacity-50"
+        className="h-11 w-full rounded bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm shadow-md transition-all disabled:opacity-50"
       >
         <CheckCircle2 className="size-4 me-1.5" />
         <span>
@@ -50,7 +50,7 @@ export function PosBottomBar({
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 px-2 rounded-md text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-destructive hover:border-destructive/30 transition-colors"
+          className="h-9 px-2 rounded text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 hover:text-destructive hover:border-destructive/30 transition-colors"
           disabled={!lineCount}
           onClick={onClear}
         >
@@ -62,14 +62,14 @@ export function PosBottomBar({
           type="button"
           variant="outline"
           size="sm"
-          className="h-9 px-2 rounded-md text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 transition-colors"
+          className="h-9 px-2 rounded text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 transition-colors"
           disabled={!lineCount && heldCount === 0}
           onClick={lineCount ? onHold : onToggleHeld}
         >
           <Pause className="size-3.5 me-1 text-slate-500 shrink-0" />
           <span className="truncate">{t('pos.held.hold', 'Hold this sale')}</span>
           {heldCount > 0 && (
-            <span className="ms-1 rounded-full bg-amber-100 px-1.5 text-[10px] font-bold text-amber-800">
+            <span className="ms-1 rounded bg-amber-100 px-1.5 text-[10px] font-bold text-amber-800">
               {heldCount}
             </span>
           )}

@@ -446,7 +446,7 @@ export function buildLabelTemplate(config = {}) {
     hri: Boolean(fields.showBarcodeText),
   });
   if (fields.showSku) {
-    blocks.push({ type: 'text', value: 'SKU: {{sku}}', align: 'center' });
+    blocks.push({ type: 'text', value: 'SKU: {{sku}}', align: 'center', showIf: 'sku' });
   }
   blocks.push({ type: 'feed', lines: 1 });
   blocks.push({ type: 'cut' });

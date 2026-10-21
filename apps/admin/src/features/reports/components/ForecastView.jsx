@@ -111,17 +111,17 @@ export function ForecastView() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-lg bg-muted/40 animate-pulse" />
+              <div key={i} className="h-24 rounded bg-muted/40 animate-pulse" />
             ))}
           </div>
-          <div className="h-72 rounded-lg bg-muted/40 animate-pulse" />
-          <div className="h-64 rounded-lg bg-muted/40 animate-pulse" />
+          <div className="h-72 rounded bg-muted/40 animate-pulse" />
+          <div className="h-64 rounded bg-muted/40 animate-pulse" />
         </div>
       )}
 
       {/* Error state */}
       {isError && !isLoading && (
-        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 text-xs text-destructive">
+        <div className="rounded border border-destructive/20 bg-destructive/10 p-4 text-xs text-destructive">
           <p className="font-semibold">{t('reports.errorTitle')}</p>
           <p className="mt-1">{t('reports.errorMessage')}</p>
           <button
@@ -130,7 +130,7 @@ export function ForecastView() {
               refetchSales();
               refetchStockout();
             }}
-            className="mt-3 rounded-md bg-destructive px-3 py-1 text-xs font-semibold text-destructive-foreground"
+            className="mt-3 rounded bg-destructive px-3 py-1 text-xs font-semibold text-destructive-foreground"
           >
             {t('reports.retry')}
           </button>

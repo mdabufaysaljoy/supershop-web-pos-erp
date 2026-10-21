@@ -6,7 +6,7 @@ import {
   RECEIPT_LANGUAGES,
 } from '../printing/template.js';
 import { V } from '../validators/messages.js';
-import { barcode, objectId, plainText, sku } from '../validators/fields.js';
+import { objectId, plainText } from '../validators/fields.js';
 
 /**
  * Printing contracts (P6.3, P6.4): the printers a shop has, the signing call QZ Tray makes before
@@ -144,10 +144,10 @@ export function createPrintingSchemas() {
         profileId: objectId.optional(),
         name: plainText({ min: 1, max: 120 }).optional(),
         variant: plainText({ max: 80 }).optional(),
-        sku: sku.optional(),
-        barcode: barcode.optional(),
+        sku: plainText({ max: 64 }).optional(),
+        barcode: plainText({ min: 1, max: 64 }).optional(),
         price: intRange(0, 100_000_000).optional(),
-        copies: intRange(1, 50).default(1),
+        copies: intRange(1, 500).default(1),
       })
       .strict()
       .refine((v) => Boolean(v.variantId || (v.name && (v.barcode || v.sku))), {

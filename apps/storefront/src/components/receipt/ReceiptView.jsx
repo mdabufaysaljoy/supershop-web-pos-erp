@@ -288,7 +288,7 @@ export function ReceiptView({ orderNo }) {
           <div className="border-t border-neutral-100 bg-neutral-50/50 p-6 text-center sm:px-8">
             <div className="mx-auto flex flex-col items-center gap-2">
               <div className="rounded-xl border border-neutral-200 bg-white p-2 shadow-xs">
-                <QrCode value={receipt.zatcaQr} size={220} title={t('receipt.zatcaTitle')} />
+                <QrCode value={receipt.zatcaQr} size={270} title={t('receipt.zatcaTitle')} />
               </div>
               <div className="text-xs font-semibold text-neutral-800">
                 {t('receipt.zatcaTitle')}

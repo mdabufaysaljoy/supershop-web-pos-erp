@@ -6,6 +6,7 @@ import {
   BarcodeInput,
   charFromKeyEvent,
   createWedgeDetector,
+  QrCode,
   useBarcodeScanner,
 } from '../index.js';
 
@@ -111,5 +112,31 @@ describe('Barcode', () => {
     expect(container.querySelector('svg').dataset.symbology).toBe('code128');
     rerender(<Barcode value={'ش'} />);
     expect(container.querySelector('svg')).toBeNull();
+  });
+});
+
+describe('QrCode', () => {
+  it('draws whole pixels per module, with the quiet zone a scanner needs', () => {
+    const { container } = render(
+      <QrCode value="https://shop.example.com/en/receipt/POS-1" size={270} />,
+    );
+    const svg = container.querySelector('svg');
+    const [, , total] = svg.getAttribute('viewBox').split(' ').map(Number);
+    const drawn = Number(svg.getAttribute('width'));
+    // 4 modules of quiet paper either side, per ISO/IEC 18004.
+    expect(total).toBeGreaterThanOrEqual(29 + 8);
+    // Rounded to a multiple of the module grid: half a pixel a module scans as a grey blur.
+    expect(drawn % total).toBe(0);
+    expect(Math.abs(drawn - 270)).toBeLessThan(total);
+    expect(Number(svg.getAttribute('height'))).toBe(drawn);
+  });
+
+  it('never draws a module smaller than one pixel', () => {
+    const { container } = render(
+      <QrCode value="https://shop.example.com/en/receipt/POS-1" size={4} />,
+    );
+    const svg = container.querySelector('svg');
+    const [, , total] = svg.getAttribute('viewBox').split(' ').map(Number);
+    expect(Number(svg.getAttribute('width'))).toBe(total);
   });
 });

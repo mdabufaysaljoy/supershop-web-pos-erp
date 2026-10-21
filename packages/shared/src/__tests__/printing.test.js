@@ -118,7 +118,7 @@ describe('ESC/POS', () => {
   it('cuts the paper and kicks the drawer with the right codes', () => {
     // `GS V 66 n` feeds n dots and cuts in one command — no separate feed to waste paper.
     const cut = [...renderEscPos([{ type: 'cut' }])];
-    expect(cut.slice(-4)).toEqual([0x1d, 0x56, 66, 0x10]);
+    expect(cut.slice(-4)).toEqual([0x1d, 0x56, 66, 12]);
     expect([...renderEscPos([{ type: 'drawer' }])].slice(-5)).toEqual([
       0x1b, 0x70, 0x00, 0x19, 0xfa,
     ]);
@@ -149,11 +149,12 @@ describe('ESC/POS', () => {
       (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x43,
     );
     expect(bytes[sizeAt + 7]).toBeGreaterThanOrEqual(8);
-    // GS ( k … 1E n — error correction; 0x33 is level Q.
+    // GS ( k … 1E n — error correction. 48 is level L, which is what `qrMatrix` measures: ask the
+    // printer for a heavier level than we size for and it squeezes a bigger code into the room.
     const eccAt = bytes.findIndex(
       (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x45,
     );
-    expect(bytes[eccAt + 7]).toBe(0x33);
+    expect(bytes[eccAt + 7]).toBe(48);
   });
 
   it('prints the QR as large as the paper allows, and never off the edge', () => {
@@ -284,7 +285,7 @@ describe('a receipt', () => {
     expect(DEFAULT_RECEIPT_TEMPLATE.at(-1)).toEqual({ type: 'cut' });
     expect(DEFAULT_LABEL_TEMPLATE.filter((b) => b.type === 'feed')).toEqual([]);
     // What the printer is told at the end: cut, feeding only the dots that clear the blade.
-    expect([...renderEscPos([{ type: 'cut' }])].slice(-4)).toEqual([0x1d, 0x56, 66, 0x10]);
+    expect([...renderEscPos([{ type: 'cut' }])].slice(-4)).toEqual([0x1d, 0x56, 66, 12]);
   });
 
   it('fits the paper it is printed on', () => {

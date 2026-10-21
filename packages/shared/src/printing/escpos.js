@@ -87,14 +87,28 @@ export function columns(left, right, width) {
   return `${name}${' '.repeat(Math.max(1, width - name.length - amount.length))}${amount}`;
 }
 
-/** Dots of paper past the cutting position, so the slip can be torn off without tearing text. */
-const CUT_FEED_DOTS = 0x10;
+/**
+ * Dots of paper past the printer's own cutting position: half a text line, so there is something
+ * to take hold of and nothing more. The firmware already runs the paper clear of the blade.
+ */
+const CUT_FEED_DOTS = 12;
+
+/**
+ * Error correction for a printed QR: `48` is level L (7%).
+ *
+ * The level decides how many modules the code needs, and the level we ASK FOR must be the one we
+ * MEASURE with — `qrMatrix` builds level L. Asking the printer for level H (`51`) while sizing
+ * from an L matrix made it squeeze a 57-module code into the room for 37: a blotted, unscannable
+ * block, worst on 58 mm paper. L at a big module size reads better off thermal paper than H at a
+ * small one, and the shop's own re-print is the recovery for a smudged slip.
+ */
+const QR_ECC_LEVEL = 48;
 
 /**
  * The biggest module size this QR can print at without running off the paper. A thermal head puts
  * 12 dots under every character, and the code keeps ~3 mm of quiet paper either side; sizing from
- * the code's real module count makes a 58 mm ZATCA QR as large as the paper allows instead of
- * assuming the worst case.
+ * the code's real module count (at the level `QR_ECC_LEVEL` asks the printer for) makes a 58 mm
+ * ZATCA QR as large as the paper allows instead of assuming the worst case.
  */
 function qrModuleSize(value, widthChars) {
   const modules = qrMatrix(value).length;
@@ -131,7 +145,7 @@ function qrBytes(payload, { size = 8 } = {}) {
     0x00,
     0x31,
     0x45,
-    0x33, // error correction Q — a smudged or lightly printed code still scans
+    QR_ECC_LEVEL,
     GS,
     0x28,
     0x6b,

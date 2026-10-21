@@ -167,7 +167,7 @@ describe('ESC/POS', () => {
     expect(bytes.length - (at + 8)).toBe(rowBytes * heightDots + 1); // + the newline after it
   });
 
-  it('prints the QR about 46 mm across, which a 58 mm roll just holds', () => {
+  it('prints the QR about 36 mm across, the size the shop asked for', () => {
     const value = zatcaQr({
       sellerName: 'Al Noor Market',
       vatNumber: '300000000000003',
@@ -182,14 +182,14 @@ describe('ESC/POS', () => {
       expect(heightDots % modules).toBe(0);
       expect(heightDots).toBeLessThanOrEqual(widthDots);
       // 58 mm is the narrowest paper a shop may set and the one a cashier scans from most.
-      expect(mm(heightDots)).toBeGreaterThanOrEqual(45);
-      expect(mm(heightDots)).toBeLessThanOrEqual(50);
+      expect(mm(heightDots)).toBeGreaterThanOrEqual(34);
+      expect(mm(heightDots)).toBeLessThanOrEqual(38);
     }
   });
 
   it('keeps a short code as big as a long one — the paper decides, not the payload', () => {
     const url = qrRaster('http://192.168.1.10:3000/en/receipt/POS-000042', 32);
-    expect(mm(url.heightDots)).toBeGreaterThanOrEqual(45);
+    expect(mm(url.heightDots)).toBeGreaterThanOrEqual(34);
   });
 
   it('skips an instruction it does not know rather than guessing', () => {

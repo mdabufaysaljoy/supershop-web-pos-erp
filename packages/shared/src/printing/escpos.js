@@ -101,8 +101,8 @@ const CUT_FEED_DOTS = 12;
  * prints is what the screen shows), with its quiet zone as real white pixels.
  */
 
-/** How wide a printed QR aims to be, in dots: 384 at 203 dpi is ~48 mm, a 58 mm roll's print area. */
-const QR_TARGET_DOTS = 384;
+/** How wide a printed QR aims to be, in dots: 288 at 203 dpi is ~36 mm. */
+const QR_TARGET_DOTS = 288;
 
 /**
  * A QR is printed as a BITMAP (`GS v 0`), not with the printer's own QR command (`GS ( k`).
@@ -125,9 +125,11 @@ const QR_TARGET_DOTS = 384;
 function qrRasterBytes(payload, { widthDots }) {
   const matrix = qrMatrix(payload);
   const modules = matrix.length;
-  // As large as the paper holds, up to a code about 46 mm across: that is as big as a 58 mm roll
-  // can print, and wider paper should buy a bigger code, not a whole hand's width of one.
-  const scale = Math.max(1, Math.floor(Math.min(widthDots, QR_TARGET_DOTS) / modules));
+  // Whole dots per module, as near the target size as the module count allows, and never wider
+  // than the print area: a 100-character ZATCA payload and a short URL then come out the same
+  // size on the slip whatever paper the shop prints on.
+  const fits = Math.floor(widthDots / modules);
+  const scale = Math.min(fits, Math.max(1, Math.round(QR_TARGET_DOTS / modules)));
   const bytesPerRow = Math.ceil(widthDots / 8);
   const codeDots = modules * scale;
   const leftDots = Math.floor((bytesPerRow * 8 - codeDots) / 2);

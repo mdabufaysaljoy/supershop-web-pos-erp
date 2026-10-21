@@ -10,8 +10,14 @@ const ESC = 0x1b;
 const GS = 0x1d;
 /** A 203 dpi thermal head prints a character 12 dots wide. */
 const DOTS_PER_CHAR = 12;
-/** Quiet paper either side of a printed QR, in dots (~3 mm). */
-const QR_QUIET_DOTS = 24;
+/**
+ * Margin kept inside the PRINT AREA either side of a QR, in dots. It is deliberately tiny: a
+ * 58 mm roll is 58 mm of paper with a 48 mm print area, so ~5 mm of blank paper sits outside the
+ * print area on each side and already provides the quiet zone a scanner needs. Spending 3 mm of
+ * the print area on top of that cost a whole module of size — a 41 mm code where the paper has
+ * room for 46 mm.
+ */
+const QR_QUIET_DOTS = 4;
 
 export const ALIGN = Object.freeze({ start: 0, center: 1, end: 2 });
 

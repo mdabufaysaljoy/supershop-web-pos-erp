@@ -173,10 +173,14 @@ describe('ESC/POS', () => {
       );
       return bytes[at + 7];
     };
+    const mm = (dots) => (dots / 203) * 25.4;
     for (const width of [32, 42, 48]) {
-      // 12 dots per character is what a 203 dpi head prints; the code must leave quiet paper.
+      // 12 dots per character is what a 203 dpi head prints; the code must stay inside it.
       expect(modules * moduleSize(width)).toBeLessThan(width * 12);
     }
+    // 58 mm paper (32 characters) is the narrowest a shop may set, and the one a cashier scans
+    // from most: the ZATCA code has to come out at least 45 mm across there.
+    expect(mm(modules * moduleSize(32))).toBeGreaterThanOrEqual(45);
     // Wider paper is spent on a bigger code, not on margins.
     expect(moduleSize(48)).toBeGreaterThan(moduleSize(32));
     expect(modules * moduleSize(32)).toBeGreaterThan(32 * 12 * 0.8);

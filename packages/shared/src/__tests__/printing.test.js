@@ -126,7 +126,7 @@ describe('ESC/POS', () => {
 
   it('stores and prints a QR, and a Code 128 barcode', () => {
     const qr = [...renderEscPos([{ type: 'qr', value: 'AQ==' }])];
-    expect(qr).toEqual(expect.arrayContaining([0x1d, 0x28, 0x6b])); // GS ( k
+    expect(qr).toEqual(expect.arrayContaining([0x1d, 0x76, 0x30])); // GS v 0 (raster)
     const barcode = [...renderEscPos([{ type: 'barcode', value: '6281000000017' }])];
     expect(barcode).toEqual(expect.arrayContaining([0x1d, 0x6b, 0x49])); // GS k 73 (Code 128)
   });
@@ -142,22 +142,32 @@ describe('ESC/POS', () => {
     expect(line.endsWith('345.00')).toBe(true);
   });
 
-  it('prints a QR big enough and robust enough to scan off thermal paper', () => {
-    const bytes = [...renderEscPos([{ type: 'qr', value: 'AQ==' }])];
-    // GS ( k … 1C n — the module size, in dots.
-    const sizeAt = bytes.findIndex(
-      (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x43,
+  /** The raster header: `GS v 0 m xL xH yL yH`, then one bitmap. */
+  const qrRaster = (value, width) => {
+    const bytes = [...renderEscPos([{ type: 'qr', value }], { width })];
+    const at = bytes.findIndex(
+      (b, i) => b === 0x1d && bytes[i + 1] === 0x76 && bytes[i + 2] === 0x30,
     );
-    expect(bytes[sizeAt + 7]).toBeGreaterThanOrEqual(8);
-    // GS ( k … 1E n — error correction. 48 is level L, which is what `qrMatrix` measures: ask the
-    // printer for a heavier level than we size for and it squeezes a bigger code into the room.
-    const eccAt = bytes.findIndex(
-      (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x45,
+    const rowBytes = bytes[at + 4] | (bytes[at + 5] << 8);
+    const heightDots = bytes[at + 6] | (bytes[at + 7] << 8);
+    return { rowBytes, widthDots: rowBytes * 8, heightDots, bytes };
+  };
+  const mm = (dots) => (dots / 203) * 25.4;
+
+  it('draws the QR itself instead of asking the printer to, so its size is known', () => {
+    // Cheap thermal printers accept only a narrow range of module sizes for `GS ( k` and ignore
+    // the rest, which printed a tiny code however big a one we asked for. A raster is dots.
+    const { bytes, widthDots, heightDots, rowBytes } = qrRaster('AQ==', 32);
+    expect(bytes).not.toEqual(expect.arrayContaining([0x1d, 0x28, 0x6b]));
+    expect(widthDots).toBe(32 * 12);
+    // Square, and the bitmap carries exactly the bytes its header promises.
+    const at = bytes.findIndex(
+      (b, i) => b === 0x1d && bytes[i + 1] === 0x76 && bytes[i + 2] === 0x30,
     );
-    expect(bytes[eccAt + 7]).toBe(48);
+    expect(bytes.length - (at + 8)).toBe(rowBytes * heightDots + 1); // + the newline after it
   });
 
-  it('prints the QR as large as the paper allows, and never off the edge', () => {
+  it('prints the QR about 46 mm across, which a 58 mm roll just holds', () => {
     const value = zatcaQr({
       sellerName: 'Al Noor Market',
       vatNumber: '300000000000003',
@@ -166,24 +176,20 @@ describe('ESC/POS', () => {
       vat: 2804,
     });
     const modules = qrMatrix(value).length;
-    const moduleSize = (width) => {
-      const bytes = [...renderEscPos([{ type: 'qr', value }], { width })];
-      const at = bytes.findIndex(
-        (b, i) => b === 0x1d && bytes[i + 5] === 0x31 && bytes[i + 6] === 0x43,
-      );
-      return bytes[at + 7];
-    };
-    const mm = (dots) => (dots / 203) * 25.4;
     for (const width of [32, 42, 48]) {
-      // 12 dots per character is what a 203 dpi head prints; the code must stay inside it.
-      expect(modules * moduleSize(width)).toBeLessThan(width * 12);
+      const { heightDots, widthDots } = qrRaster(value, width);
+      // Whole dots per module, and inside the print area.
+      expect(heightDots % modules).toBe(0);
+      expect(heightDots).toBeLessThanOrEqual(widthDots);
+      // 58 mm is the narrowest paper a shop may set and the one a cashier scans from most.
+      expect(mm(heightDots)).toBeGreaterThanOrEqual(45);
+      expect(mm(heightDots)).toBeLessThanOrEqual(50);
     }
-    // 58 mm paper (32 characters) is the narrowest a shop may set, and the one a cashier scans
-    // from most: the ZATCA code has to come out at least 45 mm across there.
-    expect(mm(modules * moduleSize(32))).toBeGreaterThanOrEqual(45);
-    // Wider paper is spent on a bigger code, not on margins.
-    expect(moduleSize(48)).toBeGreaterThan(moduleSize(32));
-    expect(modules * moduleSize(32)).toBeGreaterThan(32 * 12 * 0.8);
+  });
+
+  it('keeps a short code as big as a long one — the paper decides, not the payload', () => {
+    const url = qrRaster('http://192.168.1.10:3000/en/receipt/POS-000042', 32);
+    expect(mm(url.heightDots)).toBeGreaterThanOrEqual(45);
   });
 
   it('skips an instruction it does not know rather than guessing', () => {

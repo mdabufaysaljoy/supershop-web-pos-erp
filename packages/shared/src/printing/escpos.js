@@ -10,14 +10,6 @@ const ESC = 0x1b;
 const GS = 0x1d;
 /** A 203 dpi thermal head prints a character 12 dots wide. */
 const DOTS_PER_CHAR = 12;
-/**
- * Margin kept inside the PRINT AREA either side of a QR, in dots. It is deliberately tiny: a
- * 58 mm roll is 58 mm of paper with a 48 mm print area, so ~5 mm of blank paper sits outside the
- * print area on each side and already provides the quiet zone a scanner needs. Spending 3 mm of
- * the print area on top of that cost a whole module of size — a 41 mm code where the paper has
- * room for 46 mm.
- */
-const QR_QUIET_DOTS = 4;
 
 export const ALIGN = Object.freeze({ start: 0, center: 1, end: 2 });
 
@@ -100,75 +92,69 @@ export function columns(left, right, width) {
 const CUT_FEED_DOTS = 12;
 
 /**
- * Error correction for a printed QR: `48` is level L (7%).
+ * A QR is printed as a BITMAP (`GS v 0`), not with the printer's own QR command (`GS ( k`).
  *
- * The level decides how many modules the code needs, and the level we ASK FOR must be the one we
- * MEASURE with — `qrMatrix` builds level L. Asking the printer for level H (`51`) while sizing
- * from an L matrix made it squeeze a 57-module code into the room for 37: a blotted, unscannable
- * block, worst on 58 mm paper. L at a big module size reads better off thermal paper than H at a
- * small one, and the shop's own re-print is the recovery for a smudged slip.
+ * The QR command leaves the module size to the printer, and the cheap 58 mm printers a shop
+ * actually buys accept only a small range of module sizes (often up to 8) and quietly ignore
+ * anything larger — asking for a bigger code got a tiny default one instead. A bitmap is dots we
+ * decide: the code comes out at a known size, at level L exactly as `qrMatrix` builds it (so what
+ * prints is what the screen shows), with its quiet zone as real white pixels.
  */
-const QR_ECC_LEVEL = 48;
+
+/** How wide a printed QR aims to be, in dots: 384 at 203 dpi is ~48 mm, a 58 mm roll's print area. */
+const QR_TARGET_DOTS = 384;
 
 /**
- * The biggest module size this QR can print at without running off the paper. A thermal head puts
- * 12 dots under every character, and the code keeps ~3 mm of quiet paper either side; sizing from
- * the code's real module count (at the level `QR_ECC_LEVEL` asks the printer for) makes a 58 mm
- * ZATCA QR as large as the paper allows instead of assuming the worst case.
+ * A QR is printed as a BITMAP (`GS v 0`), not with the printer's own QR command (`GS ( k`).
+ *
+ * The QR command leaves the module size to the printer, and the cheap 58 mm printers a shop
+ * actually buys accept only a small range of module sizes (often up to 8) and quietly ignore
+ * anything larger — asking for a bigger code got a tiny default one instead. A bitmap is dots we
+ * decide: the code comes out at a known size, at level L exactly as `qrMatrix` builds it (so what
+ * prints is what the screen shows), with its quiet zone as real white pixels.
  */
-function qrModuleSize(value, widthChars) {
-  const modules = qrMatrix(value).length;
-  const usableDots = widthChars * DOTS_PER_CHAR - QR_QUIET_DOTS * 2;
-  return Math.max(4, Math.min(16, Math.floor(usableDots / modules)));
-}
 
-/** QR payload → the three GS ( k calls that store and print it (model 2). */
-function qrBytes(payload, { size = 8 } = {}) {
-  const data = encodeTextRaw(payload);
-  const len = data.length + 3;
+/**
+ * QR payload → a `GS v 0` raster the width of the print area, with the code centred in it and the
+ * rest white. Centring it in the bitmap means the printer's text alignment cannot move it, and
+ * the white either side is the quiet zone a scanner looks for (the paper outside the print area
+ * adds ~5 mm more on a 58 mm roll).
+ * @param {string} payload
+ * @param {{ widthDots: number }} opts  the print area, in dots
+ */
+function qrRasterBytes(payload, { widthDots }) {
+  const matrix = qrMatrix(payload);
+  const modules = matrix.length;
+  // As large as the paper holds, up to a code about 46 mm across: that is as big as a 58 mm roll
+  // can print, and wider paper should buy a bigger code, not a whole hand's width of one.
+  const scale = Math.max(1, Math.floor(Math.min(widthDots, QR_TARGET_DOTS) / modules));
+  const bytesPerRow = Math.ceil(widthDots / 8);
+  const codeDots = modules * scale;
+  const leftDots = Math.floor((bytesPerRow * 8 - codeDots) / 2);
+  const rows = [];
+  for (const moduleRow of matrix) {
+    const row = new Array(bytesPerRow).fill(0);
+    for (let m = 0; m < modules; m += 1) {
+      if (!moduleRow[m]) continue;
+      for (let d = 0; d < scale; d += 1) {
+        const x = leftDots + m * scale + d;
+        row[x >> 3] |= 0x80 >> (x & 7);
+      }
+    }
+    // Every module is `scale` dot rows tall, so the code is square.
+    for (let d = 0; d < scale; d += 1) rows.push(row);
+  }
+  const heightDots = rows.length;
   return [
     GS,
-    0x28,
-    0x6b,
-    0x04,
-    0x00,
-    0x31,
-    0x41,
-    0x32,
-    0x00, // model 2
-    GS,
-    0x28,
-    0x6b,
-    0x03,
-    0x00,
-    0x31,
-    0x43,
-    size, // module size
-    GS,
-    0x28,
-    0x6b,
-    0x03,
-    0x00,
-    0x31,
-    0x45,
-    QR_ECC_LEVEL,
-    GS,
-    0x28,
-    0x6b,
-    len & 0xff,
-    (len >> 8) & 0xff,
-    0x31,
-    0x50,
+    0x76,
     0x30,
-    ...data, // store
-    GS,
-    0x28,
-    0x6b,
-    0x03,
-    0x00,
-    0x31,
-    0x51,
-    0x30, // print
+    0x00, // normal size
+    bytesPerRow & 0xff,
+    (bytesPerRow >> 8) & 0xff,
+    heightDots & 0xff,
+    (heightDots >> 8) & 0xff,
+    ...rows.flat(),
   ];
 }
 
@@ -237,9 +223,7 @@ export function renderEscPos(commands, { width = 48 } = {}) {
         break;
       case 'qr':
         out.push(ESC, 0x61, ALIGN[command.align ?? 'center']);
-        out.push(
-          ...qrBytes(command.value, { size: command.size ?? qrModuleSize(command.value, width) }),
-        );
+        out.push(...qrRasterBytes(command.value, { widthDots: width * DOTS_PER_CHAR }));
         out.push(0x0a);
         break;
       case 'barcode':
@@ -302,6 +286,9 @@ export function previewLines(bytes) {
         i += 3 + bytes[i + 3]; // GS k m len data (barcode)
       else if (cmd === 0x56)
         i += 3; // cut
+      else if (cmd === 0x76)
+        // GS v 0 m xL xH yL yH d… — a raster image (a QR); skip its whole bitmap.
+        i += 7 + (bytes[i + 4] | (bytes[i + 5] << 8)) * (bytes[i + 6] | (bytes[i + 7] << 8));
       else i += 2; // GS ! n, GS h n, GS H n
     } else if (byte === 0x0a) {
       flush();

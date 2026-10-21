@@ -407,10 +407,10 @@ export function PosPage() {
             </section>
           )}
 
-          {/* 12-Column Workspace Grid: Products (6 cols = 50%), Cart (3 cols = 25%), Payment (3 cols = 25%) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 flex-1 min-h-0 items-stretch">
-            {/* Column 1: Search, Filter & 2-Column Products Section (6 cols) */}
-            <div className="min-w-0 min-h-0 h-full lg:col-span-6 flex flex-col">
+          {/* 11-Column Workspace Grid: Products (5 cols = ~45%), Cart (3 cols = ~27.5%), Payment (3 cols = ~27.5%) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-11 gap-3 flex-1 min-h-0 items-stretch">
+            {/* Column 1: Search, Filter & 2-Column Products Section (5 cols) */}
+            <div className="min-w-0 min-h-0 h-full lg:col-span-5 flex flex-col">
               <PosProductGrid
                 q={q}
                 onQChange={handleQChange}

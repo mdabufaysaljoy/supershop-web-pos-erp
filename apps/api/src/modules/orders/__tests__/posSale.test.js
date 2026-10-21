@@ -443,6 +443,40 @@ describe('who the sale is for', () => {
     expect(String(stored.customer.customerId)).toBe(customer.id);
   });
 
+  it('attaches the customer the till picked, by id, and fills in what it did not send', async () => {
+    const { profile: customer } = await registerCustomer({
+      name: 'Sara Ali',
+      phone: '+966512345678',
+      email: 'sara@example.com',
+      password: 'customer-pass-123',
+    });
+    // What the till sends once the cashier picks someone from the shop's own list: an id, and
+    // whatever is on screen. An empty field means "not given", not a validation failure.
+    const sale = await ok(
+      await till().sell(
+        basket({
+          customer: {
+            mode: 'contact',
+            customerId: customer.id,
+            name: 'Sara Ali',
+            phone: '0512345678',
+            email: '',
+          },
+        }),
+      ),
+      201,
+    );
+    const stored = await Order.findOne({ orderNo: sale.orderNo }).lean();
+    expect(String(stored.customer.customerId)).toBe(customer.id);
+    expect(stored.customer.email).toBe('sara@example.com'); // taken from the account
+  });
+
+  it('refuses a customer the till invented out of nothing', async () => {
+    const res = await till().sell(basket({ customer: { mode: 'contact', name: 'Nobody' } }));
+    expect(res.status).toBe(400);
+    expect(res.body.error.details[0].path).toBe('customer.phone');
+  });
+
   it('keeps a name and number nobody has an account for, without creating one', async () => {
     const sale = await ok(
       await till().sell(

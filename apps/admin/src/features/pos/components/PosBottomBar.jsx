@@ -6,7 +6,8 @@ import { fmt } from '@/lib/format';
 /**
  * POS sale actions, pinned at the bottom of the Payment column:
  * - Complete sale button (full width, with change indicator)
- * - Clear basket & Hold this sale buttons side by side (with held badge & resume trigger)
+ * - Clear basket & Hold this sale side by side; the queue of held sales has its own button
+ *   beside the payment heading, and a link here when any are waiting.
  */
 export function PosBottomBar({
   lineCount = 0,
@@ -63,26 +64,21 @@ export function PosBottomBar({
           variant="outline"
           size="sm"
           className="h-9 px-2 rounded-md text-xs font-semibold text-slate-700 border-slate-200 hover:bg-slate-50 transition-colors"
-          disabled={!lineCount && heldCount === 0}
-          onClick={lineCount ? onHold : onToggleHeld}
+          disabled={!lineCount}
+          onClick={onHold}
         >
           <Pause className="size-3.5 me-1 text-slate-500 shrink-0" />
           <span className="truncate">{t('pos.held.hold', 'Hold this sale')}</span>
-          {heldCount > 0 && (
-            <span className="ms-1 rounded-full bg-amber-100 px-1.5 text-[10px] font-bold text-amber-800">
-              {heldCount}
-            </span>
-          )}
         </Button>
       </div>
 
-      {heldCount > 0 && lineCount > 0 && (
+      {heldCount > 0 && (
         <button
           type="button"
           onClick={onToggleHeld}
-          className="text-xs font-semibold text-primary hover:underline self-center"
+          className="self-center text-xs font-semibold text-primary hover:underline"
         >
-          View held ({heldCount})
+          {t('pos.held.openCount', { count: heldCount })}
         </button>
       )}
     </div>

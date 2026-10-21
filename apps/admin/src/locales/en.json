@@ -2166,15 +2166,25 @@
       "paid": "Tendered",
       "due": "Still to pay",
       "change": "Change",
-      "complete": "Complete sale"
+      "complete": "Complete sale",
+      "noMethods": "No counter payment method is set up",
+      "quick": "Settle with:",
+      "settleWith": "Settle what is due with {{method}}",
+      "exactOnly": "Only cash can be overpaid — this is taken for what is still due."
     },
     "held": {
       "title": "Held sales",
       "hold": "Hold this sale",
       "resume": "Resume",
       "defaultLabel": "Held sale",
-      "entry_one": "{{count}} item · {{time}}",
-      "entry_other": "{{count}} items · {{time}}"
+      "entry_one": "{{count}} item",
+      "entry_other": "{{count}} items",
+      "description": "Sales put aside, oldest first. Resuming one brings back its basket and its customer.",
+      "empty": "No sales are being held.",
+      "open": "Held",
+      "openCount_one": "View {{count}} held sale",
+      "openCount_other": "View {{count}} held sales",
+      "remove": "Remove the held sale for {{customer}}"
     },
     "printReceipt": "Print the receipt again",
     "printFailed": "The receipt could not be printed. Check that QZ Tray is running on this machine. {{reason}}",

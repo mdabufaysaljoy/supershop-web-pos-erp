@@ -210,24 +210,22 @@ async function resolvePayments(tenders, total, lang) {
   return payments;
 }
 
-/** Who the sale is for: an existing customer when their phone/email is known, else just a name. */
+/**
+ * Who the sale is for. The till may hand over a customer it already knows (`customerId` — a
+ * scanned loyalty card or one picked from the shop's own list), or just a name and a number typed
+ * at the counter. Either way the sale SNAPSHOTS what is shown on the receipt, and an unknown
+ * number never quietly opens an account (D-164).
+ */
 async function attachCustomer(customer) {
   if (customer.mode !== 'contact')
     return { customerId: null, name: 'Walk-in customer', phone: '', email: null };
   const found = await findCustomerByContact({
+    customerId: customer.customerId,
     phone: customer.phone,
     email: customer.email,
-    id: customer.id,
-    customerId: customer.customerId,
   });
   return {
-    customerId: found
-      ? oid(found.id)
-      : customer.customerId
-        ? oid(customer.customerId)
-        : customer.id
-          ? oid(customer.id)
-          : null,
+    customerId: found ? oid(found.id) : null,
     name: customer.name ?? found?.name ?? 'Walk-in customer',
     phone: customer.phone ?? found?.phone ?? '',
     email: customer.email ?? found?.email ?? null,

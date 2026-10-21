@@ -38,7 +38,7 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
   useAuthStore.setState({
     status: 'authenticated',
     accessToken: 't',
-    profile: { name: 'A' },
+    profile: { id: 'staff-1', name: 'A' },
     access: { permissions },
   });
   const m = mockFetch({
@@ -47,6 +47,21 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
       data: { enabled: false, autoPrintReceipt: true, configured: false },
     }),
     'GET /api/v1/pos/search': json(200, { data: [SHIRT] }),
+    'GET /api/v1/customers': json(200, {
+      data: [
+        {
+          id: 'c1',
+          name: 'Nora Said',
+          phone: '+966599999999',
+          email: 'nora@example.test',
+          segment: 'new',
+        },
+      ],
+      meta: { total: 1 },
+    }),
+    'GET /api/v1/loyalty/lookup': json(404, {
+      error: { code: 'NOT_FOUND', message: 'No membership' },
+    }),
     'GET /api/v1/payment-methods/public': json(200, {
       data: [{ key: 'cash', type: 'cash', label: 'Cash' }],
     }),
@@ -58,6 +73,21 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
     },
     ...routes,
   });
+  const view = render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <MemoryRouter initialEntries={['/pos']}>
+        <PosPage />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+  return Object.assign(m, { view });
+}
+
+/** What a reload (or a sign-out and back in) does: the page is mounted again from scratch. */
+const reopenTill = (m) => {
+  m.view.unmount();
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -67,8 +97,7 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
       </MemoryRouter>
     </QueryClientProvider>,
   );
-  return m;
-}
+};
 
 /** Scans nothing: types a name and takes the top match, as a cashier without a scanner would. */
 const addShirt = async (user) => {
@@ -276,18 +305,113 @@ describe('taking the money', () => {
   });
 });
 
+/** Attaches a customer the way the modal does: search, then pick one the shop already has. */
+const attachCustomer = async (user) => {
+  await user.click(screen.getByRole('button', { name: 'Add a customer' }));
+  const dialog = within(await screen.findByRole('dialog'));
+  await user.type(dialog.getByLabelText(/Find Existing Customer/), 'Nora');
+  await user.click(await dialog.findByRole('button', { name: /Nora Said/ }));
+};
+
 describe('holding a sale', () => {
-  it('puts the basket aside and brings it back', async () => {
+  it('puts the basket aside with its customer, and brings both back', async () => {
     const user = userEvent.setup();
     setup();
     await addShirt(user);
     await toPay('SAR 115.00');
+    await attachCustomer(user);
+    expect(till().getByText('Nora Said')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Hold this sale' }));
     expect(screen.getByText('Nothing in the basket yet. Scan something.')).toBeInTheDocument();
+    expect(till().queryByText('Nora Said')).toBeNull();
 
-    await user.click(screen.getByRole('button', { name: 'Resume' }));
+    // The queue lives behind one button beside the payment heading.
+    await user.click(screen.getByRole('button', { name: /Held/ }));
+    const queue = within(await screen.findByRole('dialog'));
+    expect(queue.getByText('Nora Said')).toBeInTheDocument();
+    expect(queue.getByText(/1 item/)).toBeInTheDocument();
+
+    await user.click(queue.getByRole('button', { name: 'Resume' }));
     expect(screen.getByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
+    expect(till().getByText('Nora Said')).toBeInTheDocument();
+  });
+
+  it('serves the queue oldest first and never drops what is on screen', async () => {
+    const user = userEvent.setup();
+    setup();
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: 'Hold this sale' }));
+
+    // A second sale is started and held too.
+    await addShirt(user);
+    await user.clear(screen.getByLabelText('Quantity of Oxford Shirt'));
+    await user.type(screen.getByLabelText('Quantity of Oxford Shirt'), '2');
+    await user.click(screen.getByRole('button', { name: 'Hold this sale' }));
+
+    await user.click(screen.getByRole('button', { name: /Held/ }));
+    const queue = within(await screen.findByRole('dialog'));
+    const rows = queue.getAllByRole('listitem');
+    expect(rows).toHaveLength(2);
+    // The first one held is the first in the queue.
+    expect(within(rows[0]).getByText(/1 item/)).toBeInTheDocument();
+    expect(within(rows[1]).getByText(/2 items/)).toBeInTheDocument();
+  });
+
+  it('forgets a held sale the cashier removes', async () => {
+    const user = userEvent.setup();
+    setup();
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: 'Hold this sale' }));
+
+    await user.click(screen.getByRole('button', { name: /Held/ }));
+    const queue = within(await screen.findByRole('dialog'));
+    await user.click(queue.getByRole('button', { name: /Remove the held sale/ }));
+    expect(queue.getByText('No sales are being held.')).toBeInTheDocument();
+  });
+});
+
+describe('what the till remembers', () => {
+  it('still has the basket after the page is reloaded', async () => {
+    const user = userEvent.setup();
+    const m = setup();
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    reopenTill(m);
+    expect(await screen.findByLabelText('Quantity of Oxford Shirt')).toHaveValue('1');
+    await toPay('SAR 115.00');
+  });
+
+  it('brings the customer back with it', async () => {
+    const user = userEvent.setup();
+    const m = setup();
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await attachCustomer(user);
+
+    reopenTill(m);
+    expect(await screen.findByText('Nora Said')).toBeInTheDocument();
+  });
+
+  it('keeps held sales for the cashier who held them, not for the terminal', async () => {
+    const user = userEvent.setup();
+    const m = setup();
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: 'Hold this sale' }));
+
+    // Another cashier signs in on the same till.
+    useAuthStore.setState({ profile: { id: 'staff-2', name: 'B' } });
+    reopenTill(m);
+    await screen.findByLabelText('Scan or search');
+    expect(screen.queryByRole('button', { name: /Held/ })).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: /Held/ }));
+    expect(
+      within(await screen.findByRole('dialog')).getByText('No sales are being held.'),
+    ).toBeInTheDocument();
   });
 });
 
@@ -611,5 +735,158 @@ describe('catalogue and filtering', () => {
     // Thermal receipt dialog opens
     await waitFor(() => expect(m.count('GET /api/v1/orders/sale-past-1')).toBe(1));
     expect(await screen.findByText(/Receipt · POS-000099/)).toBeInTheDocument();
+  });
+});
+
+describe('selling to a customer', () => {
+  const sold = {
+    'POST /api/v1/pos/sales': json(201, {
+      data: {
+        id: 'o1',
+        orderNo: 'POS-000001',
+        totals: { total: 11_500 },
+        changeGiven: 0,
+        payments: [{ method: 'cash', amount: 11_500 }],
+        customer: { name: 'Nora Said' },
+      },
+    }),
+  };
+
+  it('sends only what the sale endpoint takes — no loyalty extras, no empty fields', async () => {
+    const user = userEvent.setup();
+    const m = setup({ routes: sold });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await attachCustomer(user);
+
+    await user.click(screen.getByRole('button', { name: /Exact amount/ }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    const body = bodyOf(m, 'POST /api/v1/pos/sales');
+    expect(body.customer).toEqual({
+      mode: 'contact',
+      customerId: 'c1',
+      name: 'Nora Said',
+      phone: '+966599999999',
+      email: 'nora@example.test',
+    });
+    // The screen's own notes about a customer never travel.
+    expect(body.customer.loyalty).toBeUndefined();
+    expect(body.customer.id).toBeUndefined();
+  });
+
+  it('sells to a walk-in with nothing attached', async () => {
+    const user = userEvent.setup();
+    const m = setup({ routes: sold });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: /Exact amount/ }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    expect(bodyOf(m, 'POST /api/v1/pos/sales').customer).toEqual({ mode: 'walkin' });
+  });
+
+  it('starts a clean basket after a sale, and remembers nothing of it', async () => {
+    const user = userEvent.setup();
+    const m = setup({ routes: sold });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: /Exact amount/ }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+    await screen.findByText(/POS-000001/);
+
+    reopenTill(m);
+    expect(
+      await screen.findByText('Nothing in the basket yet. Scan something.'),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('splitting the money', () => {
+  /** Two methods, as a shop with a card terminal would have. */
+  const twoMethods = {
+    'GET /api/v1/payment-methods/public': json(200, {
+      data: [
+        { key: 'cash', type: 'cash', label: 'Cash' },
+        { key: 'card', type: 'offline', label: 'Card terminal' },
+      ],
+    }),
+    'POST /api/v1/pos/quote': ({ init }) => {
+      const body = JSON.parse(init.body);
+      const qty = body.items.reduce((n, i) => n + i.qty, 0);
+      const total = 11_500 * qty;
+      return json(200, {
+        data: {
+          ...quoteFor(qty, total),
+          methods: [
+            { key: 'cash', type: 'cash', label: 'Cash' },
+            { key: 'card', type: 'offline', label: 'Card terminal' },
+          ],
+        },
+      });
+    },
+  };
+
+  it('settles what is left with one tap, method by method', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoMethods });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    // Half on the card terminal…
+    await user.type(screen.getByLabelText('Amount'), '50');
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    expect(till().getByLabelText('Still to pay')).toHaveTextContent('SAR 65.00');
+
+    // …and the rest in cash, with one tap.
+    await user.click(screen.getByRole('button', { name: 'Settle what is due with Cash' }));
+    expect(till().getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    expect(screen.getByRole('button', { name: 'Complete sale' })).toBeEnabled();
+  });
+
+  it('only lets cash be overpaid — a card is taken for what is owed', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoMethods });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
+    await user.type(screen.getByLabelText('Amount'), '200');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    // The tender was taken for what was owed, not for what was typed.
+    expect(till().getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    expect(till().getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
+  });
+
+  it('gives change when cash is handed over long', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoMethods });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.type(screen.getByLabelText('Amount'), '200');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    expect(till().getByLabelText('Change')).toHaveTextContent('SAR 85.00');
+  });
+
+  it('offers nothing to tender with when the shop has no counter method', async () => {
+    const user = userEvent.setup();
+    setup({
+      routes: {
+        'GET /api/v1/payment-methods/public': json(200, { data: [] }),
+        'POST /api/v1/pos/quote': ({ init }) => {
+          const qty = JSON.parse(init.body).items.reduce((n, i) => n + i.qty, 0);
+          return json(200, { data: { ...quoteFor(qty), methods: [] } });
+        },
+      },
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    expect(screen.getByLabelText('Paying with')).toBeDisabled();
+    expect(screen.getByLabelText('Amount')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Complete sale' })).toBeDisabled();
   });
 });

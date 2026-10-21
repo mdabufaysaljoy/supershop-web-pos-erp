@@ -50,15 +50,25 @@ export function createPosSchemas({
     })
     .strict();
 
+  /**
+   * Who the sale is for. A till fills this in as the cashier works — a scanned loyalty card, a
+   * chosen customer, or a name and number typed at the counter — so an empty field arrives as
+   * `''` or `null` and means "not given", never a validation failure.
+   */
+  const given = (schema) =>
+    z.preprocess((v) => (v === '' || v === null ? undefined : v), schema.optional());
+
   const customer = z
     .object({
       mode: z.enum(POS.CUSTOMER_MODES, { error: V.INVALID_TYPE }).default('walkin'),
-      name: name.optional(),
-      phone: phone({ allowInternational: allowInternationalPhone }).optional(),
-      email: email.optional(),
+      /** A customer the shop already has: attached by id, not matched on a typed phone number. */
+      customerId: given(objectId),
+      name: given(name),
+      phone: given(phone({ allowInternational: allowInternationalPhone })),
+      email: given(email),
     })
     .strict()
-    .refine((c) => c.mode !== 'contact' || Boolean(c.phone || c.email), {
+    .refine((c) => c.mode !== 'contact' || Boolean(c.customerId || c.phone || c.email), {
       error: V.REQUIRED,
       path: ['phone'],
     });

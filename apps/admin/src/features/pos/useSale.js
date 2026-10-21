@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { cartKey, heldKey, readJson, removeKey, writeJson } from './saleStorage';
 import { useQuote } from './resource';
 
 /**
- * The sale in progress (P6.2). It lives in the browser — a basket is not worth a round trip per
+ * The sale in progress. It lives in the browser — a basket is not worth a round trip per
  * keystroke — but the MONEY never does: every change asks the server what it comes to, so the
  * screen and the receipt can never disagree (D-160).
  *
- * Held sales are kept per branch in localStorage, so a till that is reloaded, or a customer who
- * walks off to fetch something, loses nothing.
+ * It also SURVIVES: the basket and the held sales are written to `localStorage` under the
+ * cashier's own key, so a reload, a walk to another screen, or a sign-out and back in finds the
+ * counter exactly as it was left (D-175).
  */
-const HELD_KEY = 'pos.held';
 const QUOTE_DEBOUNCE_MS = 250;
+const MAX_HELD = 20;
 
 const emptySale = () => ({
   lines: [],
@@ -19,31 +21,38 @@ const emptySale = () => ({
   note: '',
 });
 
-/** localStorage is per-browser and may be unavailable (private mode) — never let it break a sale. */
-const readHeld = () => {
-  try {
-    const raw = localStorage.getItem(HELD_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
-const writeHeld = (list) => {
-  try {
-    localStorage.setItem(HELD_KEY, JSON.stringify(list));
-  } catch {
-    // A till that cannot remember held sales still sells; nothing else depends on this.
-  }
-};
+/** Anything stored is the cashier's own input; a corrupt or half-written entry is dropped. */
+const restoreSale = (stored) =>
+  stored && Array.isArray(stored.lines)
+    ? {
+        ...emptySale(),
+        ...stored,
+        lines: stored.lines.filter((line) => line?.variantId && line?.qty > 0),
+      }
+    : emptySale();
 
-export function useSale(branchId) {
+/**
+ * @param {string} branchId  the till's branch
+ * @param {{ staffId?: string }} [opts]  whose basket this is (shared terminals keep them apart)
+ */
+export function useSale(branchId, { staffId = '' } = {}) {
+  const key = cartKey(staffId, branchId);
   const [sale, setSale] = useState(emptySale);
-  const [held, setHeld] = useState(readHeld);
+  const [held, setHeld] = useState([]);
+  const [restoredFor, setRestoredFor] = useState(null);
   const quote = useQuote();
   /** The last quote the SERVER gave us (lines + totals), kept while the next one is in flight. */
   const [quoted, setQuoted] = useState(null);
   const [quoteFailed, setQuoteFailed] = useState(false);
   const timer = useRef(null);
+
+  // Restoring is keyed by cashier + branch: switching either loads that counter's own basket.
+  if (restoredFor !== key) {
+    setRestoredFor(key);
+    setSale(restoreSale(readJson(key, null)));
+    setHeld(readJson(heldKey(staffId), []));
+    setQuoted(null);
+  }
 
   const body = useMemo(
     () => ({
@@ -60,6 +69,7 @@ export function useSale(branchId) {
 
   const { mutateAsync: askForQuote } = quote;
   const empty = sale.lines.length === 0;
+
   useEffect(() => {
     if (!branchId || empty) return undefined;
     clearTimeout(timer.current);
@@ -75,70 +85,116 @@ export function useSale(branchId) {
     return () => clearTimeout(timer.current);
   }, [askForQuote, body, branchId, empty]);
 
-  const addItem = useCallback((variant) => {
-    setSale((current) => {
-      const found = current.lines.find((l) => l.variantId === variant.variantId && !l.discount);
-      const lines = found
-        ? current.lines.map((l) => (l === found ? { ...l, qty: l.qty + 1 } : l))
-        : [...current.lines, { ...variant, qty: 1, discount: null }];
-      return { ...current, lines };
-    });
-  }, []);
-
-  const setQty = useCallback((variantId, qty) => {
-    setSale((current) => ({
-      ...current,
-      lines:
-        qty > 0
-          ? current.lines.map((l) => (l.variantId === variantId ? { ...l, qty } : l))
-          : current.lines.filter((l) => l.variantId !== variantId),
-    }));
-  }, []);
-
-  const setLineDiscount = useCallback((variantId, discount) => {
-    setSale((current) => ({
-      ...current,
-      lines: current.lines.map((l) => (l.variantId === variantId ? { ...l, discount } : l)),
-    }));
-  }, []);
-
-  const patch = useCallback((fields) => setSale((current) => ({ ...current, ...fields })), []);
-  const clear = useCallback(() => setSale(emptySale()), []);
-
-  const hold = useCallback(
-    (label) => {
-      if (!sale.lines.length) return;
-      const next = [
-        { id: crypto.randomUUID(), at: Date.now(), branchId, label, sale },
-        ...held,
-      ].slice(0, 20);
-      setHeld(next);
-      writeHeld(next);
-      clear();
+  /** Every change to the basket is written through, so a reload never loses one. */
+  const commit = useCallback(
+    (next) => {
+      setSale(next);
+      if (next.lines.length || next.customer?.mode === 'contact') writeJson(key, next);
+      else removeKey(key);
+      return next;
     },
-    [branchId, clear, held, sale],
+    [key],
+  );
+  const update = useCallback((fn) => setSale((current) => commit(fn(current))), [commit]);
+
+  const addItem = useCallback(
+    (variant) =>
+      update((current) => {
+        const found = current.lines.find((l) => l.variantId === variant.variantId && !l.discount);
+        const lines = found
+          ? current.lines.map((l) => (l === found ? { ...l, qty: l.qty + 1 } : l))
+          : [...current.lines, { ...variant, qty: 1, discount: null }];
+        return { ...current, lines };
+      }),
+    [update],
   );
 
+  const setQty = useCallback(
+    (variantId, qty) =>
+      update((current) => ({
+        ...current,
+        lines:
+          qty > 0
+            ? current.lines.map((l) => (l.variantId === variantId ? { ...l, qty } : l))
+            : current.lines.filter((l) => l.variantId !== variantId),
+      })),
+    [update],
+  );
+
+  const setLineDiscount = useCallback(
+    (variantId, discount) =>
+      update((current) => ({
+        ...current,
+        lines: current.lines.map((l) => (l.variantId === variantId ? { ...l, discount } : l)),
+      })),
+    [update],
+  );
+
+  const patch = useCallback((fields) => update((current) => ({ ...current, ...fields })), [update]);
+
+  const clear = useCallback(() => {
+    setSale(emptySale());
+    setQuoted(null);
+    removeKey(key);
+  }, [key]);
+
+  const saveHeld = useCallback(
+    (list) => {
+      setHeld(list);
+      writeJson(heldKey(staffId), list);
+    },
+    [staffId],
+  );
+
+  /**
+   * Puts the basket aside, WITH whoever it is for: the customer walks off to fetch one more
+   * thing, the next person is served, and resuming brings the whole sale back.
+   */
+  const hold = useCallback(
+    (label) => {
+      if (!sale.lines.length) return null;
+      const entry = {
+        id: crypto.randomUUID(),
+        at: Date.now(),
+        branchId,
+        label: label ?? '',
+        total: quoted?.totals?.total ?? 0,
+        sale,
+      };
+      saveHeld([...held, entry].slice(-MAX_HELD));
+      clear();
+      return entry;
+    },
+    [branchId, clear, held, quoted, sale, saveHeld],
+  );
+
+  /** Brings a held sale back. Whatever is on screen is held in its place, never dropped. */
   const resume = useCallback(
     (id) => {
       const entry = held.find((h) => h.id === id);
       if (!entry) return;
-      setSale(entry.sale);
-      const next = held.filter((h) => h.id !== id);
-      setHeld(next);
-      writeHeld(next);
+      const rest = held.filter((h) => h.id !== id);
+      const parked = sale.lines.length
+        ? [
+            ...rest,
+            {
+              id: crypto.randomUUID(),
+              at: Date.now(),
+              branchId,
+              label: '',
+              total: quoted?.totals?.total ?? 0,
+              sale,
+            },
+          ].slice(-MAX_HELD)
+        : rest;
+      saveHeld(parked);
+      setQuoted(null);
+      commit(restoreSale(entry.sale));
     },
-    [held],
+    [branchId, commit, held, quoted, sale, saveHeld],
   );
 
-  const drop = useCallback(
-    (id) => {
-      const next = held.filter((h) => h.id !== id);
-      setHeld(next);
-      writeHeld(next);
-    },
-    [held],
-  );
+  const drop = useCallback((id) => saveHeld(held.filter((h) => h.id !== id)), [held, saveHeld]);
 
   return {
     sale,
@@ -149,6 +205,7 @@ export function useSale(branchId) {
     /** The totals on screen are the last confirmed ones, and something has changed since. */
     stale: !empty && quoteFailed,
     pricing: quote.isPending,
+    /** Oldest first: the queue is served in the order sales were put aside. */
     held: held.filter((h) => h.branchId === branchId),
     addItem,
     setQty,

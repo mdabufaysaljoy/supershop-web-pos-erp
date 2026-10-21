@@ -16,6 +16,7 @@ import { errorMessage } from '@/lib/i18n';
 import { PosBottomBar } from '../components/PosBottomBar';
 import { PosCartColumn } from '../components/PosCartColumn';
 import { PosCustomerModal } from '../components/PosCustomerModal';
+import { HeldSalesButton, PosHeldSalesModal } from '../components/PosHeldSalesModal';
 import { toast } from 'sonner';
 import { PosPaymentColumn } from '../components/PosPaymentColumn';
 import { PosProductGrid } from '../components/PosProductGrid';
@@ -30,6 +31,7 @@ import {
   useSell,
   useTillSearch,
 } from '../resource';
+import { customerPayload } from '../saleStorage';
 import { useSale } from '../useSale';
 
 /**
@@ -46,6 +48,7 @@ export function PosPage() {
   const { t } = useTranslation();
   const branches = useInventoryBranches();
   const cashierName = useAuthStore((s) => s.profile?.name ?? '');
+  const staffId = useAuthStore((s) => s.profile?.id ?? '');
 
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [recentSalesOpen, setRecentSalesOpen] = useState(false);
@@ -55,7 +58,7 @@ export function PosPage() {
   const [payments, setPayments] = useState([]);
   const [done, setDone] = useState(null);
   const [online, setOnline] = useState(true);
-  const [showHeld, setShowHeld] = useState(false);
+  const [heldOpen, setHeldOpen] = useState(false);
 
   // Search & Filter state
   const [q, setQ] = useState('');
@@ -82,7 +85,7 @@ export function PosPage() {
     }
   };
 
-  const sale = useSale(branchId);
+  const sale = useSale(branchId, { staffId });
   const [saleKey, setSaleKey] = useState(() => crypto.randomUUID());
 
   // Till search query
@@ -274,7 +277,14 @@ export function PosPage() {
   const complete = async () => {
     const result = await sell
       .mutateAsync({
-        body: { ...sale.body, customer: sale.sale.customer, payments, note: sale.sale.note },
+        body: {
+          ...sale.body,
+          // Only what the sale endpoint takes: the screen's own notes about a customer
+          // (loyalty points, tier, card number) stay on the screen (D-176).
+          customer: customerPayload(sale.sale.customer),
+          payments,
+          ...(sale.sale.note ? { note: sale.sale.note } : {}),
+        },
         idempotencyKey: saleKey,
       })
       .catch(() => null);
@@ -368,45 +378,6 @@ export function PosPage() {
             <ShiftBar branchId={branchId} />
           </div>
 
-          {/* Held Sales Section */}
-          {(showHeld || sale.held.length > 0) && (
-            <section
-              aria-label="Held sales"
-              className="shrink-0 rounded border border-amber-200 bg-amber-50/90 px-4 py-2 flex items-center justify-between gap-3 shadow-2xs"
-            >
-              <div className="flex items-center gap-2 text-xs font-semibold text-amber-900">
-                <span className="font-bold">
-                  {t('pos.held.title')} ({sale.held.length}):
-                </span>
-                <span className="font-medium text-amber-800 text-[11px]">
-                  {t('pos.held.entry', {
-                    count: sale.held[0].sale.lines.length,
-                    time: fmt.dateTime(sale.held[0].at, { timeStyle: 'short' }),
-                  })}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  className="h-7 px-3 rounded bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold"
-                  onClick={() => sale.resume(sale.held[0].id)}
-                >
-                  {t('pos.held.resume', 'Resume')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 px-2 text-amber-800 hover:text-destructive hover:bg-amber-100 text-xs"
-                  onClick={() => sale.drop(sale.held[0].id)}
-                >
-                  {t('common.remove', 'Remove')}
-                </Button>
-              </div>
-            </section>
-          )}
-
           {/* 11-Column Workspace Grid: Products (5 cols = ~45%), Cart (3 cols = ~27.5%), Payment (3 cols = ~27.5%) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-3 flex-1 min-h-0 items-stretch">
             {/* Column 1: Search, Filter & 2-Column Products Section (5 cols) */}
@@ -467,6 +438,9 @@ export function PosPage() {
                   customer={sale.sale.customer}
                   onCustomerChange={(cust) => sale.patch({ customer: cust })}
                   onOpenCustomerModal={() => setCustomerModalOpen(true)}
+                  heldButton={
+                    <HeldSalesButton count={sale.held.length} onClick={() => setHeldOpen(true)} />
+                  }
                   actions={
                     <PosBottomBar
                       lineCount={sale.sale.lines.length}
@@ -478,10 +452,12 @@ export function PosPage() {
                         sale.clear();
                         setPayments([]);
                       }}
-                      onHold={() => sale.hold(t('pos.held.defaultLabel'))}
+                      onHold={() => {
+                        if (sale.hold(t('pos.held.defaultLabel'))) setPayments([]);
+                      }}
                       onComplete={complete}
                       heldCount={sale.held.length}
-                      onToggleHeld={() => setShowHeld((v) => !v)}
+                      onToggleHeld={() => setHeldOpen(true)}
                     />
                   }
                 />
@@ -497,6 +473,18 @@ export function PosPage() {
         onOpenChange={setCustomerModalOpen}
         customer={sale.sale.customer}
         onCustomerChange={(cust) => sale.patch({ customer: cust })}
+      />
+
+      {/* Modal: sales put aside, as a queue */}
+      <PosHeldSalesModal
+        open={heldOpen}
+        onOpenChange={setHeldOpen}
+        held={sale.held}
+        onResume={(id) => {
+          sale.resume(id);
+          setPayments([]);
+        }}
+        onDrop={sale.drop}
       />
 
       {/* Modal: Recent Sales & Receipts lookup */}

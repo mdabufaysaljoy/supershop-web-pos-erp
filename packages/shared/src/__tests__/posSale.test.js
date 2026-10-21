@@ -145,6 +145,47 @@ describe('what the till may send', () => {
     ).toBe('+966501234567');
   });
 
+  it('takes a customer the till already knows, by id', () => {
+    const parsed = schemas.sale.parse({
+      branchId: '6acf9f65e6a82ebbbbef0583',
+      items: [{ variantId: '6acf9f65e6a82ebbbbef0584', qty: 1 }],
+      payments: [{ method: 'cash', amount: 100 }],
+      customer: {
+        mode: 'contact',
+        customerId: '6acf9f65e6a82ebbbbef0585',
+        name: 'Sara Ali',
+        phone: '0501234567',
+      },
+    });
+    expect(parsed.customer).toEqual({
+      mode: 'contact',
+      customerId: '6acf9f65e6a82ebbbbef0585',
+      name: 'Sara Ali',
+      phone: '+966501234567',
+    });
+  });
+
+  it('reads an empty field as "not given" rather than refusing the sale', () => {
+    const base = {
+      branchId: '6acf9f65e6a82ebbbbef0583',
+      items: [{ variantId: '6acf9f65e6a82ebbbbef0584', qty: 1 }],
+      payments: [{ method: 'cash', amount: 100 }],
+    };
+    // A till leaves the fields it has nothing for empty — that is not a mistake to correct.
+    expect(
+      schemas.sale.parse({
+        ...base,
+        customer: { mode: 'contact', name: 'Nora', phone: '0599999999', email: '' },
+      }).customer,
+    ).toEqual({ mode: 'contact', name: 'Nora', phone: '+966599999999' });
+    expect(
+      schemas.sale.parse({
+        ...base,
+        customer: { mode: 'contact', customerId: '6acf9f65e6a82ebbbbef0585', email: null },
+      }).customer,
+    ).toEqual({ mode: 'contact', customerId: '6acf9f65e6a82ebbbbef0585' });
+  });
+
   it('asks for at least one line and one payment', () => {
     expect(
       schemas.sale.safeParse({ branchId: '6acf9f65e6a82ebbbbef0583', items: [], payments: [] })

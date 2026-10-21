@@ -11,18 +11,13 @@ const halalasTender = (value) => {
   return value !== '' && Number.isFinite(n) && n > 0 ? Math.round(n * 100) : 0;
 };
 
-const SAUDI_SPLIT_METHODS = [
-  { key: 'mada', label: 'Mada' },
-  { key: 'card', label: 'Card' },
-  { key: 'apple_pay', label: 'Apple Pay' },
-  { key: 'cash', label: 'Cash' },
-  { key: 'bank_transfer', label: 'Bank' },
-  { key: 'other', label: 'Other' },
-];
-
 /**
- * POS Column 4: Dedicated Payment Column
- * Displays total due, customer attachment trigger, payment methods, split tenders, and balance.
+ * POS Column 4: taking the money.
+ *
+ * Only the methods the shop actually offers at a counter can be tendered — they come from the
+ * server with the quote (P6.1), and a key it does not know would be refused when the sale is rung
+ * up. A sale may be split across several of them: type an amount, or tap a method to settle
+ * whatever is still due.
  */
 export function PosPaymentColumn({
   total,
@@ -33,6 +28,7 @@ export function PosPaymentColumn({
   customer,
   onCustomerChange,
   onOpenCustomerModal,
+  heldButton = null,
   actions = null,
 }) {
   const { t } = useTranslation();
@@ -40,26 +36,36 @@ export function PosPaymentColumn({
   const [amount, setAmount] = useState('');
   const [reference, setReference] = useState('');
 
-  const chosen = method ?? methods[0]?.key ?? 'cash';
+  const known = methods.find((m) => m.key === method);
+  const chosen = known?.key ?? methods[0]?.key ?? '';
+  const chosenMethod = methods.find((m) => m.key === chosen);
+  /** Only cash may be overpaid; the change comes out of the drawer (D-163). */
+  const takesChange = chosenMethod?.type === 'cash';
+  const canTender = Boolean(chosen) && tender.due > 0;
 
-  const add = (value) => {
-    const paid = value ?? halalasTender(amount);
+  const tenderFor = (methodKey, value) => {
+    const picked = methods.find((m) => m.key === methodKey);
+    if (!picked) return 0;
+    const wanted = value ?? halalasTender(amount);
+    if (!wanted) return 0;
+    // A card or a transfer is taken for exactly what is owed; only cash can be handed over long.
+    return picked.type === 'cash' ? wanted : Math.min(wanted, tender.due);
+  };
+
+  const add = (value, methodKey = chosen) => {
+    const paid = tenderFor(methodKey, value);
     if (!paid) return;
-    const item = { method: chosen, amount: paid };
+    const item = { method: methodKey, amount: paid };
     if (reference.trim()) item.reference = reference.trim();
     onChange([...payments, item]);
     setAmount('');
     setReference('');
   };
 
+  /** Tap a method to settle what is still due with it — the usual way to split a sale. */
   const addWithMethod = (methodKey) => {
-    const dueAmount = tender.due > 0 ? tender.due : total;
-    if (dueAmount > 0) {
-      const item = { method: methodKey, amount: dueAmount };
-      if (reference.trim()) item.reference = reference.trim();
-      onChange([...payments, item]);
-      setReference('');
-    }
+    if (tender.due <= 0) return;
+    add(tender.due, methodKey);
   };
 
   const isContact = customer?.mode === 'contact';
@@ -78,6 +84,7 @@ export function PosPaymentColumn({
             {t('pos.payment.title', 'Payment')}
           </h2>
         </div>
+        {heldButton}
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pe-1">
@@ -194,20 +201,20 @@ export function PosPaymentColumn({
         <div className="grid grid-cols-[6.5rem_1fr_auto] gap-1.5 items-center">
           <Select
             value={chosen}
+            disabled={methods.length === 0}
+            aria-label={t('pos.payment.method')}
             className="h-8 rounded text-xs font-medium"
             onChange={(e) => setMethod(e.target.value)}
           >
-            {methods.length > 0
-              ? methods.map((m) => (
-                  <option key={m.key} value={m.key}>
-                    {m.label}
-                  </option>
-                ))
-              : SAUDI_SPLIT_METHODS.map((m) => (
-                  <option key={m.key} value={m.key}>
-                    {m.label}
-                  </option>
-                ))}
+            {methods.length === 0 ? (
+              <option value="">{t('pos.payment.noMethods')}</option>
+            ) : (
+              methods.map((m) => (
+                <option key={m.key} value={m.key}>
+                  {m.label}
+                </option>
+              ))
+            )}
           </Select>
 
           <label htmlFor="payment-amount" className="sr-only">
@@ -218,7 +225,8 @@ export function PosPaymentColumn({
             value={amount}
             aria-label={t('pos.payment.amount')}
             placeholder="0.00"
-            className="h-8 rounded border border-rose-300 focus:border-rose-500 text-end text-xs font-semibold px-2"
+            disabled={!canTender}
+            className="h-8 rounded border border-slate-200 focus:border-primary text-end text-xs font-semibold px-2"
             onChange={(e) => setAmount(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
@@ -232,12 +240,17 @@ export function PosPaymentColumn({
             type="button"
             variant="outline"
             size="sm"
+            disabled={!canTender}
             className="h-8 px-2.5 rounded text-xs font-semibold"
             onClick={() => add()}
           >
             {t('pos.payment.add', 'Add')}
           </Button>
         </div>
+
+        {!takesChange && chosen && tender.due > 0 && (
+          <p className="text-[10px] text-slate-500">{t('pos.payment.exactOnly')}</p>
+        )}
 
         {/* Optional Reference / Trx ID */}
         <input
@@ -254,8 +267,8 @@ export function PosPaymentColumn({
           }}
         />
 
-        {/* Exact Amount Helper */}
-        {tender.due > 0 && (
+        {/* Hand the exact amount over — one tap for the commonest case of all. */}
+        {canTender && (
           <Button
             type="button"
             variant="ghost"
@@ -267,28 +280,39 @@ export function PosPaymentColumn({
           </Button>
         )}
 
-        {/* Quick Payment Split Buttons */}
-        <div className="flex flex-wrap items-center gap-1 text-[11px]">
-          <span className="text-slate-400 font-medium text-[10px] me-0.5">Quick:</span>
-          {(methods.length > 0 ? methods : SAUDI_SPLIT_METHODS).map((m) => (
-            <button
-              key={m.key}
-              type="button"
-              onClick={() => addWithMethod(m.key)}
-              className="flex items-center gap-0.5 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-700 hover:border-primary hover:text-primary transition-colors"
-            >
-              <Plus className="size-2 text-slate-400" />
-              <span>{m.label}</span>
-            </button>
-          ))}
-        </div>
+        {/* Settle what is still due with one method — the usual way to split a sale. */}
+        {methods.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1 text-[11px]">
+            <span className="text-slate-400 font-medium text-[10px] me-0.5">
+              {t('pos.payment.quick')}
+            </span>
+            {methods.map((m) => (
+              <button
+                key={m.key}
+                type="button"
+                disabled={tender.due <= 0}
+                aria-label={t('pos.payment.settleWith', { method: m.label })}
+                onClick={() => addWithMethod(m.key)}
+                className="flex items-center gap-0.5 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Plus className="size-2 text-slate-400" />
+                <span>{m.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Tender Balance Indicators (Paid / Due / Change) */}
       <dl className="shrink-0 grid gap-1 text-xs pt-2.5 border-t border-slate-100 mt-2">
         <div className="flex justify-between text-slate-500 text-[11px]">
           <dt>{t('pos.payment.paid', 'Paid')}</dt>
-          <dd className="tabular-nums font-medium text-slate-700">{fmt.money(tender.paid)}</dd>
+          <dd
+            aria-label={t('pos.payment.paid', 'Paid')}
+            className="tabular-nums font-medium text-slate-700"
+          >
+            {fmt.money(tender.paid)}
+          </dd>
         </div>
         <div className="flex justify-between font-bold text-xs">
           <dt className={tender.due > 0 ? 'text-amber-700' : 'text-emerald-700'}>

@@ -86,43 +86,40 @@ export function priceSale(lines, { orderDiscount = null, tax }) {
 }
 
 /**
- * Takes one more tender onto a ticket, and keeps the ticket honest.
+ * Takes one more tender onto a ticket.
  *
- * A cashier settles the whole bill with one tap — card for the lot — and the customer then says
- * "put five hundred on cash". The five hundred is not EXTRA money: it comes OUT of the card. So a
- * tender that would overpay first takes back what it needs from the tenders already on the ticket,
- * OLDEST first — the one that took the whole bill is the one with room to give — and any that
- * fall to nothing are dropped. Later tenders are deliberate splits, so they are left alone.
- *
- * What is left over after that is a real overpayment: the customer handed over more than the bill.
- * Cash may do that and comes back as change (D-163); a card or a transfer may not — the API
- * refuses it — so those are capped at what is owed.
+ * Tenders ADD UP: what the cashier enters is what the customer handed over, so a method put on a
+ * bill that is already settled is extra money, not a correction of the one before it. The excess
+ * is change, and the cashier gives it out of the drawer.
  *
  * @param {{ method: string, amount: number }[]} payments  what is on the ticket
  * @param {{ method: string, amount: number, reference?: string }} tender
- * @param {number} total  the sale's total
- * @param {{ takesChange?: boolean }} [opts]  true for cash: an overpayment is change, not an error
  * @returns {{ method: string, amount: number }[]} the new ticket
  */
-export function addTender(payments, tender, total, { takesChange = false } = {}) {
-  const wanted = Math.max(0, Math.round(tender.amount ?? 0));
-  if (!wanted) return payments;
+export function addTender(payments, tender) {
+  const amount = Math.max(0, Math.round(tender.amount ?? 0));
+  return amount ? [...payments, { ...tender, amount }] : payments;
+}
 
-  const { due } = tenderSummary(total, payments);
-  let over = wanted - due;
-  if (over <= 0) return [...payments, { ...tender, amount: wanted }];
-
-  // Carve the excess out of what is already on the ticket, oldest first.
-  const rest = payments.map((p) => ({ ...p }));
-  for (const p of rest) {
-    if (over <= 0) break;
-    const taken = Math.min(p.amount, over);
-    p.amount -= taken;
-    over -= taken;
-  }
-  const kept = rest.filter((p) => p.amount > 0);
-  const amount = takesChange ? wanted : wanted - over;
-  return amount > 0 ? [...kept, { ...tender, amount }] : kept;
+/**
+ * Is there enough CASH on the ticket to hand the change back?
+ *
+ * Change comes out of the drawer, so it can only be given against cash that went into it. Paying
+ * 115 by card on a 100 bill is not change, it is 15 charged to a card that has to be refunded
+ * through the gateway — the till refuses that. Cash 100 plus 15 on a card, though, is a customer
+ * who paid twice over and gets 15 back from the drawer.
+ *
+ * @param {{ amount: number, methodType?: string, type?: string }[]} payments
+ * @param {number} total
+ * @param {string[]} [changeTypes]  method types a drawer can hand back (cash)
+ */
+export function changeIsCovered(payments = [], total = 0, changeTypes = ['cash']) {
+  const { change } = tenderSummary(total, payments);
+  if (change <= 0) return true;
+  const cash = payments
+    .filter((p) => changeTypes.includes(p.methodType ?? p.type))
+    .reduce((sum, p) => sum + (p.amount ?? 0), 0);
+  return change <= cash;
 }
 
 /**

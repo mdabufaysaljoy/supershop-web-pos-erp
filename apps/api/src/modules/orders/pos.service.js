@@ -7,6 +7,7 @@ import {
   POS,
   priceSale,
   SOURCE_LANGUAGE,
+  changeIsCovered,
   tenderSummary,
   vatRateFor,
 } from '@supershop/shared';
@@ -313,10 +314,14 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
     throw refuse(ERROR_CODES.CONFLICT, 'The sale is not fully paid', [
       { path: 'payments', message: V.MONEY_INVALID, due: tender.due },
     ]);
-  // Change comes out of the drawer: only cash can be overpaid. A card or a transfer is for the
-  // exact amount, and an overpayment there is a mistake worth stopping.
-  if (tender.change > 0 && !PAYMENT_METHOD.CHANGE_TYPES.includes(payments.at(-1).methodType))
-    throw refuse(ERROR_CODES.CONFLICT, 'Only cash can be overpaid', [
+  /**
+   * Change comes out of the DRAWER, so it can only be handed back against cash that went into it.
+   * Tenders add up — cash for the whole bill and then something on a card is a customer who paid
+   * twice over, and the difference goes back in cash — but a bill paid only by card cannot be
+   * "overpaid" into change: that is money charged to a card, and it is refunded, not handed back.
+   */
+  if (!changeIsCovered(payments, priced.totals.total, PAYMENT_METHOD.CHANGE_TYPES))
+    throw refuse(ERROR_CODES.CONFLICT, 'Change can only be given out of the cash taken', [
       { path: `payments.${payments.length - 1}.amount`, message: V.MONEY_INVALID },
     ]);
 

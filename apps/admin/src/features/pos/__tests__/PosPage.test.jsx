@@ -903,7 +903,7 @@ describe('splitting the money', () => {
     expect(screen.getByRole('button', { name: 'Complete sale' })).toBeEnabled();
   });
 
-  it('only lets cash be overpaid — a card is taken for what is owed', async () => {
+  it('says so when change is owed and there is no cash to give it from', async () => {
     const user = userEvent.setup();
     setup({ routes: twoMethods });
     await addShirt(user);
@@ -912,9 +912,12 @@ describe('splitting the money', () => {
     await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
     await user.type(screen.getByLabelText('Amount'), '200');
     await user.click(screen.getByRole('button', { name: 'Add' }));
-    // The tender was taken for what was owed, not for what was typed.
-    expect(till().getByLabelText('Change')).toHaveTextContent('SAR 0.00');
-    expect(till().getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
+
+    // The amount is taken as entered — 200 really was charged — but 85 cannot come back out of
+    // a drawer nothing was paid into, and the API refuses the sale for the same reason.
+    expect(till().getByLabelText('Tendered')).toHaveTextContent('SAR 200.00');
+    expect(till().getByLabelText('Change')).toHaveTextContent('SAR 85.00');
+    expect(screen.getByText(/Change comes out of the drawer/)).toBeInTheDocument();
   });
 
   it('gives change when cash is handed over long', async () => {
@@ -1091,28 +1094,28 @@ describe('splitting the money, method after method', () => {
     expect(screen.getByLabelText('Amount')).toHaveValue('');
   });
 
-  it('carves a second method out of the one that settled the whole bill', async () => {
+  it('adds a second method as extra money, which comes back as change', async () => {
     const user = userEvent.setup();
     setup({ routes: twoWays });
     await addShirt(user);
     await toPay('SAR 115.00');
 
-    // The card is tapped for the lot…
-    await user.click(screen.getByRole('button', { name: 'Settle what is due with Card terminal' }));
-    // Settled: the balance row turns into change, and the card holds the whole sale.
-    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    // Cash for the whole bill…
+    await user.click(screen.getByRole('button', { name: 'Settle what is due with Cash' }));
     expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
 
-    // …then the customer puts 50 on cash: it comes OUT of the card, it is not extra money.
+    // …then 50 more on the card: extra money, not a correction of the cash.
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
     await user.type(screen.getByLabelText('Amount'), '50');
-    await user.click(screen.getByRole('button', { name: 'Move this amount to Cash' }));
+    await user.click(screen.getByRole('button', { name: 'Add' }));
 
     const tenders = screen.getAllByRole('listitem').map((li) => li.textContent);
-    expect(tenders.some((line) => /Card terminal/.test(line) && /65\.00/.test(line))).toBe(true);
-    expect(tenders.some((line) => /Cash/.test(line) && /50\.00/.test(line))).toBe(true);
-    // The sale is still settled exactly — nothing overpaid, no change owed.
-    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
-    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    expect(tenders.some((l) => /Cash/.test(l) && /115\.00/.test(l))).toBe(true);
+    expect(tenders.some((l) => /Card terminal/.test(l) && /50\.00/.test(l))).toBe(true);
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 165.00');
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 50.00');
+    // There is cash on the ticket, so the drawer can hand it back.
+    expect(screen.queryByText(/Change comes out of the drawer/)).toBeNull();
   });
 
   it('takes a second method after the Add button settled the whole bill', async () => {
@@ -1121,21 +1124,18 @@ describe('splitting the money, method after method', () => {
     await addShirt(user);
     await toPay('SAR 115.00');
 
-    // Settle the lot with the card using Add, with the box on the balance it offers.
-    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
+    // Settle the lot in cash using Add, with the box on the balance it offers.
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'cash');
     await user.click(screen.getByRole('button', { name: 'Add' }));
     expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
 
-    // A second method must still go on — this used to be silently dropped.
-    await user.selectOptions(screen.getByLabelText('Paying with'), 'cash');
+    // A second method must still go on — and it is counted, not swallowed.
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
     await user.type(screen.getByLabelText('Amount'), '50');
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
-    const tenders = screen.getAllByRole('listitem').map((li) => li.textContent);
-    expect(tenders.some((l) => /Card terminal/.test(l) && /65\.00/.test(l))).toBe(true);
-    expect(tenders.some((l) => /Cash/.test(l) && /50\.00/.test(l))).toBe(true);
-    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
-    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 165.00');
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 50.00');
   });
 
   it('gives change when cash is handed over a bill that is already settled', async () => {
@@ -1149,9 +1149,8 @@ describe('splitting the money, method after method', () => {
     await user.type(screen.getByLabelText('Amount'), '150');
     await user.click(screen.getByRole('button', { name: 'Add' }));
 
-    // The customer paid cash after all: the card comes off and 35 goes back.
-    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 150.00');
-    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 35.00');
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 265.00');
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 150.00');
   });
 
   it("sends the tenders as rung up, without the screen's own notes", async () => {
@@ -1159,18 +1158,20 @@ describe('splitting the money, method after method', () => {
     const m = setup({ routes: twoWays });
     await addShirt(user);
     await toPay('SAR 115.00');
-    await user.click(screen.getByRole('button', { name: 'Settle what is due with Card terminal' }));
+    await user.click(screen.getByRole('button', { name: 'Settle what is due with Cash' }));
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
     await user.type(screen.getByLabelText('Amount'), '50');
-    await user.click(screen.getByRole('button', { name: 'Move this amount to Cash' }));
+    await user.click(screen.getByRole('button', { name: 'Add' }));
     await user.click(screen.getByRole('button', { name: 'Complete sale' }));
 
     await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
     const sent = JSON.parse(
       m.calls.filter((c) => c.key === 'POST /api/v1/pos/sales').at(-1).init.body,
     );
+    // As entered, and without the screen's own note about the method's type.
     expect(sent.payments).toEqual([
-      { method: 'card', amount: 6500 },
-      { method: 'cash', amount: 5000 },
+      { method: 'cash', amount: 11_500 },
+      { method: 'card', amount: 5000 },
     ]);
   });
 });

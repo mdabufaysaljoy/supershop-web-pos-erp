@@ -304,7 +304,12 @@ export function PosPage() {
           // Only what the sale endpoint takes: the screen's own notes about a customer
           // (loyalty points, tier, card number) stay on the screen (D-176).
           customer: customerPayload(sale.sale.customer),
-          payments,
+          // `type` is the screen's own note about the method, for the change warning (D-219).
+          payments: payments.map(({ method, amount, reference }) => ({
+            method,
+            amount,
+            ...(reference ? { reference } : {}),
+          })),
           ...(sale.sale.note ? { note: sale.sale.note } : {}),
         },
         idempotencyKey: saleKey,

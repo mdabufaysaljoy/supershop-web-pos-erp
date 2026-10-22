@@ -199,6 +199,35 @@ describe('ringing a sale up', () => {
     expect(sale.payment.method).toBe('cash');
   });
 
+  it('takes cash for the whole bill and more on another method, and gives the rest back', async () => {
+    await ok(await root.post('/api/v1/payment-methods', { key: 'wallet', label: 'Wallet' }), 201);
+    // Tenders add up: 115 in cash settles the bill, 50 on a wallet is extra, 50 goes back.
+    const sale = await ok(
+      await till().sell(
+        basket({
+          payments: [
+            { method: 'cash', amount: 11_500 },
+            { method: 'wallet', amount: 5000 },
+          ],
+        }),
+      ),
+      201,
+    );
+    expect(sale.payments.map((p) => [p.method, p.amount])).toEqual([
+      ['cash', 11_500],
+      ['wallet', 5000],
+    ]);
+    expect(sale.changeGiven).toBe(5000);
+  });
+
+  it('refuses change it would have to find somewhere other than the drawer', async () => {
+    await ok(await root.post('/api/v1/payment-methods', { key: 'terminal', label: 'Card' }), 201);
+    // 150 charged to a card on a 115 bill is not change, it is 35 to refund through the gateway.
+    const res = await till().sell(basket({ payments: [{ method: 'terminal', amount: 15_000 }] }));
+    expect(res.status).toBe(409);
+    expect(res.body.error.message).toMatch(/cash/i);
+  });
+
   it('refuses a sale that is not paid for, saying what is still due', async () => {
     const res = await till().sell(basket({ payments: [{ method: 'cash', amount: 5000 }] }));
     expect(res.status).toBe(409);

@@ -1,4 +1,4 @@
-import { addTender } from '@supershop/shared';
+import { addTender, changeIsCovered } from '@supershop/shared';
 import { MoneyInput } from '@supershop/ui';
 import { CreditCard, Plus, Trash2, User, UserCheck } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -54,21 +54,23 @@ export function PosPaymentColumn({
   /** Only cash may be overpaid; the change comes out of the drawer (D-163). */
   const takesChange = chosenMethod?.type === 'cash';
   const settled = tender.due <= 0 && payments.length > 0;
+  /** Change is handed out of the drawer, so there has to be that much cash on the ticket. */
+  const changeUncovered = !changeIsCovered(payments, total);
   /** Something can always be tendered: what is owed, or a share carved out of a settled bill. */
   const canTender = Boolean(chosen);
 
   /**
-   * A tender that would overpay is carved out of the ones already on the ticket — "card for the
-   * lot, then 500 on cash" leaves card 4,699 + cash 500 — and a real overpayment in CASH comes
-   * back as change (`addTender`).
+   * Tenders ADD UP: what goes on the ticket is what the customer handed over. Put cash down for
+   * the whole bill and then something on a card and that is extra money, not a correction — the
+   * difference is change, and the drawer hands it back.
    */
   const add = (value, methodKey = chosen) => {
     const picked = methods.find((m) => m.key === methodKey);
     const wanted = value ?? halalasTender(amount);
     if (!picked || !wanted) return;
-    const item = { method: methodKey, amount: wanted };
+    const item = { method: methodKey, amount: wanted, type: picked.type };
     if (reference.trim()) item.reference = reference.trim();
-    onChange(addTender(payments, item, total, { takesChange: picked.type === 'cash' }));
+    onChange(addTender(payments, item));
     // Back to following the balance, which the tender just moved.
     setTypedAmount(null);
     setReference('');
@@ -278,7 +280,13 @@ export function PosPaymentColumn({
           <p className="text-[10px] text-slate-500">{t('pos.payment.exactOnly')}</p>
         )}
 
-        {settled && <p className="text-[10px] text-slate-500">{t('pos.payment.carveHint')}</p>}
+        {settled && <p className="text-[10px] text-slate-500">{t('pos.payment.extraHint')}</p>}
+
+        {changeUncovered && (
+          <p className="text-[10px] font-medium text-destructive">
+            {t('pos.payment.changeNeedsCash')}
+          </p>
+        )}
 
         {/* Optional Reference / Trx ID */}
         <input

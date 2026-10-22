@@ -2223,8 +2223,9 @@
       "quick": "Settle with:",
       "settleWith": "Settle what is due with {{method}}",
       "exactOnly": "Only cash can be overpaid — this is taken for what is still due.",
-      "moveTo": "Move this amount to {{method}}",
-      "carveHint": "The bill is settled. Type an amount and pick a method to move it off the method that settled it."
+      "moveTo": "Add this amount on {{method}}",
+      "extraHint": "The bill is settled. Anything added now is extra money and comes back as change.",
+      "changeNeedsCash": "Change comes out of the drawer: there is not that much cash on this sale."
     },
     "held": {
       "title": "Held sales",

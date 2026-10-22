@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { addTender, createPosSchemas, discountAmount, priceSale, tenderSummary } from '../index.js';
+import {
+  addTender,
+  changeIsCovered,
+  createPosSchemas,
+  discountAmount,
+  priceSale,
+  tenderSummary,
+} from '../index.js';
 
 /** P6.1 — what a sale at the counter costs. Money, so every case is pinned down. */
 const TAX = { vatRateBps: 1500, pricesIncludeVat: true };
@@ -194,71 +201,54 @@ describe('what the till may send', () => {
   });
 });
 
-/** P6.1 — a split worked backwards: the bill is settled, then a tender is carved out of it. */
-describe('taking one more tender onto a settled ticket', () => {
-  const CARD = { method: 'card', amount: 11_500 };
+/** P6.1 — tenders add up, and the drawer hands back what was paid over. */
+describe('taking one more tender onto a ticket', () => {
+  const CASH = { method: 'cash', methodType: 'cash', amount: 11_500 };
 
-  it('carves a later tender out of what already settled the bill', () => {
-    // Card took the lot; the customer then puts 50 on cash. Cash is not extra money.
-    const after = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
-    expect(after).toEqual([
-      { method: 'card', amount: 6500 },
-      { method: 'cash', amount: 5000 },
+  it('adds what the cashier entered, however much is already down', () => {
+    // Cash for the whole bill, then 50 on a card: extra money, not a correction of the cash.
+    const after = addTender([{ ...CASH }], { method: 'card', methodType: 'card', amount: 5000 });
+    expect(after.map((p) => [p.method, p.amount])).toEqual([
+      ['cash', 11_500],
+      ['card', 5000],
     ]);
-    expect(tenderSummary(11_500, after)).toEqual({ paid: 11_500, due: 0, change: 0 });
+    expect(tenderSummary(11_500, after)).toEqual({ paid: 16_500, due: 0, change: 5000 });
   });
 
-  it('carves whether the first tender was tapped or typed — a method can always be added', () => {
-    // The amount box offers the balance, so "Add" and the quick row produce the same tender.
-    for (const first of [{ ...CARD }, { method: 'card', amount: 11_500 }]) {
-      const after = addTender([first], { method: 'stcpay', amount: 3000 }, 11_500);
-      expect(after.map((p) => [p.method, p.amount])).toEqual([
-        ['card', 8500],
-        ['stcpay', 3000],
-      ]);
-    }
-  });
-
-  it('takes from the tender that took the whole bill, and leaves the later splits alone', () => {
-    let t = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
-    t = addTender(t, { method: 'stcpay', amount: 3000 }, 11_500);
-    // Both later tenders stand at what the cashier entered; the card gave up the room.
-    expect(t.map((p) => [p.method, p.amount])).toEqual([
-      ['card', 3500],
-      ['cash', 5000],
-      ['stcpay', 3000],
+  it('ignores an empty tender, and rounds to whole halalas', () => {
+    expect(addTender([{ ...CASH }], { method: 'card', amount: 0 })).toEqual([CASH]);
+    expect(addTender([], { method: 'cash', amount: 49.6 })).toEqual([
+      { method: 'cash', amount: 50 },
     ]);
-    expect(tenderSummary(11_500, t)).toEqual({ paid: 11_500, due: 0, change: 0 });
   });
 
-  it('drops a tender it empties entirely', () => {
-    let t = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
-    t = addTender(t, { method: 'transfer', amount: 6500 }, 11_500);
-    expect(t.map((p) => [p.method, p.amount])).toEqual([
-      ['cash', 5000],
-      ['transfer', 6500],
-    ]);
-    expect(tenderSummary(11_500, t)).toEqual({ paid: 11_500, due: 0, change: 0 });
+  it('hands change back only against cash that went into the drawer', () => {
+    const paidOver = [
+      { method: 'cash', methodType: 'cash', amount: 11_500 },
+      { method: 'card', methodType: 'card', amount: 5000 },
+    ];
+    expect(changeIsCovered(paidOver, 11_500)).toBe(true);
+
+    // A bill paid only by card cannot be "overpaid" into change: that is a refund, not change.
+    expect(changeIsCovered([{ method: 'card', methodType: 'card', amount: 15_000 }], 11_500)).toBe(
+      false,
+    );
+    // Change can never be more cash than was taken.
+    expect(
+      changeIsCovered(
+        [
+          { method: 'cash', methodType: 'cash', amount: 2000 },
+          { method: 'card', methodType: 'card', amount: 15_000 },
+        ],
+        11_500,
+      ),
+    ).toBe(false);
   });
 
-  it('hands back the rest as change when cash is given over a settled bill', () => {
-    // 115 settled on the card, then the customer pays 150 cash instead: 35 goes back.
-    const after = addTender([{ ...CARD }], { method: 'cash', amount: 15_000 }, 11_500, {
-      takesChange: true,
-    });
-    expect(after).toEqual([{ method: 'cash', amount: 15_000 }]);
-    expect(tenderSummary(11_500, after)).toEqual({ paid: 15_000, due: 0, change: 3500 });
-  });
-
-  it('caps a card or a transfer at the bill — only cash may be overpaid', () => {
-    const after = addTender([], { method: 'card', amount: 15_000 }, 11_500);
-    expect(after).toEqual([{ method: 'card', amount: 11_500 }]);
-  });
-
-  it('adds a tender that fits as it is, and ignores an empty one', () => {
-    expect(addTender([], { method: 'cash', amount: 5000 }, 11_500)).toEqual([
-      { method: 'cash', amount: 5000 },
-    ]);
-    expect(addTender([{ ...CARD }], { method: 'cash', amount: 0 }, 11_500)).toEqual([CARD]);
+  it('is content when nothing is owed back', () => {
+    expect(changeIsCovered([{ method: 'card', methodType: 'card', amount: 11_500 }], 11_500)).toBe(
+      true,
+    );
+    expect(changeIsCovered([], 0)).toBe(true);
   });
 });

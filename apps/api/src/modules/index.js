@@ -2,6 +2,7 @@ import {
   createAccountSchemas,
   createAuthSchemas,
   createCustomerAdminSchemas,
+  createPosSchemas,
   createRbacSchemas,
   PRINCIPAL_TYPES,
 } from '@supershop/shared';
@@ -165,6 +166,10 @@ const getAccountSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () =>
 );
 const getCustomerAdminSchemas = memoBySettings(SCHEMA_SETTING_KEYS, () =>
   createCustomerAdminSchemas(schemaInputs()),
+);
+/** The till also enforces the shop's own discount ceiling, so its schemas watch that setting too. */
+const getPosSchemas = memoBySettings([...SCHEMA_SETTING_KEYS, 'pos.maxDiscountBps'], () =>
+  createPosSchemas({ ...schemaInputs(), maxDiscountBps: getSetting('pos.maxDiscountBps') }),
 );
 
 /** Identity-provider credentials for the auth module (keeps auth → settings one-way, D-023). */
@@ -331,7 +336,7 @@ export function mountModuleRoutes(api) {
   api.use('/cart', createCartRouter());
   api.use('/checkout', createCheckoutRouter());
   api.use('/orders', createOrderAdminRouter());
-  api.use('/pos', createPosRouter());
+  api.use('/pos', createPosRouter({ getSchemas: getPosSchemas }));
   api.use('/returns', createReturnRouter());
   api.use('/loyalty', createLoyaltyRouter());
   api.use('/shifts', createShiftRouter());

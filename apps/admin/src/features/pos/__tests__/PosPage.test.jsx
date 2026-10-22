@@ -66,6 +66,9 @@ function setup({ permissions = ['pos.sell', 'pos.discount'], routes = {} } = {})
     'GET /api/v1/payment-methods/public': json(200, {
       data: [{ key: 'cash', type: 'cash', label: 'Cash' }],
     }),
+    'GET /api/v1/settings/public': json(200, {
+      data: { 'customers.allowInternationalPhone': false },
+    }),
     'POST /api/v1/pos/quote': ({ init }) => {
       const body = JSON.parse(init.body);
       const qty = body.items.reduce((n, i) => n + i.qty, 0);
@@ -308,6 +311,41 @@ describe('taking the money', () => {
       name: 'Nora Said',
       phone: '0599999999',
     });
+  });
+
+  it('refuses a phone the sale would refuse, on the field, before the sale is rung up', async () => {
+    const user = userEvent.setup();
+    setup();
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.click(screen.getByRole('button', { name: 'Add a customer' }));
+    const dialog = within(await screen.findByRole('dialog'));
+    await user.type(dialog.getByLabelText('Name'), 'Abu Faysal');
+    await user.type(dialog.getByLabelText('Phone'), '+8801741918615');
+
+    // The shop takes Saudi mobiles only, so the till says so HERE — not through a sale that fails.
+    expect(dialog.getByRole('alert')).toHaveTextContent('Saudi mobile');
+    expect(dialog.getByRole('button', { name: /Attach to Sale/ })).toBeDisabled();
+  });
+
+  it('takes an overseas number once the shop allows one', async () => {
+    const user = userEvent.setup();
+    setup({
+      routes: {
+        'GET /api/v1/settings/public': json(200, {
+          data: { 'customers.allowInternationalPhone': true },
+        }),
+      },
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.click(screen.getByRole('button', { name: 'Add a customer' }));
+    const dialog = within(await screen.findByRole('dialog'));
+    await user.type(dialog.getByLabelText('Phone'), '+8801741918615');
+    await waitFor(() => expect(dialog.queryByRole('alert')).toBeNull());
+    expect(dialog.getByRole('button', { name: /Attach to Sale/ })).toBeEnabled();
   });
 });
 

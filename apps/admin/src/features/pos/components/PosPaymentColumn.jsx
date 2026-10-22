@@ -1,7 +1,7 @@
 import { addTender } from '@supershop/shared';
 import { MoneyInput } from '@supershop/ui';
 import { CreditCard, Plus, Trash2, User, UserCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/features/settings/components/controls';
@@ -37,6 +37,7 @@ export function PosPaymentColumn({
   /** `null` = follow what is still due; a string = an amount the cashier typed over it. */
   const [typedAmount, setTypedAmount] = useState(null);
   const [reference, setReference] = useState('');
+  const amountRef = useRef(null);
 
   /**
    * The amount box offers what is STILL DUE: take 50 in cash on a 115 sale and the next method is
@@ -80,6 +81,13 @@ export function PosPaymentColumn({
       return;
     }
     // The bill is already settled: this method takes the amount typed out of what settled it.
+    // With nothing typed there is nothing to move, so send the cashier to the box rather than
+    // sitting there dead.
+    if (!halalasTender(amount)) {
+      setMethod(methodKey);
+      amountRef.current?.focus();
+      return;
+    }
     add(undefined, methodKey);
   };
 
@@ -237,6 +245,7 @@ export function PosPaymentColumn({
           </label>
           <MoneyInput
             id="payment-amount"
+            ref={amountRef}
             value={amount}
             aria-label={t('pos.payment.amount')}
             placeholder="0.00"
@@ -309,7 +318,7 @@ export function PosPaymentColumn({
               <button
                 key={m.key}
                 type="button"
-                disabled={settled && !halalasTender(amount)}
+                disabled={methods.length === 0}
                 aria-label={
                   settled
                     ? t('pos.payment.moveTo', { method: m.label })

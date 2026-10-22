@@ -1,3 +1,4 @@
+import { validators } from '@supershop/shared';
 import { NameInput, PhoneInput } from '@supershop/ui';
 import { Check, CreditCard, Search, UserCheck, UserPlus, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
@@ -5,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { customers } from '@/features/customers/resource';
+import { usePublicSettings } from '@/features/settings/hooks';
 import { lookupLoyalty } from '../resource';
 
 /**
@@ -51,6 +53,21 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
   const isContact = customer?.mode === 'contact';
   const nameValue = customer?.name && !/walk-?in/i.test(customer.name) ? customer.name : '';
   const phoneValue = customer?.phone ?? '';
+
+  /**
+   * The same rule the sale is validated by: a number the till accepts here but the API refuses
+   * means the cashier only finds out when the sale will not go through (D-212). The shop decides
+   * whether a number from outside the Kingdom is allowed.
+   */
+  const publicSettings = usePublicSettings();
+  const allowInternational = Boolean(publicSettings.data?.['customers.allowInternationalPhone']);
+  const phoneError =
+    phoneValue.trim() && !validators.normalizePhone(phoneValue, { allowInternational })
+      ? allowInternational
+        ? t('validation.phone.invalid', 'Enter a valid phone number.')
+        : t('validation.phone.ksaOnly', 'Enter a Saudi mobile number (05XXXXXXXX).')
+      : '';
+  const canAttach = Boolean(nameValue.trim() || phoneValue.trim()) && !phoneError;
 
   const handleSelectCustomer = (c) => {
     onCustomerChange({
@@ -281,9 +298,11 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                 {t('pos.customer.phone', 'Phone')}
                 <PhoneInput
                   value={phoneValue}
-                  placeholder="05XXXXXXXX"
+                  placeholder={allowInternational ? '+966 5X XXX XXXX' : '05XXXXXXXX'}
                   aria-label={t('pos.customer.phone', 'Phone')}
-                  className="h-9 rounded-md text-xs"
+                  aria-invalid={Boolean(phoneError) || undefined}
+                  aria-describedby={phoneError ? 'pos-customer-phone-error' : undefined}
+                  className={`h-9 rounded-md text-xs ${phoneError ? 'border-destructive' : ''}`}
                   onChange={(e) =>
                     onCustomerChange({
                       mode: 'contact',
@@ -292,6 +311,15 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
                     })
                   }
                 />
+                {phoneError && (
+                  <span
+                    id="pos-customer-phone-error"
+                    role="alert"
+                    className="text-[11px] font-medium text-destructive"
+                  >
+                    {phoneError}
+                  </span>
+                )}
               </label>
             </div>
           </div>
@@ -321,8 +349,9 @@ export function PosCustomerModal({ open, onOpenChange, customer, onCustomerChang
             <Button
               type="button"
               size="sm"
+              disabled={Boolean(phoneError)}
               onClick={() => {
-                if (nameValue.trim() || phoneValue.trim()) {
+                if (canAttach) {
                   onCustomerChange({
                     mode: 'contact',
                     name: nameValue.trim() || 'Contact Customer',

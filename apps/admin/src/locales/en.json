@@ -2736,5 +2736,12 @@
       "scanner": "USB/Bluetooth scanner automatically scans into the till without clicking",
       "ctrlP": "Print receipt or invoice"
     }
+  },
+  "fields": {
+    "phone": "Phone",
+    "email": "Email",
+    "name": "Name",
+    "amount": "Amount",
+    "value": "Value"
   }
 }

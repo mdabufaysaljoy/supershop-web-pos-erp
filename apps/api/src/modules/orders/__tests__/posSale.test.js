@@ -343,6 +343,25 @@ describe('discounts', () => {
     expect(res.body.error.details[0].path).toBe('items.0.discount.value');
   });
 
+  it('takes a phone from outside the Kingdom only when the shop allows it', async () => {
+    const overseas = basket({
+      customer: { mode: 'contact', name: 'Abu Faysal', phone: '+8801741918615' },
+    });
+    // Off by default: a Saudi shop's numbers are Saudi numbers.
+    const refused = await till().sell(overseas);
+    expect(refused.status).toBe(400);
+    expect(refused.body.error.details[0].path).toBe('customer.phone');
+
+    // The till must obey the setting, not a default compiled into it.
+    await ok(
+      await root.patch('/api/v1/settings', {
+        changes: [{ key: 'customers.allowInternationalPhone', value: true }],
+      }),
+    );
+    const sale = await ok(await till().sell(overseas), 201);
+    expect(sale.customer.phone).toBe('+8801741918615');
+  });
+
   it('keeps discounts and price changes to staff who may give them', async () => {
     const role = await ok(
       await root.post('/api/v1/roles', { name: 'Till only', permissions: ['pos.sell'] }),

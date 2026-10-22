@@ -3,6 +3,8 @@ import { api, apiData } from '@/lib/apiClient';
 const I18N = '/api/v1/i18n';
 
 export const fetchSettings = (group) => apiData('/api/v1/settings', { query: { group } });
+/** The subset every signed-in user may read — no `settings.view` needed. */
+export const fetchPublicSettings = () => apiData('/api/v1/settings/public');
 export const saveSettings = (changes) =>
   apiData('/api/v1/settings', { method: 'PATCH', body: { changes } });
 

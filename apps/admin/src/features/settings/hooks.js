@@ -82,3 +82,14 @@ export const useRetryAllFailed = () =>
     invalidate: [KEYS.overview],
     success: 'languages.queue.retried',
   });
+
+/**
+ * The settings any signed-in user may read (`settings/public`). The till needs one of them — may a
+ * customer have a phone number from outside the Kingdom — and a cashier has no `settings.view`.
+ */
+export const usePublicSettings = () =>
+  useQuery({
+    queryKey: ['settings', 'public'],
+    queryFn: api.fetchPublicSettings,
+    staleTime: 5 * 60_000,
+  });

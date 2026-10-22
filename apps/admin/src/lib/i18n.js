@@ -52,11 +52,21 @@ export const useT = () => useTranslation().t;
 export function errorMessage(t, error) {
   const code = /** @type {any} */ (error)?.code;
   if (code === 'NETWORK_ERROR') return t('errors.network');
+  // A screen with no field to highlight (the till, a dialog) would otherwise show only
+  // "correct the highlighted fields" with nothing marked, so name the field and say what is wrong.
+  if (code === 'VALIDATION_ERROR') {
+    const detail = /** @type {any} */ (error)?.details?.[0];
+    const field = detail?.path && String(detail.path).split('.').pop();
+    const why = fieldMessage(t, detail?.message);
+    if (field && why) return `${t(`fields.${field}`, field)}: ${why}`;
+  }
   return code && i18n.exists(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic');
 }
 
 /** Translates a zod/react-hook-form message that is an i18n key; otherwise a generic message. */
-export const fieldMessage = (t, message) =>
-  message && i18n.exists(message) ? t(message) : message ? t('validation.invalidType') : undefined;
+export function fieldMessage(t, message) {
+  if (!message) return undefined;
+  return i18n.exists(message) ? t(message) : t('validation.invalidType');
+}
 
 export default i18n;

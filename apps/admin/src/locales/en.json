@@ -720,6 +720,7 @@
     "description": "Store-wide configuration. Changes are saved immediately and recorded in the audit log.",
     "readOnly": "You can view these settings but not change them.",
     "tabs": {
+      "store": "Store details",
       "languages": "Languages",
       "loyalty": "Loyalty & Rewards",
       "payments": "Payments",
@@ -745,6 +746,51 @@
       "minPointsHint": "Minimum balance required to redeem points.",
       "expiryDaysLabel": "Points expiry (Days)",
       "expiryDaysHint": "Days until earned points expire (0 = never expire)."
+    },
+    "store": {
+      "identity": {
+        "title": "Store identity",
+        "description": "The name on receipts, invoices and the storefront, and the figures they are written with.",
+        "name": "Store name",
+        "nameHint": "Shown in the storefront, on receipts and above the menu here.",
+        "vatNumber": "VAT registration number",
+        "vatNumberHint": "Printed on tax invoices and in the ZATCA QR. Leave empty if the shop is not registered.",
+        "currency": "Currency",
+        "timeZone": "Time zone"
+      },
+      "contact": {
+        "title": "Contact and address",
+        "description": "How a customer reaches the shop. Shown in the storefront footer and on invoices.",
+        "phone": "Phone",
+        "whatsapp": "WhatsApp",
+        "email": "Email",
+        "address": "Address",
+        "nationalAddress": "National address",
+        "nationalAddressHint": "The Saudi short code, e.g. RRRD2929."
+      },
+      "colours": {
+        "title": "Brand colours",
+        "description": "The two colours the storefront and this admin are painted with.",
+        "primary": "Primary",
+        "primaryForeground": "Text on primary",
+        "secondary": "Secondary",
+        "secondaryForeground": "Text on secondary",
+        "radius": "Corner rounding",
+        "font": "Font",
+        "preview": "Colour preview",
+        "radii": {
+          "none": "Square",
+          "sm": "Slight",
+          "md": "Medium",
+          "lg": "Large",
+          "full": "Pill"
+        },
+        "fonts": {
+          "bundled": "Bundled (Latin + Arabic)",
+          "system": "The device's own"
+        },
+        "pick": "Pick {{colour}}"
+      }
     }
   },
   "languages": {

@@ -57,6 +57,8 @@ const layoutSchema = new mongoose.Schema(
     theme: {
       primary: { type: String, default: THEME.DEFAULTS.primary },
       primaryForeground: { type: String, default: THEME.DEFAULTS.primaryForeground },
+      secondary: { type: String, default: THEME.DEFAULTS.secondary },
+      secondaryForeground: { type: String, default: THEME.DEFAULTS.secondaryForeground },
       radius: { type: String, enum: THEME.RADII, default: THEME.DEFAULTS.radius },
       font: { type: String, enum: THEME.FONTS, default: THEME.DEFAULTS.font },
     },

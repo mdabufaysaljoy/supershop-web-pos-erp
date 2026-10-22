@@ -66,7 +66,9 @@ describe('route guards', () => {
   it('names the shop and the branch this terminal works in, above the menu', async () => {
     mockFetch({
       'GET /api/v1/staff/me/access': () => json(200, { data: useAuthStore.getState().access }),
-      'GET /api/v1/site/layout': () => json(200, { data: { brand: { name: 'Al Noor Market' } } }),
+      // The shop's own name comes from its settings, which every signed-in user may read.
+      'GET /api/v1/settings/public': () => json(200, { data: { 'store.name': 'Al Noor Market' } }),
+      'GET /api/v1/site/layout': () => json(200, { data: {} }),
       'GET /api/v1/branches/mine': () =>
         json(200, { data: [{ id: 'b1', code: 'RYD-1', name: { en: 'Riyadh Olaya' } }] }),
     });

@@ -92,6 +92,8 @@ const theme = z
   .object({
     primary: hexColor,
     primaryForeground: hexColor,
+    secondary: hexColor,
+    secondaryForeground: hexColor,
     radius: z.enum(THEME.RADII, { error: V.INVALID_TYPE }),
     font: z.enum(THEME.FONTS, { error: V.INVALID_TYPE }),
   })

@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 import { HelpDrawer } from '@/components/help/HelpDrawer';
 import { useAccessSync } from '@/features/auth/hooks';
 import { useActiveBranch } from '@/features/branches/activeBranch';
+import { usePublicSettings } from '@/features/settings/hooks';
 import { useLayout } from '@/features/site/resource';
 import { SidebarNav } from './SidebarNav';
 import { UserMenu } from './UserMenu';
@@ -20,7 +21,12 @@ export function AppLayout() {
   useAccessSync();
 
   const themeVars = layout.data?.theme ? themeCssVars(layout.data.theme) : undefined;
-  const storeName = layout.data?.brand?.name || t('app.name');
+  /**
+   * The shop's own name, as the admin set it in Settings → Store details. It comes from the
+   * settings every signed-in user may read, so a cashier's sidebar says it too.
+   */
+  const publicSettings = usePublicSettings();
+  const storeName = publicSettings.data?.['store.name'] || t('app.name');
   // The shop above, the branch this terminal is working in below — both as the shop named them.
   const { branch, options } = useActiveBranch();
   const branchLine =

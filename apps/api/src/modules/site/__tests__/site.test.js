@@ -148,6 +148,24 @@ describe('the layout', () => {
     expect(scheduled.flatMap((j) => j.items.map((i) => i.field))).toContain('announcement.text');
   });
 
+  it('keeps both of the shop’s colours, and serves them as CSS variables', async () => {
+    await ok(
+      await root.patch(`${SITE}/layout`, {
+        theme: { primary: '#2563EB', secondary: '#FDE68A', secondaryForeground: '#1F1F1F' },
+      }),
+    );
+    const layout = await ok(await root.get(`${SITE}/layout`));
+    // Stored as typed but normalised to lower case, which is what goes into a stylesheet.
+    expect(layout.theme).toMatchObject({ primary: '#2563eb', secondary: '#fde68a' });
+    const chrome = await ok(await request(app).get(`${SITE}/public`));
+    expect(chrome.theme).toMatchObject({
+      '--secondary': '#fde68a',
+      '--secondary-foreground': '#1f1f1f',
+      // The soft surface follows the secondary colour, so a theme is two colours, not four.
+      '--accent': '#fde68a',
+    });
+  });
+
   it('refuses a colour that is not a colour', async () => {
     const res = await root.patch(`${SITE}/layout`, { theme: { primary: 'rgb(1,2,3)' } });
     expect(res.status).toBe(400);

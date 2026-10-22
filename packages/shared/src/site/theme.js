@@ -12,6 +12,9 @@ export const THEME = Object.freeze({
   DEFAULTS: Object.freeze({
     primary: '#1f1f1f',
     primaryForeground: '#fafafa',
+    /** The quieter half of the pair: chips, soft buttons, the background of a highlighted row. */
+    secondary: '#f1f5f9',
+    secondaryForeground: '#1f1f1f',
     radius: 'md',
     font: 'bundled',
   }),
@@ -46,6 +49,11 @@ export function themeCssVars(theme = {}) {
   return {
     '--primary': color(t.primary, THEME.DEFAULTS.primary),
     '--primary-foreground': color(t.primaryForeground, THEME.DEFAULTS.primaryForeground),
+    '--secondary': color(t.secondary, THEME.DEFAULTS.secondary),
+    '--secondary-foreground': color(t.secondaryForeground, THEME.DEFAULTS.secondaryForeground),
+    // The soft surface a theme reads as "the other colour" — kept in step with secondary.
+    '--accent': color(t.secondary, THEME.DEFAULTS.secondary),
+    '--accent-foreground': color(t.secondaryForeground, THEME.DEFAULTS.secondaryForeground),
     '--ring': color(t.primary, THEME.DEFAULTS.primary),
     '--radius': RADIUS_REM[t.radius] ?? RADIUS_REM[THEME.DEFAULTS.radius],
     '--font-sans': FONT_STACK[t.font] ?? FONT_STACK.bundled,

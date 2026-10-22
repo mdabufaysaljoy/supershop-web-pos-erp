@@ -70,6 +70,8 @@ export const toLayoutDto = (l) => ({
   theme: {
     primary: l.theme?.primary,
     primaryForeground: l.theme?.primaryForeground,
+    secondary: l.theme?.secondary,
+    secondaryForeground: l.theme?.secondaryForeground,
     radius: l.theme?.radius,
     font: l.theme?.font,
   },

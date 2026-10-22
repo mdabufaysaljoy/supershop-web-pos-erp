@@ -7,12 +7,19 @@ import { PaymentsTab } from '@/features/paymentMethods/pages/PaymentsTab';
 import { PrintingTab } from '@/features/printing/pages/PrintingTab';
 import { LoyaltyTab } from '@/features/loyalty/pages/LoyaltyTab';
 import { LanguagesTab } from './LanguagesTab';
+import { StoreDetailsTab } from './StoreDetailsTab';
 
 /**
  * Settings with tabs (?tab=). Each tab maps to a settings group; more tabs (general, tax, checkout,
  * payments, printing…) are added by their feature tasks.
  */
 const TABS = [
+  {
+    id: 'store',
+    label: 'settings.tabs.store',
+    perm: PERMISSIONS.SETTINGS_VIEW,
+    Component: StoreDetailsTab,
+  },
   {
     id: 'payments',
     label: 'settings.tabs.payments',

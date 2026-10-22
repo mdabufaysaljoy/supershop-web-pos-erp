@@ -41,10 +41,14 @@ import { toStaffOrderDto } from './order.service.js';
 const oid = (id) => new mongoose.Types.ObjectId(String(id));
 const str = (id) => (id == null ? null : String(id));
 
-/** Customer lookup by phone/email — injected at the composition root (keeps orders one-way). */
-let findCustomerByContact = async () => null;
+/**
+ * Who this sale is for, by id, phone or email — injected at the composition root, so orders stay
+ * one-way. It also SAVES somebody the cashier typed in for the first time: the shop keeps them,
+ * and the next sale finds them instead of typing them again.
+ */
+let findCustomerForSale = async () => null;
 export function setPosCustomerLookup(fn) {
-  findCustomerByContact = fn;
+  findCustomerForSale = fn;
 }
 
 /** Active shift lookup for a counter sale (P6.5) — injected at the composition root. */
@@ -231,8 +235,9 @@ async function resolvePayments(tenders, total, lang) {
 async function attachCustomer(customer) {
   if (customer.mode !== 'contact')
     return { customerId: null, name: 'Walk-in customer', phone: '', email: null };
-  const found = await findCustomerByContact({
+  const found = await findCustomerForSale({
     customerId: customer.customerId,
+    name: customer.name,
     phone: customer.phone,
     email: customer.email,
   });

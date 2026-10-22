@@ -1601,6 +1601,21 @@
       "notSet": "Not set yet.",
       "enterNew": "Paste a new key",
       "publishableKeyWarning": "This looks like a publishable key (starts with 'pk_'). Online payments require an API Secret Key (starts with 'sk_')."
+    },
+    "intro": "Where the shop takes money decides what it can take: a till has a drawer, a website has a gateway. A method that works in both places is listed in both.",
+    "where": {
+      "pos": {
+        "title": "At the counter (POS)",
+        "description": "What a cashier may take on the POS screen: cash from the drawer, a wallet transfer, or a bank transfer the shop confirms by hand.",
+        "empty": "Nothing can be taken at the counter yet. Add a method of type Cash, Wallet (MFS) or Offline below.",
+        "alsoHere": "Also at the counter"
+      },
+      "online": {
+        "title": "Online store",
+        "description": "What a customer may pay with at checkout: a card through the gateway, cash on delivery, a wallet, or a bank transfer.",
+        "empty": "Nothing can be paid online yet. Add a method of type Card, Cash on delivery, Wallet (MFS) or Offline below.",
+        "alsoHere": "Also online"
+      }
     }
   },
   "orders": {
@@ -2410,6 +2425,17 @@
       "printSuccess": "Barcode label sent to printer",
       "printBrowser": "Print via browser",
       "selectPrinter": "Select thermal printer"
+    },
+    "intro": "Printing happens on the computer at the counter, not on the server: QZ Tray carries the job from this screen to the printer beside you. Work through the three steps below.",
+    "steps": {
+      "connect": "Connect this computer to the printers",
+      "connectHint": "Install QZ Tray on the counter machine and put the shop’s signing keys here, so only this shop can print from it.",
+      "printers": "The printers at this shop",
+      "printersHint": "Add one for receipts and, if you print barcode labels, one for labels — with the paper width that is actually in them.",
+      "layout": "What a receipt and a label say",
+      "layoutHint": "The lines, the logo, the QR and the language. The preview shows the paper exactly as it will come out.",
+      "done": "Done",
+      "todo": "Not set up yet"
     }
   },
   "shifts": {

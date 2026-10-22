@@ -2,6 +2,7 @@ import { deriveCustomerSegment, EVENTS, PRINCIPAL_TYPES, validators } from '@sup
 import { withTransaction } from '../../core/db.js';
 import { ConflictError, ForbiddenError, NotFoundError } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
+import { isDuplicateKey } from '../../core/slug.js';
 import { issueSession, requestEmailVerification, setPassword } from '../auth/index.js';
 import { getCustomerLoyaltySummary, listCustomerLedger } from '../loyalty/index.js';
 import { getCustomerOrdersSummary } from '../orders/index.js';
@@ -49,6 +50,33 @@ export async function registerCustomer({ password, ...data }, ctx = {}) {
   await requestEmailVerification(TYPE, id, ctx);
   const tokens = await issueSession(TYPE, id, ctx);
   return { tokens, profile: toCustomerProfile(customer) };
+}
+
+/**
+ * The customer a cashier typed in at the counter: a record with no password, so the shop has them
+ * for next time — the phone or the email is what finds them again, and a name on its own would
+ * not, so one of the two is required. An existing customer is returned rather than duplicated.
+ *
+ * @param {{ name?: string, phone?: string|null, email?: string|null }} contact
+ * @returns {Promise<object|null>} the customer profile, or null when there is nothing to save
+ */
+export async function findOrCreateWalkInCustomer({ name, phone, email } = {}) {
+  if (!phone && !email) return null;
+  const existing = await findCustomerByContact({ phone, email });
+  if (existing) return existing;
+  try {
+    const created = await repo.createCustomer({
+      name: name?.trim() || phone || email,
+      phone: phone ?? null,
+      email: email ?? null,
+    });
+    void eventBus.emit(EVENTS.CUSTOMER_REGISTERED, { customerId: String(created._id) });
+    return toCustomerProfile(created);
+  } catch (err) {
+    // Two tills serving the same person at once: whoever lost the race takes the other's record.
+    if (isDuplicateKey(err)) return findCustomerByContact({ phone, email });
+    throw err;
+  }
 }
 
 /**

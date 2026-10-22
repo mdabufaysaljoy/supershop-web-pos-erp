@@ -40,7 +40,7 @@ export function ChannelsCard({ settings, canEdit }) {
       </CardHeader>
       <CardContent className="grid gap-6">
         {['email', 'sms'].map((channel) => (
-          <div key={channel} className="grid gap-4 rounded-lg border p-4">
+          <div key={channel} className="grid gap-4 rounded border p-4">
             <Checkbox
               id={`channel-${channel}`}
               label={t(`notifications.settings.${channel}Enabled`)}
@@ -95,7 +95,7 @@ export function ChannelsCard({ settings, canEdit }) {
               </FormField>
               <button
                 type="button"
-                className="h-9 rounded-md border px-4 text-sm"
+                className="h-9 rounded border px-4 text-sm"
                 disabled={!canEdit || !to[channel] || test.isPending}
                 onClick={() => test.mutate({ channel, to: to[channel] })}
               >
@@ -126,7 +126,7 @@ export function ChannelsCard({ settings, canEdit }) {
               />
               <button
                 type="button"
-                className="h-9 shrink-0 rounded-md border px-4 text-sm"
+                className="h-9 shrink-0 rounded border px-4 text-sm"
                 disabled={!canEdit || !secrets[key] || save.isPending}
                 onClick={() => {
                   set(key, secrets[key]);

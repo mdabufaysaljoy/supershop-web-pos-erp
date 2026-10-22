@@ -52,7 +52,7 @@ export function UploadDropzone() {
           start(e.dataTransfer.files);
         }}
         className={cn(
-          'flex flex-col items-center gap-2 rounded-lg border-2 border-dashed p-6 text-center transition-colors',
+          'flex flex-col items-center gap-2 rounded border-2 border-dashed p-6 text-center transition-colors',
           dragging ? 'border-primary bg-muted' : 'border-border',
         )}
       >

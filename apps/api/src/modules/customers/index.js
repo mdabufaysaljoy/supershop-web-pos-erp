@@ -6,6 +6,7 @@ export {
   customerPrincipal,
   findCustomerByContact,
   findOrCreateCustomerFromOAuth,
+  findOrCreateWalkInCustomer,
   getCustomerDetailForAdmin,
   getCustomerSegmentsSummary,
   listCustomersForAdmin,

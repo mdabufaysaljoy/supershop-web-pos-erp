@@ -18,7 +18,7 @@ export function BlockPalette({ onAdd, disabled }) {
               type="button"
               disabled={disabled}
               onClick={() => onAdd(block.type)}
-              className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-start text-sm hover:bg-muted disabled:opacity-50"
+              className="flex w-full items-center gap-2 rounded border px-3 py-2 text-start text-sm hover:bg-muted disabled:opacity-50"
             >
               <Plus className="size-4 shrink-0 text-muted-foreground" aria-hidden />
               {block.label}

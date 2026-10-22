@@ -28,7 +28,7 @@ export function NotesCard({ order }) {
       </CardHeader>
       <CardContent className="grid gap-4">
         {order.note && (
-          <p className="rounded-lg bg-muted p-3 text-sm">
+          <p className="rounded bg-muted p-3 text-sm">
             <span className="font-medium">{t('orders.notes.fromCustomer')}: </span>
             {order.note}
           </p>

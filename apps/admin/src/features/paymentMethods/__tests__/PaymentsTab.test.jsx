@@ -199,4 +199,53 @@ describe('Settings → Payments', () => {
     expect(screen.getByLabelText(/^Secret key/)).toHaveValue('');
     expect(screen.getByText('Not set yet.')).toBeInTheDocument(); // the webhook secret
   });
+
+  it('sorts the methods by where the money is taken, and says which work in both', async () => {
+    setup(['settings.view', 'settings.payments'], {
+      'GET /api/v1/payment-methods': json(200, {
+        data: [
+          ...METHODS,
+          {
+            id: 'm3',
+            key: 'cash',
+            type: 'cash',
+            label: { en: 'Cash' },
+            instructions: { en: '' },
+            enabled: true,
+            position: 2,
+            fee: { fixed: 0, bps: 0 },
+            minTotal: null,
+            maxTotal: null,
+            builtIn: true,
+          },
+          {
+            id: 'm4',
+            key: 'bkash',
+            type: 'mfs',
+            label: { en: 'bKash' },
+            instructions: { en: '' },
+            enabled: true,
+            position: 3,
+            fee: { fixed: 0, bps: 0 },
+            minTotal: null,
+            maxTotal: null,
+            builtIn: false,
+          },
+        ],
+      }),
+    });
+
+    const cardOf = (heading) => heading.closest('[data-slot="card"]');
+    const counter = cardOf(await screen.findByRole('heading', { name: /At the counter/ }));
+    const online = cardOf(await screen.findByRole('heading', { name: /Online store/ }));
+
+    // Cash is the drawer's, the gateway is the website's, a wallet is both — and says so.
+    expect(within(counter).getByText('Cash')).toBeInTheDocument();
+    expect(within(counter).queryByText('Card, Mada or Apple Pay')).toBeNull();
+    expect(within(online).getByText('Card, Mada or Apple Pay')).toBeInTheDocument();
+    expect(within(online).queryByText('Cash')).toBeNull();
+    expect(within(counter).getByText('bKash')).toBeInTheDocument();
+    expect(within(counter).getByText('Also online')).toBeInTheDocument();
+    expect(within(online).getByText('Also at the counter')).toBeInTheDocument();
+  });
 });

@@ -209,4 +209,15 @@ describe('Settings → Printing (P6.4)', () => {
       fields: expect.objectContaining({ showSku: true }),
     });
   });
+
+  it('reads as three steps, and says which of them are still to do', async () => {
+    setup(['settings.view', 'settings.printing'], {
+      // Keys in, but no printer added yet: step 1 done, step 2 waiting.
+      'GET /api/v1/printing/profiles': json(200, { data: [] }),
+    });
+    expect(await screen.findByText('Connect this computer to the printers')).toBeInTheDocument();
+    expect(screen.getByText('The printers at this shop')).toBeInTheDocument();
+    expect(screen.getByText('What a receipt and a label say')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByText('Not set up yet').length).toBeGreaterThan(0));
+  });
 });

@@ -37,7 +37,7 @@ export function TemplateRow({ template, canEdit }) {
   };
 
   return (
-    <li className="rounded-xl border">
+    <li className="rounded border">
       <div className="flex flex-wrap items-center gap-3 p-4">
         <div className="grid min-w-0 flex-1 gap-0.5">
           <span className="flex flex-wrap items-center gap-2">
@@ -109,14 +109,14 @@ export function TemplateRow({ template, canEdit }) {
               type="button"
               disabled={!canEdit || !draft || update.isPending}
               onClick={save}
-              className="h-10 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              className="h-10 rounded bg-primary px-5 text-sm font-medium text-primary-foreground disabled:opacity-60"
             >
               {t('common.save')}
             </button>
             {draft && (
               <button
                 type="button"
-                className="h-10 rounded-md border px-5 text-sm"
+                className="h-10 rounded border px-5 text-sm"
                 onClick={() => setDraft(null)}
               >
                 {t('common.cancel')}

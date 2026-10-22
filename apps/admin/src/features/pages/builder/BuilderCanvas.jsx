@@ -45,7 +45,7 @@ export function BuilderCanvas({
 
   if (content.blocks.length === 0)
     return (
-      <p className="rounded-xl border border-dashed p-12 text-center text-sm text-muted-foreground">
+      <p className="rounded border border-dashed p-12 text-center text-sm text-muted-foreground">
         {t('cms.builder.emptyCanvas')}
       </p>
     );
@@ -97,7 +97,7 @@ function CanvasBlock({ block, rendered, selected, onSelect, onRemove, onDuplicat
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        'group relative rounded-lg border-2 bg-background p-4',
+        'group relative rounded border-2 bg-background p-4',
         selected ? 'border-primary' : 'border-transparent hover:border-border',
         isDragging && 'opacity-60',
       )}

@@ -82,7 +82,7 @@ function LoyaltySettingsForm({ customerSettings, featureSettings }) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex size-8 items-center justify-center rounded bg-primary/10 text-primary">
               <Gift className="size-4" />
             </div>
             <div>
@@ -113,7 +113,7 @@ function LoyaltySettingsForm({ customerSettings, featureSettings }) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
+            <div className="flex size-8 items-center justify-center rounded bg-amber-500/10 text-amber-600">
               <Coins className="size-4" />
             </div>
             <div>
@@ -180,7 +180,7 @@ function LoyaltySettingsForm({ customerSettings, featureSettings }) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+            <div className="flex size-8 items-center justify-center rounded bg-emerald-500/10 text-emerald-600">
               <CreditCard className="size-4" />
             </div>
             <div>

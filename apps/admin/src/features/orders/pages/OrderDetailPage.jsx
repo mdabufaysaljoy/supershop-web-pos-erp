@@ -126,7 +126,7 @@ export function OrderDetailPage() {
                             asChild
                             variant="outline"
                             size="sm"
-                            className="h-7 px-2 text-xs rounded-md gap-1"
+                            className="h-7 px-2 text-xs rounded gap-1"
                           >
                             <Link
                               to={`/returns?order=${encodeURIComponent(order.orderNo)}&mode=return&variantId=${encodeURIComponent(i.variantId)}&qty=${i.qty}`}
@@ -139,7 +139,7 @@ export function OrderDetailPage() {
                             asChild
                             variant="outline"
                             size="sm"
-                            className="h-7 px-2 text-xs rounded-md gap-1"
+                            className="h-7 px-2 text-xs rounded gap-1"
                           >
                             <Link
                               to={`/returns?order=${encodeURIComponent(order.orderNo)}&mode=exchange&variantId=${encodeURIComponent(i.variantId)}&qty=${i.qty}`}

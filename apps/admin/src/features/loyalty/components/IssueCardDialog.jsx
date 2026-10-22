@@ -38,7 +38,7 @@ export function IssueCardDialog({ open, onClose, customer, onCardIssued }) {
     <Dialog open={open} onOpenChange={(val) => !val && onClose?.()}>
       <DialogContent className="max-w-md p-6">
         <div className="flex items-center gap-2 border-b pb-3">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="flex size-8 items-center justify-center rounded bg-primary/10 text-primary">
             <CreditCard className="size-4" />
           </div>
           <div>
@@ -56,7 +56,7 @@ export function IssueCardDialog({ open, onClose, customer, onCardIssued }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Customer Summary Card */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs">
+          <div className="rounded border border-slate-200 bg-slate-50 p-3 text-xs">
             <span className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               {t('customers.name', 'Customer')}
             </span>
@@ -92,7 +92,7 @@ export function IssueCardDialog({ open, onClose, customer, onCardIssued }) {
           </div>
 
           {/* What the card costs — the shop's own setting (Settings → Customers). */}
-          <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+          <div className="flex items-center justify-between rounded border border-slate-200 bg-slate-50 px-3 py-2">
             <div>
               <span className="block text-xs font-semibold text-slate-700">
                 {t('loyalty.issue.feeLabel', 'Card issuance fee')}

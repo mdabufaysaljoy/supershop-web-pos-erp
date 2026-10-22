@@ -73,7 +73,7 @@ export function MovementsTab({ params, go, onDocument }) {
           <input
             type="date"
             dir="ltr"
-            className="h-9 rounded-md border bg-transparent px-2 text-sm"
+            className="h-9 rounded border bg-transparent px-2 text-sm"
             value={from}
             onChange={(e) => go({ from: e.target.value, page: 1 })}
           />
@@ -83,7 +83,7 @@ export function MovementsTab({ params, go, onDocument }) {
           <input
             type="date"
             dir="ltr"
-            className="h-9 rounded-md border bg-transparent px-2 text-sm"
+            className="h-9 rounded border bg-transparent px-2 text-sm"
             value={to}
             onChange={(e) => go({ to: e.target.value, page: 1 })}
           />

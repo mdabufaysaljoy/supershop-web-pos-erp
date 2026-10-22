@@ -56,7 +56,7 @@ export function SalesOverTimeChart({ data = [] }) {
         <CardTitle className="text-base font-semibold">
           {t('dashboard.charts.salesTrend')}
         </CardTitle>
-        <div className="flex items-center gap-1 rounded-lg border bg-muted/40 p-1">
+        <div className="flex items-center gap-1 rounded border bg-muted/40 p-1">
           <Button
             type="button"
             size="sm"

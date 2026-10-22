@@ -14,7 +14,7 @@ export function MediaGrid({ items, loading, onOpen, selectedIds }) {
     return (
       <div className={GRID}>
         {Array.from({ length: 12 }, (_, i) => (
-          <Skeleton key={i} className="aspect-square rounded-lg" />
+          <Skeleton key={i} className="aspect-square rounded" />
         ))}
       </div>
     );
@@ -31,17 +31,17 @@ export function MediaGrid({ items, loading, onOpen, selectedIds }) {
             onClick={() => onOpen(m.id)}
             aria-pressed={selectedIds ? selectedIds.includes(m.id) : undefined}
             className={cn(
-              'group relative grid w-full gap-1 rounded-lg border p-2 text-start outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50',
+              'group relative grid w-full gap-1 rounded border p-2 text-start outline-none hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50',
               selectedIds?.includes(m.id) && 'border-primary ring-2 ring-primary',
             )}
           >
             {selectedIds?.includes(m.id) && (
               <Check
                 aria-hidden
-                className="absolute end-3 top-3 size-5 rounded-full bg-primary p-0.5 text-primary-foreground"
+                className="absolute end-3 top-3 size-5 rounded bg-primary p-0.5 text-primary-foreground"
               />
             )}
-            <span className="flex aspect-square items-center justify-center overflow-hidden rounded-md bg-muted">
+            <span className="flex aspect-square items-center justify-center overflow-hidden rounded bg-muted">
               <img
                 src={m.variants.thumb?.url ?? m.url}
                 alt={m.alt?.en ?? ''}

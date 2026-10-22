@@ -113,7 +113,7 @@ export function OrdersPage() {
       {isPending ? (
         <Skeleton className="h-64" />
       ) : items.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+        <p className="rounded border border-dashed p-10 text-center text-sm text-muted-foreground">
           {t('orders.empty')}
         </p>
       ) : (

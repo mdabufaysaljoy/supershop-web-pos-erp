@@ -44,10 +44,10 @@ export function TopProductsCard({ products = [] }) {
                         <img
                           src={p.imageUrl}
                           alt={p.name}
-                          className="h-8 w-8 rounded-md object-cover border"
+                          className="h-8 w-8 rounded object-cover border"
                         />
                       ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-muted text-muted-foreground">
+                        <div className="flex h-8 w-8 items-center justify-center rounded border bg-muted text-muted-foreground">
                           <Package className="h-4 w-4" />
                         </div>
                       )}

@@ -46,13 +46,13 @@ export function StatusActions({ order }) {
       )}
 
       {confirming && (
-        <div className="grid gap-3 rounded-lg border border-destructive/40 p-4">
+        <div className="grid gap-3 rounded border border-destructive/40 p-4">
           <p className="text-sm font-medium">{t('orders.actions.cancelTitle')}</p>
           <p className="text-sm text-muted-foreground">{t('orders.actions.cancelHelp')}</p>
           <label className="grid gap-1 text-sm">
             {t('orders.actions.cancelReason')}
             <input
-              className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+              className="h-9 rounded border border-input bg-transparent px-3 text-sm"
               maxLength={200}
               value={reason}
               onChange={(e) => setReason(e.target.value)}

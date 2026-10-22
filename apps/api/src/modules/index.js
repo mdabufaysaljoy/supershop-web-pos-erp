@@ -22,6 +22,7 @@ import {
   createCustomerRouter,
   customerPrincipal,
   findCustomerByContact,
+  findOrCreateWalkInCustomer,
 } from './customers/index.js';
 import { createCartRouter } from './cart/index.js';
 import {
@@ -218,7 +219,15 @@ export function registerModules() {
     resolveForCheckout(key, { total, isGatewayReady: () => isGatewayReady() }),
   );
   // A sale at the counter can be attached to a customer the shop already knows (P6.1).
-  setPosCustomerLookup(findCustomerByContact);
+  /**
+   * The till finds whoever the sale is for — and keeps somebody typed in for the first time, so
+   * the shop has them next time (their points and their history need an owner).
+   */
+  setPosCustomerLookup(
+    async ({ customerId, name, phone, email }) =>
+      (await findCustomerByContact({ customerId, phone, email })) ??
+      (await findOrCreateWalkInCustomer({ name, phone, email })),
+  );
   setPosShiftResolver(resolveOpenShiftForSale);
   const getShop = async (lang) => {
     const chrome = await getSiteChrome(lang);

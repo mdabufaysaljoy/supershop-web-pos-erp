@@ -281,7 +281,7 @@ function LineRow({ mode, line, branchId, error, costError, onChange, onRemove })
     mode === 'count' && line.value !== '' && onHand != null ? Number(line.value) - onHand : null;
 
   return (
-    <li className="grid gap-2 rounded-md border p-2 sm:grid-cols-[1fr_8rem_auto] sm:items-start">
+    <li className="grid gap-2 rounded border p-2 sm:grid-cols-[1fr_8rem_auto] sm:items-start">
       <div className="grid gap-1">
         <VariantLabel variant={line.variant} />
         {onHand != null && (

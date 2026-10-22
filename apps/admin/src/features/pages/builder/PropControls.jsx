@@ -48,7 +48,7 @@ function BrandsControl({ value, onChange, disabled }) {
   const chosen = idList(value);
   if (!rows.length) return <p className="text-sm text-muted-foreground">{t('brands.empty')}</p>;
   return (
-    <fieldset className="grid max-h-64 gap-1 overflow-y-auto rounded-md border p-2">
+    <fieldset className="grid max-h-64 gap-1 overflow-y-auto rounded border p-2">
       <legend className="sr-only">{t('cms.builder.brands')}</legend>
       {rows.map((brand) => (
         <Checkbox
@@ -100,7 +100,7 @@ function ProductsControl({ value, onChange, disabled, max = 20 }) {
     <div className="grid gap-2">
       <ol className="grid gap-1">
         {chosen.map((id, i) => (
-          <li key={id} className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm">
+          <li key={id} className="flex items-center gap-2 rounded border px-2 py-1 text-sm">
             <span className="flex-1 truncate">
               {names[i]?.data?.name?.en ?? t('cms.builder.productLoading')}
             </span>
@@ -135,7 +135,7 @@ function ProductsControl({ value, onChange, disabled, max = 20 }) {
           <button
             key={p.id}
             type="button"
-            className="rounded-md border px-2 py-1 text-start text-sm hover:bg-muted"
+            className="rounded border px-2 py-1 text-start text-sm hover:bg-muted"
             disabled={disabled || chosen.length >= max}
             onClick={() => {
               onChange([...chosen, p.id]);
@@ -185,7 +185,7 @@ export function PropControl({ editor, value, onChange, disabled, onPickMedia, ar
         return (
           <input
             type="datetime-local"
-            className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+            className="h-9 w-full rounded border border-input bg-transparent px-3 text-sm"
             // The schema wants an offset; the browser gives local time without one.
             value={value ? new Date(value).toISOString().slice(0, 16) : ''}
             disabled={disabled}
@@ -277,7 +277,7 @@ export function Repeater({ editor, items, onChange, disabled, onPickMedia, arabi
     <div className="grid gap-3">
       <h3 className="text-sm font-medium">{editor.label}</h3>
       {rows.map((row, index) => (
-        <fieldset key={index} className="grid gap-3 rounded-md border p-3">
+        <fieldset key={index} className="grid gap-3 rounded border p-3">
           <legend className="px-1 text-xs text-muted-foreground">
             {editor.itemLabel} {index + 1}
           </legend>

@@ -24,7 +24,7 @@ export function PosHeldSalesModal({ open, onOpenChange, held = [], onResume, onD
         <DialogDescription>{t('pos.held.description')}</DialogDescription>
 
         {entries.length === 0 ? (
-          <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+          <p className="rounded border border-dashed p-8 text-center text-sm text-muted-foreground">
             {t('pos.held.empty')}
           </p>
         ) : (
@@ -32,9 +32,9 @@ export function PosHeldSalesModal({ open, onOpenChange, held = [], onResume, onD
             {entries.map((entry, index) => (
               <li
                 key={entry.id}
-                className="flex flex-wrap items-center gap-3 rounded-lg border bg-card px-3 py-2.5"
+                className="flex flex-wrap items-center gap-3 rounded border bg-card px-3 py-2.5"
               >
-                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-800">
+                <span className="flex size-7 shrink-0 items-center justify-center rounded bg-amber-100 text-xs font-bold text-amber-800">
                   {index + 1}
                 </span>
                 <div className="grid min-w-0 flex-1 gap-0.5">
@@ -104,7 +104,7 @@ export function HeldSalesButton({ count, onClick }) {
       <PauseCircle className="size-3.5" aria-hidden />
       {t('pos.held.open')}
       {count > 0 && (
-        <span className="rounded-full bg-white/25 px-1.5 text-[10px] font-bold">{count}</span>
+        <span className="rounded bg-white/25 px-1.5 text-[10px] font-bold">{count}</span>
       )}
     </Button>
   );

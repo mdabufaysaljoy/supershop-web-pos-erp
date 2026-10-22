@@ -155,7 +155,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
           >
             {t('export.tabs.history')}
             {jobs.length > 0 && (
-              <span className="ms-2 px-1.5 py-0.5 text-xs rounded-md bg-muted text-muted-foreground">
+              <span className="ms-2 px-1.5 py-0.5 text-xs rounded bg-muted text-muted-foreground">
                 {jobs.length}
               </span>
             )}
@@ -175,7 +175,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
                     <button
                       key={fmt}
                       type="button"
-                      className={`flex flex-col items-center justify-center p-3 rounded-lg border text-sm transition-all ${
+                      className={`flex flex-col items-center justify-center p-3 rounded border text-sm transition-all ${
                         isSelected
                           ? 'border-primary bg-primary/5 text-primary font-semibold ring-1 ring-primary'
                           : 'border-border bg-card hover:bg-muted/50 text-foreground'
@@ -205,7 +205,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
               />
             </div>
 
-            <div className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground">
+            <div className="rounded bg-muted/40 p-3 text-xs text-muted-foreground">
               <p>{t('export.dialog.filterNotice')}</p>
             </div>
 
@@ -239,7 +239,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
           <div className="grid gap-5 py-4">
             {/* Presets Bar */}
             {presets.length > 0 && (
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 text-sm">
+              <div className="flex items-center gap-2 p-2 rounded bg-muted/50 text-sm">
                 <span className="text-xs font-semibold text-muted-foreground uppercase px-1">
                   {t('export.presets.label')}:
                 </span>
@@ -313,7 +313,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
                   })}
                 </span>
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1 border rounded-md">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto p-1 border rounded">
                 {availableColumns.map((col) => {
                   const isChecked = selectedColumns.includes(col.key);
                   const isPermitted = col.permitted;
@@ -411,7 +411,7 @@ export function ExportDialog({ open, onOpenChange, resource, filters = {}, defau
                 {t('export.history.empty')}
               </div>
             ) : (
-              <div className="divide-y divide-border border rounded-lg overflow-hidden">
+              <div className="divide-y divide-border border rounded overflow-hidden">
                 {jobs.map((job) => (
                   <div
                     key={job.id}

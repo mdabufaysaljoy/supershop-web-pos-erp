@@ -595,7 +595,7 @@ describe('who the sale is for', () => {
     expect(res.body.error.details[0].path).toBe('customer.phone');
   });
 
-  it('keeps a name and number nobody has an account for, without creating one', async () => {
+  it('keeps somebody typed in at the counter, so the next sale already knows them', async () => {
     const sale = await ok(
       await till().sell(
         basket({ customer: { mode: 'contact', name: 'Nora Said', phone: '0599999999' } }),
@@ -603,7 +603,20 @@ describe('who the sale is for', () => {
       201,
     );
     const stored = await Order.findOne({ orderNo: sale.orderNo }).lean();
-    expect(stored.customer.customerId).toBeNull();
     expect(stored.customer.phone).toBe('+966599999999');
+    // The shop has them now — on the customers list, with the sale against their name.
+    expect(stored.customer.customerId).not.toBeNull();
+    const listed = await ok(await root.get('/api/v1/customers?q=0599999999'));
+    expect(listed.map((c) => c.name)).toContain('Nora Said');
+
+    // And a second sale to the same number attaches the SAME record, not another one.
+    const again = await ok(
+      await till().sell(
+        basket({ customer: { mode: 'contact', name: 'Nora Said', phone: '0599999999' } }),
+      ),
+      201,
+    );
+    const second = await Order.findOne({ orderNo: again.orderNo }).lean();
+    expect(String(second.customer.customerId)).toBe(String(stored.customer.customerId));
   });
 });

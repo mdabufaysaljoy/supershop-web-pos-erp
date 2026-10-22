@@ -16,7 +16,8 @@ const SAMPLE_BASKET = 20000;
  * basket size, and move it up or down the checkout list. Built-in methods can be edited but not
  * deleted — checkout knows how to finish them and old orders name them.
  */
-export function MethodRow({ method, canEdit, first, last, onMove }) {
+/** `note`: one line about this method in the section it is listed under (e.g. "also online"). */
+export function MethodRow({ method, canEdit, first, last, onMove, note = null }) {
   const { t } = useTranslation();
   const update = useUpdateMethod();
   const remove = useDeleteMethod();
@@ -99,6 +100,7 @@ export function MethodRow({ method, canEdit, first, last, onMove }) {
             <span className="font-medium">{method.label?.en ?? method.key}</span>
             <Badge variant="secondary">{t(`payments.methods.types.${method.type}`)}</Badge>
             {method.builtIn && <Badge variant="outline">{t('payments.methods.builtIn')}</Badge>}
+            {note && <Badge tone="info">{note}</Badge>}
           </span>
           <span className="text-sm text-muted-foreground">{method.key}</span>
         </div>

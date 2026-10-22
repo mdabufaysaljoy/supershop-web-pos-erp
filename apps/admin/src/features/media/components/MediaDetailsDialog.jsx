@@ -62,7 +62,7 @@ function DetailsBody({ media, onClose }) {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="flex items-center justify-center overflow-hidden rounded-md bg-muted">
+        <div className="flex items-center justify-center overflow-hidden rounded bg-muted">
           <img
             src={media.variants.md?.url ?? media.url}
             alt={media.alt?.en ?? ''}

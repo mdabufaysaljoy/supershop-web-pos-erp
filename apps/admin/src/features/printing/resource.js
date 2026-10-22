@@ -103,6 +103,20 @@ export const usePrintReceipt = () =>
     { success: 'printing.sent' },
   );
 
+/**
+ * Builds a loyalty card job and sends it to the label printer. A membership card is a label the
+ * customer carries, so it comes off the same printer as a barcode label — never the browser.
+ */
+export const usePrintLoyaltyCard = () =>
+  usePrintingAction(
+    async (body) => {
+      const job = await apiData(`${BASE}/loyalty-card`, { method: 'POST', body });
+      await printRaw(job);
+      return job;
+    },
+    { success: 'printing.sent' },
+  );
+
 /** Builds a barcode label job and sends it to the label printer. */
 export const usePrintLabel = () =>
   usePrintingAction(

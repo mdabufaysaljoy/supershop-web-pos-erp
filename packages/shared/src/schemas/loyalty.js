@@ -52,9 +52,12 @@ export function createLoyaltySchemas() {
     customerId: objectId,
   });
 
+  /**
+   * Issuing a card takes only the number (and even that is generated when it is left out). The
+   * fee is the SHOP's, from `loyalty.cardIssuanceFee` — not something a till can type over.
+   */
   const issueCard = z.object({
     cardNumber: plainText({ min: 3, max: 64 }).optional(),
-    feeHalalas: int(0, 100_000_000).optional(),
   });
 
   const cardParam = z.object({

@@ -44,6 +44,7 @@ export {
 export { receiptUrl } from './printing/receiptUrl.js';
 export {
   buildLabelTemplate,
+  buildLoyaltyCardTemplate,
   buildReceiptTemplate,
   DEFAULT_LABEL_CONFIG,
   DEFAULT_LABEL_TEMPLATE,
@@ -52,6 +53,7 @@ export {
   expand,
   fill,
   labelData,
+  loyaltyCardData,
   RECEIPT_LANGUAGES,
   receiptData,
   renderTemplate,

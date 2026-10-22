@@ -16,6 +16,7 @@ import * as c from './printing.controller.js';
  *  POST /profiles              settings.printing
  *  PATCH/DELETE /profiles/:id  settings.printing
  *  GET  /receipt/:id           pos.sell | order.view — the receipt for an order, as bytes
+ *  POST /loyalty-card          pos.sell | loyalty.adjust | customer.manage — a member's card
  */
 export function createPrintingRouter({ schemas = createPrintingSchemas() } = {}) {
   const r = express.Router();
@@ -73,6 +74,12 @@ export function createPrintingRouter({ schemas = createPrintingSchemas() } = {})
     requireAnyPermission(P.POS_SELL, P.ORDER_VIEW),
     validate({ params: schemas.idParam, query: schemas.jobQuery }),
     c.receiptJob,
+  );
+  r.post(
+    '/loyalty-card',
+    requireAnyPermission(P.POS_SELL, P.LOYALTY_ADJUST, P.CUSTOMER_MANAGE),
+    validate({ body: schemas.loyaltyCardJob }),
+    c.loyaltyCardJob,
   );
   r.post(
     '/label',

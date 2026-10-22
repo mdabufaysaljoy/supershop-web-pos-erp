@@ -1,22 +1,28 @@
 import { Barcode, QrCode } from '@supershop/ui';
 import { CreditCard, Printer, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { LOYALTY_TIER_TONE } from '@/features/customers/status';
+import { usePrintingStatus, usePrintLoyaltyCard } from '@/features/printing/resource';
 import { useSettings } from '@/features/settings/hooks';
 import { fmt } from '@/lib/format';
 
 /**
- * Printable Loyalty Card / Label Modal
- * Displays customer's loyalty card with Code128 Barcode & QR Code.
- * Optimized for standard card/label printing via window.print().
+ * The member's loyalty card: what the customer carries, and what a cashier scans to attach them
+ * to a sale. On screen it shows the whole card; what PRINTS is the label the shop's own label
+ * printer can make — the member's number as a Code 128 barcode — sent to that printer as bytes,
+ * never through the browser's print dialog (a browser cannot drive a thermal printer, and an
+ * 80 mm label rendered onto A4 is not a card).
  */
 export function LoyaltyCardModal({ open, onClose, customer, account }) {
   const { t } = useTranslation();
   const { data: generalSettings } = useSettings('general');
+  const printCard = usePrintLoyaltyCard();
+  const printing = usePrintingStatus();
   const storeName = generalSettings?.find?.((s) => s.key === 'store.name')?.value || 'SUPERSHOP';
 
   if (!customer) return null;
@@ -29,7 +35,11 @@ export function LoyaltyCardModal({ open, onClose, customer, account }) {
     account?.cardIssuedAt || customer?.loyalty?.account?.cardIssuedAt || new Date();
 
   const handlePrint = () => {
-    window.print();
+    if (!printing.data?.enabled) {
+      toast.error(t('printing.notConfigured'));
+      return;
+    }
+    printCard.mutate({ cardNumber, name: customer.name });
   };
 
   return (
@@ -56,10 +66,7 @@ export function LoyaltyCardModal({ open, onClose, customer, account }) {
 
         {/* The Printable Loyalty Card / Label Container */}
         <div className="flex justify-center py-2">
-          <div
-            id="loyalty-card-printable"
-            className="w-full max-w-[340px] rounded-lg border-2 border-slate-900 bg-white p-5 text-slate-900 shadow-md print:border-black"
-          >
+          <div className="w-full max-w-[340px] rounded-lg border-2 border-slate-900 bg-white p-5 text-slate-900 shadow-md print:border-black">
             {/* Store Brand & Card Title */}
             <div className="flex items-center justify-between border-b border-slate-200 pb-2.5 mb-3">
               <div>
@@ -132,6 +139,7 @@ export function LoyaltyCardModal({ open, onClose, customer, account }) {
             type="button"
             size="sm"
             onClick={handlePrint}
+            disabled={printCard.isPending}
             className="gap-1.5 font-semibold shadow-2xs"
           >
             <Printer className="size-4" />

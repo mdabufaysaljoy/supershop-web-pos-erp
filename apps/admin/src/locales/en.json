@@ -101,7 +101,8 @@
     }
   },
   "user": {
-    "superAdmin": "Super admin"
+    "superAdmin": "Super admin",
+    "noRole": "No role assigned"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -2229,7 +2230,7 @@
       "description": "Printable loyalty card label with barcode & QR code",
       "badge": "Rewards Club",
       "issued": "Issued",
-      "printLabel": "Print Label",
+      "printLabel": "Print card",
       "footerNotice": "Scan barcode or QR at checkout to earn reward points"
     },
     "issue": {
@@ -2238,9 +2239,10 @@
       "cardNumberLabel": "Card Number / Barcode (Optional)",
       "cardNumberPlaceholder": "Leave blank to auto-generate (e.g. LC10001234)",
       "cardNumberHint": "Can be scanned or entered manually. Code128 and QR format supported.",
-      "feeLabel": "Card Issuance Fee (SAR / Amount)",
+      "feeLabel": "Card issuance fee",
       "feeHint": "Store fee charged for issuing a membership card (0 for free).",
-      "submit": "Issue Card & View Label"
+      "submit": "Issue Card & View Label",
+      "feeFixed": "Set in Settings → Customers; the same at every till."
     }
   },
   "printing": {

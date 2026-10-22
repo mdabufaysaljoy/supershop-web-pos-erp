@@ -140,19 +140,15 @@ export async function lookupMembership(query) {
 }
 
 /**
- * Issues a loyalty card to a customer with optional card number and issuance fee.
+ * Issues a loyalty card to a customer. The number is generated unless one is given; the fee is
+ * the shop's `loyalty.cardIssuanceFee` setting.
  */
-export async function issueCard({
-  customerId,
-  cardNumber = null,
-  feeHalalas = null,
-  actorId = null,
-}) {
+export async function issueCard({ customerId, cardNumber = null, actorId = null }) {
   const customer = await findCustomerById(customerId);
   if (!customer) throw new NotFoundError('Customer not found');
 
-  const defaultFee = getSetting('loyalty.cardIssuanceFee') ?? 0;
-  const finalFee = feeHalalas != null ? feeHalalas : defaultFee;
+  // What a card costs is the shop's own setting, the same for every counter and every cashier.
+  const finalFee = getSetting('loyalty.cardIssuanceFee') ?? 0;
 
   let finalCardNumber = cardNumber ? String(cardNumber).trim().toUpperCase() : null;
   if (!finalCardNumber) {

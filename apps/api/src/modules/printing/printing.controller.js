@@ -52,3 +52,5 @@ export const updateLabelTemplate = async (req, res) =>
 
 export const labelJob = async (req, res) =>
   sendData(res, await service.buildLabelJob(req.access, req.valid.body));
+export const loyaltyCardJob = async (req, res) =>
+  sendData(res, await service.buildLoyaltyCardJob(req.access, req.valid.body));

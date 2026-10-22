@@ -166,6 +166,9 @@ describe('authorization matrix', () => {
     });
     expect(res.body.data.permissions).toContain('pos.sell');
     expect(res.body.data.permissions).not.toContain('order.refund');
+    // The shell names the person's role: a cashier is a Cashier, not "Administrator".
+    expect(res.body.data.roleName).toBe('Cashier');
+    expect((await as('root').get('/api/v1/staff/me/access')).body.data.roleName).toBeNull();
   });
 
   it('permission changes apply on the very next request (no stale cache)', async () => {

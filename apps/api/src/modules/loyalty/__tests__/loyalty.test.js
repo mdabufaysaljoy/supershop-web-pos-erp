@@ -377,12 +377,17 @@ describe('P7.1 Loyalty Engine', () => {
     expect(account.pointsBalance).toBe(3); // 5 - 2 = 3
   });
 
-  it('issues a loyalty card with fee and finds customer by card number or QR code scan', async () => {
-    // 1. Issue card with card fee 2500 halalas (25 SAR)
+  it("issues a loyalty card at the shop's own fee, and finds the customer by card or QR", async () => {
+    // What a card costs is a setting, the same at every till — not a figure a counter sends.
+    await ok(
+      await as('root').patch('/api/v1/settings', {
+        changes: [{ key: 'loyalty.cardIssuanceFee', value: 2500 }],
+      }),
+    );
     const cardRes = await ok(
       await as('root').post(`/api/v1/loyalty/customers/${customerUser.id}/issue-card`, {
         cardNumber: 'LOY-99887766',
-        feeHalalas: 2500,
+        feeHalalas: 10, // ignored: the shop decides, not the caller
       }),
       201,
     );

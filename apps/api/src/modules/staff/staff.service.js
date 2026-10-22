@@ -58,6 +58,19 @@ export async function resolveStaffAccess(staffId) {
   });
 }
 
+/**
+ * What the admin app needs to render `can()` and branch pickers, plus the NAME of the role the
+ * user holds — the shell shows it, and it must say what the person actually is rather than
+ * guessing "Administrator" at everyone.
+ */
+export async function describeMyAccess(access) {
+  const names = access.roleId ? await getRoleNames([access.roleId]) : new Map();
+  return {
+    ...describeAccess(access),
+    roleName: access.roleId ? (names.get(String(access.roleId)) ?? null) : null,
+  };
+}
+
 /** What the admin app needs to render `can()` and branch pickers. */
 export const describeAccess = (access) => ({
   staffId: access.staffId,

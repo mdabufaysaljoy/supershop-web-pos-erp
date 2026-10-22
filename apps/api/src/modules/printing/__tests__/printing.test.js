@@ -235,6 +235,26 @@ describe('a receipt for a sale', () => {
     expect(Math.max(...lines.map((l) => l.length))).toBeLessThanOrEqual(32);
   });
 
+  it("prints a member's loyalty card as a barcode on the label printer", async () => {
+    await makePrinter({ isDefault: true, kind: 'label', widthMm: 58 });
+    const job = await ok(
+      await root.post(`${PRINTING}/loyalty-card`, {
+        cardNumber: 'LC12345678',
+        name: 'Nora Said',
+      }),
+    );
+    expect(job).toMatchObject({ cardNumber: 'LC12345678', copies: 1 });
+    const bytes = [...Buffer.from(job.data, 'base64')];
+    // Code 128 (GS k 73) carrying the card number — what the till scans to find the member.
+    expect(bytes.some((b, i) => b === 0x1d && bytes[i + 1] === 0x6b && bytes[i + 2] === 0x49)).toBe(
+      true,
+    );
+    expect(Buffer.from(bytes).toString('latin1')).toContain('LC12345678');
+    // The member's name, and no price: a card is not a shelf label.
+    expect(job.lines).toContain('Nora Said');
+    expect(job.lines.join(' ')).not.toMatch(/SAR/);
+  });
+
   it('kicks the drawer open only when that printer is asked to', async () => {
     await makePrinter({ isDefault: true, openDrawer: true });
     const sale = await sell();

@@ -52,6 +52,17 @@ describe('route guards', () => {
     expect(nav[0]).not.toHaveTextContent('Dashboard');
   });
 
+  it('names the person by the role they hold, not "Administrator"', async () => {
+    mockFetch({
+      'GET /api/v1/staff/me/access': () =>
+        json(200, { data: { ...useAuthStore.getState().access, roleName: 'Cashier' } }),
+    });
+    signIn(['pos.sell']);
+    renderAt('/pos');
+    expect(await screen.findByText('Cashier')).toBeInTheDocument();
+    expect(screen.queryByText('Administrator')).toBeNull();
+  });
+
   it('names the shop and the branch this terminal works in, above the menu', async () => {
     mockFetch({
       'GET /api/v1/staff/me/access': () => json(200, { data: useAuthStore.getState().access }),

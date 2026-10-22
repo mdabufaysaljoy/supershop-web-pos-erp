@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useIssueLoyaltyCard } from '@/features/customers/resource';
 import { useSettings } from '@/features/settings/hooks';
+import { fmt } from '@/lib/format';
 
 /**
  * Issue Loyalty Card Dialog
@@ -17,20 +18,16 @@ export function IssueCardDialog({ open, onClose, customer, onCardIssued }) {
   const { data: customerSettings } = useSettings('customers');
   const defaultFeeHalalas =
     customerSettings?.find?.((s) => s.key === 'loyalty.cardIssuanceFee')?.value ?? 0;
-  const defaultFeeMajor = (defaultFeeHalalas / 100).toFixed(2);
-
   const [cardNumber, setCardNumber] = useState('');
-  const [fee, setFee] = useState(defaultFeeMajor);
   const issueMutation = useIssueLoyaltyCard(customer?.id);
 
   if (!customer) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const feeHalalas = Math.max(0, Math.round((parseFloat(fee) || 0) * 100));
+    // The fee is the shop's setting, not a figure a counter types: the API decides it.
     const result = await issueMutation.mutateAsync({
       cardNumber: cardNumber.trim() || undefined,
-      feeHalalas,
     });
     if (result) {
       onCardIssued?.(result);
@@ -94,26 +91,25 @@ export function IssueCardDialog({ open, onClose, customer, onCardIssued }) {
             </p>
           </div>
 
-          {/* Card Issuance Fee Input */}
-          <div className="space-y-1.5">
-            <Label htmlFor="issue-card-fee" className="text-xs font-semibold">
-              {t('loyalty.issue.feeLabel', 'Card Issuance Fee (SAR / Amount)')}
-            </Label>
-            <Input
-              id="issue-card-fee"
-              type="number"
-              step="0.01"
-              min="0"
-              value={fee}
-              onChange={(e) => setFee(e.target.value)}
-              className="h-9 text-xs"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              {t(
-                'loyalty.issue.feeHint',
-                'Store fee charged for issuing a membership card (0 for free).',
-              )}
-            </p>
+          {/* What the card costs — the shop's own setting (Settings → Customers). */}
+          <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+            <div>
+              <span className="block text-xs font-semibold text-slate-700">
+                {t('loyalty.issue.feeLabel', 'Card issuance fee')}
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                {t(
+                  'loyalty.issue.feeFixed',
+                  'Set in Settings → Customers; the same at every till.',
+                )}
+              </span>
+            </div>
+            <output
+              aria-label={t('loyalty.issue.feeLabel', 'Card issuance fee')}
+              className="text-sm font-bold tabular-nums text-slate-900"
+            >
+              {fmt.money(defaultFeeHalalas)}
+            </output>
           </div>
 
           {/* Actions */}

@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import {
   buildLabelTemplate,
+  buildLoyaltyCardTemplate,
   buildReceiptTemplate,
   buildReturnReceiptTemplate,
   buildShiftReportTemplate,
@@ -9,6 +10,7 @@ import {
   DEFAULT_RECEIPT_CONFIG,
   EVENTS,
   labelData,
+  loyaltyCardData,
   previewLines,
   receiptData,
   receiptUrl,
@@ -457,6 +459,36 @@ export async function buildLabelJob(_actor, input) {
     copies,
     lines: previewLines(renderTemplate(compiled, data, { widthMm: profile.widthMm })),
     data: toBase64(bytes),
+  };
+}
+
+/**
+ * Builds the print job for a customer's loyalty card: the member's number as a Code 128 barcode
+ * on the label printer, which is what a cashier scans to attach that customer to a sale. A card
+ * is a label, not a web page — it never goes through the browser's print dialog.
+ * @param {{ cardNumber: string, name?: string, copies?: number, profileId?: string }} input
+ */
+export async function buildLoyaltyCardJob(_actor, input) {
+  const [profile, saved] = await Promise.all([
+    profileFor('label', { profileId: input.profileId, branchId: null }),
+    repo.getLabelTemplate(),
+  ]);
+  const shop = await resolveShop('en');
+  const data = loyaltyCardData(input, { shop });
+  const compiled = buildLoyaltyCardTemplate(saved).filter(
+    (block) => block.type !== 'cut' || profile.cut,
+  );
+  const copies = input.copies ?? 1;
+  const repeated = Array.from({ length: copies }, () => compiled).flat();
+  return {
+    printer: profile.printer,
+    profileId: str(profile._id),
+    widthMm: saved.widthMm,
+    heightMm: saved.heightMm,
+    copies,
+    cardNumber: input.cardNumber,
+    lines: previewLines(renderTemplate(compiled, data, { widthMm: profile.widthMm })),
+    data: toBase64(renderTemplate(repeated, data, { widthMm: profile.widthMm })),
   };
 }
 

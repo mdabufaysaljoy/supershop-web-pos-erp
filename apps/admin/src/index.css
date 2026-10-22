@@ -87,8 +87,6 @@
   }
   #pos-receipt-printable,
   #pos-receipt-printable *,
-  #loyalty-card-printable,
-  #loyalty-card-printable *,
   #shift-report-printable,
   #shift-report-printable *,
   #product-label-printable,
@@ -113,20 +111,6 @@
     padding: 4mm !important;
     margin: 0 !important;
     border: none !important;
-    box-shadow: none !important;
-    background: white !important;
-    color: black !important;
-  }
-  #loyalty-card-printable {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 85mm !important;
-    max-width: 85mm !important;
-    padding: 3.5mm !important;
-    margin: 0 !important;
-    border: 1px solid #1e293b !important;
-    border-radius: 4mm !important;
     box-shadow: none !important;
     background: white !important;
     color: black !important;

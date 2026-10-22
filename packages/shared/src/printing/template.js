@@ -493,3 +493,41 @@ export function labelData(item = {}, { shop = {}, currency = 'SAR', lang = 'en' 
         : formatMoney(item.price ?? 0, { currency, lang }),
   };
 }
+
+/**
+ * A loyalty card, as it comes off the label printer: the member's number as a scannable Code 128
+ * barcode with the number printed under it, and nothing else that would not survive being carried
+ * in a wallet. The shop's own name and the member's name are the label template's existing
+ * toggles (`showShopName` / `showName`), so a shop that wants a bare card turns them off.
+ *
+ * Scanning it at the till is a membership lookup by card number, which is how a cashier attaches
+ * the customer without asking for a phone number.
+ * @param {{ fields?: object, barcodeHeight?: number }} [config]  the label template's config
+ */
+export function buildLoyaltyCardTemplate(config = {}) {
+  const fields = { ...DEFAULT_LABEL_CONFIG.fields, ...config?.fields };
+  const barcodeHeight = config?.barcodeHeight ?? DEFAULT_LABEL_CONFIG.barcodeHeight;
+  const blocks = [];
+  if (fields.showShopName) blocks.push({ type: 'text', value: '{{shopName}}', align: 'center' });
+  if (fields.showName) {
+    blocks.push({ type: 'text', value: '{{name}}', align: 'center', bold: true, showIf: 'name' });
+  }
+  blocks.push({
+    type: 'barcode',
+    value: '{{cardNumber}}',
+    height: barcodeHeight,
+    // The number under the bars: a card a scanner cannot read is still usable by hand.
+    hri: true,
+  });
+  blocks.push({ type: 'cut' });
+  return blocks;
+}
+
+/** @param {{ cardNumber: string, name?: string }} card */
+export function loyaltyCardData(card = {}, { shop = {} } = {}) {
+  return {
+    shopName: shop.name ?? '',
+    name: card.name ?? '',
+    cardNumber: card.cardNumber ?? '',
+  };
+}

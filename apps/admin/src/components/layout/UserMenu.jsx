@@ -27,12 +27,16 @@ export function UserMenu({ variant = 'header' }) {
   const [show2fa, setShow2fa] = useState(false);
   const profile = useAuthStore((s) => s.profile);
   const isSuperAdmin = useAuthStore((s) => s.access?.isSuperAdmin);
+  const roleName = useAuthStore((s) => s.access?.roleName);
   const logout = useLogout();
   const logoutAll = useLogout({ everywhere: true });
   // Clearing the session makes <RequireAuth> redirect to /login (deliberate sign-out → no `next`).
   const leave = (m) => m.mutate();
 
-  const roleLabel = isSuperAdmin ? t('user.superAdmin', 'Super Administrator') : 'Administrator';
+  /** What this person actually is: their role's own name, not a guess. */
+  const roleLabel = isSuperAdmin
+    ? t('user.superAdmin', 'Super Administrator')
+    : (roleName ?? t('user.noRole', 'No role'));
 
   const trigger =
     variant === 'sidebar' ? (
@@ -46,7 +50,7 @@ export function UserMenu({ variant = 'header' }) {
         </span>
         <div className="flex flex-col min-w-0 flex-1">
           <span className="truncate text-sm font-semibold text-white">
-            {profile?.name || 'Administrator'}
+            {profile?.name || t('nav.userProfile', 'User profile')}
           </span>
           <span className="truncate text-xs text-slate-400">{roleLabel}</span>
         </div>

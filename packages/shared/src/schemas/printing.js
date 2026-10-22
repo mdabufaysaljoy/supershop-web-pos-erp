@@ -138,6 +138,16 @@ export function createPrintingSchemas() {
       .strict()
       .refine((v) => Object.keys(v).length > 0, { error: V.REQUIRED }),
     /** A barcode label print job: either a variant by id or explicit label fields. */
+    /** A loyalty card: the member's number, printed as a barcode on the label printer. */
+    loyaltyCardJob: z
+      .object({
+        cardNumber: plainText({ min: 3, max: 64 }),
+        name: plainText({ max: 120 }).optional(),
+        profileId: objectId.optional(),
+        copies: intRange(1, 20).default(1),
+      })
+      .strict(),
+
     labelJob: z
       .object({
         variantId: objectId.optional(),

@@ -1,7 +1,8 @@
 import { sendCreated, sendData, sendNoContent } from '../../core/http.js';
 import * as service from './staff.service.js';
 
-export const myAccess = async (req, res) => sendData(res, service.describeAccess(req.access));
+export const myAccess = async (req, res) =>
+  sendData(res, await service.describeMyAccess(req.access));
 
 export const list = async (req, res) => {
   const { items, meta } = await service.listStaff(req.access, req.valid.query);

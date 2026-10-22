@@ -12,6 +12,21 @@ const halalas = (value) => {
 };
 
 /**
+ * A discount is money off or a PERCENTAGE off, and the two are not the same number: money is in
+ * halalas, a percentage is in basis points (7.5% = 750). Sending a percentage as money is how
+ * "10% off" became "10 halalas off".
+ */
+const toDiscount = (type, typed) => {
+  const value = halalas(typed); // both scale by 100: 25.00 → 2500 halalas, 7.5% → 750 bps
+  if (!value) return null;
+  return { type, value: type === 'percent' ? Math.min(value, 10_000) : value };
+};
+
+/** What the box shows for the discount already on the basket, in the unit it is typed in. */
+const typedValue = (orderDiscount, type) =>
+  orderDiscount?.type === type ? String(orderDiscount.value / 100) : '';
+
+/**
  * POS Column 3: Dedicated Product Cart Column
  * Displays basket lines with stepper quantities, line discounts, subtotal, and cart discounts.
  */
@@ -56,25 +71,25 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
             <div className="flex items-center gap-1.5">
               <select
                 value={discountType}
-                onChange={(e) => setDiscountType(e.target.value)}
+                aria-label={t('pos.lines.discountType', 'Discount type')}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setDiscountType(next);
+                  // The figure on screen means something different now, so it does not carry over.
+                  if (sale?.orderDiscount) onOrderDiscount(null);
+                }}
                 className="h-7 rounded border border-slate-200 bg-white px-1.5 text-[11px] font-medium text-slate-700 outline-none"
               >
-                <option value="amount">Amount</option>
-                <option value="percent">Percent</option>
+                <option value="amount">{t('pos.lines.discountAmount', 'Amount')}</option>
+                <option value="percent">{t('pos.lines.discountPercent', 'Percent')}</option>
               </select>
               <MoneyInput
-                value={sale?.orderDiscount?.type === 'amount' ? sale.orderDiscount.value / 100 : ''}
+                value={typedValue(sale?.orderDiscount, discountType)}
                 aria-label={t('pos.lines.orderDiscount', 'Off the whole basket')}
-                placeholder="0.00"
+                placeholder={discountType === 'percent' ? '0.0' : '0.00'}
+                currency={discountType === 'percent' ? '%' : undefined}
                 className="h-7 w-20 rounded border border-rose-300 focus:border-rose-500 text-rose-600 text-end text-xs font-semibold px-2 outline-none"
-                onChange={(e) =>
-                  onOrderDiscount(
-                    halalas(e.target.value) && {
-                      type: 'amount',
-                      value: halalas(e.target.value),
-                    },
-                  )
-                }
+                onChange={(e) => onOrderDiscount(toDiscount(discountType, e.target.value))}
               />
             </div>
           </div>

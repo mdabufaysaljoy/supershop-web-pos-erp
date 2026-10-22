@@ -269,7 +269,7 @@ function CampaignForm({ campaign }) {
                 <Label>{t('campaigns.channel')}</Label>
                 <div className="flex gap-3">
                   <label
-                    className={`flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 border rounded cursor-pointer transition-colors ${
                       selectedChannel === 'email'
                         ? 'border-primary bg-primary/5 text-primary font-medium'
                         : 'border-border text-muted-foreground'
@@ -288,7 +288,7 @@ function CampaignForm({ campaign }) {
                   </label>
 
                   <label
-                    className={`flex-1 flex items-center justify-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 border rounded cursor-pointer transition-colors ${
                       selectedChannel === 'sms'
                         ? 'border-primary bg-primary/5 text-primary font-medium'
                         : 'border-border text-muted-foreground'
@@ -378,7 +378,7 @@ function CampaignForm({ campaign }) {
                 disabled={isReadOnly}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 placeholder={t('campaigns.messagePlaceholder')}
                 required
               />

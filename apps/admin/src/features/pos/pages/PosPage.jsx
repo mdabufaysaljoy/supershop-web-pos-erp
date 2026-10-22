@@ -310,6 +310,7 @@ export function PosPage() {
             amount,
             ...(reference ? { reference } : {}),
           })),
+          ...(sale.sale.redeemPoints ? { redeemPoints: sale.sale.redeemPoints } : {}),
           ...(sale.sale.note ? { note: sale.sale.note } : {}),
         },
         idempotencyKey: saleKey,
@@ -465,6 +466,9 @@ export function PosPage() {
                   customer={sale.sale.customer}
                   onCustomerChange={(cust) => sale.patch({ customer: cust })}
                   onOpenCustomerModal={() => setCustomerModalOpen(true)}
+                  redeemPoints={sale.sale.redeemPoints ?? 0}
+                  redemption={sale.priced?.redemption ?? null}
+                  onRedeemPoints={(points) => sale.patch({ redeemPoints: points })}
                   heldButton={
                     <HeldSalesButton count={sale.held.length} onClick={() => setHeldOpen(true)} />
                   }

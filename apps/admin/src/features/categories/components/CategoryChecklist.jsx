@@ -21,7 +21,7 @@ export function CategoryChecklist({ value, onChange, max = 10, label }) {
     );
   if (!rows.length) return <p className="text-sm text-muted-foreground">{t('categories.empty')}</p>;
   return (
-    <fieldset className="max-h-64 overflow-y-auto rounded-md border p-2">
+    <fieldset className="max-h-64 overflow-y-auto rounded border p-2">
       <legend className="sr-only">{label}</legend>
       {rows.map((r) => (
         <label

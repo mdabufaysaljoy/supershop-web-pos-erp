@@ -150,7 +150,7 @@ export function CategoryForm({ category, parentId, list, onSaved, onCancel, onDe
         onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
       />
 
-      <fieldset className="grid gap-4 rounded-md border p-3">
+      <fieldset className="grid gap-4 rounded border p-3">
         <legend className="px-1 text-sm font-medium">{t('categories.form.seo')}</legend>
         <FormField
           label={t('categories.form.seoTitle')}

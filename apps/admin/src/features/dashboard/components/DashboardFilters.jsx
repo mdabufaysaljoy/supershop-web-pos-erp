@@ -17,14 +17,14 @@ export function DashboardFilters({ range, onRangeChange, branchId, onBranchChang
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
       {/* Date range pills */}
-      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border bg-muted/40 p-1">
+      <div className="flex flex-wrap items-center gap-1.5 rounded border bg-muted/40 p-1">
         <Calendar className="ml-1.5 h-3.5 w-3.5 text-muted-foreground" />
         {ranges.map((r) => (
           <button
             key={r.id}
             type="button"
             onClick={() => onRangeChange(r.id)}
-            className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
               range === r.id
                 ? 'bg-background text-foreground shadow-xs'
                 : 'text-muted-foreground hover:text-foreground'
@@ -43,7 +43,7 @@ export function DashboardFilters({ range, onRangeChange, branchId, onBranchChang
             value={branchId ?? ''}
             onChange={(e) => onBranchChange(e.target.value || null)}
             aria-label={t('dashboard.allBranches')}
-            className="h-8 rounded-lg border bg-background pl-8 pr-3 text-xs font-medium shadow-xs focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-8 rounded border bg-background pl-8 pr-3 text-xs font-medium shadow-xs focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <option value="">{t('dashboard.allBranches')}</option>
             {branches.map((b) => (

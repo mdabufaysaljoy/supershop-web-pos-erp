@@ -247,7 +247,8 @@
     "view": "View",
     "recent": "Recent",
     "moveUp": "Move up",
-    "remove": "Remove"
+    "remove": "Remove",
+    "clear": "Clear"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -2185,7 +2186,10 @@
       "discount": "Off",
       "discountFor": "Discount on {{name}}",
       "orderDiscount": "Off the whole basket",
-      "remove": "Remove {{name}}"
+      "remove": "Remove {{name}}",
+      "discountType": "Discount type",
+      "discountAmount": "Amount",
+      "discountPercent": "Percent"
     },
     "cart": {
       "title": "Product Cart",
@@ -2253,7 +2257,11 @@
     },
     "split": "Split:",
     "loyalty": {
-      "scannedAttached": "Customer attached: {{name}} ({{points}} pts)"
+      "scannedAttached": "Customer attached: {{name}} ({{points}} pts)",
+      "redeemTitle": "Spend points",
+      "redeemAll": "All",
+      "available": "{{count}} point available",
+      "available_other": "{{count}} points available"
     },
     "recentSales": "Recent Sales & Receipts",
     "recentSalesModal": {

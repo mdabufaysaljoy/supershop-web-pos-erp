@@ -6,6 +6,7 @@ import { createApp } from '../../../app.js';
 import { eventBus } from '../../../core/events.js';
 import { setTranslationScheduler } from '../../i18n/localized.plugin.js';
 import { registerCustomer } from '../../customers/index.js';
+import { LoyaltyAccount } from '../../loyalty/index.js';
 import { seedPaymentMethods } from '../../paymentMethods/index.js';
 import { seedDefaultRoles } from '../../rbac/index.js';
 import { loadSettings } from '../../settings/index.js';
@@ -505,6 +506,59 @@ describe('who the sale is for', () => {
     expect(sale.customer).toMatchObject({ name: 'Sara Ali', phone: '+966512345678' });
     const stored = await Order.findOne({ orderNo: sale.orderNo }).lean();
     expect(String(stored.customer.customerId)).toBe(customer.id);
+  });
+
+  it('spends the customer’s points on the sale, and takes them off the ledger with it', async () => {
+    // The shop's defaults: a point is worth a riyal, and at least 10 at a time.
+    const { profile: customer } = await registerCustomer({
+      name: 'Layla Hassan',
+      phone: '+966512345671',
+      email: 'layla@example.com',
+      password: 'customer-pass-123',
+    });
+    // Points put on the card directly: this test is about the SALE, not about how they got there.
+    await LoyaltyAccount.create({ customerId: customer.id, pointsBalance: 300 });
+    const sale = await ok(
+      await till().sell(
+        basket({
+          customer: { mode: 'contact', customerId: customer.id },
+          redeemPoints: 25,
+          payments: [{ method: 'cash', amount: 9000 }],
+        }),
+      ),
+      201,
+    );
+    // 115.00 less 25 points at 1.00 each = 90.00, with VAT on what is actually paid.
+    expect(sale.totals.total).toBe(9000);
+    expect(sale.totals.discountTotal).toBe(2500);
+    expect(sale.totals.net + sale.totals.vat).toBe(sale.totals.total);
+    expect(sale.loyalty).toMatchObject({ pointsRedeemed: 25, valueHalalas: 2500 });
+
+    // And the points are gone from the ledger — one write with the sale, not a hope afterwards.
+    const account = await LoyaltyAccount.findOne({ customerId: customer.id }).lean();
+    expect(account.pointsBalance).toBe(275);
+    expect(account.lifetimeRedeemed).toBe(25);
+  });
+
+  it('refuses points the customer does not have, and sells nothing', async () => {
+    const { profile: customer } = await registerCustomer({
+      name: 'Omar Saleh',
+      phone: '+966512345679',
+      email: 'omar@example.com',
+      password: 'customer-pass-123',
+    });
+    const before = await Order.countDocuments({ channel: 'pos' });
+    const res = await till().sell(
+      basket({ customer: { mode: 'contact', customerId: customer.id }, redeemPoints: 5000 }),
+    );
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(await Order.countDocuments({ channel: 'pos' })).toBe(before);
+  });
+
+  it('refuses points on a walk-in sale: there is nobody to take them from', async () => {
+    const res = await till().sell(basket({ redeemPoints: 10 }));
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(JSON.stringify(res.body)).toContain('redeemPoints');
   });
 
   it('attaches the customer the till picked, by id, and fills in what it did not send', async () => {

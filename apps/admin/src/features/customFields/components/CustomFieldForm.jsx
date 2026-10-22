@@ -165,7 +165,7 @@ export function CustomFieldForm({ entity, def, onDone }) {
       </div>
 
       {hasOptions(form.type) && (
-        <fieldset className="grid gap-2 rounded-md border p-3">
+        <fieldset className="grid gap-2 rounded border p-3">
           <legend className="px-1 text-sm font-medium">{t('customFields.form.options')}</legend>
           {form.options.map((o, i) => (
             <div key={o.saved ? o.key : `new-${i}`} className="flex items-center gap-2">

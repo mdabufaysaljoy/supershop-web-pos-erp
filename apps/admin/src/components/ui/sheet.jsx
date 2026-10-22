@@ -27,7 +27,7 @@ export function SheetContent({ className, children, closeLabel, side = 'start', 
       >
         {children}
         <D.Close
-          className="absolute end-3 top-3 rounded-sm opacity-70 hover:opacity-100"
+          className="absolute end-3 top-3 rounded opacity-70 hover:opacity-100"
           aria-label={closeLabel}
         >
           <XIcon className="size-4" />

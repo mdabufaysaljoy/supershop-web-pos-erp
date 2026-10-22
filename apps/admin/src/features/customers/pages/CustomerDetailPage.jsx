@@ -267,7 +267,7 @@ export function CustomerDetailPage() {
                 {addresses.map((entry, idx) => {
                   const addr = entry.address ?? {};
                   return (
-                    <div key={entry._id || idx} className="rounded-lg border p-3 text-sm">
+                    <div key={entry._id || idx} className="rounded border p-3 text-sm">
                       <div className="mb-1 flex items-center justify-between">
                         <span className="font-medium">
                           {entry.label || t('customers.detail.addresses.title')}

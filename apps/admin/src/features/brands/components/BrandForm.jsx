@@ -121,7 +121,7 @@ export function BrandForm({ brand, onDone }) {
         checked={form.isActive}
         onChange={check('isActive')}
       />
-      <fieldset className="grid gap-4 rounded-md border p-3">
+      <fieldset className="grid gap-4 rounded border p-3">
         <legend className="px-1 text-sm font-medium">{t('categories.form.seo')}</legend>
         <FormField
           label={t('categories.form.seoTitle')}

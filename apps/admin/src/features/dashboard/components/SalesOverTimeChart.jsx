@@ -17,13 +17,13 @@ import { fmt } from '@/lib/format';
 function CustomTooltip({ active, payload, label, metric }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg border bg-background p-3 text-xs shadow-md">
+    <div className="rounded border bg-background p-3 text-xs shadow-md">
       <p className="font-semibold text-foreground mb-1.5">{label}</p>
       <div className="grid gap-1">
         {payload.map((entry) => (
           <div key={entry.name} className="flex items-center justify-between gap-4">
             <span className="flex items-center gap-1.5" style={{ color: entry.color }}>
-              <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="h-2 w-2 rounded" style={{ backgroundColor: entry.color }} />
               {entry.name}:
             </span>
             <span className="font-semibold">

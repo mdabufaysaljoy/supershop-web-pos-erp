@@ -202,7 +202,7 @@ export function SubscribersPage() {
       )}
 
       {/* Table / List */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded border bg-card">
         <Table>
           <TableHeader>
             <TableRow>

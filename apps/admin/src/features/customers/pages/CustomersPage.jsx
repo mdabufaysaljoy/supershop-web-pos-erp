@@ -87,7 +87,7 @@ export function CustomersPage() {
             >
               <span>{t(`customers.segments.${seg}`)}</span>
               {count !== undefined && (
-                <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                   {count}
                 </span>
               )}
@@ -126,7 +126,7 @@ export function CustomersPage() {
       {isPending ? (
         <Skeleton className="h-64" />
       ) : items.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+        <p className="rounded border border-dashed p-10 text-center text-sm text-muted-foreground">
           {t('customers.empty')}
         </p>
       ) : (

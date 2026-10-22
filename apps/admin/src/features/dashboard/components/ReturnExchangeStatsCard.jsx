@@ -16,10 +16,10 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
   const onlineStats = byChannel.online ?? {};
 
   return (
-    <Card className="rounded-lg shadow-xs">
+    <Card className="rounded shadow-xs">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <div className="flex items-center gap-2">
-          <div className="rounded-md bg-rose-50 p-1.5 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400">
+          <div className="rounded bg-rose-50 p-1.5 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400">
             <RotateCcw className="h-4 w-4" />
           </div>
           <div>
@@ -39,7 +39,7 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
       <CardContent className="space-y-4">
         {/* Top 4 Metrics Summary Grid */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-md border border-slate-200/80 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-900/40">
+          <div className="rounded border border-slate-200/80 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-900/40">
             <span className="text-xs text-muted-foreground">
               {t('dashboard.returnsCard.returns')}
             </span>
@@ -53,7 +53,7 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
             </div>
           </div>
 
-          <div className="rounded-md border border-slate-200/80 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-900/40">
+          <div className="rounded border border-slate-200/80 bg-slate-50/50 p-3 dark:border-slate-800 dark:bg-slate-900/40">
             <span className="text-xs text-muted-foreground">
               {t('dashboard.returnsCard.exchanges')}
             </span>
@@ -67,7 +67,7 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
             </div>
           </div>
 
-          <div className="rounded-md border border-rose-200/80 bg-rose-50/40 p-3 dark:border-rose-900/40 dark:bg-rose-950/20">
+          <div className="rounded border border-rose-200/80 bg-rose-50/40 p-3 dark:border-rose-900/40 dark:bg-rose-950/20">
             <span className="text-xs font-medium text-rose-800 dark:text-rose-300">
               {t('dashboard.returnsCard.totalRefunded')}
             </span>
@@ -78,7 +78,7 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
             </div>
           </div>
 
-          <div className="rounded-md border border-indigo-200/80 bg-indigo-50/40 p-3 dark:border-indigo-900/40 dark:bg-indigo-950/20">
+          <div className="rounded border border-indigo-200/80 bg-indigo-50/40 p-3 dark:border-indigo-900/40 dark:bg-indigo-950/20">
             <span className="text-xs font-medium text-indigo-800 dark:text-indigo-300">
               {t('dashboard.returnsCard.returnRate')}
             </span>
@@ -92,9 +92,9 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
 
         {/* Channel Breakdown Comparison (POS vs Online) */}
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="flex items-center justify-between rounded-md border p-3">
+          <div className="flex items-center justify-between rounded border p-3">
             <div className="flex items-center gap-2.5">
-              <div className="rounded-md bg-blue-50 p-2 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+              <div className="rounded bg-blue-50 p-2 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
                 <Store className="h-4 w-4" />
               </div>
               <div>
@@ -115,9 +115,9 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-md border p-3">
+          <div className="flex items-center justify-between rounded border p-3">
             <div className="flex items-center gap-2.5">
-              <div className="rounded-md bg-sky-50 p-2 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400">
+              <div className="rounded bg-sky-50 p-2 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400">
                 <Globe className="h-4 w-4" />
               </div>
               <div>
@@ -150,7 +150,7 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
                 {recentReturns.length} {t('common.recent').toLowerCase()}
               </span>
             </div>
-            <div className="overflow-x-auto rounded-md border">
+            <div className="overflow-x-auto rounded border">
               <table className="w-full text-left text-xs">
                 <thead className="border-b bg-muted/40 text-muted-foreground">
                   <tr>
@@ -182,7 +182,7 @@ export function ReturnExchangeStatsCard({ returnsOverview }) {
                       <td className="py-2 px-3">
                         <Badge
                           variant="outline"
-                          className={`rounded-sm text-2xs px-1.5 py-0 capitalize ${
+                          className={`rounded text-2xs px-1.5 py-0 capitalize ${
                             r.type === 'exchange'
                               ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300'
                               : 'border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300'

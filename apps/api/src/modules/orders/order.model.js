@@ -109,6 +109,17 @@ const orderSchema = new mongoose.Schema(
     staffName: { type: String, default: null },
     /** The branch as it was named when the sale was rung up — printed on the receipt (P6.4). */
     branchName: { type: String, default: null },
+    /** Loyalty points spent on this sale, and what they took off it (P7.1). */
+    loyalty: {
+      type: new mongoose.Schema(
+        {
+          pointsRedeemed: { type: Number, default: 0, min: 0 },
+          valueHalalas: { type: Number, default: 0, min: 0 },
+        },
+        { _id: false },
+      ),
+      default: null,
+    },
     /** The open shift this counter sale was rung up in (P6.5). */
     shiftId: { type: ObjectId, default: null },
     /** Values of admin-defined `checkout` custom fields. */

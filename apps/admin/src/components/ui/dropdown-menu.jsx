@@ -11,7 +11,7 @@ export function DropdownMenuContent({ className, sideOffset = 4, ...props }) {
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          'z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md',
+          'z-50 min-w-48 overflow-hidden rounded border bg-popover p-1 text-popover-foreground shadow-md',
           className,
         )}
         {...props}
@@ -25,7 +25,7 @@ export function DropdownMenuItem({ className, ...props }) {
     <DM.Item
       data-slot="dropdown-menu-item"
       className={cn(
-        'relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4',
+        'relative flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-sm outline-none select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4',
         className,
       )}
       {...props}

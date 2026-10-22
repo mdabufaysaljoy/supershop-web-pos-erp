@@ -138,7 +138,7 @@ export function CampaignsPage() {
       )}
 
       {/* Table */}
-      <div className="border rounded-lg bg-card">
+      <div className="border rounded bg-card">
         <Table>
           <TableHeader>
             <TableRow>

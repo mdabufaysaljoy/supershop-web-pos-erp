@@ -22,7 +22,7 @@ export function ChannelBreakdownCard({ channels }) {
       <CardContent className="grid gap-6">
         {/* Split progress bar */}
         <div className="space-y-2">
-          <div className="h-3 w-full overflow-hidden rounded-full bg-muted flex">
+          <div className="h-3 w-full overflow-hidden rounded bg-muted flex">
             <div
               className="bg-blue-500 transition-all"
               style={{ width: `${posPct}%` }}
@@ -36,11 +36,11 @@ export function ChannelBreakdownCard({ channels }) {
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-blue-500" />
+              <span className="h-2.5 w-2.5 rounded bg-blue-500" />
               {t('dashboard.channels.pos')} ({posPct}%)
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+              <span className="h-2.5 w-2.5 rounded bg-emerald-500" />
               {t('dashboard.channels.online')} ({onlinePct}%)
             </span>
           </div>
@@ -48,9 +48,9 @@ export function ChannelBreakdownCard({ channels }) {
 
         {/* Detailed channel stats */}
         <div className="grid gap-3">
-          <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="flex items-center justify-between rounded border p-3">
             <div className="flex items-center gap-3">
-              <div className="rounded-md bg-blue-500/10 p-2 text-blue-600 dark:text-blue-400">
+              <div className="rounded bg-blue-500/10 p-2 text-blue-600 dark:text-blue-400">
                 <Monitor className="h-4 w-4" />
               </div>
               <div>
@@ -68,9 +68,9 @@ export function ChannelBreakdownCard({ channels }) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="flex items-center justify-between rounded border p-3">
             <div className="flex items-center gap-3">
-              <div className="rounded-md bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+              <div className="rounded bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
                 <ShoppingBag className="h-4 w-4" />
               </div>
               <div>

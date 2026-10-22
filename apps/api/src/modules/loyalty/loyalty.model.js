@@ -25,14 +25,12 @@ const loyaltyAccountSchema = new Schema(
       enum: Object.values(LOYALTY.MEMBERSHIP_STATUSES),
       default: LOYALTY.MEMBERSHIP_STATUSES.ACTIVE,
     },
-    cardNumber: {
-      type: String,
-      sparse: true,
-      unique: true,
-      trim: true,
-      index: true,
-      default: null,
-    },
+    /**
+     * The number on the member's card, unique across the shop. The index is PARTIAL, not sparse:
+     * the field defaults to an explicit `null`, and a sparse unique index still sees those nulls
+     * as values — so a second customer who never had a card could not be given an account at all.
+     */
+    cardNumber: { type: String, trim: true, default: null },
     cardIssuedAt: { type: Date, default: null },
     cardFeeHalalas: { type: Number, default: 0, min: 0 },
     cardStatus: {
@@ -85,6 +83,11 @@ const loyaltyLedgerSchema = new Schema(
 );
 
 // Composite indexes for common query patterns:
+loyaltyAccountSchema.index(
+  { cardNumber: 1 },
+  { unique: true, partialFilterExpression: { cardNumber: { $type: 'string' } } },
+);
+
 loyaltyLedgerSchema.index({ accountId: 1, createdAt: -1 });
 loyaltyLedgerSchema.index({ customerId: 1, createdAt: -1 });
 loyaltyLedgerSchema.index({ 'source.type': 1, 'source.id': 1 });

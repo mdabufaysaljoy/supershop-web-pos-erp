@@ -39,11 +39,20 @@ export function discountAmount(discount, base) {
  * @param {{ orderDiscount?: { type: string, value: number } | null,
  *   tax: { vatRateBps: number, pricesIncludeVat: boolean } }} opts
  */
-export function priceSale(lines, { orderDiscount = null, tax }) {
+export function priceSale(lines, { orderDiscount = null, extraDiscount = 0, tax }) {
   const gross = lines.map((l) => l.unitPrice * l.qty);
   const lineDiscounts = lines.map((l, i) => discountAmount(l.discount, gross[i]));
   const afterLine = gross.map((g, i) => g - lineDiscounts[i]);
-  const orderDiscountTotal = discountAmount(orderDiscount, sumMinor(0, ...afterLine));
+  const afterLineTotal = sumMinor(0, ...afterLine);
+  /**
+   * `extraDiscount` is money taken off the whole basket that is not a rule — loyalty points spent
+   * at the till. It rides with the order discount so VAT, the receipt and the ledger all see the
+   * same figure, and together they can never take off more than the goods cost.
+   */
+  const orderDiscountTotal = Math.min(
+    afterLineTotal,
+    discountAmount(orderDiscount, afterLineTotal) + Math.max(0, Math.round(extraDiscount)),
+  );
   // Largest-remainder, so the parts add up to the discount exactly — no halala lost or invented
   // between the receipt and the ledger.
   const spread =

@@ -120,7 +120,7 @@ export function DashboardKpis({ kpis }) {
             <CardContent className="px-4 py-0">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">{card.title}</span>
-                <div className="rounded-lg bg-muted p-2 text-muted-foreground">
+                <div className="rounded bg-muted p-2 text-muted-foreground">
                   <Icon className="h-4 w-4" />
                 </div>
               </div>
@@ -142,7 +142,7 @@ export function DashboardKpis({ kpis }) {
             <span className="text-sm font-medium text-amber-900 dark:text-amber-200">
               {t('dashboard.kpis.lowStock')}
             </span>
-            <div className="rounded-lg bg-amber-500/10 p-2 text-amber-600 dark:text-amber-400">
+            <div className="rounded bg-amber-500/10 p-2 text-amber-600 dark:text-amber-400">
               <AlertTriangle className="h-4 w-4" />
             </div>
           </div>
@@ -160,7 +160,7 @@ export function DashboardKpis({ kpis }) {
             <span className="text-sm font-medium text-rose-900 dark:text-rose-200">
               {t('dashboard.kpis.outOfStock')}
             </span>
-            <div className="rounded-lg bg-rose-500/10 p-2 text-rose-600 dark:text-rose-400">
+            <div className="rounded bg-rose-500/10 p-2 text-rose-600 dark:text-rose-400">
               <PackageX className="h-4 w-4" />
             </div>
           </div>

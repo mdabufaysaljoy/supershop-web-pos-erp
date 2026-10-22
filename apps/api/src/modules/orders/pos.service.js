@@ -20,6 +20,7 @@ import { eventBus } from '../../core/events.js';
 import { isDuplicateKey } from '../../core/slug.js';
 import { getBranchSummaries } from '../branches/index.js';
 import { applyStockOperation, getOnHand, publishStockResult } from '../inventory/index.js';
+import { redeemPoints } from '../loyalty/index.js';
 import { availableMethods, resolveForCheckout } from '../paymentMethods/index.js';
 import { getCartVariants, matchVariantIds } from '../products/index.js';
 import { getSetting } from '../settings/index.js';
@@ -88,8 +89,16 @@ async function readLines(actor, items, lang) {
   return lines;
 }
 
+/**
+ * What the points a customer is spending are worth in money, by the shop's own rate. The LEDGER
+ * is the authority on whether they may be spent at all (balance, minimum, per-order maximum) —
+ * that check happens inside the sale's transaction, where the points are actually burned.
+ */
+const pointsValue = (points) =>
+  Math.max(0, Math.round((points ?? 0) * (getSetting('loyalty.pointRedemptionValue') ?? 0)));
+
 /** Everything the customer is paying for, priced the one way (shared `priceSale`). */
-function priceForSale(lines, orderDiscount) {
+function priceForSale(lines, orderDiscount, extraDiscount = 0) {
   const tax = {
     vatRateBps: getSetting('tax.vatRateBps'),
     pricesIncludeVat: getSetting('tax.pricesIncludeVat'),
@@ -101,7 +110,7 @@ function priceForSale(lines, orderDiscount) {
       taxCategory: l.taxCategory,
       discount: l.discount,
     })),
-    { orderDiscount, tax },
+    { orderDiscount, extraDiscount, tax },
   );
   const items = lines.map((l, i) => ({
     productId: oid(l.productId),
@@ -275,7 +284,7 @@ export async function searchForTill(
 export async function quotePosSale(actor, input, { lang = SOURCE_LANGUAGE } = {}) {
   actor.assertBranch(input.branchId);
   const lines = await readLines(actor, input.items, lang);
-  const priced = priceForSale(lines, input.orderDiscount ?? null);
+  const priced = priceForSale(lines, input.orderDiscount ?? null, pointsValue(input.redeemPoints));
   assertDiscountsFit(actor, input, priced);
   return {
     items: priced.items.map((i) => ({
@@ -284,6 +293,10 @@ export async function quotePosSale(actor, input, { lang = SOURCE_LANGUAGE } = {}
       variantId: str(i.variantId),
     })),
     totals: priced.totals,
+    /** What the points on this quote are worth, so the till can show it beside the basket. */
+    redemption: input.redeemPoints
+      ? { points: input.redeemPoints, value: pointsValue(input.redeemPoints) }
+      : null,
     tender: tenderSummary(priced.totals.total, input.payments ?? []),
     methods: await availableMethods({ total: priced.totals.total, lang, channel: 'pos' }),
   };
@@ -304,7 +317,8 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
   }
 
   const lines = await readLines(actor, input.items, lang);
-  const priced = priceForSale(lines, input.orderDiscount ?? null);
+  const redeeming = Math.max(0, Math.round(input.redeemPoints ?? 0));
+  const priced = priceForSale(lines, input.orderDiscount ?? null, pointsValue(redeeming));
   assertDiscountsFit(actor, input, priced);
   await assertOnShelf(input.branchId, priced.items);
 
@@ -326,6 +340,11 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
     ]);
 
   const customer = await attachCustomer(input.customer ?? { mode: 'walkin' });
+  // Points belong to somebody: there is nothing to take them from on a walk-in sale.
+  if (redeeming > 0 && !customer.customerId)
+    throw refuse(ERROR_CODES.VALIDATION_ERROR, 'Points need a customer on the sale', [
+      { path: 'redeemPoints', message: V.REQUIRED },
+    ]);
   // Snapshotted with the sale, so the receipt can name who served without a second lookup.
   const cashierName =
     (actor.staffId
@@ -394,6 +413,9 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
           },
           payments,
           changeGiven: tender.change,
+          loyalty: redeeming
+            ? { pointsRedeemed: redeeming, valueHalalas: pointsValue(redeeming) }
+            : null,
           staffId: actor.staffId ? oid(actor.staffId) : null,
           staffName: cashierName,
           branchName: branchName || null,
@@ -413,6 +435,24 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
         },
         session,
       );
+      /**
+       * The points are burned HERE, in the sale's own transaction: the ledger, the stock and the
+       * order are one write. The loyalty module checks the balance and the shop's own limits
+       * (minimum, maximum per order) and refuses the whole sale if they are not met — better than
+       * a sale that went through with points it could not take.
+       */
+      if (redeeming > 0) {
+        await redeemPoints(
+          {
+            customerId: customer.customerId,
+            points: redeeming,
+            orderId: str(orderId),
+            orderNo,
+            orderTotalHalalas: priced.totals.total + pointsValue(redeeming),
+          },
+          { session },
+        );
+      }
       return { order: created, stock };
     });
   } catch (err) {

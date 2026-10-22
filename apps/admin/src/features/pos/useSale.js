@@ -18,6 +18,8 @@ const emptySale = () => ({
   lines: [],
   orderDiscount: null,
   customer: { mode: 'walkin' },
+  /** Loyalty points the customer is spending on this sale — priced by the server (P7.1). */
+  redeemPoints: 0,
   note: '',
 });
 
@@ -63,8 +65,9 @@ export function useSale(branchId, { staffId = '' } = {}) {
         ...(l.discount ? { discount: l.discount } : {}),
       })),
       ...(sale.orderDiscount ? { orderDiscount: sale.orderDiscount } : {}),
+      ...(sale.redeemPoints ? { redeemPoints: sale.redeemPoints } : {}),
     }),
-    [branchId, sale.lines, sale.orderDiscount],
+    [branchId, sale.lines, sale.orderDiscount, sale.redeemPoints],
   );
 
   const { mutateAsync: askForQuote } = quote;

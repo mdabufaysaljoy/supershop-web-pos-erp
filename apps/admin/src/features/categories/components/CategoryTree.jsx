@@ -109,7 +109,7 @@ function TreeRow({ node, selectedId, onSelect, onAddChild, onMove }) {
     >
       <div
         className={cn(
-          'flex items-center gap-1 rounded-md px-1 py-1 hover:bg-muted',
+          'flex items-center gap-1 rounded px-1 py-1 hover:bg-muted',
           selectedId === node.id && 'bg-muted',
         )}
       >

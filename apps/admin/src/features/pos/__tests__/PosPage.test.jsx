@@ -732,6 +732,103 @@ describe('catalogue and filtering', () => {
     });
   });
 
+  it('takes a percentage off the basket as a percentage, not as money', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        'POST /api/v1/pos/quote': ({ init }) => {
+          const body = JSON.parse(init.body);
+          const qty = body.items.reduce((n, i) => n + i.qty, 0);
+          const gross = 11_500 * qty;
+          const off =
+            body.orderDiscount?.type === 'percent'
+              ? Math.round((gross * body.orderDiscount.value) / 10_000)
+              : (body.orderDiscount?.value ?? 0);
+          return json(200, { data: quoteFor(qty, gross - off) });
+        },
+      },
+      permissions: ['pos.sell', 'pos.discount'],
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.selectOptions(screen.getByLabelText('Discount type'), 'percent');
+    await user.type(screen.getByLabelText('Off the whole basket'), '10');
+
+    // 10% off 115.00 is 11.50 — not 10 halalas, which is what "percent" used to send.
+    await toPay('SAR 103.50');
+    const sent = JSON.parse(
+      m.calls.filter((c) => c.key === 'POST /api/v1/pos/quote').at(-1).init.body,
+    );
+    expect(sent.orderDiscount).toEqual({ type: 'percent', value: 1000 });
+  });
+
+  it('attaches a scanned member with nothing open and nothing clicked, and offers their points', async () => {
+    const loyal = {
+      customer: { id: 'c-loy-2', name: 'Noura Al-Saud', phone: '0555555555' },
+      pointsBalance: 250,
+      tier: 'gold',
+      cardNumber: 'LC88990011',
+    };
+    setup({ routes: { 'GET /api/v1/loyalty/lookup': json(200, { data: loyal }) } });
+    await screen.findByRole('button', { name: /Oxford Shirt/ });
+
+    // A hardware scan while the cashier is looking at the products: no modal, no click.
+    for (const ch of 'LC88990011') fireEvent.keyDown(document.body, { key: ch });
+    fireEvent.keyDown(document.body, { key: 'Enter' });
+
+    expect(await screen.findByText('Noura Al-Saud')).toBeInTheDocument();
+    // And their points are offered on the spot, to spend as much of as they like.
+    expect(await screen.findByLabelText('Spend points')).toBeInTheDocument();
+    expect(screen.getByText('250 points available')).toBeInTheDocument();
+  });
+
+  it('spends the points the cashier asks for, and sends them with the sale', async () => {
+    const user = userEvent.setup();
+    const loyal = {
+      customer: { id: 'c-loy-3', name: 'Noura Al-Saud', phone: '0555555555' },
+      pointsBalance: 250,
+      tier: 'gold',
+      cardNumber: 'LC88990012',
+    };
+    const m = setup({
+      routes: {
+        'GET /api/v1/loyalty/lookup': json(200, { data: loyal }),
+        'POST /api/v1/pos/quote': ({ init }) => {
+          const body = JSON.parse(init.body);
+          const points = body.redeemPoints ?? 0;
+          const qty = body.items.reduce((n, i) => n + i.qty, 0);
+          const total = 11_500 * qty - points * 100;
+          return json(200, {
+            data: {
+              ...quoteFor(qty, total),
+              ...(points ? { redemption: { points, value: points * 100 } } : {}),
+            },
+          });
+        },
+      },
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    for (const ch of 'LC88990012') fireEvent.keyDown(document.body, { key: ch });
+    fireEvent.keyDown(document.body, { key: 'Enter' });
+
+    const points = await screen.findByLabelText('Spend points');
+    await user.type(points, '25');
+    // The server prices the points: the basket drops by 25.00 and the box says so.
+    await toPay('SAR 90.00');
+    expect(await screen.findByText('−SAR 25.00')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Exact amount/ }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    expect(
+      JSON.parse(m.calls.filter((c) => c.key === 'POST /api/v1/pos/sales').at(-1).init.body)
+        .redeemPoints,
+    ).toBe(25);
+  });
+
   it('opens recent sales modal and allows reprinting receipt for any previous sale', async () => {
     const user = userEvent.setup();
     const pastSale = {

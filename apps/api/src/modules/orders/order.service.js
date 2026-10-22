@@ -563,6 +563,8 @@ export const toPublicReceiptDto = (o, shop = defaultShop()) => {
           ]
         : [],
     changeGiven: o.changeGiven ?? 0,
+    /** Points spent on this sale and what they took off it (P7.1). */
+    loyalty: o.loyalty ? { ...o.loyalty } : null,
     zatcaQr: qr,
   };
 };
@@ -621,6 +623,8 @@ export const toStaffOrderDto = (o, shop = defaultShop()) => {
       at: p.at,
     })),
     changeGiven: o.changeGiven ?? 0,
+    /** Points spent on this sale and what they took off it (P7.1). */
+    loyalty: o.loyalty ? { ...o.loyalty } : null,
     placedAt: o.placedAt,
     updatedAt: o.updatedAt,
     cancelledAt: o.cancelledAt ?? null,

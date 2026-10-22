@@ -145,7 +145,7 @@ export function BranchForm({ branch, canDelete, onDone }) {
         </FormField>
       </div>
 
-      <fieldset className="grid gap-3 rounded-md border p-3">
+      <fieldset className="grid gap-3 rounded border p-3">
         <legend className="px-1 text-sm font-medium">{t('branches.form.address')}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           {ADDRESS_FIELDS.map(([key, kind, max]) => {

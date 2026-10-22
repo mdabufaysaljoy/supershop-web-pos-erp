@@ -89,7 +89,7 @@ export function TwoFactorModal({ open, onOpenChange }) {
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('auth.twoFactorRecoveryCodes')}
               </span>
-              <div className="grid grid-cols-2 gap-2 rounded-md bg-muted p-3 font-mono text-xs select-all">
+              <div className="grid grid-cols-2 gap-2 rounded bg-muted p-3 font-mono text-xs select-all">
                 {recoveryCodes.map((code) => (
                   <span key={code} className="text-center font-medium">
                     {code}
@@ -110,7 +110,7 @@ export function TwoFactorModal({ open, onOpenChange }) {
 
             <p className="text-sm text-muted-foreground">{t('auth.twoFactorScanQr')}</p>
 
-            <div className="flex justify-center p-3 bg-white rounded-md border w-fit mx-auto">
+            <div className="flex justify-center p-3 bg-white rounded border w-fit mx-auto">
               <img
                 src={`data:image/svg+xml;utf8,${encodeURIComponent(setupData.qrSvg)}`}
                 alt="2FA QR Code"
@@ -152,7 +152,7 @@ export function TwoFactorModal({ open, onOpenChange }) {
           </div>
         ) : isEnabled ? (
           <div className="grid gap-4 py-2">
-            <div className="flex items-center justify-between rounded-lg border p-3">
+            <div className="flex items-center justify-between rounded border p-3">
               <div className="grid gap-0.5">
                 <span className="text-sm font-medium">{t('auth.twoFactorStatus')}</span>
                 <span className="text-xs text-muted-foreground">
@@ -168,7 +168,7 @@ export function TwoFactorModal({ open, onOpenChange }) {
             </div>
 
             {disableMode ? (
-              <div className="grid gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+              <div className="grid gap-3 rounded border border-destructive/30 bg-destructive/5 p-3">
                 {disableMutation.isError && (
                   <Alert variant="destructive">{errorMessage(t, disableMutation.error)}</Alert>
                 )}
@@ -218,7 +218,7 @@ export function TwoFactorModal({ open, onOpenChange }) {
               <Alert variant="destructive">{errorMessage(t, setupMutation.error)}</Alert>
             )}
 
-            <div className="rounded-lg border p-4 bg-muted/30 grid gap-2">
+            <div className="rounded border p-4 bg-muted/30 grid gap-2">
               <p className="text-sm text-muted-foreground">{t('auth.twoFactorSubtitle')}</p>
               <div className="flex justify-center">
                 <Badge variant="secondary">{t('auth.twoFactorDisabled')}</Badge>

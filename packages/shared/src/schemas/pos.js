@@ -90,6 +90,13 @@ export function createPosSchemas({
       orderDiscount: bounded.nullish(),
       customer: customer.default({ mode: 'walkin' }),
       payments: z.array(payment).min(1, { error: V.REQUIRED }).max(POS.MAX_PAYMENTS),
+      /** Loyalty points the customer is spending on this sale (P7.1); needs a known customer. */
+      redeemPoints: z
+        .number({ error: V.INVALID_TYPE })
+        .int({ error: V.INVALID_TYPE })
+        .min(0, { error: V.INVALID_TYPE })
+        .max(1_000_000, { error: V.TOO_LONG })
+        .optional(),
       note: plainText({ max: 300 }).optional(),
       lang: z.enum(Object.values(LANGUAGES), { error: V.INVALID_TYPE }).optional(),
     })

@@ -1,5 +1,5 @@
 import { addTender, changeIsCovered } from '@supershop/shared';
-import { MoneyInput } from '@supershop/ui';
+import { MoneyInput, QtyInput } from '@supershop/ui';
 import { CreditCard, Plus, Trash2, User, UserCheck } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +29,9 @@ export function PosPaymentColumn({
   customer,
   onCustomerChange,
   onOpenCustomerModal,
+  redeemPoints = 0,
+  redemption = null,
+  onRedeemPoints,
   heldButton = null,
   actions = null,
 }) {
@@ -96,6 +99,7 @@ export function PosPaymentColumn({
   const isContact = customer?.mode === 'contact';
   const customerName = customer?.name && !/walk-?in/i.test(customer.name) ? customer.name : '';
   const customerPhone = customer?.phone ?? '';
+  const pointsAvailable = customer?.loyalty?.pointsBalance ?? 0;
 
   return (
     <div className="flex flex-col h-full overflow-hidden rounded border border-slate-200/90 bg-white p-4 shadow-2xs">
@@ -186,6 +190,59 @@ export function PosPaymentColumn({
             </div>
           )}
         </div>
+
+        {/*
+          Spending points: the cashier types how many, the SERVER prices them and takes them off
+          the basket, and they are burned with the sale itself (P7.1). The box only appears for a
+          customer the shop knows, because points belong to somebody.
+        */}
+        {isContact && pointsAvailable > 0 && (
+          <div className="rounded border border-amber-200 bg-amber-50/60 p-2.5 flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold text-amber-900">
+                {t('pos.loyalty.redeemTitle', 'Spend points')}
+              </span>
+              <span className="text-[10px] font-medium text-amber-700">
+                {t('pos.loyalty.available', { count: pointsAvailable })}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <QtyInput
+                value={redeemPoints ? String(redeemPoints) : ''}
+                max={pointsAvailable}
+                placeholder="0"
+                aria-label={t('pos.loyalty.redeemTitle', 'Spend points')}
+                className="h-7 w-24 rounded border border-amber-300 text-end text-xs font-semibold px-2"
+                onChange={(e) =>
+                  onRedeemPoints?.(Math.min(pointsAvailable, Number(e.target.value) || 0))
+                }
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px] font-semibold"
+                onClick={() => onRedeemPoints?.(pointsAvailable)}
+              >
+                {t('pos.loyalty.redeemAll', 'All')}
+              </Button>
+              {redeemPoints > 0 && (
+                <button
+                  type="button"
+                  className="text-[11px] text-amber-700 underline"
+                  onClick={() => onRedeemPoints?.(0)}
+                >
+                  {t('common.clear', 'Clear')}
+                </button>
+              )}
+              {redemption?.value > 0 && (
+                <span className="ms-auto text-xs font-bold tabular-nums text-amber-900">
+                  −{fmt.money(redemption.value)}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Tendered Payments List */}
         {payments.length > 0 && (

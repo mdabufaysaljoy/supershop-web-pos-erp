@@ -110,7 +110,7 @@ function CandidateList({ staff, busy, onAssign }) {
 function StaffRow({ staff, children }) {
   const { t } = useTranslation();
   return (
-    <li className="flex flex-wrap items-center gap-2 rounded-md border px-3 py-2">
+    <li className="flex flex-wrap items-center gap-2 rounded border px-3 py-2">
       <span className="grid min-w-0 flex-1">
         <span className="truncate text-sm font-medium">{staff.name}</span>
         <span className="truncate text-xs text-muted-foreground" dir="ltr">

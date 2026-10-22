@@ -1,3 +1,4 @@
+import { addTender } from '@supershop/shared';
 import { MoneyInput } from '@supershop/ui';
 import { CreditCard, Plus, Trash2, User, UserCheck } from 'lucide-react';
 import { useState } from 'react';
@@ -38,8 +39,9 @@ export function PosPaymentColumn({
   const [reference, setReference] = useState('');
 
   /**
-   * The amount box always offers what is STILL DUE: take 50 in cash on a 115 sale and the next
-   * method is offered the 65 that is left, which is how a split is actually worked at a counter.
+   * The amount box offers what is STILL DUE: take 50 in cash on a 115 sale and the next method is
+   * offered the 65 that is left. Once the bill is settled the box goes empty — a further method
+   * takes its amount OUT of whatever settled the balance, so the cashier types what to move.
    */
   const dueText = tender.due > 0 ? (tender.due / 100).toFixed(2) : '';
   const amount = typedAmount ?? dueText;
@@ -50,32 +52,35 @@ export function PosPaymentColumn({
   const chosenMethod = methods.find((m) => m.key === chosen);
   /** Only cash may be overpaid; the change comes out of the drawer (D-163). */
   const takesChange = chosenMethod?.type === 'cash';
-  const canTender = Boolean(chosen) && tender.due > 0;
+  const settled = tender.due <= 0 && payments.length > 0;
+  /** Something can always be tendered: what is owed, or a share carved out of a settled bill. */
+  const canTender = Boolean(chosen);
 
-  const tenderFor = (methodKey, value) => {
+  /**
+   * `auto` marks a tender that was tapped to settle the balance rather than typed. A later tender
+   * is carved out of those first, so "card for the lot, then 50 on cash" leaves card 65 + cash 50
+   * instead of overpaying the sale (`addTender`).
+   */
+  const add = (value, methodKey = chosen, { auto = false } = {}) => {
     const picked = methods.find((m) => m.key === methodKey);
-    if (!picked) return 0;
     const wanted = value ?? halalasTender(amount);
-    if (!wanted) return 0;
-    // A card or a transfer is taken for exactly what is owed; only cash can be handed over long.
-    return picked.type === 'cash' ? wanted : Math.min(wanted, tender.due);
-  };
-
-  const add = (value, methodKey = chosen) => {
-    const paid = tenderFor(methodKey, value);
-    if (!paid) return;
-    const item = { method: methodKey, amount: paid };
+    if (!picked || !wanted) return;
+    const item = { method: methodKey, amount: wanted, ...(auto && { auto: true }) };
     if (reference.trim()) item.reference = reference.trim();
-    onChange([...payments, item]);
-    // Back to following the balance, which the tender just reduced.
+    onChange(addTender(payments, item, total, { takesChange: picked.type === 'cash' }));
+    // Back to following the balance, which the tender just moved.
     setTypedAmount(null);
     setReference('');
   };
 
   /** Tap a method to settle what is still due with it — the usual way to split a sale. */
   const addWithMethod = (methodKey) => {
-    if (tender.due <= 0) return;
-    add(tender.due, methodKey);
+    if (tender.due > 0) {
+      add(tender.due, methodKey, { auto: true });
+      return;
+    }
+    // The bill is already settled: this method takes the amount typed out of what settled it.
+    add(undefined, methodKey);
   };
 
   const isContact = customer?.mode === 'contact';
@@ -264,6 +269,8 @@ export function PosPaymentColumn({
           <p className="text-[10px] text-slate-500">{t('pos.payment.exactOnly')}</p>
         )}
 
+        {settled && <p className="text-[10px] text-slate-500">{t('pos.payment.carveHint')}</p>}
+
         {/* Optional Reference / Trx ID */}
         <input
           type="text"
@@ -280,13 +287,13 @@ export function PosPaymentColumn({
         />
 
         {/* Hand the exact amount over — one tap for the commonest case of all. */}
-        {canTender && (
+        {tender.due > 0 && chosen && (
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className="h-6 text-[11px] text-primary font-medium justify-start p-0 hover:bg-transparent hover:underline"
-            onClick={() => add(tender.due)}
+            onClick={() => add(tender.due, chosen, { auto: true })}
           >
             {t('pos.payment.exact', { amount: fmt.money(tender.due) })}
           </Button>
@@ -302,8 +309,12 @@ export function PosPaymentColumn({
               <button
                 key={m.key}
                 type="button"
-                disabled={tender.due <= 0}
-                aria-label={t('pos.payment.settleWith', { method: m.label })}
+                disabled={settled && !halalasTender(amount)}
+                aria-label={
+                  settled
+                    ? t('pos.payment.moveTo', { method: m.label })
+                    : t('pos.payment.settleWith', { method: m.label })
+                }
                 onClick={() => addWithMethod(m.key)}
                 className="flex items-center gap-0.5 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
               >

@@ -69,7 +69,7 @@
     "brands": "Brands",
     "suppliers": "Suppliers",
     "branches": "Branches",
-    "purchaseOrders": "Import products",
+    "purchaseOrders": "Purchase orders",
     "appearance": "Appearance",
     "tracking": "Tracking",
     "userProfile": "User profile",
@@ -2172,7 +2172,9 @@
       "noMethods": "No counter payment method is set up",
       "quick": "Settle with:",
       "settleWith": "Settle what is due with {{method}}",
-      "exactOnly": "Only cash can be overpaid — this is taken for what is still due."
+      "exactOnly": "Only cash can be overpaid — this is taken for what is still due.",
+      "moveTo": "Move this amount to {{method}}",
+      "carveHint": "The bill is settled. Type an amount and pick a method to move it off the method that settled it."
     },
     "held": {
       "title": "Held sales",

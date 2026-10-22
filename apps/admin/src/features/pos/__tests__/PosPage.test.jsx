@@ -1052,4 +1052,48 @@ describe('splitting the money, method after method', () => {
     expect(till().getByLabelText('Change')).toHaveTextContent('SAR 0.00');
     expect(screen.getByLabelText('Amount')).toHaveValue('');
   });
+
+  it('carves a second method out of the one that settled the whole bill', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoWays });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    // The card is tapped for the lot…
+    await user.click(screen.getByRole('button', { name: 'Settle what is due with Card terminal' }));
+    // Settled: the balance row turns into change, and the card holds the whole sale.
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
+
+    // …then the customer puts 50 on cash: it comes OUT of the card, it is not extra money.
+    await user.type(screen.getByLabelText('Amount'), '50');
+    await user.click(screen.getByRole('button', { name: 'Move this amount to Cash' }));
+
+    const tenders = screen.getAllByRole('listitem').map((li) => li.textContent);
+    expect(tenders.some((line) => /Card terminal/.test(line) && /65\.00/.test(line))).toBe(true);
+    expect(tenders.some((line) => /Cash/.test(line) && /50\.00/.test(line))).toBe(true);
+    // The sale is still settled exactly — nothing overpaid, no change owed.
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+  });
+
+  it("sends the tenders as rung up, without the screen's own notes", async () => {
+    const user = userEvent.setup();
+    const m = setup({ routes: twoWays });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: 'Settle what is due with Card terminal' }));
+    await user.type(screen.getByLabelText('Amount'), '50');
+    await user.click(screen.getByRole('button', { name: 'Move this amount to Cash' }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    const sent = JSON.parse(
+      m.calls.filter((c) => c.key === 'POST /api/v1/pos/sales').at(-1).init.body,
+    );
+    expect(sent.payments).toEqual([
+      { method: 'card', amount: 6500 },
+      { method: 'cash', amount: 5000 },
+    ]);
+  });
 });

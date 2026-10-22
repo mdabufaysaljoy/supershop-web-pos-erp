@@ -59,7 +59,7 @@ export {
 } from './printing/template.js';
 export { decodeZatcaQr, formatZatcaAmount, qrMatrix, qrSvg, zatcaQr } from './printing/zatca.js';
 export { QR_DEFAULT_LEVEL, QR_LEVELS } from './printing/qr.js';
-export { discountAmount, POS, priceSale, tenderSummary } from './pos/sale.js';
+export { addTender, discountAmount, POS, priceSale, tenderSummary } from './pos/sale.js';
 export {
   buildShiftReportTemplate,
   renderShiftReport,

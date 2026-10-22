@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createPosSchemas, discountAmount, priceSale, tenderSummary } from '../index.js';
+import { addTender, createPosSchemas, discountAmount, priceSale, tenderSummary } from '../index.js';
 
 /** P6.1 — what a sale at the counter costs. Money, so every case is pinned down. */
 const TAX = { vatRateBps: 1500, pricesIncludeVat: true };
@@ -191,5 +191,52 @@ describe('what the till may send', () => {
       schemas.sale.safeParse({ branchId: '6acf9f65e6a82ebbbbef0583', items: [], payments: [] })
         .success,
     ).toBe(false);
+  });
+});
+
+/** P6.1 — a split worked backwards: the bill is settled, then a tender is carved out of it. */
+describe('taking one more tender onto a settled ticket', () => {
+  const CARD = { method: 'card', amount: 11_500, auto: true };
+
+  it('carves a later tender out of the method that settled the balance', () => {
+    // Card took the lot; the customer then puts 50 on cash. Cash is not extra money.
+    const after = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
+    expect(after).toEqual([
+      { method: 'card', amount: 6500, auto: true },
+      { method: 'cash', amount: 5000 },
+    ]);
+    expect(tenderSummary(11_500, after)).toEqual({ paid: 11_500, due: 0, change: 0 });
+  });
+
+  it('keeps carving as more methods are added, and drops a tender it empties', () => {
+    let t = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
+    t = addTender(t, { method: 'stcpay', amount: 3000 }, 11_500);
+    expect(t).toEqual([
+      { method: 'card', amount: 3500, auto: true },
+      { method: 'cash', amount: 5000 },
+      { method: 'stcpay', amount: 3000 },
+    ]);
+    // One more that swallows the rest of the card: the card line goes away entirely.
+    t = addTender(t, { method: 'transfer', amount: 3500 }, 11_500);
+    expect(t.map((p) => p.method)).toEqual(['cash', 'stcpay', 'transfer']);
+    expect(tenderSummary(11_500, t)).toEqual({ paid: 11_500, due: 0, change: 0 });
+  });
+
+  it('never rewrites an amount the cashier typed: the new tender is capped instead', () => {
+    const typed = [{ method: 'cash', amount: 11_500 }];
+    const after = addTender(typed, { method: 'card', amount: 5000 }, 11_500);
+    expect(after).toEqual(typed); // nothing to carve, nothing owed — the card is refused
+  });
+
+  it('still lets cash be handed over long, which comes back as change', () => {
+    const after = addTender([], { method: 'cash', amount: 12_000 }, 11_500, { takesChange: true });
+    expect(tenderSummary(11_500, after)).toEqual({ paid: 12_000, due: 0, change: 500 });
+  });
+
+  it('adds a tender that fits as it is, and ignores an empty one', () => {
+    expect(addTender([], { method: 'cash', amount: 5000 }, 11_500)).toEqual([
+      { method: 'cash', amount: 5000 },
+    ]);
+    expect(addTender([{ ...CARD }], { method: 'cash', amount: 0 }, 11_500)).toEqual([CARD]);
   });
 });

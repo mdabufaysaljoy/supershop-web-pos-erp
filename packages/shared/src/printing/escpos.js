@@ -105,6 +105,13 @@ const CUT_FEED_DOTS = 12;
 const QR_TARGET_DOTS = 216;
 
 /**
+ * The smallest a module may print, in dots. 4 dots is 0.5 mm at 203 dpi — about as fine as a
+ * phone camera reads off thermal paper. A long payload at level H needs many modules, and the
+ * code grows past the target size rather than printing finer than this.
+ */
+const QR_MIN_MODULE_DOTS = 4;
+
+/**
  * A QR is printed as a BITMAP (`GS v 0`), not with the printer's own QR command (`GS ( k`).
  *
  * The QR command leaves the module size to the printer, and the cheap 58 mm printers a shop
@@ -129,7 +136,10 @@ function qrRasterBytes(payload, { widthDots }) {
   // than the print area: a 100-character ZATCA payload and a short URL then come out the same
   // size on the slip whatever paper the shop prints on.
   const fits = Math.floor(widthDots / modules);
-  const scale = Math.min(fits, Math.max(1, Math.round(QR_TARGET_DOTS / modules)));
+  const scale = Math.min(
+    Math.max(fits, 1),
+    Math.max(QR_MIN_MODULE_DOTS, Math.round(QR_TARGET_DOTS / modules)),
+  );
   const bytesPerRow = Math.ceil(widthDots / 8);
   const codeDots = modules * scale;
   const leftDots = Math.floor((bytesPerRow * 8 - codeDots) / 2);

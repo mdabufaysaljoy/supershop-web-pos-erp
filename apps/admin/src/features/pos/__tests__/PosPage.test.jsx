@@ -1115,6 +1115,45 @@ describe('splitting the money, method after method', () => {
     expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
   });
 
+  it('takes a second method after the Add button settled the whole bill', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoWays });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    // Settle the lot with the card using Add, with the box on the balance it offers.
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'card');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+
+    // A second method must still go on — this used to be silently dropped.
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'cash');
+    await user.type(screen.getByLabelText('Amount'), '50');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    const tenders = screen.getAllByRole('listitem').map((li) => li.textContent);
+    expect(tenders.some((l) => /Card terminal/.test(l) && /65\.00/.test(l))).toBe(true);
+    expect(tenders.some((l) => /Cash/.test(l) && /50\.00/.test(l))).toBe(true);
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 115.00');
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 0.00');
+  });
+
+  it('gives change when cash is handed over a bill that is already settled', async () => {
+    const user = userEvent.setup();
+    setup({ routes: twoWays });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.click(screen.getByRole('button', { name: 'Settle what is due with Card terminal' }));
+    await user.selectOptions(screen.getByLabelText('Paying with'), 'cash');
+    await user.type(screen.getByLabelText('Amount'), '150');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    // The customer paid cash after all: the card comes off and 35 goes back.
+    expect(screen.getByLabelText('Tendered')).toHaveTextContent('SAR 150.00');
+    expect(screen.getByLabelText('Change')).toHaveTextContent('SAR 35.00');
+  });
+
   it("sends the tenders as rung up, without the screen's own notes", async () => {
     const user = userEvent.setup();
     const m = setup({ routes: twoWays });

@@ -58,15 +58,15 @@ export function PosPaymentColumn({
   const canTender = Boolean(chosen);
 
   /**
-   * `auto` marks a tender that was tapped to settle the balance rather than typed. A later tender
-   * is carved out of those first, so "card for the lot, then 50 on cash" leaves card 65 + cash 50
-   * instead of overpaying the sale (`addTender`).
+   * A tender that would overpay is carved out of the ones already on the ticket — "card for the
+   * lot, then 500 on cash" leaves card 4,699 + cash 500 — and a real overpayment in CASH comes
+   * back as change (`addTender`).
    */
-  const add = (value, methodKey = chosen, { auto = false } = {}) => {
+  const add = (value, methodKey = chosen) => {
     const picked = methods.find((m) => m.key === methodKey);
     const wanted = value ?? halalasTender(amount);
     if (!picked || !wanted) return;
-    const item = { method: methodKey, amount: wanted, ...(auto && { auto: true }) };
+    const item = { method: methodKey, amount: wanted };
     if (reference.trim()) item.reference = reference.trim();
     onChange(addTender(payments, item, total, { takesChange: picked.type === 'cash' }));
     // Back to following the balance, which the tender just moved.
@@ -77,7 +77,7 @@ export function PosPaymentColumn({
   /** Tap a method to settle what is still due with it — the usual way to split a sale. */
   const addWithMethod = (methodKey) => {
     if (tender.due > 0) {
-      add(tender.due, methodKey, { auto: true });
+      add(tender.due, methodKey);
       return;
     }
     // The bill is already settled: this method takes the amount typed out of what settled it.
@@ -302,7 +302,7 @@ export function PosPaymentColumn({
             variant="ghost"
             size="sm"
             className="h-6 text-[11px] text-primary font-medium justify-start p-0 hover:bg-transparent hover:underline"
-            onClick={() => add(tender.due, chosen, { auto: true })}
+            onClick={() => add(tender.due, chosen)}
           >
             {t('pos.payment.exact', { amount: fmt.money(tender.due) })}
           </Button>

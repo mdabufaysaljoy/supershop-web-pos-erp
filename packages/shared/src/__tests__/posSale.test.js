@@ -196,41 +196,63 @@ describe('what the till may send', () => {
 
 /** P6.1 — a split worked backwards: the bill is settled, then a tender is carved out of it. */
 describe('taking one more tender onto a settled ticket', () => {
-  const CARD = { method: 'card', amount: 11_500, auto: true };
+  const CARD = { method: 'card', amount: 11_500 };
 
-  it('carves a later tender out of the method that settled the balance', () => {
+  it('carves a later tender out of what already settled the bill', () => {
     // Card took the lot; the customer then puts 50 on cash. Cash is not extra money.
     const after = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
     expect(after).toEqual([
-      { method: 'card', amount: 6500, auto: true },
+      { method: 'card', amount: 6500 },
       { method: 'cash', amount: 5000 },
     ]);
     expect(tenderSummary(11_500, after)).toEqual({ paid: 11_500, due: 0, change: 0 });
   });
 
-  it('keeps carving as more methods are added, and drops a tender it empties', () => {
+  it('carves whether the first tender was tapped or typed — a method can always be added', () => {
+    // The amount box offers the balance, so "Add" and the quick row produce the same tender.
+    for (const first of [{ ...CARD }, { method: 'card', amount: 11_500 }]) {
+      const after = addTender([first], { method: 'stcpay', amount: 3000 }, 11_500);
+      expect(after.map((p) => [p.method, p.amount])).toEqual([
+        ['card', 8500],
+        ['stcpay', 3000],
+      ]);
+    }
+  });
+
+  it('takes from the tender that took the whole bill, and leaves the later splits alone', () => {
     let t = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
     t = addTender(t, { method: 'stcpay', amount: 3000 }, 11_500);
-    expect(t).toEqual([
-      { method: 'card', amount: 3500, auto: true },
-      { method: 'cash', amount: 5000 },
-      { method: 'stcpay', amount: 3000 },
+    // Both later tenders stand at what the cashier entered; the card gave up the room.
+    expect(t.map((p) => [p.method, p.amount])).toEqual([
+      ['card', 3500],
+      ['cash', 5000],
+      ['stcpay', 3000],
     ]);
-    // One more that swallows the rest of the card: the card line goes away entirely.
-    t = addTender(t, { method: 'transfer', amount: 3500 }, 11_500);
-    expect(t.map((p) => p.method)).toEqual(['cash', 'stcpay', 'transfer']);
     expect(tenderSummary(11_500, t)).toEqual({ paid: 11_500, due: 0, change: 0 });
   });
 
-  it('never rewrites an amount the cashier typed: the new tender is capped instead', () => {
-    const typed = [{ method: 'cash', amount: 11_500 }];
-    const after = addTender(typed, { method: 'card', amount: 5000 }, 11_500);
-    expect(after).toEqual(typed); // nothing to carve, nothing owed — the card is refused
+  it('drops a tender it empties entirely', () => {
+    let t = addTender([{ ...CARD }], { method: 'cash', amount: 5000 }, 11_500);
+    t = addTender(t, { method: 'transfer', amount: 6500 }, 11_500);
+    expect(t.map((p) => [p.method, p.amount])).toEqual([
+      ['cash', 5000],
+      ['transfer', 6500],
+    ]);
+    expect(tenderSummary(11_500, t)).toEqual({ paid: 11_500, due: 0, change: 0 });
   });
 
-  it('still lets cash be handed over long, which comes back as change', () => {
-    const after = addTender([], { method: 'cash', amount: 12_000 }, 11_500, { takesChange: true });
-    expect(tenderSummary(11_500, after)).toEqual({ paid: 12_000, due: 0, change: 500 });
+  it('hands back the rest as change when cash is given over a settled bill', () => {
+    // 115 settled on the card, then the customer pays 150 cash instead: 35 goes back.
+    const after = addTender([{ ...CARD }], { method: 'cash', amount: 15_000 }, 11_500, {
+      takesChange: true,
+    });
+    expect(after).toEqual([{ method: 'cash', amount: 15_000 }]);
+    expect(tenderSummary(11_500, after)).toEqual({ paid: 15_000, due: 0, change: 3500 });
+  });
+
+  it('caps a card or a transfer at the bill — only cash may be overpaid', () => {
+    const after = addTender([], { method: 'card', amount: 15_000 }, 11_500);
+    expect(after).toEqual([{ method: 'card', amount: 11_500 }]);
   });
 
   it('adds a tender that fits as it is, and ignores an empty one', () => {

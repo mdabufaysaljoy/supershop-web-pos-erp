@@ -304,12 +304,7 @@ export function PosPage() {
           // Only what the sale endpoint takes: the screen's own notes about a customer
           // (loyalty points, tier, card number) stay on the screen (D-176).
           customer: customerPayload(sale.sale.customer),
-          // `auto` is the screen's own note about which tender was holding the balance (D-211).
-          payments: payments.map(({ method, amount, reference }) => ({
-            method,
-            amount,
-            ...(reference ? { reference } : {}),
-          })),
+          payments,
           ...(sale.sale.note ? { note: sale.sale.note } : {}),
         },
         idempotencyKey: saleKey,

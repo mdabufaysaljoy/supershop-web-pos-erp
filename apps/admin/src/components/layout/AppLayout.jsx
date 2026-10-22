@@ -6,6 +6,7 @@ import { Link, Outlet } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { HelpDrawer } from '@/components/help/HelpDrawer';
+import { NotificationBell } from '@/features/alerts/components/NotificationBell';
 import { useAccessSync } from '@/features/auth/hooks';
 import { useActiveBranch } from '@/features/branches/activeBranch';
 import { usePublicSettings } from '@/features/settings/hooks';
@@ -87,6 +88,7 @@ export function AppLayout() {
             </SheetContent>
           </Sheet>
           <div className="ms-auto flex items-center gap-2">
+            <NotificationBell />
             <HelpDrawer />
             <UserMenu />
           </div>

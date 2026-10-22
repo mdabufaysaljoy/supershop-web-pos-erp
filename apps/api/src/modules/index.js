@@ -1,4 +1,5 @@
 import {
+  ALL_PERMISSIONS,
   createAccountSchemas,
   createAuthSchemas,
   createCustomerAdminSchemas,
@@ -7,6 +8,11 @@ import {
   PRINCIPAL_TYPES,
 } from '@supershop/shared';
 import { setAccessResolver } from '../middleware/authorize.js';
+import {
+  createAlertRouter,
+  registerAlertSubscribers,
+  setAllPermissions as setAlertPermissions,
+} from './alerts/index.js';
 import { createAuditRouter, registerAuditSubscribers } from './audit/index.js';
 import {
   AUTH_BASE_PATH,
@@ -118,6 +124,7 @@ import {
   countProductsOfBrand,
   countProductsOfSupplier,
   createProductRouter,
+  getCartVariants,
   getProductIdsByTag,
   getPublicCards,
   setAvailabilityProvider,
@@ -270,6 +277,16 @@ export function registerModules() {
         : ((await customerPrincipal.getProfile(id)) ?? null),
   });
   registerAuditSubscribers();
+  // The bell: what the shop is told about, and who is allowed to be told (ALL_PERMISSIONS for a
+  // super-admin, whose role grants nothing explicitly).
+  setAlertPermissions([...ALL_PERMISSIONS]);
+  registerAlertSubscribers({
+    currency: () => getSetting('store.currency'),
+    nameVariant: async (variantId) => {
+      const found = await getCartVariants([String(variantId)], 'en');
+      return found.get(String(variantId))?.name ?? String(variantId);
+    },
+  });
   registerI18nSubscribers();
   registerSearchSubscribers();
   registerLoyaltySubscribers();
@@ -330,6 +347,7 @@ export function mountModuleRoutes(api) {
   api.use('/staff', createStaffRouter({ getSchemas: getRbacSchemas }));
   api.use('/branches', createBranchRouter());
   api.use('/settings', createSettingsRouter());
+  api.use('/alerts', createAlertRouter());
   api.use('/audit', createAuditRouter());
   api.use('/i18n', createI18nAdminRouter());
   api.use('/media', createMediaRouter());

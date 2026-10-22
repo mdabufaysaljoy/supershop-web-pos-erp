@@ -2909,5 +2909,14 @@
       "settings": "Settings",
       "staff": "Staff and roles"
     }
+  },
+  "alerts": {
+    "title": "Notifications",
+    "empty": "Nothing to report.",
+    "markAllRead": "Mark all as read",
+    "open": "Open",
+    "unread": "Unread",
+    "withUnread": "Notifications, {{count}} unread",
+    "withUnread_other": "Notifications, {{count}} unread"
   }
 }

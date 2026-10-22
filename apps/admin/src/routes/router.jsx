@@ -11,6 +11,8 @@ import { CustomersPage } from '@/features/customers/pages/CustomersPage';
 import { CampaignsPage } from '@/features/campaigns/pages/CampaignsPage';
 import { CampaignEditorPage } from '@/features/campaigns/pages/CampaignEditorPage';
 import { SubscribersPage } from '@/features/campaigns/pages/SubscribersPage';
+import { RolesPage } from '@/features/roles/pages/RolesPage';
+import { StaffPage } from '@/features/staff/pages/StaffPage';
 import { CustomFieldsPage } from '@/features/customFields/pages/CustomFieldsPage';
 import { InventoryPage } from '@/features/inventory/pages/InventoryPage';
 import { MediaLibraryPage } from '@/features/media/pages/MediaLibraryPage';
@@ -61,6 +63,8 @@ const PAGES = {
   '/campaigns': <CampaignsPage />,
   '/subscribers': <SubscribersPage />,
   '/tracking': <TrackingPage />,
+  '/staff': <StaffPage />,
+  '/roles': <RolesPage />,
   '/settings': <SettingsPage />,
   '/reports': <ReportsPage />,
 };

@@ -146,7 +146,10 @@
     "SHIFT_MOVEMENT_LIMIT": "Maximum number of cash movements reached for this shift.",
     "EXCHANGE_VALUE_TOO_LOW": "Replacement items must be equal to or greater than the returned credit.",
     "RETURN_QTY_EXCEEDED": "Return quantity exceeds the remaining returnable quantity on the order.",
-    "ORDER_NOT_RETURNABLE": "This order cannot be returned or exchanged in its current status."
+    "ORDER_NOT_RETURNABLE": "This order cannot be returned or exchanged in its current status.",
+    "ROLE_IN_USE": "That role is still assigned to staff. Move them to another role first.",
+    "SYSTEM_ROLE_PROTECTED": "Ready-made roles cannot be deleted.",
+    "LAST_SUPER_ADMIN": "At least one active super admin is needed."
   },
   "validation": {
     "required": "This field is required.",
@@ -2743,5 +2746,84 @@
     "name": "Name",
     "amount": "Amount",
     "value": "Value"
+  },
+  "staff": {
+    "title": "Staff",
+    "description": "Who may sign in to the shop, and what each of them may do.",
+    "add": "Add a staff member",
+    "edit": "Edit staff member",
+    "search": "Search by name or email",
+    "empty": "No staff accounts yet.",
+    "superAdmin": "Super admin",
+    "allAccess": "Everything",
+    "branchCount": "{{count}} branch",
+    "branchCount_other": "{{count}} branches",
+    "revokeSessions": "Sign out everywhere",
+    "signedOutEverywhere": "Signed out on every device.",
+    "status": {
+      "active": "Active",
+      "disabled": "Disabled"
+    },
+    "filters": {
+      "allStatuses": "Any status",
+      "allRoles": "Any role"
+    },
+    "form": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "password": "Password",
+      "passwordHint": "They can change it once they are signed in.",
+      "role": "Role",
+      "roleHint": "What this person may see and do. Set the roles up on the Roles screen.",
+      "noRole": "No role (no access)",
+      "branches": "Branches",
+      "branchesHint": "The branches this person works in.",
+      "branchesAll": "This role covers every branch.",
+      "superAdmin": "Super admin",
+      "superAdminHint": "Unrestricted access, including staff and roles. Give it sparingly.",
+      "selfNote": "This is your own account: your access can only be changed by another admin."
+    }
+  },
+  "roles": {
+    "title": "Roles",
+    "description": "A role is a set of permissions. Give someone a role rather than picking their access one by one.",
+    "add": "Add a role",
+    "edit": "Edit role",
+    "empty": "No roles yet.",
+    "ready": "Ready-made",
+    "scope": "Branch scope",
+    "permissionCount": "Permissions",
+    "allBranches": "All branches",
+    "ownBranches": "Assigned branches only",
+    "form": {
+      "name": "Role name",
+      "description": "Description",
+      "descriptionHint": "What this role is for, in a line.",
+      "allBranches": "Covers every branch",
+      "allBranchesHint": "For head-office roles. Otherwise the person only acts in the branches they are assigned.",
+      "permissions": "Permissions ({{count}} selected)",
+      "selectGroup": "Select all",
+      "clearGroup": "Clear",
+      "notYours": "You do not hold this permission yourself.",
+      "systemNote": "This is one of the ready-made roles. You can tune it, but it cannot be deleted."
+    }
+  },
+  "permissions": {
+    "groups": {
+      "dashboard": "Dashboard",
+      "product": "Products",
+      "catalog": "Catalogue",
+      "inventory": "Stock",
+      "branch": "Branches",
+      "order": "Orders",
+      "pos": "Point of sale",
+      "customer": "Customers",
+      "marketing": "Marketing",
+      "content": "Content",
+      "report": "Reports",
+      "settings": "Settings",
+      "staff": "Staff and roles"
+    }
   }
 }

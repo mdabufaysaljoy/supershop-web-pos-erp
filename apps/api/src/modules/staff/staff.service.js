@@ -12,7 +12,7 @@ import {
 } from '../../core/errors.js';
 import { eventBus } from '../../core/events.js';
 import { revokeAllSessions, setPassword } from '../auth/index.js';
-import { getRoleAccess } from '../rbac/index.js';
+import { getRoleAccess, getRoleNames } from '../rbac/index.js';
 import * as repo from './staff.repo.js';
 
 const TYPE = PRINCIPAL_TYPES.STAFF;
@@ -166,8 +166,13 @@ export async function listStaff(actor, query) {
     ...query,
     scopeBranchIds: actor.allBranches ? null : actor.branchIds,
   });
+  // The role's NAME travels with the row: reading staff does not require permission to read roles.
+  const names = await getRoleNames(items.map((s) => s.roleId));
   return {
-    items: items.map(toStaffProfile),
+    items: items.map((s) => ({
+      ...toStaffProfile(s),
+      roleName: s.roleId ? (names.get(String(s.roleId)) ?? null) : null,
+    })),
     meta: { page: query.page, limit: query.limit, total },
   };
 }

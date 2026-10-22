@@ -121,6 +121,18 @@ export async function getRoleAccess(roleId) {
   return r ? { permissions: r.permissions, allBranches: Boolean(r.allBranches) } : null;
 }
 
+/**
+ * For other modules: `Map<id, name>` for the roles asked about, so a staff list can say which
+ * role someone holds without the reader needing permission to read roles themselves.
+ * @param {string[]} ids
+ */
+export async function getRoleNames(ids) {
+  const unique = [...new Set(ids.filter(Boolean).map(String))];
+  if (!unique.length) return new Map();
+  const roles = await Promise.all(unique.map((id) => repo.findRoleById(id)));
+  return new Map(roles.filter(Boolean).map((r) => [String(r._id), r.name]));
+}
+
 /** Idempotent: inserts missing default roles; never overwrites admin edits. */
 export async function seedDefaultRoles() {
   for (const role of DEFAULT_ROLES) await repo.insertSystemRoleIfMissing({ ...role });

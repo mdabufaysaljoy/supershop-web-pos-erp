@@ -4,6 +4,7 @@ export { DEFAULT_ROLES } from './defaultRoles.js';
 export {
   findSystemRoleId,
   getRoleAccess,
+  getRoleNames,
   seedDefaultRoles,
   setRoleUsageCounter,
   toRoleDto,

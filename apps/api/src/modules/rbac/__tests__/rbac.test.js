@@ -346,6 +346,8 @@ describe('staff management', () => {
     expect(res.body.data.map((s) => s.email)).toEqual(['cashier1@shop.test']);
     expect((await as('root').get('/api/v1/staff?sort=passwordHash')).status).toBe(400);
     expect((await as('root').get('/api/v1/staff?q=.*')).body.meta.total).toBe(0); // regex-escaped
+    // The role's name rides along, so a staff list reads correctly without permission to read roles.
+    expect(res.body.data[0].roleName).toBe('Cashier');
   });
 
   it('nobody changes their own access', async () => {

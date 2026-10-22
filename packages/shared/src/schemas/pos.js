@@ -89,7 +89,11 @@ export function createPosSchemas({
       items: z.array(item).min(1, { error: V.REQUIRED }).max(POS.MAX_LINES),
       orderDiscount: bounded.nullish(),
       customer: customer.default({ mode: 'walkin' }),
-      payments: z.array(payment).min(1, { error: V.REQUIRED }).max(POS.MAX_PAYMENTS),
+      /**
+       * Empty is allowed because a basket discounted to nothing is paid for by definition; the
+       * service is what refuses a sale that is still owed money (it knows the total).
+       */
+      payments: z.array(payment).max(POS.MAX_PAYMENTS),
       /** Loyalty points the customer is spending on this sale (P7.1); needs a known customer. */
       redeemPoints: z
         .number({ error: V.INVALID_TYPE })

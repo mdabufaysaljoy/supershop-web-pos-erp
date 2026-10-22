@@ -732,6 +732,83 @@ describe('catalogue and filtering', () => {
     });
   });
 
+  it('holds a percentage at the most the shop allows, instead of being refused', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        // This shop lets a cashier take 20% off, and no more.
+        'GET /api/v1/settings/public': json(200, { data: { 'pos.maxDiscountBps': 2000 } }),
+        'POST /api/v1/pos/quote': ({ init }) => {
+          const body = JSON.parse(init.body);
+          const bps = body.orderDiscount?.value ?? 0;
+          // The API refuses anything over the cap, which is what left the till showing stale
+          // totals and a "prices could not be checked" banner.
+          if (bps > 2000) {
+            return json(400, {
+              error: {
+                code: 'VALIDATION_ERROR',
+                message: 'That discount is too large',
+                details: [{ path: 'orderDiscount.value', message: 'validation.tooLong' }],
+              },
+            });
+          }
+          const qty = body.items.reduce((n, i) => n + i.qty, 0);
+          const gross = 11_500 * qty;
+          return json(200, { data: quoteFor(qty, gross - Math.round((gross * bps) / 10_000)) });
+        },
+      },
+      permissions: ['pos.sell', 'pos.discount'],
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.selectOptions(screen.getByLabelText('Discount type'), 'percent');
+    await user.type(screen.getByLabelText('Off the whole basket'), '50');
+
+    // Held at 20%: the basket drops to 92.00 and the till says why, rather than going stale.
+    await toPay('SAR 92.00');
+    expect(screen.getByText('20% is the most this shop allows off a basket.')).toBeInTheDocument();
+    const sent = JSON.parse(
+      m.calls.filter((c) => c.key === 'POST /api/v1/pos/quote').at(-1).init.body,
+    );
+    expect(sent.orderDiscount).toEqual({ type: 'percent', value: 2000 });
+    expect(screen.queryByText(/could not be checked/)).toBeNull();
+  });
+
+  it('completes a basket discounted to nothing, which needs no tender', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        'GET /api/v1/settings/public': json(200, { data: { 'pos.maxDiscountBps': 10_000 } }),
+        'POST /api/v1/pos/quote': ({ init }) => {
+          const body = JSON.parse(init.body);
+          const qty = body.items.reduce((n, i) => n + i.qty, 0);
+          const gross = 11_500 * qty;
+          const off = Math.round((gross * (body.orderDiscount?.value ?? 0)) / 10_000);
+          return json(200, { data: quoteFor(qty, gross - off) });
+        },
+        'POST /api/v1/pos/sales': json(201, {
+          data: { id: 'o-free', orderNo: 'POS-000100', totals: { total: 0 }, payments: [] },
+        }),
+      },
+      permissions: ['pos.sell', 'pos.discount'],
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+
+    await user.selectOptions(screen.getByLabelText('Discount type'), 'percent');
+    await user.type(screen.getByLabelText('Off the whole basket'), '100');
+    await toPay('SAR 0.00');
+
+    // Nothing to tender, and nothing stopping the sale.
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    expect(
+      JSON.parse(m.calls.filter((c) => c.key === 'POST /api/v1/pos/sales').at(-1).init.body)
+        .payments,
+    ).toEqual([]);
+  });
+
   it('takes a percentage off the basket as a percentage, not as money', async () => {
     const user = userEvent.setup();
     const m = setup({

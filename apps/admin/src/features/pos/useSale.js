@@ -45,7 +45,8 @@ export function useSale(branchId, { staffId = '' } = {}) {
   const quote = useQuote();
   /** The last quote the SERVER gave us (lines + totals), kept while the next one is in flight. */
   const [quoted, setQuoted] = useState(null);
-  const [quoteFailed, setQuoteFailed] = useState(false);
+  /** The server's own words when it refused to price the basket (a discount over the cap, say). */
+  const [quoteError, setQuoteError] = useState(null);
   const timer = useRef(null);
 
   // Restoring is keyed by cashier + branch: switching either loads that counter's own basket.
@@ -80,10 +81,10 @@ export function useSale(branchId, { staffId = '' } = {}) {
       askForQuote(body)
         .then((result) => {
           setQuoted(result);
-          setQuoteFailed(false);
+          setQuoteError(null);
         })
         // Offline, or the server refused: keep showing what we had and say it is not confirmed.
-        .catch(() => setQuoteFailed(true));
+        .catch((err) => setQuoteError(err ?? new Error('quote failed')));
     }, QUOTE_DEBOUNCE_MS);
     return () => clearTimeout(timer.current);
   }, [askForQuote, body, branchId, empty]);
@@ -207,7 +208,9 @@ export function useSale(branchId, { staffId = '' } = {}) {
     priced: empty ? null : quoted,
     totals: empty ? null : (quoted?.totals ?? null),
     /** The totals on screen are the last confirmed ones, and something has changed since. */
-    stale: !empty && quoteFailed,
+    stale: !empty && Boolean(quoteError),
+    /** Why the last pricing attempt was refused, if it was — the till shows it in place of a guess. */
+    quoteError: empty ? null : quoteError,
     pricing: quote.isPending,
     /** Oldest first: the queue is served in the order sales were put aside. */
     held: held.filter((h) => h.branchId === branchId),

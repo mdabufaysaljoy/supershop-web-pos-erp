@@ -336,7 +336,13 @@ export function PosPage() {
           {t('pos.offline')}
         </Alert>
       )}
-      {online && sale.stale && <Alert className="shrink-0">{t('pos.pricingFailed')}</Alert>}
+      {online && sale.stale && (
+        <Alert variant="destructive" className="shrink-0">
+          {sale.quoteError?.code === 'VALIDATION_ERROR'
+            ? errorMessage(t, sale.quoteError)
+            : t('pos.pricingFailed')}
+        </Alert>
+      )}
       {sell.isError && (
         <Alert variant="destructive" className="shrink-0">
           {errorMessage(t, sell.error)}

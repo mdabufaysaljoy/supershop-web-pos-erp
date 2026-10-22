@@ -358,6 +358,23 @@ describe('discounts', () => {
     expect(sale.items.reduce((n, i) => n + i.lineTotal, 0)).toBe(sale.totals.total);
   });
 
+  it('sells a basket discounted to nothing, with no money taken', async () => {
+    await ok(
+      await root.patch('/api/v1/settings', {
+        changes: [{ key: 'pos.maxDiscountBps', value: 10_000 }],
+      }),
+    );
+    const sale = await ok(
+      await till().sell(
+        basket({ orderDiscount: { type: 'percent', value: 10_000 }, payments: [] }),
+      ),
+      201,
+    );
+    expect(sale.totals.total).toBe(0);
+    expect(sale.payments).toEqual([]);
+    expect(sale.changeGiven).toBe(0);
+  });
+
   it('refuses a discount larger than the shop allows', async () => {
     await ok(
       await root.patch('/api/v1/settings', {

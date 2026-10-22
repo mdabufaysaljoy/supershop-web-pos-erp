@@ -464,7 +464,14 @@ const DEFINITIONS = [
 
   // ---------- POS (P6.1 / P6.5) ----------
   /** The most a cashier may take off with a percentage discount (basis points; 1000 = 10%). */
-  { key: 'pos.maxDiscountBps', group: 'pos', schema: int(0, 10_000), default: 2000 },
+  /** The most a cashier may take off. Public: the till shows the limit rather than being refused. */
+  {
+    key: 'pos.maxDiscountBps',
+    group: 'pos',
+    schema: int(0, 10_000),
+    default: 2000,
+    public: true,
+  },
   /**
    * Whether the till may sell what the system says is not on the shelf. Off by default: a count
    * that silently goes negative is how stock stops meaning anything.

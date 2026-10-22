@@ -2204,7 +2204,8 @@
       "remove": "Remove {{name}}",
       "discountType": "Discount type",
       "discountAmount": "Amount",
-      "discountPercent": "Percent"
+      "discountPercent": "Percent",
+      "discountCapped": "{{percent}}% is the most this shop allows off a basket."
     },
     "cart": {
       "title": "Product Cart",

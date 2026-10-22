@@ -4,6 +4,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { fmt } from '@/lib/format';
+import { usePublicSettings } from '@/features/settings/hooks';
 import { useCan } from '@/lib/permissions';
 
 const halalas = (value) => {
@@ -16,10 +17,12 @@ const halalas = (value) => {
  * halalas, a percentage is in basis points (7.5% = 750). Sending a percentage as money is how
  * "10% off" became "10 halalas off".
  */
-const toDiscount = (type, typed) => {
+const toDiscount = (type, typed, maxBps) => {
   const value = halalas(typed); // both scale by 100: 25.00 → 2500 halalas, 7.5% → 750 bps
   if (!value) return null;
-  return { type, value: type === 'percent' ? Math.min(value, 10_000) : value };
+  // A percentage beyond what the shop allows is REFUSED by the API, which would leave the till
+  // showing stale totals and a "prices could not be checked" banner. Hold it at the limit instead.
+  return { type, value: type === 'percent' ? Math.min(value, maxBps) : value };
 };
 
 /** What the box shows for the discount already on the basket, in the unit it is typed in. */
@@ -35,6 +38,12 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
   const can = useCan();
   const mayDiscount = can(P.POS_DISCOUNT);
   const [discountType, setDiscountType] = useState('amount');
+  /** The most this shop lets a cashier take off, as a percentage (`pos.maxDiscountBps`). */
+  const maxBps = usePublicSettings().data?.['pos.maxDiscountBps'] ?? 10_000;
+  const atLimit =
+    discountType === 'percent' && sale?.orderDiscount?.type === 'percent'
+      ? sale.orderDiscount.value >= maxBps
+      : false;
 
   const lineCount = sale?.lines?.length ?? 0;
 
@@ -89,10 +98,16 @@ export function PosCartColumn({ sale, subtotal, onOrderDiscount, children }) {
                 placeholder={discountType === 'percent' ? '0.0' : '0.00'}
                 currency={discountType === 'percent' ? '%' : undefined}
                 className="h-7 w-20 rounded border border-rose-300 focus:border-rose-500 text-rose-600 text-end text-xs font-semibold px-2 outline-none"
-                onChange={(e) => onOrderDiscount(toDiscount(discountType, e.target.value))}
+                onChange={(e) => onOrderDiscount(toDiscount(discountType, e.target.value, maxBps))}
               />
             </div>
           </div>
+        )}
+
+        {mayDiscount && atLimit && maxBps < 10_000 && (
+          <p className="text-[10px] text-amber-700">
+            {t('pos.lines.discountCapped', { percent: maxBps / 100 })}
+          </p>
         )}
       </div>
     </div>

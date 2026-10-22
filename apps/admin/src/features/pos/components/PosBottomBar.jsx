@@ -23,7 +23,12 @@ export function PosBottomBar({
 }) {
   const { t } = useTranslation();
 
-  const canComplete = !busy && !blocked && payments.length > 0 && tender.due <= 0;
+  /**
+   * A basket discounted to nothing is already paid for, so it needs no tender — anything else
+   * needs the money on the ticket and nothing still owed.
+   */
+  const free = tender.due <= 0 && tender.paid === 0;
+  const canComplete = !busy && !blocked && tender.due <= 0 && (free || payments.length > 0);
 
   return (
     <div className="shrink-0 flex flex-col gap-2 pt-3 mt-2 border-t border-slate-100">

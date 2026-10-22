@@ -149,6 +149,22 @@ function priceForSale(lines, orderDiscount, extraDiscount = 0) {
   };
 }
 
+/**
+ * The one-line summary an order carries beside its tenders: the method that paid the most. A
+ * basket discounted to nothing has no tenders at all, and is still a paid order — it just took
+ * no money.
+ */
+const paymentSummary = (payments) => {
+  const largest = [...payments].sort((a, b) => b.amount - a.amount)[0];
+  return {
+    method: largest?.method ?? 'none',
+    methodType: largest?.methodType ?? 'none',
+    label: largest?.label ?? null,
+    fee: 0,
+    status: 'paid',
+  };
+};
+
 /** A basket discount beyond the shop's cap, or more than the basket, is refused — never clamped. */
 function assertDiscountsFit(actor, input, priced) {
   if (input.orderDiscount && !actor.can(P.POS_DISCOUNT))
@@ -408,14 +424,7 @@ export async function createPosSale(actor, input, { idempotencyKey = null } = {}
           totals: priced.totals,
           currency: getSetting('store.currency'),
           pricesIncludeVat: priced.pricesIncludeVat,
-          payment: {
-            // The summary of a split: the method that paid the most, and paid in full.
-            method: [...payments].sort((a, b) => b.amount - a.amount)[0].method,
-            methodType: [...payments].sort((a, b) => b.amount - a.amount)[0].methodType,
-            label: [...payments].sort((a, b) => b.amount - a.amount)[0].label,
-            fee: 0,
-            status: 'paid',
-          },
+          payment: paymentSummary(payments),
           payments,
           changeGiven: tender.change,
           loyalty: redeeming

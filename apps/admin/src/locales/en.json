@@ -1623,9 +1623,8 @@
     "description": "Everything the shop has sold online and at the till.",
     "search": "Order number or phone",
     "statusFilter": "Filter by status",
-    "channelFilter": "Filter by channel",
+    "channelFilter": "Where the sale was made",
     "allStatuses": "Any status",
-    "allChannels": "Any channel",
     "empty": "No orders match this view.",
     "number": "Order",
     "placed": "Placed",
@@ -1637,7 +1636,7 @@
     "items_one": "{{count}} item",
     "items_other": "{{count}} items",
     "channels": {
-      "online": "Online",
+      "online": "Online store",
       "pos": "Point of sale"
     },
     "status": {
@@ -1726,6 +1725,10 @@
       "reprint": "Reprint receipt",
       "reprintShort": "Receipt",
       "thermal": "Thermal Receipt"
+    },
+    "emptyChannel": {
+      "pos": "No counter sales match this view.",
+      "online": "No online orders match this view."
     }
   },
   "customers": {

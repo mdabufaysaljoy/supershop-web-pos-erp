@@ -153,6 +153,40 @@ describe('the orders list', () => {
     expect(within(row).getByText('Sara Ali')).toBeInTheDocument();
   });
 
+  it('keeps the counter and the website apart, a tab each', async () => {
+    const user = userEvent.setup();
+    const m = setup(<OrdersPage />);
+    await screen.findByRole('link', { name: 'ORD-000007' });
+
+    // The till is what a shop looks at first, and the list is asked for just those sales.
+    const posTab = screen.getByRole('tab', { name: 'Point of sale' });
+    expect(posTab).toHaveAttribute('aria-selected', 'true');
+    await waitFor(() => {
+      const last = m.calls.filter((c) => c.key === 'GET /api/v1/orders').at(-1);
+      expect(last.url.searchParams.get('channel')).toBe('pos');
+    });
+
+    await user.click(screen.getByRole('tab', { name: 'Online store' }));
+    await waitFor(() => {
+      const last = m.calls.filter((c) => c.key === 'GET /api/v1/orders').at(-1);
+      expect(last.url.searchParams.get('channel')).toBe('online');
+    });
+    expect(screen.getByRole('tab', { name: 'Online store' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+
+  it('says which counter is empty, not just that something is', async () => {
+    setup(<OrdersPage />, {
+      path: '/orders?channel=online',
+      routes: () => ({
+        'GET /api/v1/orders': json(200, { data: [], meta: { total: 0, page: 1, limit: 25 } }),
+      }),
+    });
+    expect(await screen.findByText('No online orders match this view.')).toBeInTheDocument();
+  });
+
   it('asks the API for the filters the user picked', async () => {
     const user = userEvent.setup();
     const m = setup(<OrdersPage />);

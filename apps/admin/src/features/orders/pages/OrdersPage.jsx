@@ -36,7 +36,12 @@ export function OrdersPage() {
   const searchParams = useSearchParams();
   const { page, q, go } = useListParams(searchParams);
   const status = searchParams[0].get('status') ?? '';
-  const channel = searchParams[0].get('channel') ?? '';
+  /**
+   * The two counters a shop keeps: the till and the website. They are read separately — a
+   * cashier's day and an online order queue have nothing to do with each other — so the channel
+   * is a tab rather than a filter, and it is always one or the other.
+   */
+  const channel = searchParams[0].get('channel') === 'online' ? 'online' : 'pos';
   const [receiptOrder, setReceiptOrder] = useState(null);
   const [loadingReceiptId, setLoadingReceiptId] = useState(null);
 
@@ -69,7 +74,26 @@ export function OrdersPage() {
         <p className="text-sm text-muted-foreground">{t('orders.description')}</p>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div role="tablist" aria-label={t('orders.channelFilter')} className="flex gap-1 border-b">
+        {ORDER.CHANNELS.map((c) => (
+          <button
+            key={c}
+            type="button"
+            role="tab"
+            aria-selected={c === channel}
+            onClick={() => go({ channel: c, page: 1 })}
+            className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+              c === channel
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {t(`orders.channels.${c}`)}
+          </button>
+        ))}
+      </div>
+
+      <div role="tabpanel" className="flex flex-wrap items-center gap-3">
         <SearchForm
           initial={q}
           label={t('orders.search')}
@@ -88,19 +112,6 @@ export function OrdersPage() {
             </option>
           ))}
         </Select>
-        <Select
-          className="w-auto"
-          aria-label={t('orders.channelFilter')}
-          value={channel}
-          onChange={(e) => go({ channel: e.target.value, page: 1 })}
-        >
-          <option value="">{t('orders.allChannels')}</option>
-          {ORDER.CHANNELS.map((c) => (
-            <option key={c} value={c}>
-              {t(`orders.channels.${c}`)}
-            </option>
-          ))}
-        </Select>
         <ExportButton
           resource="orders"
           filters={{ q, status, channel }}
@@ -114,7 +125,7 @@ export function OrdersPage() {
         <Skeleton className="h-64" />
       ) : items.length === 0 ? (
         <p className="rounded border border-dashed p-10 text-center text-sm text-muted-foreground">
-          {t('orders.empty')}
+          {t(`orders.emptyChannel.${channel}`)}
         </p>
       ) : (
         <Table>

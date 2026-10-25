@@ -9,6 +9,7 @@ import { seedGlossary, seedLanguages } from '../modules/i18n/index.js';
 import { seedHomePage } from '../modules/pages/index.js';
 import { seedPaymentMethods } from '../modules/paymentMethods/index.js';
 import { seedDefaultRoles } from '../modules/rbac/index.js';
+import { loadSettings } from '../modules/settings/index.js';
 import { ensureSuperAdmin } from '../modules/staff/index.js';
 import { seedDefaultCatalog } from './catalog.seed.js';
 
@@ -47,6 +48,8 @@ if (config.isProd && !SEED_ADMIN_PASSWORD) {
 async function main() {
   await connectDb();
   try {
+    // The catalogue's pictures go through the media pipeline, which asks settings how to size them.
+    await loadSettings();
     const roles = await seedDefaultRoles();
     console.info(`✔ default roles ensured (${roles})`);
     const langs = await seedLanguages();
@@ -71,7 +74,7 @@ async function main() {
 
     const catalog = await seedDefaultCatalog();
     console.info(
-      `✔ catalog ensured: ${catalog.brands} brands, ${catalog.suppliers} suppliers, ${catalog.categories} categories, ${catalog.products} products, ${catalog.customers} customers`,
+      `✔ catalog ensured: ${catalog.brands} brands, ${catalog.suppliers} suppliers, ${catalog.categories} categories, ${catalog.products} products (${catalog.images} pictures made), ${catalog.customers} customers`,
     );
 
     const generated = SEED_ADMIN_PASSWORD ? null : `${randomToken(12)}-9a`;

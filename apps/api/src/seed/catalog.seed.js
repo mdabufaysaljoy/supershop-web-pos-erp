@@ -6,6 +6,7 @@ import { StockLevel } from '../modules/inventory/stock.model.js';
 import { Product, Variant } from '../modules/products/product.model.js';
 import { rebuildIndex } from '../modules/search/search.service.js';
 import { Supplier } from '../modules/suppliers/supplier.model.js';
+import { DUMMY_PRODUCTS, makeProductImage } from './dummyProducts.js';
 
 /**
  * Idempotent catalog seeder for the supershop e-commerce store.
@@ -19,6 +20,7 @@ export async function seedDefaultCatalog() {
     categories: 0,
     products: 0,
     customers: 0,
+    images: 0,
   };
 
   // 1. Ensure Main Branch
@@ -391,9 +393,25 @@ export async function seedDefaultCatalog() {
     },
   ];
 
-  for (const p of productsData) {
+  /**
+   * Fifty more, generated (`DUMMY_PRODUCTS`): enough of a catalogue to judge the lists, the
+   * search, the POS grid and the storefront by, each with a picture of its own. A picture is made
+   * only for a product being created, or for one that somehow has none — never over one the shop
+   * chose itself.
+   */
+  for (const p of [...productsData, ...DUMMY_PRODUCTS]) {
     let product = await Product.findOne({ slug: p.slug, deletedAt: null });
+    if (product && p.sku?.includes('-') && !product.imageIds?.length) {
+      const imageId = await makeProductImage(p);
+      if (imageId) {
+        await Product.updateOne({ _id: product._id }, { $set: { imageIds: [imageId] } });
+        await Variant.updateMany({ productId: product._id }, { $set: { imageIds: [imageId] } });
+        counts.images += 1;
+      }
+    }
     if (!product) {
+      const imageId = p.brandSlug ? await makeProductImage(p) : null;
+      if (imageId) counts.images += 1;
       const catIds = p.categorySlugs.map((s) => categoryMap.get(s)).filter(Boolean);
       const bId = brandMap.get(p.brandSlug);
 
@@ -410,6 +428,7 @@ export async function seedDefaultCatalog() {
         priceMin: p.price,
         priceMax: p.price,
         variantCount: 1,
+        imageIds: imageId ? [imageId] : [],
         tags: [p.brandSlug, 'supershop', 'featured'],
       });
       counts.products += 1;
@@ -424,6 +443,7 @@ export async function seedDefaultCatalog() {
         cost: p.cost,
         isActive: true,
         position: 0,
+        imageIds: imageId ? [imageId] : [],
       });
 
       // Initialize stock on-hand if branch is available

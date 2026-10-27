@@ -147,6 +147,43 @@ describe('Product editor', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe(`/products/${ID(11)}`));
   });
 
+  it('reads as numbered steps, with the long tail folded away until it holds something', async () => {
+    setup('/products/new', ['product.view', 'product.create']);
+    // The steps a product is built in, in order, each saying what it is for.
+    expect(await screen.findByText('Basics')).toBeInTheDocument();
+    expect(
+      screen.getByText('What the product is called and how it is described in the shop.'),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText('Images').length).toBeGreaterThan(0);
+    expect(screen.getByText('Options')).toBeInTheDocument();
+
+    // Nobody writes a Google listing before naming the thing, so that step starts closed.
+    const seo = screen.getByText('Search engines').closest('details');
+    expect(seo).not.toHaveAttribute('open');
+    // …and everything in it is still one click away, not hidden.
+    expect(within(seo).getByLabelText(/^SEO title/)).toBeInTheDocument();
+  });
+
+  it('says which fields are wrong, not only how many', async () => {
+    setup('/products/new', ['product.view', 'product.create']);
+    await userEvent.click(await screen.findByRole('button', { name: 'Create product' }));
+    expect(await screen.findByText(/Please fix \d+ field/)).toBeInTheDocument();
+    // Named, so nobody hunts a long page for the one that is wrong.
+    expect(screen.getByText(/Product name/, { selector: 'span' })).toBeInTheDocument();
+  });
+
+  it('shows what is being built, as the shop will see it', async () => {
+    setup('/products/new', ['product.view', 'product.create']);
+    expect(await screen.findByText('Untitled product')).toBeInTheDocument();
+    expect(screen.getByText('No price yet')).toBeInTheDocument();
+
+    await userEvent.type(screen.getByLabelText(/^Product name/), 'Linen Shirt');
+    await userEvent.type(screen.getByLabelText('Default price'), '129');
+    // The title bar and the summary both name it as soon as it is typed.
+    await waitFor(() => expect(screen.getAllByText('Linen Shirt')).toHaveLength(2));
+    expect(screen.getByText('SAR 129.00')).toBeInTheDocument();
+  });
+
   it('client-side validation with the shared schema blocks the request', async () => {
     const { m } = setup('/products/new', ['product.view', 'product.create']);
     await userEvent.click(await screen.findByRole('button', { name: 'Create product' }));

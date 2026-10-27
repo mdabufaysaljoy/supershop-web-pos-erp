@@ -1,7 +1,7 @@
 import { createProductSchemas, PERMISSIONS as P, PRODUCT } from '@supershop/shared';
 import { validators } from '@supershop/shared';
 import { FormField, MoneyInput, PlainTextArea, PlainTextInput, SlugInput } from '@supershop/ui';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useBlocker, useNavigate, useParams } from 'react-router';
@@ -10,7 +10,7 @@ import { TagInput } from '@/components/TagInput';
 import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { brands } from '@/features/brands/resource';
 import { CategoryChecklist } from '@/features/categories/components/CategoryChecklist';
@@ -21,6 +21,7 @@ import { suppliers } from '@/features/suppliers/resource';
 import { errorMessage, fieldMessage } from '@/lib/i18n';
 import { useCan } from '@/lib/permissions';
 import { issuesToDetails } from '@/lib/resource';
+import { EditorSection } from '../components/EditorSection';
 import { GalleryEditor } from '../components/GalleryEditor';
 import { OptionsEditor } from '../components/OptionsEditor';
 import { VariantTable } from '../components/VariantTable';
@@ -31,6 +32,52 @@ import { STATUS_TONE } from '../status';
 const schemas = createProductSchemas();
 /** Full dotted paths are kept for nested fields (variants.2.sku, customFields.x, options.0.name). */
 const toErrors = (details = []) => Object.fromEntries(details.map((d) => [d.path, d.message]));
+
+/** The fields a person would recognise, from the paths the schema uses. */
+const FIELD_LABELS = {
+  name: 'products.form.name',
+  slug: 'categories.form.slug',
+  shortDescription: 'products.form.shortDescription',
+  description: 'products.form.description',
+  status: 'products.form.status',
+  taxCategory: 'products.form.taxCategory',
+  categoryIds: 'products.form.categories',
+  brandId: 'products.form.brand',
+  supplierId: 'products.form.supplier',
+  tags: 'products.form.tags',
+  imageIds: 'products.sections.gallery',
+  variants: 'products.sections.variants',
+  options: 'products.sections.options',
+  'seo.title': 'categories.form.seoTitle',
+  'seo.description': 'categories.form.seoDescription',
+};
+
+/** What this product costs, as the sidebar puts it: one price, or the range its variants cover. */
+const priceLabel = (t, form) => {
+  const prices = form.variants
+    .map((v) => Number(v.price))
+    .filter((n) => Number.isFinite(n) && n > 0);
+  // Nothing priced yet, but a default was typed: show what the variants are about to cost.
+  if (!prices.length) {
+    const fallback = Number(form.defaultPrice);
+    if (!Number.isFinite(fallback) || fallback <= 0) return t('products.summary.noPrice');
+    prices.push(fallback);
+  }
+  const low = Math.min(...prices);
+  const high = Math.max(...prices);
+  const money = (n) => `SAR ${n.toFixed(2)}`;
+  return low === high ? money(low) : `${money(low)} – ${money(high)}`;
+};
+
+/** "Product name, Variants" — what to go and look at, named rather than counted. */
+const fieldList = (t, errors) => {
+  const names = Object.keys(errors).map((path) => {
+    const key = FIELD_LABELS[path] ?? FIELD_LABELS[path.split('.')[0]];
+    // A row or a value inside a section: name the section, the field itself is marked in place.
+    return key ? t(key, { count: 0 }) : path.split('.')[0];
+  });
+  return [...new Set(names)].join(' · ');
+};
 
 /** `/products/new` and `/products/:id`. */
 export function ProductEditorPage() {
@@ -117,11 +164,19 @@ function ProductForm({ product }) {
     }
   };
   const errorCount = Object.keys(errors).length;
+  const hasCustomValues = Object.values(form.customFields ?? {}).some(
+    (v) => v !== '' && v != null && !(Array.isArray(v) && v.length === 0),
+  );
 
   return (
     <form className="grid gap-6" onSubmit={submit} noValidate>
-      <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="grid gap-1">
+      {/*
+        The bar stays put: a product is a long page, and the way out of it (Save) should not be
+        somewhere above the fold. It also carries the state of the form — what this is, whether it
+        is published, and whether there is anything unsaved.
+      */}
+      <header className="sticky top-14 z-20 -mx-4 flex flex-wrap items-center justify-between gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur md:-mx-6 md:px-6">
+        <div className="grid min-w-0 gap-1">
           <Link
             to="/products"
             className="flex items-center gap-1 text-sm text-muted-foreground hover:underline"
@@ -129,17 +184,20 @@ function ProductForm({ product }) {
             <ArrowLeft className="size-4 rtl:-scale-x-100" aria-hidden />
             {t('products.title')}
           </Link>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold">
-            {isNew ? t('products.newTitle') : product.name.en}
+          <h1 className="flex flex-wrap items-center gap-2 text-xl font-semibold">
+            <span className="truncate">
+              {isNew ? form.name.trim() || t('products.newTitle') : product.name.en}
+            </span>
             {!isNew && (
               <Badge tone={STATUS_TONE[product.status]}>
                 {t(`products.status.${product.status}`)}
               </Badge>
             )}
+            {dirty && <Badge tone="warn">{t('products.unsavedBadge')}</Badge>}
           </h1>
         </div>
         {canEdit && (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button type="submit" disabled={busy}>
               {busy ? t('products.saving') : t(isNew ? 'products.create' : 'common.save')}
             </Button>
@@ -148,219 +206,252 @@ function ProductForm({ product }) {
       </header>
 
       {errorCount > 0 && (
-        <Alert variant="destructive">{t('products.fixErrors', { count: errorCount })}</Alert>
+        <Alert variant="destructive">
+          <span className="block font-medium">
+            {t('products.fixErrors', { count: errorCount })}
+          </span>
+          {/* Which ones: a count alone leaves the person hunting down a long page. */}
+          <span className="block text-sm">{fieldList(t, errors)}</span>
+        </Alert>
       )}
       {!canEdit && <Alert>{t('products.readOnly')}</Alert>}
 
       <fieldset disabled={!canEdit} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="grid min-w-0 content-start gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <h2>{t('products.sections.basics')}</h2>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <FormField label={t('products.form.name')} error={err('name')} required>
-                <PlainTextInput
-                  value={form.name}
-                  maxLength={PRODUCT.NAME_MAX}
-                  onChange={set('name')}
-                />
-              </FormField>
-              <ArabicPreview label={t('products.form.nameArabic')} value={product?.name} />
-              <FormField
-                label={t('categories.form.slug')}
-                description={t(isNew ? 'categories.form.slugAuto' : 'categories.form.slugHint')}
-                error={err('slug')}
-              >
-                <SlugInput
-                  value={form.slug}
-                  placeholder={isNew ? validators.toSlug(form.name) : undefined}
-                  onChange={set('slug')}
-                />
-              </FormField>
-              <FormField
-                label={t('products.form.shortDescription')}
-                error={err('shortDescription')}
-              >
-                <PlainTextArea
-                  rows={2}
-                  value={form.shortDescription}
-                  maxLength={PRODUCT.SHORT_DESCRIPTION_MAX}
-                  onChange={set('shortDescription')}
-                />
-              </FormField>
-              <FormField label={t('products.form.description')} error={err('description')}>
-                <PlainTextArea
-                  rows={8}
-                  value={form.description}
-                  maxLength={PRODUCT.DESCRIPTION_MAX}
-                  onChange={set('description')}
-                />
-              </FormField>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <h2>{t('products.sections.gallery')}</h2>
-              </CardTitle>
-              <CardDescription>{t('products.gallery.description')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <GalleryEditor
-                value={form.images}
-                max={PRODUCT.MAX_IMAGES}
-                disabled={!canEdit}
-                onChange={(images) => {
-                  const ids = new Set(images.map((i) => i.id));
-                  // Variant images must stay a subset of the gallery.
-                  patch({
-                    images,
-                    variants: form.variants.map((v) => ({
-                      ...v,
-                      imageIds: v.imageIds.filter((x) => ids.has(x)),
-                    })),
-                  });
-                }}
+          <EditorSection
+            step={1}
+            title={t('products.sections.basics')}
+            description={t('products.sections.basicsHint')}
+          >
+            <FormField label={t('products.form.name')} error={err('name')} required>
+              <PlainTextInput
+                value={form.name}
+                maxLength={PRODUCT.NAME_MAX}
+                onChange={set('name')}
               />
-              {err('imageIds') && (
-                <p className="mt-2 text-sm text-destructive">{err('imageIds')}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <h2>{t('products.sections.options')}</h2>
-              </CardTitle>
-              <CardDescription>{t('products.options.description')}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              {canEdit && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <FormField
-                    label={t('products.variants.skuPrefix')}
-                    description={t('products.variants.skuPrefixHint')}
-                  >
-                    <PlainTextInput
-                      value={form.skuPrefix}
-                      maxLength={24}
-                      dir="ltr"
-                      onChange={set('skuPrefix')}
-                    />
-                  </FormField>
-                  <FormField
-                    label={t('products.variants.defaultPrice')}
-                    description={t('products.variants.defaultPriceHint')}
-                  >
-                    <MoneyInput
-                      currency="SAR"
-                      value={form.defaultPrice}
-                      onChange={set('defaultPrice')}
-                    />
-                  </FormField>
-                </div>
-              )}
-              <OptionsEditor
-                options={form.options}
-                errors={errors}
-                disabled={!canEdit}
-                onChange={(options) => patch({ options })}
-                onCommit={commitOptions}
+            </FormField>
+            <ArabicPreview label={t('products.form.nameArabic')} value={product?.name} />
+            <FormField
+              label={t('categories.form.slug')}
+              description={t(isNew ? 'categories.form.slugAuto' : 'categories.form.slugHint')}
+              error={err('slug')}
+            >
+              <SlugInput
+                value={form.slug}
+                placeholder={isNew ? validators.toSlug(form.name) : undefined}
+                onChange={set('slug')}
               />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <h2>{t('products.sections.variants', { count: form.variants.length })}</h2>
-              </CardTitle>
-              <CardDescription>{t('products.variants.description')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {err('variants') && (
-                <p className="mb-2 text-sm text-destructive">{err('variants')}</p>
-              )}
-              <VariantTable
-                variants={form.variants}
-                options={form.options}
-                gallery={form.images}
-                errors={errors}
-                canViewCost={canViewCost}
-                disabled={!canEdit}
-                currency="SAR"
-                productName={form.name}
-                onGenerateBarcodes={canEdit ? generateBarcodes : undefined}
-                onChange={(variants) => patch({ variants })}
+            </FormField>
+            <FormField label={t('products.form.shortDescription')} error={err('shortDescription')}>
+              <PlainTextArea
+                rows={2}
+                value={form.shortDescription}
+                maxLength={PRODUCT.SHORT_DESCRIPTION_MAX}
+                onChange={set('shortDescription')}
               />
-            </CardContent>
-          </Card>
+            </FormField>
+            <FormField label={t('products.form.description')} error={err('description')}>
+              <PlainTextArea
+                rows={8}
+                value={form.description}
+                maxLength={PRODUCT.DESCRIPTION_MAX}
+                onChange={set('description')}
+              />
+            </FormField>
+          </EditorSection>
+
+          <EditorSection
+            step={2}
+            title={t('products.sections.gallery')}
+            description={t('products.gallery.description')}
+          >
+            <GalleryEditor
+              value={form.images}
+              max={PRODUCT.MAX_IMAGES}
+              disabled={!canEdit}
+              onChange={(images) => {
+                const ids = new Set(images.map((i) => i.id));
+                // Variant images must stay a subset of the gallery.
+                patch({
+                  images,
+                  variants: form.variants.map((v) => ({
+                    ...v,
+                    imageIds: v.imageIds.filter((x) => ids.has(x)),
+                  })),
+                });
+              }}
+            />
+            {err('imageIds') && <p className="text-sm text-destructive">{err('imageIds')}</p>}
+          </EditorSection>
+
+          <EditorSection
+            step={3}
+            title={t('products.sections.options')}
+            description={t('products.options.description')}
+          >
+            {canEdit && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  label={t('products.variants.skuPrefix')}
+                  description={t('products.variants.skuPrefixHint')}
+                >
+                  <PlainTextInput
+                    value={form.skuPrefix}
+                    maxLength={24}
+                    dir="ltr"
+                    onChange={set('skuPrefix')}
+                  />
+                </FormField>
+                <FormField
+                  label={t('products.variants.defaultPrice')}
+                  description={t('products.variants.defaultPriceHint')}
+                >
+                  <MoneyInput
+                    currency="SAR"
+                    value={form.defaultPrice}
+                    onChange={set('defaultPrice')}
+                  />
+                </FormField>
+              </div>
+            )}
+            <OptionsEditor
+              options={form.options}
+              errors={errors}
+              disabled={!canEdit}
+              onChange={(options) => patch({ options })}
+              onCommit={commitOptions}
+            />
+          </EditorSection>
+
+          <EditorSection
+            step={4}
+            title={t('products.sections.variants', { count: form.variants.length })}
+            description={t('products.variants.description')}
+          >
+            {err('variants') && <p className="text-sm text-destructive">{err('variants')}</p>}
+            <VariantTable
+              variants={form.variants}
+              options={form.options}
+              gallery={form.images}
+              errors={errors}
+              canViewCost={canViewCost}
+              disabled={!canEdit}
+              currency="SAR"
+              productName={form.name}
+              onGenerateBarcodes={canEdit ? generateBarcodes : undefined}
+              onChange={(variants) => patch({ variants })}
+            />
+          </EditorSection>
 
           {defs.some((d) => d.isActive) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  <h2>{t('products.sections.customFields')}</h2>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CustomFieldInputs
-                  defs={defs}
-                  values={form.customFields}
-                  errors={errors}
-                  disabled={!canEdit}
-                  onChange={(customFields) => patch({ customFields })}
-                />
-              </CardContent>
-            </Card>
+            <EditorSection
+              step={5}
+              title={t('products.sections.customFields')}
+              description={t('products.sections.customFieldsHint')}
+              collapsible
+              defaultOpen={
+                hasCustomValues || Object.keys(errors).some((k) => k.startsWith('customFields'))
+              }
+            >
+              <CustomFieldInputs
+                defs={defs}
+                values={form.customFields}
+                errors={errors}
+                disabled={!canEdit}
+                onChange={(customFields) => patch({ customFields })}
+              />
+            </EditorSection>
           )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                <h2>{t('categories.form.seo')}</h2>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <FormField
-                label={t('categories.form.seoTitle')}
-                description={t('common.charCount', {
-                  count: form.seoTitle.length,
-                  max: PRODUCT.SEO_TITLE_MAX,
-                })}
-                error={err('seo.title')}
-              >
-                <PlainTextInput
-                  value={form.seoTitle}
-                  maxLength={PRODUCT.SEO_TITLE_MAX}
-                  onChange={set('seoTitle')}
-                />
-              </FormField>
-              <FormField
-                label={t('categories.form.seoDescription')}
-                description={t('common.charCount', {
-                  count: form.seoDescription.length,
-                  max: PRODUCT.SEO_DESCRIPTION_MAX,
-                })}
-                error={err('seo.description')}
-              >
-                <PlainTextArea
-                  rows={3}
-                  value={form.seoDescription}
-                  maxLength={PRODUCT.SEO_DESCRIPTION_MAX}
-                  onChange={set('seoDescription')}
-                />
-              </FormField>
-            </CardContent>
-          </Card>
+          <EditorSection
+            step={defs.some((d) => d.isActive) ? 6 : 5}
+            title={t('categories.form.seo')}
+            description={t('products.sections.seoHint')}
+            collapsible
+            defaultOpen={Boolean(
+              form.seoTitle || form.seoDescription || err('seo.title') || err('seo.description'),
+            )}
+          >
+            <FormField
+              label={t('categories.form.seoTitle')}
+              description={t('common.charCount', {
+                count: form.seoTitle.length,
+                max: PRODUCT.SEO_TITLE_MAX,
+              })}
+              error={err('seo.title')}
+            >
+              <PlainTextInput
+                value={form.seoTitle}
+                maxLength={PRODUCT.SEO_TITLE_MAX}
+                onChange={set('seoTitle')}
+              />
+            </FormField>
+            <FormField
+              label={t('categories.form.seoDescription')}
+              description={t('common.charCount', {
+                count: form.seoDescription.length,
+                max: PRODUCT.SEO_DESCRIPTION_MAX,
+              })}
+              error={err('seo.description')}
+            >
+              <PlainTextArea
+                rows={3}
+                value={form.seoDescription}
+                maxLength={PRODUCT.SEO_DESCRIPTION_MAX}
+                onChange={set('seoDescription')}
+              />
+            </FormField>
+          </EditorSection>
         </div>
 
-        <aside className="grid content-start gap-6">
+        <aside className="grid content-start gap-6 lg:sticky lg:top-32">
+          {/*
+            What is being built, as the shop will see it: the first picture, the name, what it
+            costs and how many ways it comes. It is the one place on this page that answers
+            "is this right?" without reading every field.
+          */}
+          <Card>
+            <CardContent className="grid gap-3 pt-0">
+              <div className="flex items-center gap-3">
+                {form.images[0]?.url ? (
+                  <img
+                    src={form.images[0].url}
+                    alt=""
+                    className="size-14 shrink-0 rounded border object-cover"
+                  />
+                ) : (
+                  <span className="grid size-14 shrink-0 place-items-center rounded border border-dashed text-muted-foreground">
+                    <ImageIcon className="size-5" aria-hidden />
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <p className="truncate font-medium">
+                    {form.name.trim() || t('products.summary.noName')}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{priceLabel(t, form)}</p>
+                </div>
+              </div>
+              <dl className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <dt className="text-muted-foreground">{t('products.summary.variants')}</dt>
+                  <dd className="font-medium tabular-nums">{form.variants.length}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">{t('products.summary.images')}</dt>
+                  <dd className="font-medium tabular-nums">{form.images.length}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">{t('products.form.categories')}</dt>
+                  <dd className="font-medium tabular-nums">{form.categoryIds.length}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">{t('products.form.status')}</dt>
+                  <dd className="font-medium">{t(`products.status.${form.status}`)}</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>

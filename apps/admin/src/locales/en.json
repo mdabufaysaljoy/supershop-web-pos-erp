@@ -1053,7 +1053,10 @@
       "variants": "Variants ({{count}})",
       "customFields": "More details",
       "publishing": "Publishing",
-      "organization": "Organization"
+      "organization": "Organization",
+      "basicsHint": "What the product is called and how it is described in the shop.",
+      "customFieldsHint": "The extra fields this shop keeps on its products.",
+      "seoHint": "How the product reads on Google. Leave it empty and the name and description are used."
     },
     "form": {
       "name": "Product name",
@@ -1148,6 +1151,13 @@
       "pieces": "Pieces to print",
       "labelTitle": "Barcode Label",
       "product": "Product"
+    },
+    "unsavedBadge": "Unsaved",
+    "summary": {
+      "noName": "Untitled product",
+      "noPrice": "No price yet",
+      "variants": "Ways it comes",
+      "images": "Pictures"
     }
   },
   "customFields": {

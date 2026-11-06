@@ -3,6 +3,7 @@ import { DEFAULTS } from '../constants.js';
 import { PERMISSIONS as P } from '../permissions.js';
 import { V } from '../validators/messages.js';
 import { email, plainText } from '../validators/fields.js';
+import { PRINTING } from '../schemas/printing.js';
 
 /**
  * Settings registry (CLAUDE.md §2.4): every admin-editable behavior is a typed key with a zod
@@ -440,8 +441,20 @@ const DEFINITIONS = [
     public: true, // registration forms need it for client-side validation
   },
   // ---------- printing (P6.3) ----------
-  /** Printing runs in the admin through QZ Tray; off until the shop has set its keys up. */
+  /** Printing runs in the admin through a local print agent; off until the shop has set it up. */
   { key: 'printing.enabled', group: 'printing', schema: bool(), default: false },
+  /**
+   * Which agent carries the job from the browser to the printer. Both speak the same protocol:
+   * `qz` is QZ Tray, which prints nothing the shop's private key has not signed; `nanoprint` is
+   * NanoPrint, which has no keys to set up and asks the cashier to allow this site once instead.
+   * The receipts and labels themselves are identical either way.
+   */
+  {
+    key: 'printing.engine',
+    group: 'printing',
+    schema: z.enum(PRINTING.ENGINES, { error: V.INVALID_TYPE }),
+    default: 'qz',
+  },
   /** Print the receipt as soon as a sale is rung up, with no second click at the counter. */
   { key: 'printing.autoPrintReceipt', group: 'printing', schema: bool(), default: true },
   /**

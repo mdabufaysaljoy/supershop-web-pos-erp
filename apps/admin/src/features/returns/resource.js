@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { api, apiData } from '@/lib/apiClient';
 import { errorMessage } from '@/lib/i18n';
-import { printRaw } from '@/lib/qz';
+import { printRaw } from '@/lib/printConnector';
 
 /**
  * Returns & exchanges hooks (P6.6): look up an order by number/ID, quote return/exchange totals,

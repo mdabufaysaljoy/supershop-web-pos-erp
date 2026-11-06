@@ -79,6 +79,8 @@ describe('setting printing up', () => {
     expect(await ok(await root.get(`${PRINTING}/status`))).toEqual({
       enabled: false,
       autoPrintReceipt: true,
+      engine: 'qz',
+      connectorName: expect.any(String),
       configured: false,
     });
     expect((await root.get(`${PRINTING}/certificate`)).status).toBe(503);
@@ -123,6 +125,76 @@ describe('setting printing up', () => {
     await ok(await setUpPrinting());
     expect((await root.post(`${PRINTING}/sign`, { data: '' })).status).toBe(400);
     expect((await root.post(`${PRINTING}/sign`, { data: 'x'.repeat(5000) })).status).toBe(400);
+  });
+});
+
+describe('printing through NanoPrint instead of QZ Tray', () => {
+  const pickNanoPrint = () =>
+    root.patch('/api/v1/settings', {
+      changes: [
+        { key: 'printing.enabled', value: true },
+        { key: 'printing.engine', value: 'nanoprint' },
+      ],
+    });
+
+  it('is ready with no keys at all, and names the shop for the allow prompt', async () => {
+    await ok(await pickNanoPrint());
+    const status = await ok(await root.get(`${PRINTING}/status`));
+    expect(status).toMatchObject({ engine: 'nanoprint', configured: true });
+
+    // NanoPrint reads this call only for the name it shows the cashier — no certificate exists.
+    const body = JSON.parse((await root.get(`${PRINTING}/certificate`)).text);
+    expect(body.nanoprint.name).toBe(status.connectorName);
+    expect(body.nanoprint.name.length).toBeLessThanOrEqual(40);
+  });
+
+  it('signs nothing: a till asking for a signature is told so rather than given one', async () => {
+    await ok(await pickNanoPrint());
+    expect((await root.post(`${PRINTING}/sign`, { data: '{"call":"print"}' })).status).toBe(503);
+  });
+
+  it('builds the very same receipt bytes whichever agent is chosen', async () => {
+    await makePrinter({ isDefault: true });
+    const shirt = await ok(
+      await root.post('/api/v1/products', {
+        name: 'Oxford Shirt',
+        status: 'active',
+        variants: [{ sku: 'OX-RED', price: 11_500 }],
+      }),
+      201,
+    );
+    await ok(
+      await root.post('/api/v1/inventory/receive', {
+        branchId: ids.shop,
+        lines: [{ variantId: shirt.variants[0].id, qty: 5 }],
+      }),
+      201,
+    );
+    const sale = await ok(
+      await root.post('/api/v1/pos/sales', {
+        branchId: ids.shop,
+        items: [{ variantId: shirt.variants[0].id, qty: 2 }],
+        payments: [{ method: 'cash', amount: 25_000 }],
+      }),
+      201,
+    );
+
+    await ok(await setUpPrinting());
+    const viaQz = await ok(await root.get(`${PRINTING}/receipt/${sale.id}`));
+    await ok(await pickNanoPrint());
+    const viaNanoPrint = await ok(await root.get(`${PRINTING}/receipt/${sale.id}`));
+
+    expect(viaNanoPrint).toEqual(viaQz);
+  });
+
+  it('refuses an engine it does not have', async () => {
+    expect(
+      (
+        await root.patch('/api/v1/settings', {
+          changes: [{ key: 'printing.engine', value: 'printbridge' }],
+        })
+      ).status,
+    ).toBe(400);
   });
 });
 

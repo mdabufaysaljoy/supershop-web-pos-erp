@@ -28,12 +28,18 @@ import { getSecretSetting, getSetting } from '../settings/index.js';
 import * as repo from './printing.repo.js';
 
 /**
- * Printing (P6.3, P6.4). The printers themselves are on the cashier's machine, reached through QZ
- * Tray in the browser; this module owns the things a browser must not: the private key that signs
- * QZ's calls, which printers the shop has, and what a receipt or barcode label actually says.
+ * Printing (P6.3, P6.4). The printers themselves are on the cashier's machine, reached through a
+ * local print agent in the browser; this module owns the things a browser must not: the private
+ * key that signs QZ Tray's calls, which printers the shop has, and what a receipt or barcode
+ * label actually says.
  *
- * The key never leaves the server — the browser sends the message QZ wants signed and gets back a
- * signature, so a page with no session (or no permission) cannot drive the shop's printers.
+ * Two agents are supported and the shop picks one in Settings → Printing (`printing.engine`):
+ *  - `qz` — QZ Tray. The key never leaves the server: the browser sends the message QZ wants
+ *    signed and gets back a signature, so a page with no session (or no permission) cannot drive
+ *    the shop's printers.
+ *  - `nanoprint` — NanoPrint. Nothing to sign and no keys to keep; it asks the cashier to allow
+ *    this site once, and the `/certificate` call only tells it the shop's name for that prompt.
+ * Both speak the same wire protocol, so the receipts and labels built below are byte-identical.
  */
 const str = (id) => (id == null ? null : String(id));
 
@@ -70,10 +76,32 @@ export const toProfileDto = (p) => ({
   updatedAt: p.updatedAt,
 });
 
-// ---------------------------------------------------------------- QZ Tray
+// ---------------------------------------------------------------- print engine
 
-/** The certificate QZ shows the browser. Public by design — it proves nothing on its own. */
+/** Which local agent this shop prints through. */
+export const printEngine = () => getSetting('printing.engine') ?? 'qz';
+
+/**
+ * NanoPrint's permission prompt asks the cashier to allow a site, and shows the name the site
+ * gives it here. 40 characters is the most it displays, so the shop's name is cut to fit.
+ */
+const NANOPRINT_NAME_MAX = 40;
+const nanoPrintIdentity = () =>
+  JSON.stringify({
+    nanoprint: {
+      name: String(getSetting('store.name') ?? 'Supershop').slice(0, NANOPRINT_NAME_MAX),
+    },
+  });
+
+/**
+ * What the agent asks for before it will take a job.
+ *
+ * QZ Tray wants the shop's certificate — public by design, it proves nothing on its own.
+ * NanoPrint wants no certificate at all; it reads this call only for the name to put in its
+ * permission prompt, so an unconfigured shop is not an error there.
+ */
 export function getCertificate() {
+  if (printEngine() === 'nanoprint') return nanoPrintIdentity();
   const certificate = getSetting('printing.qzCertificate');
   if (!certificate) throw new ServiceUnavailableError('Printing is not set up');
   return certificate;
@@ -85,6 +113,10 @@ export function getCertificate() {
  * from settings each time so rotating it takes effect at once, and it is never logged.
  */
 export function signForQz(data) {
+  if (printEngine() === 'nanoprint') {
+    // NanoPrint accepts and ignores signatures; a till asking for one is a mis-wired client.
+    throw new ServiceUnavailableError('This shop prints through NanoPrint, which signs nothing');
+  }
   const key = getSecretSetting('printing.qzPrivateKey');
   if (!key) throw new ServiceUnavailableError('Printing is not set up');
   try {
@@ -95,14 +127,23 @@ export function signForQz(data) {
   }
 }
 
-/** Whether the admin should even try to connect to QZ Tray. */
-export const printingStatus = () => ({
-  enabled: getSetting('printing.enabled'),
-  autoPrintReceipt: getSetting('printing.autoPrintReceipt'),
-  configured: Boolean(
-    getSetting('printing.qzCertificate') && getSecretSetting('printing.qzPrivateKey'),
-  ),
-});
+/**
+ * Whether the admin should even try to connect, and to which agent. NanoPrint has nothing to
+ * configure — once it is picked, the shop is as set up as it can be from this side.
+ */
+export const printingStatus = () => {
+  const engine = printEngine();
+  return {
+    enabled: getSetting('printing.enabled'),
+    autoPrintReceipt: getSetting('printing.autoPrintReceipt'),
+    engine,
+    /** Shown in NanoPrint's permission prompt; the till needs it before it connects. */
+    connectorName: String(getSetting('store.name') ?? 'Supershop').slice(0, NANOPRINT_NAME_MAX),
+    configured:
+      engine === 'nanoprint' ||
+      Boolean(getSetting('printing.qzCertificate') && getSecretSetting('printing.qzPrivateKey')),
+  };
+};
 
 // ---------------------------------------------------------------- profiles
 

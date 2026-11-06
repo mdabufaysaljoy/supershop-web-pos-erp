@@ -4,15 +4,18 @@ import { useTranslation } from 'react-i18next';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/features/settings/components/controls';
+import { Checkbox, Select } from '@/features/settings/components/controls';
 import { useSaveSettings } from '@/features/settings/hooks';
-import { listPrinters } from '@/lib/qz';
+import { PRINTING } from '@supershop/shared';
+import { listPrinters } from '@/lib/printConnector';
 
 /**
- * Settings → Printing: QZ Tray connection, signing certificate & private key, and the shop's
- * 15-digit Saudi VAT number used to generate ZATCA TLV QR codes on receipts and invoices (P6.4).
+ * Settings → Printing, step 1: which local print agent this shop uses (QZ Tray or NanoPrint),
+ * whatever that agent needs — QZ Tray's signing certificate and private key; NanoPrint needs
+ * nothing — and the shop's 15-digit Saudi VAT number, used to generate ZATCA TLV QR codes on
+ * receipts and invoices (P6.4). Receipts and labels are identical whichever agent is chosen.
  */
-export function QzSetupCard({
+export function ConnectorSetupCard({
   printingSettings,
   taxSettings,
   status,
@@ -29,6 +32,8 @@ export function QzSetupCard({
   const pVal = (key) => printingSettings?.find((s) => s.key === key)?.value;
   const tVal = (key) => taxSettings?.find((s) => s.key === key)?.value;
 
+  const engine = pVal('printing.engine') ?? 'qz';
+  const isQz = engine === 'qz';
   const enabled = Boolean(pVal('printing.enabled'));
   const autoPrint = Boolean(pVal('printing.autoPrintReceipt') ?? true);
   const savedCert = pVal('printing.qzCertificate') ?? '';
@@ -49,7 +54,9 @@ export function QzSetupCard({
       setQzState({
         checking: false,
         printers: [],
-        error: err?.message || t('printing.qz.unreachable'),
+        error:
+          err?.message ||
+          t(isQz ? 'printing.qz.unreachable' : 'printing.connector.nanoprintUnreachable'),
       });
     }
   };
@@ -59,15 +66,37 @@ export function QzSetupCard({
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle>
-            <h2>{t('printing.qz.title')}</h2>
+            <h2>{t('printing.connector.title')}</h2>
           </CardTitle>
           <Badge tone={status?.configured ? 'ok' : 'warn'}>
             {status?.configured ? t('printing.qz.ready') : t('printing.qz.notConfigured')}
           </Badge>
         </div>
-        <CardDescription>{t('printing.qz.description')}</CardDescription>
+        <CardDescription>
+          {t(isQz ? 'printing.qz.description' : 'printing.connector.nanoprintDescription')}
+        </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-5">
+        <FormField
+          label={t('printing.connector.engine')}
+          description={t(
+            isQz ? 'printing.connector.engineHelpQz' : 'printing.connector.engineHelpNanoprint',
+          )}
+        >
+          <Select
+            className="max-w-xs"
+            value={engine}
+            disabled={!canEdit || save.isPending}
+            onChange={(e) => save.mutate([{ key: 'printing.engine', value: e.target.value }])}
+          >
+            {PRINTING.ENGINES.map((value) => (
+              <option key={value} value={value}>
+                {t(`printing.connector.engines.${value}`)}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+
         <div className="grid gap-3 sm:grid-cols-2">
           <Checkbox
             id="printing-enabled"
@@ -112,67 +141,75 @@ export function QzSetupCard({
           </div>
         </FormField>
 
-        <FormField
-          label={t('printing.qz.certificate')}
-          description={t('printing.qz.certificateHelp')}
-        >
-          <div className="grid gap-2">
-            <PlainTextArea
-              dir="ltr"
-              rows={3}
-              className="font-mono text-xs"
-              placeholder={t('printing.qz.certificatePlaceholder')}
-              value={certValue}
-              disabled={!canEdit}
-              onChange={(e) => setCertDraft(e.target.value)}
-            />
-            <div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={!canEdit || certValue === savedCert || save.isPending}
-                onClick={() => {
-                  save.mutate([{ key: 'printing.qzCertificate', value: certValue }]);
-                  setCertDraft(null);
-                }}
-              >
-                {t('printing.qz.saveCertificate')}
-              </Button>
-            </div>
-          </div>
-        </FormField>
-
-        <FormField
-          label={t('printing.qz.privateKey')}
-          description={
-            keyInfo?.isSet
-              ? t('printing.qz.keyStored', { masked: keyInfo.masked })
-              : t('printing.qz.keyNotSet')
-          }
-        >
-          <div className="flex gap-2">
-            <PlainTextInput
-              dir="ltr"
-              autoComplete="off"
-              placeholder={t('printing.qz.privateKeyPlaceholder')}
-              value={privateKey}
-              disabled={!canEdit}
-              onChange={(e) => setPrivateKey(e.target.value)}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!canEdit || !privateKey.trim() || save.isPending}
-              onClick={() => {
-                save.mutate([{ key: 'printing.qzPrivateKey', value: privateKey }]);
-                setPrivateKey('');
-              }}
+        {isQz ? (
+          <>
+            <FormField
+              label={t('printing.qz.certificate')}
+              description={t('printing.qz.certificateHelp')}
             >
-              {t('common.save')}
-            </Button>
-          </div>
-        </FormField>
+              <div className="grid gap-2">
+                <PlainTextArea
+                  dir="ltr"
+                  rows={3}
+                  className="font-mono text-xs"
+                  placeholder={t('printing.qz.certificatePlaceholder')}
+                  value={certValue}
+                  disabled={!canEdit}
+                  onChange={(e) => setCertDraft(e.target.value)}
+                />
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!canEdit || certValue === savedCert || save.isPending}
+                    onClick={() => {
+                      save.mutate([{ key: 'printing.qzCertificate', value: certValue }]);
+                      setCertDraft(null);
+                    }}
+                  >
+                    {t('printing.qz.saveCertificate')}
+                  </Button>
+                </div>
+              </div>
+            </FormField>
+
+            <FormField
+              label={t('printing.qz.privateKey')}
+              description={
+                keyInfo?.isSet
+                  ? t('printing.qz.keyStored', { masked: keyInfo.masked })
+                  : t('printing.qz.keyNotSet')
+              }
+            >
+              <div className="flex gap-2">
+                <PlainTextInput
+                  dir="ltr"
+                  autoComplete="off"
+                  placeholder={t('printing.qz.privateKeyPlaceholder')}
+                  value={privateKey}
+                  disabled={!canEdit}
+                  onChange={(e) => setPrivateKey(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!canEdit || !privateKey.trim() || save.isPending}
+                  onClick={() => {
+                    save.mutate([{ key: 'printing.qzPrivateKey', value: privateKey }]);
+                    setPrivateKey('');
+                  }}
+                >
+                  {t('common.save')}
+                </Button>
+              </div>
+            </FormField>
+          </>
+        ) : (
+          <p className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
+            {t('printing.connector.nanoprintSetup')}
+          </p>
+        )}
 
         <div className="flex flex-wrap items-center gap-3 border-t pt-4">
           <Button

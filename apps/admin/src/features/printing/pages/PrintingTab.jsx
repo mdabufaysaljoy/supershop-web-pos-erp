@@ -6,13 +6,13 @@ import { useSettings } from '@/features/settings/hooks';
 import { useCan } from '@/lib/permissions';
 import { LabelTemplateCard } from '../components/LabelTemplateCard';
 import { PrinterProfilesCard } from '../components/PrinterProfilesCard';
-import { QzSetupCard } from '../components/QzSetupCard';
+import { ConnectorSetupCard } from '../components/ConnectorSetupCard';
 import { ReceiptTemplateCard } from '../components/ReceiptTemplateCard';
 import { usePrinters, usePrintingStatus, usePrintingTemplates } from '../resource';
 
 /**
  * Settings → Printing (P6.4), read top to bottom as the three things a shop actually has to do:
- *   1. let this computer talk to the printers (QZ Tray, and the shop's own signing keys);
+ *   1. let this computer talk to the printers (QZ Tray or NanoPrint, and whatever it needs);
  *   2. tell it which printers are here and what paper is in them;
  *   3. say what a receipt and a barcode label should say.
  * Each step shows whether it is done, so a half-set-up shop can see where it stopped.
@@ -31,6 +31,7 @@ export function PrintingTab() {
   const shopName = generalSettings.data?.find((s) => s.key === 'store.name')?.value ?? 'Supershop';
   const vatNumber = taxSettings.data?.find((s) => s.key === 'tax.vatNumber')?.value ?? '';
   const printerCount = profiles.data?.length ?? 0;
+  const engine = status.data?.engine ?? 'qz';
 
   return (
     <div className="grid gap-6">
@@ -39,11 +40,15 @@ export function PrintingTab() {
       <Step
         n={1}
         title={t('printing.steps.connect')}
-        hint={t('printing.steps.connectHint')}
+        hint={t(
+          engine === 'nanoprint'
+            ? 'printing.steps.connectHintNanoprint'
+            : 'printing.steps.connectHint',
+        )}
         done={Boolean(status.data?.configured)}
         pending={status.isPending}
       >
-        <QzSetupCard
+        <ConnectorSetupCard
           printingSettings={printingSettings.data}
           taxSettings={taxSettings.data}
           status={status.data}

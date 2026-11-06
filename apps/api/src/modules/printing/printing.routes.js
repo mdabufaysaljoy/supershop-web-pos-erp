@@ -10,7 +10,7 @@ import * as c from './printing.controller.js';
  * hold itself (P6.3).
  *
  *  GET  /status                pos.sell | settings.printing — is printing set up at all
- *  GET  /certificate           pos.sell | settings.printing — the certificate QZ Tray shows
+ *  GET  /certificate           pos.sell | settings.printing — what the print agent asks for
  *  POST /sign                  pos.sell | settings.printing — signs ONE QZ call (rate-limited)
  *  GET  /profiles              pos.sell | settings.printing
  *  POST /profiles              settings.printing

@@ -2332,6 +2332,19 @@
   "printing": {
     "notConfigured": "No printer is set up yet. Open Settings → Printing to add one.",
     "sent": "Sent to the printer.",
+    "connector": {
+      "title": "Print agent & tax details",
+      "engine": "Print agent on the counter machine",
+      "engines": {
+        "qz": "QZ Tray (signed with your own keys)",
+        "nanoprint": "NanoPrint (no keys, allow once)"
+      },
+      "engineHelpQz": "QZ Tray prints nothing that your private key has not signed, so install it on the counter machine and paste the keys below.",
+      "engineHelpNanoprint": "NanoPrint needs no keys: install it on the counter machine and allow this site once when it asks. Receipts and labels print exactly the same.",
+      "nanoprintDescription": "Connects the till in your browser to thermal receipt and label printers on that machine. NanoPrint asks the cashier to allow this site once, so there is nothing to set up here.",
+      "nanoprintSetup": "Nothing to configure. Install NanoPrint on the counter machine, open it, and the first time this screen prints it will ask the cashier to allow this site — tick “remember” and it will not ask again.",
+      "nanoprintUnreachable": "Could not reach NanoPrint on this machine. Check that it is running, and that the site was allowed in its panel."
+    },
     "qz": {
       "title": "QZ Tray & tax details",
       "description": "Connects the till in your browser to thermal receipt and label printers on that machine. Your private key stays encrypted on the server.",
@@ -2359,7 +2372,7 @@
     },
     "profiles": {
       "title": "Printers",
-      "description": "Map each counter or label printer to the name QZ Tray sees on that machine.",
+      "description": "Map each counter or label printer to the name the print agent sees on that machine.",
       "empty": "No printers added yet.",
       "default": "Default",
       "makeDefault": "Make default",
@@ -2440,7 +2453,7 @@
       "printBrowser": "Print via browser",
       "selectPrinter": "Select thermal printer"
     },
-    "intro": "Printing happens on the computer at the counter, not on the server: QZ Tray carries the job from this screen to the printer beside you. Work through the three steps below.",
+    "intro": "Printing happens on the computer at the counter, not on the server: a small print agent — QZ Tray or NanoPrint, your choice — carries the job from this screen to the printer beside you. Work through the three steps below.",
     "steps": {
       "connect": "Connect this computer to the printers",
       "connectHint": "Install QZ Tray on the counter machine and put the shop’s signing keys here, so only this shop can print from it.",
@@ -2449,7 +2462,8 @@
       "layout": "What a receipt and a label say",
       "layoutHint": "The lines, the logo, the QR and the language. The preview shows the paper exactly as it will come out.",
       "done": "Done",
-      "todo": "Not set up yet"
+      "todo": "Not set up yet",
+      "connectHintNanoprint": "Install NanoPrint on the counter machine and allow this site when it asks — there are no keys to set up."
     }
   },
   "shifts": {

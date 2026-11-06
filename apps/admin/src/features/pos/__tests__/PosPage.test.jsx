@@ -9,7 +9,7 @@ import { json, mockFetch } from '@/test/fetchMock';
 import { PosPage } from '../pages/PosPage';
 
 const printRawMock = vi.fn().mockResolvedValue(undefined);
-vi.mock('@/lib/qz', () => ({
+vi.mock('@/lib/printConnector', () => ({
   printRaw: (...args) => printRawMock(...args),
 }));
 

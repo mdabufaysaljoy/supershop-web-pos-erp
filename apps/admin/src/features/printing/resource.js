@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { api, apiData } from '@/lib/apiClient';
 import { errorMessage } from '@/lib/i18n';
-import { printRaw } from '@/lib/qz';
+import { printRaw } from '@/lib/printConnector';
 
 /**
  * Printing from the admin (P6.3 & P6.4): the API decides what a receipt or label says and which

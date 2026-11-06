@@ -6,7 +6,10 @@ import * as service from './printing.service.js';
 
 export const status = async (_req, res) => sendData(res, service.printingStatus());
 
-/** QZ Tray asks for this first; it is the shop's public certificate. */
+/**
+ * The print agent asks for this first: QZ Tray gets the shop's public certificate, NanoPrint gets
+ * the shop's name for the one-off permission prompt it shows the cashier.
+ */
 export const certificate = async (_req, res) => {
   res.type('text/plain').send(service.getCertificate());
 };

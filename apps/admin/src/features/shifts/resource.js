@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { api, apiData } from '@/lib/apiClient';
 import { errorMessage } from '@/lib/i18n';
-import { printRaw } from '@/lib/qz';
+import { printRaw } from '@/lib/printConnector';
 
 /**
  * Till shifts (P6.5): opening float, cash in/out, X-report during the day, and closing count with

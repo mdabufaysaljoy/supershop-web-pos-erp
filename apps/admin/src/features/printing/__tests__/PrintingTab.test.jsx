@@ -7,13 +7,17 @@ import { useAuthStore } from '@/features/auth/store';
 import { SettingsPage } from '@/features/settings/pages/SettingsPage';
 import { json, mockFetch } from '@/test/fetchMock';
 
-/** P6.4 — Settings → Printing: QZ setup, printer profiles, receipt & label template editors. */
+/**
+ * P6.4 — Settings → Printing: the print agent (QZ Tray or NanoPrint), printer profiles, and the
+ * receipt & label template editors.
+ */
 const bodyOf = (m, key) => JSON.parse(m.calls.filter((c) => c.key === key).at(-1).init.body);
 
 const SETTINGS = [
   { key: 'store.name', group: 'general', value: 'Supershop', editable: true },
   { key: 'tax.vatNumber', group: 'tax', value: '300000000000003', editable: true },
   { key: 'printing.enabled', group: 'printing', value: true, editable: true },
+  { key: 'printing.engine', group: 'printing', value: 'qz', editable: true },
   { key: 'printing.autoPrintReceipt', group: 'printing', value: true, editable: true },
   {
     key: 'printing.qzCertificate',
@@ -95,7 +99,7 @@ const TEMPLATES = {
   },
 };
 
-function setup(permissions = ['settings.view', 'settings.printing'], extraRoutes = {}) {
+function setup(permissions = ['settings.view', 'settings.printing'], extraRoutes = {}, over = {}) {
   useAuthStore.setState({
     status: 'authenticated',
     accessToken: 't',
@@ -104,11 +108,18 @@ function setup(permissions = ['settings.view', 'settings.printing'], extraRoutes
   });
   const m = mockFetch({
     'GET /api/v1/printing/status': json(200, {
-      data: { enabled: true, autoPrintReceipt: true, configured: true },
+      data: {
+        enabled: true,
+        autoPrintReceipt: true,
+        engine: 'qz',
+        connectorName: 'Supershop',
+        configured: true,
+        ...(over.status ?? {}),
+      },
     }),
     'GET /api/v1/printing/profiles': json(200, { data: PROFILES }),
     'GET /api/v1/printing/templates': json(200, { data: TEMPLATES }),
-    'GET /api/v1/settings': json(200, { data: SETTINGS }),
+    'GET /api/v1/settings': json(200, { data: over.settings ?? SETTINGS }),
     ...extraRoutes,
   });
   render(
@@ -142,6 +153,46 @@ describe('Settings → Printing (P6.4)', () => {
     const labelPreview = screen.getByTestId('label-preview');
     expect(within(labelPreview).getByText('Oxford Shirt')).toBeInTheDocument();
     expect(within(labelPreview).getByText('58 × 30 mm')).toBeInTheDocument();
+  });
+
+  it('switches the shop to NanoPrint, and then asks for no keys at all', async () => {
+    const user = userEvent.setup();
+    const m = setup(['settings.view', 'settings.printing'], {
+      'PATCH /api/v1/settings': json(200, { data: SETTINGS }),
+    });
+    await screen.findByText('Front till');
+
+    // QZ Tray is the default, so its keys are on the page.
+    expect(screen.getByLabelText('QZ Tray private key (PEM)')).toBeInTheDocument();
+
+    await user.selectOptions(
+      screen.getByLabelText('Print agent on the counter machine'),
+      'nanoprint',
+    );
+    await waitFor(() => expect(m.count('PATCH /api/v1/settings')).toBe(1));
+    expect(bodyOf(m, 'PATCH /api/v1/settings')).toEqual({
+      changes: [{ key: 'printing.engine', value: 'nanoprint' }],
+    });
+  });
+
+  it('shows NanoPrint as ready with nothing to set up, and hides the QZ keys', async () => {
+    setup(
+      ['settings.view', 'settings.printing'],
+      {},
+      {
+        status: { engine: 'nanoprint', configured: true },
+        settings: SETTINGS.map((s) =>
+          s.key === 'printing.engine' ? { ...s, value: 'nanoprint' } : s,
+        ),
+      },
+    );
+    expect(await screen.findByText('Ready')).toBeInTheDocument();
+    expect(screen.getByText(/Nothing to configure/)).toBeInTheDocument();
+    expect(screen.queryByLabelText('QZ Tray private key (PEM)')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('QZ Tray public certificate (PEM)')).not.toBeInTheDocument();
+    // The receipt and label editors are untouched by the choice of agent.
+    expect(screen.getByText('Receipt template')).toBeInTheDocument();
+    expect(screen.getByText('Barcode label template')).toBeInTheDocument();
   });
 
   it('adds a printer profile', async () => {

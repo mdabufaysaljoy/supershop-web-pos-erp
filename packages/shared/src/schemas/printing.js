@@ -9,11 +9,17 @@ import { V } from '../validators/messages.js';
 import { objectId, plainText } from '../validators/fields.js';
 
 /**
- * Printing contracts (P6.3, P6.4): the printers a shop has, the signing call QZ Tray makes before
- * it will talk to them, and the receipt & barcode label templates.
+ * Printing contracts (P6.3, P6.4): the printers a shop has, the signing call the print engine
+ * makes before it will talk to them, and the receipt & barcode label templates.
  */
 export const PRINTING = Object.freeze({
   KINDS: Object.freeze(['receipt', 'label']),
+  /**
+   * The local agent that carries a job from the browser to the printer beside the till. Both
+   * speak the same wire protocol, so the shop picks one and nothing else changes: QZ Tray signs
+   * every call with the shop's own key, NanoPrint asks the cashier once per site instead.
+   */
+  ENGINES: Object.freeze(['qz', 'nanoprint']),
   WIDTHS_MM: PAPER.WIDTHS_MM,
   RECEIPT_LANGUAGES,
   LABEL_WIDTH_MIN: 20,
@@ -105,7 +111,7 @@ export function createPrintingSchemas() {
       .partial()
       .strict()
       .refine((v) => Object.keys(v).length > 0, { error: V.REQUIRED }),
-    /** What QZ Tray asks the shop's own server to sign. */
+    /** What QZ Tray asks the shop's own server to sign (NanoPrint needs no signature). */
     sign: z
       .object({ data: z.string({ error: V.INVALID_TYPE }).min(1).max(PRINTING.SIGN_MAX) })
       .strict(),

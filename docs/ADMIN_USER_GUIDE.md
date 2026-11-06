@@ -178,14 +178,20 @@ To prevent cash shrinkage and protect cashiers:
 
 ## 5. Hardware, Thermal Receipts & Barcode Label Printing
 
-Supershop communicates directly with ESC/POS thermal printers and label printers using the **QZ Tray** hardware bridge.
+Supershop communicates directly with ESC/POS thermal printers and label printers through a small **print agent** installed on the cashier workstation. Two agents are supported, and the shop picks one in **Settings → Printing** — receipts and labels print identically either way:
 
-### 5.1 QZ Tray Setup & Cryptographic Signing
+| Agent         | What it needs                                          | Best for                                                  |
+| ------------- | ------------------------------------------------------ | --------------------------------------------------------- |
+| **QZ Tray**   | A certificate and private key pair, pasted in Settings | Shops that want every print job cryptographically signed  |
+| **NanoPrint** | Nothing — the cashier allows the site once             | Shops that would rather not generate and manage key pairs |
 
-1. Install **QZ Tray** on cashier workstations.
-2. In the Admin Panel, navigate to **Settings → Printing**.
-3. **Security Architecture:** The shop's private key never resides in the browser. When QZ Tray requests signature verification, the admin client requests a cryptographic signature from `POST /api/v1/printing/sign` using the store's AES-256 encrypted private key.
-4. Set **Auto-Print Receipts** to `true` to immediately trigger receipt printing upon finalizing sales.
+### 5.1 Print Agent Setup
+
+1. Install **QZ Tray** or **NanoPrint** on cashier workstations.
+2. In the Admin Panel, navigate to **Settings → Printing** and choose that agent under **Print agent on the counter machine**.
+3. **QZ Tray — security architecture:** The shop's private key never resides in the browser. When QZ Tray requests signature verification, the admin client requests a cryptographic signature from `POST /api/v1/printing/sign` using the store's AES-256 encrypted private key.
+4. **NanoPrint — permission instead of keys:** NanoPrint signs nothing. The first time this screen prints, NanoPrint asks the cashier to allow the site; tick _remember_ and it will not ask again. Access can be revoked later in NanoPrint's own panel. There are no certificate or key fields to fill in.
+5. Set **Auto-Print Receipts** to `true` to immediately trigger receipt printing upon finalizing sales.
 
 ### 5.2 Thermal Receipt Customization & ZATCA QR
 
@@ -527,7 +533,7 @@ tools/ops/restore.sh /var/backups/supershop/backup_20261018_120000 --confirm
 ### 17.1 Morning Opening Checklist (Cashiers & Supervisors)
 
 - [ ] Turn on POS terminal and barcode scanner.
-- [ ] Launch **QZ Tray**; verify green indicator icon in system tray.
+- [ ] Launch the chosen print agent (**QZ Tray** or **NanoPrint**); verify its indicator icon in the system tray, and for NanoPrint that the admin site is allowed.
 - [ ] Log in to Admin Panel (`/pos`).
 - [ ] Click **Open Shift**; count opening cash drawer float and record amount.
 - [ ] Verify thermal receipt printer has sufficient paper roll. Print a test receipt if needed.
@@ -557,17 +563,17 @@ tools/ops/restore.sh /var/backups/supershop/backup_20261018_120000 --confirm
 
 ### 17.4 Common Error Codes & Troubleshooting
 
-| Error Code                    | Root Cause                                                         | Staff Resolution                                                                           |
-| :---------------------------- | :----------------------------------------------------------------- | :----------------------------------------------------------------------------------------- |
-| `SHIFT_NOT_OPEN`              | Attempting to process a sale without an open shift.                | Click **Open Shift** on the till and enter opening float.                                  |
-| `SHIFT_ALREADY_OPEN`          | Cashier already has an active open shift.                          | Resume existing shift or close the previous shift.                                         |
-| `SHIFT_DISCREPANCY_TOO_LARGE` | Cash discrepancy exceeds `pos.shiftMaxDiscrepancy`.                | Request a manager with `shift.view` permission to authorize and close the shift.           |
-| `RETURN_QTY_EXCEEDED`         | Return quantity exceeds original purchased quantity.               | Check order history; item was already partially or fully returned.                         |
-| `EXCHANGE_VALUE_TOO_LOW`      | Exchange replacement value is lower than return credit.            | Customer must select replacement items equal to or exceeding returned credit value.        |
-| `ORDER_NOT_RETURNABLE`        | Order status does not permit returns (e.g., cancelled or pending). | Returns can only be booked against `completed`, `shipped`, or `partially_returned` orders. |
-| `BRANCH_SCOPE_DENIED`         | Staff member attempted to access another branch's data.            | Switch to your assigned branch or request HQ multi-branch permissions.                     |
-| `SLUG_TAKEN`                  | Attempting to assign an existing URL slug.                         | Modify category or page slug to ensure uniqueness.                                         |
-| `QZ Tray Connection Failed`   | Hardware bridge is not running on cashier PC.                      | Start QZ Tray desktop app; ensure SSL certificate is trusted.                              |
+| Error Code                    | Root Cause                                                         | Staff Resolution                                                                                                                                                    |
+| :---------------------------- | :----------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SHIFT_NOT_OPEN`              | Attempting to process a sale without an open shift.                | Click **Open Shift** on the till and enter opening float.                                                                                                           |
+| `SHIFT_ALREADY_OPEN`          | Cashier already has an active open shift.                          | Resume existing shift or close the previous shift.                                                                                                                  |
+| `SHIFT_DISCREPANCY_TOO_LARGE` | Cash discrepancy exceeds `pos.shiftMaxDiscrepancy`.                | Request a manager with `shift.view` permission to authorize and close the shift.                                                                                    |
+| `RETURN_QTY_EXCEEDED`         | Return quantity exceeds original purchased quantity.               | Check order history; item was already partially or fully returned.                                                                                                  |
+| `EXCHANGE_VALUE_TOO_LOW`      | Exchange replacement value is lower than return credit.            | Customer must select replacement items equal to or exceeding returned credit value.                                                                                 |
+| `ORDER_NOT_RETURNABLE`        | Order status does not permit returns (e.g., cancelled or pending). | Returns can only be booked against `completed`, `shipped`, or `partially_returned` orders.                                                                          |
+| `BRANCH_SCOPE_DENIED`         | Staff member attempted to access another branch's data.            | Switch to your assigned branch or request HQ multi-branch permissions.                                                                                              |
+| `SLUG_TAKEN`                  | Attempting to assign an existing URL slug.                         | Modify category or page slug to ensure uniqueness.                                                                                                                  |
+| `QZ Tray Connection Failed`   | The print agent is not running on the cashier PC.                  | Start QZ Tray (or NanoPrint, if that is the chosen agent); for QZ Tray ensure the SSL certificate is trusted, for NanoPrint that this site is allowed in its panel. |
 
 ---
 

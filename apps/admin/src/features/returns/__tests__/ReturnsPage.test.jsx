@@ -8,7 +8,7 @@ import { json, mockFetch } from '@/test/fetchMock';
 import { ReturnsPage } from '../pages/ReturnsPage';
 
 const printRawMock = vi.fn().mockResolvedValue(undefined);
-vi.mock('@/lib/qz', () => ({
+vi.mock('@/lib/printConnector', () => ({
   printRaw: (...args) => printRawMock(...args),
 }));
 

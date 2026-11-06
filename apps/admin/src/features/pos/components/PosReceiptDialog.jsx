@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { usePrintingStatus, usePrintReceipt } from '@/features/printing/resource';
 import { useSettings } from '@/features/settings/hooks';
 import { fmt } from '@/lib/format';
+import { soldMoney } from '../soldFigures';
 
 /**
  * Modern POS Receipt Dialog matching exact physical thermal layout:
@@ -193,10 +194,10 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
                     <div className="text-xs font-bold text-slate-900">{item.name}</div>
                     <div className="flex items-baseline justify-between text-[11px] text-slate-600">
                       <span>
-                        {item.qty} × {fmt.money(item.unitPrice)}
+                        {item.qty} × {soldMoney(fmt, item.unitPrice)}
                       </span>
                       <span className="font-bold tabular-nums text-slate-900">
-                        {fmt.money(item.lineTotal)}
+                        {soldMoney(fmt, item.lineTotal)}
                       </span>
                     </div>
                   </li>
@@ -211,7 +212,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
               <div className="flex justify-between text-[11px]">
                 <span className="text-slate-500">Subtotal:</span>
                 <span className="tabular-nums font-medium">
-                  {fmt.money(order.totals?.subtotal ?? order.totals?.total)}
+                  {soldMoney(fmt, order.totals?.subtotal ?? order.totals?.total)}
                 </span>
               </div>
 
@@ -219,7 +220,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
                 <div className="flex justify-between text-[11px] text-rose-600">
                   <span>Discount:</span>
                   <span className="tabular-nums font-medium">
-                    -{fmt.money(order.totals.discountTotal)}
+                    -{soldMoney(fmt, order.totals.discountTotal)}
                   </span>
                 </div>
               )}
@@ -227,13 +228,15 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
               <div className="flex justify-between text-[11px]">
                 <span className="text-slate-500">VAT (15%):</span>
                 <span className="tabular-nums font-medium">
-                  {fmt.money(order.totals?.vat ?? 0)}
+                  {soldMoney(fmt, order.totals?.vat)}
                 </span>
               </div>
 
               <div className="flex justify-between items-baseline pt-1 border-t border-slate-200 text-sm font-black text-slate-900">
                 <span>TOTAL:</span>
-                <span className="tabular-nums text-base">{fmt.money(order.totals?.total)}</span>
+                <span className="tabular-nums text-base">
+                  {soldMoney(fmt, order.totals?.total)}
+                </span>
               </div>
 
               {/* Payments Tendered */}
@@ -246,7 +249,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
                         {p.reference ? ` - ${p.reference}` : ''}):
                       </span>
                       <span className="tabular-nums font-semibold text-slate-800">
-                        {fmt.money(p.amount)}
+                        {soldMoney(fmt, p.amount)}
                       </span>
                     </div>
                   ))}
@@ -257,7 +260,7 @@ export function PosReceiptDialog({ open, onOpenChange, order, cashierName, branc
               {Boolean(order.changeGiven) && (
                 <div className="flex justify-between text-[11px] font-bold text-emerald-700">
                   <span>Change:</span>
-                  <span className="tabular-nums">{fmt.money(order.changeGiven)}</span>
+                  <span className="tabular-nums">{soldMoney(fmt, order.changeGiven)}</span>
                 </div>
               )}
             </div>

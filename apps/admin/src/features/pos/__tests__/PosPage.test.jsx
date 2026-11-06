@@ -788,7 +788,13 @@ describe('catalogue and filtering', () => {
           return json(200, { data: quoteFor(qty, gross - off) });
         },
         'POST /api/v1/pos/sales': json(201, {
-          data: { id: 'o-free', orderNo: 'POS-000100', totals: { total: 0 }, payments: [] },
+          data: {
+            id: 'o-free',
+            orderNo: 'POS-000100',
+            totals: { total: 0 },
+            changeGiven: 0,
+            payments: [],
+          },
         }),
       },
       permissions: ['pos.sell', 'pos.discount'],
@@ -807,6 +813,54 @@ describe('catalogue and filtering', () => {
       JSON.parse(m.calls.filter((c) => c.key === 'POST /api/v1/pos/sales').at(-1).init.body)
         .payments,
     ).toEqual([]);
+  });
+
+  it('still shows the sale as done when the server leaves the change out', async () => {
+    const user = userEvent.setup();
+    const m = setup({
+      routes: {
+        // The sale is committed and the money is in the till; a figure missing from the response
+        // must not blank the till and take the receipt button with it.
+        'POST /api/v1/pos/sales': json(201, {
+          data: {
+            id: 'o-thin',
+            orderNo: 'POS-000101',
+            payments: [{ method: 'cash', amount: 11_500 }],
+          },
+        }),
+      },
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.click(screen.getByRole('button', { name: /Exact amount/ }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+
+    await waitFor(() => expect(m.count('POST /api/v1/pos/sales')).toBe(1));
+    expect(await screen.findByText(/POS-000101/)).toBeInTheDocument();
+  });
+
+  it('names the change only when there is change to give', async () => {
+    const user = userEvent.setup();
+    setup({
+      routes: {
+        'POST /api/v1/pos/sales': json(201, {
+          data: {
+            id: 'o-change',
+            orderNo: 'POS-000102',
+            totals: { total: 11_500 },
+            changeGiven: 3500,
+            payments: [{ method: 'cash', amount: 15_000 }],
+          },
+        }),
+      },
+    });
+    await addShirt(user);
+    await toPay('SAR 115.00');
+    await user.type(screen.getByLabelText('Amount'), '150');
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+    await user.click(screen.getByRole('button', { name: 'Complete sale' }));
+
+    expect(await screen.findByText(/change SAR 35\.00/)).toBeInTheDocument();
   });
 
   it('takes a percentage off the basket as a percentage, not as money', async () => {

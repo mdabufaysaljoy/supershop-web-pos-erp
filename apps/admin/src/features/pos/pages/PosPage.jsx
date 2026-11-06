@@ -34,6 +34,7 @@ import {
 import { useActiveBranchStore } from '@/features/branches/activeBranch';
 import { customerPayload } from '../saleStorage';
 import { useSale } from '../useSale';
+import { minorOrZero } from '../soldFigures';
 
 /**
  * Modern 4-Column POS Workspace (Non-scrollable):
@@ -326,6 +327,10 @@ export function PosPage() {
       printReceipt.mutate({ orderId: result.id });
   };
 
+  // The figures of a sale that is already committed, read tolerantly (see `soldFigures.js`).
+  const doneTotal = minorOrZero(done?.totals?.total);
+  const doneChange = minorOrZero(done?.changeGiven);
+
   if (branches.isPending) return <Skeleton className="h-96" />;
 
   return (
@@ -353,10 +358,10 @@ export function PosPage() {
       {done && (
         <Alert className="shrink-0 flex flex-wrap items-center gap-3 bg-emerald-50 border-emerald-200 text-emerald-950 py-2">
           <span className="flex-1 font-medium text-xs">
-            {t('pos.done', {
+            {t(doneChange > 0 ? 'pos.done' : 'pos.doneNoChange', {
               orderNo: done.orderNo,
-              total: fmt.money(done.totals.total),
-              change: fmt.money(done.changeGiven),
+              total: fmt.money(doneTotal),
+              change: fmt.money(doneChange),
             })}
           </span>
           <Button

@@ -2195,6 +2195,7 @@
     "offline": "No connection. The basket is kept and can be held, but a sale cannot be rung up until it is back.",
     "pricingFailed": "Prices could not be checked just now — the totals shown may be out of date.",
     "done": "Sold: {{orderNo}} · {{total}} · change {{change}}",
+    "doneNoChange": "Sold: {{orderNo}} · {{total}}",
     "search": {
       "label": "Scan or search",
       "placeholder": "Barcode, SKU or product name",
